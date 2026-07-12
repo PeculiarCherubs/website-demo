@@ -56,18 +56,6 @@
         "href": "sermons.html"
       },
       "scrollText": "Scroll to discover more ↓",
-      "themes": {
-        "year": {
-          "label": "2026 Theme",
-          "title": "Our Year of Great Mercies",
-          "scripture": ""
-        },
-        "month": {
-          "label": "Theme for the Month",
-          "title": "Add Monthly Theme Here",
-          "scripture": ""
-        }
-      },
       "slides": [
         {
           "image": "assets/hero/Senior-Pastor.jpg",
@@ -106,6 +94,18 @@
           "alt": "Cherubim and Seraphim Movement Church identity"
         }
       ]
+    },
+    "themes": {
+      "year": {
+        "label": "2026 Theme",
+        "title": "Our Year of Great Mercies",
+        "scripture": ""
+      },
+      "month": {
+        "label": "Theme for the Month",
+        "title": "Month of Divine Revelation",
+        "scripture": ""
+      }
     },
     "identity": {
       "eyebrow": "Who we are",
