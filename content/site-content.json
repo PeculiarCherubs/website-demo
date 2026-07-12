@@ -58,15 +58,39 @@
       "scrollText": "Scroll to discover more ↓",
       "slides": [
         {
-          "image": "assets/hero/senior-pastor-preaching.jpg",
+          "image": "assets/hero/Senior-Pastor.jpg",
           "alt": "Senior Pastor ministering during a church service"
         },
         {
-          "image": "assets/hero/pdcm-brand.jpg",
-          "alt": "Peculiar Disciples of Christ Ministry identity"
+          "image": "assets/hero/PDCM-English.jpg",
+          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
+        },
+        {
+          "image": "assets/hero/Peculiar-People1.jpg",
+          "alt": "Cherubim and Seraphim Movement Church identity"
         },
         {
           "image": "assets/hero/mother-church-brand.jpg",
+          "alt": "Senior Pastor ministering during a church service"
+        },
+        {
+          "image": "assets/hero/Peculiar-Peoiple2.jpg",
+          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
+        },
+        {
+          "image": "assets/hero/Bible-College1.jpg",
+          "alt": "Cherubim and Seraphim Movement Church identity"
+        },
+        {
+          "image": "assets/hero/Peculiar-People5.jpg",
+          "alt": "Senior Pastor ministering during a church service"
+        },
+        {
+          "image": "assets/hero/Peculiar-People3.jpg",
+          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
+        },
+        {
+          "image": "assets/hero/Peculiar People4.jpg",
           "alt": "Cherubim and Seraphim Movement Church identity"
         }
       ]
