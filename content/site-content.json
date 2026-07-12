@@ -1,0 +1,579 @@
+{
+  "site": {
+    "shortName": "Peculiar Cherubs",
+    "fullName": "Cherubim and Seraphim Movement Church, Center for Deliverance through Evangelism",
+    "tagline": "Built for faith, family and impact.",
+    "copyrightYear": "2026",
+    "serviceTimes": {
+      "sunday": "Sunday Worship — 9:00 AM",
+      "midweek": "Shiloh Service — Wednesday, 6:00 PM"
+    },
+    "logo": "assets/logos/mother-church.png"
+  },
+  "navigation": [
+    {
+      "label": "ABOUT",
+      "href": "about.html"
+    },
+    {
+      "label": "PDCMs",
+      "href": "pdcms.html"
+    },
+    {
+      "label": "SERMONS",
+      "href": "sermons.html"
+    },
+    {
+      "label": "PUBLICATIONS",
+      "href": "publications.html"
+    },
+    {
+      "label": "BIBLE COLLEGE",
+      "href": "bible-college.html"
+    },
+    {
+      "label": "QUICK LINKS",
+      "href": "quick-links.html"
+    },
+    {
+      "label": "GIVE",
+      "href": "give.html",
+      "className": "nav-give"
+    }
+  ],
+  "home": {
+    "hero": {
+      "badge": "One Altar · One Church · One Mission",
+      "title": "Rooted in Christ.",
+      "highlight": "Raised for impact.",
+      "description": "Welcome to Cherubim and Seraphim Movement Church, Center for Deliverance through Evangelism — known as Peculiar Cherubs. We are a growing family committed to worship, prayer, discipleship, evangelism, and transformed lives through Jesus Christ.",
+      "primaryButton": {
+        "label": "Find a Chapel",
+        "href": "pdcms.html"
+      },
+      "secondaryButton": {
+        "label": "Watch Sermons",
+        "href": "sermons.html"
+      },
+      "scrollText": "Scroll to discover more ↓",
+      "slides": [
+        {
+          "image": "assets/hero/senior-pastor-preaching.jpg",
+          "alt": "Senior Pastor ministering during a church service"
+        },
+        {
+          "image": "assets/hero/pdcm-brand.jpg",
+          "alt": "Peculiar Disciples of Christ Ministry identity"
+        },
+        {
+          "image": "assets/hero/mother-church-brand.jpg",
+          "alt": "Cherubim and Seraphim Movement Church identity"
+        }
+      ]
+    },
+    "identity": {
+      "eyebrow": "Who we are",
+      "title": "A church family for every generation.",
+      "description": "We exist to help people know Christ, grow in truth, discover purpose, and live as His disciples in everyday life.",
+      "cards": [
+        {
+          "icon": "✦",
+          "title": "Encounter God",
+          "text": "Worship, prayer, and the Word create room for genuine encounters with Jesus."
+        },
+        {
+          "icon": "◎",
+          "title": "Grow Together",
+          "text": "We build strong communities where people are known, nurtured, and equipped."
+        },
+        {
+          "icon": "↗",
+          "title": "Live on Mission",
+          "text": "Every believer is empowered to serve, lead, and bring hope to the world."
+        }
+      ]
+    },
+    "pastor": {
+      "eyebrow": "Our Senior Pastor",
+      "title": "Leading with faith, wisdom, and a heart for people.",
+      "text": "Our Senior Pastor provides spiritual leadership to Peculiar Cherubs and its PDCM chapels, faithfully teaching the Word, nurturing believers, and advancing the vision of deliverance through evangelism.",
+      "name": "Pastor’s Name",
+      "role": "Senior Pastor, Peculiar Cherubs",
+      "image": "assets/people/senior-pastor.jpg",
+      "linkLabel": "Read more about our leadership",
+      "linkHref": "about.html"
+    },
+    "testimonials": {
+      "eyebrow": "Our Testimonials",
+      "title": "Stories of grace and transformed lives.",
+      "description": "Real stories from people who have encountered God through the ministry and community of Peculiar Cherubs.",
+      "items": [
+        {
+          "quote": "Through the prayers, teaching, and love I received here, my faith became stronger and my family experienced a new beginning.",
+          "name": "Member Name",
+          "chapel": "PDCM English Chapel"
+        },
+        {
+          "quote": "I came seeking direction and found a spiritual family. The Word helped me understand my purpose and walk confidently with God.",
+          "name": "Member Name",
+          "chapel": "PDCM Gwarimpa Chapel",
+          "featured": true
+        },
+        {
+          "quote": "The youth chapel gave me a place to worship freely, serve with my gifts, and grow alongside other young believers.",
+          "name": "Member Name",
+          "chapel": "PDCM Mega Youth Chapel"
+        }
+      ]
+    }
+  },
+  "about": {
+    "hero": {
+      "eyebrow": "About us",
+      "title": "Forming disciples.\nTransforming lives.",
+      "description": "Peculiar Cherubs is a Christ-centred church family devoted to raising believers who know God, live His Word, and reflect His love."
+    },
+    "story": {
+      "eyebrow": "Our story",
+      "title": "A people called to be peculiar.",
+      "paragraphs": [
+        "We believe the church is more than a building. It is a living family of people called out of darkness into the marvellous light of Christ.",
+        "Across every PDCM chapel, our focus remains the same: authentic worship, sound teaching, intentional discipleship, compassionate service, and kingdom impact."
+      ],
+      "quote": "You are a chosen generation, a royal priesthood, a holy nation, a peculiar people."
+    },
+    "values": [
+      {
+        "title": "Christ Above All",
+        "text": "Jesus is the centre of our message, worship, mission, and identity."
+      },
+      {
+        "title": "Word and Spirit",
+        "text": "We are grounded in Scripture and dependent on the Holy Spirit."
+      },
+      {
+        "title": "People Matter",
+        "text": "Every person is seen, valued, loved, and invited into community."
+      },
+      {
+        "title": "Purposeful Service",
+        "text": "We use our gifts to strengthen the church and bless the world."
+      }
+    ]
+  },
+  "chapels": {
+    "hero": {
+      "eyebrow": "PDCM Chapels",
+      "title": "One Altar.\nOne Church.",
+      "description": "Each PDCM chapel carries the vision of Peculiar Cherubs while serving the spiritual and practical needs of its immediate community."
+    },
+    "current": [
+      {
+        "name": "PDCM English Chapel",
+        "subtitle": "Governors Assembly",
+        "status": "Current Chapel",
+        "logo": "assets/logos/pdcm-english.png"
+      },
+      {
+        "name": "PDCM Gwarimpa Chapel",
+        "subtitle": "A local worship and discipleship community under Peculiar Cherubs.",
+        "status": "Current Chapel",
+        "logo": "assets/logos/pdcm-generic.png"
+      },
+      {
+        "name": "PDCM Byazhin Chapel",
+        "subtitle": "Serving believers and families through worship, prayer, and evangelism.",
+        "status": "Current Chapel",
+        "logo": "assets/logos/pdcm-byazhin.png"
+      },
+      {
+        "name": "PDCM Mega Youth Chapel",
+        "subtitle": "A youth-centred chapel raising disciples, worshippers, and kingdom leaders.",
+        "status": "Current Chapel",
+        "logo": "assets/logos/pdcm-generic.png"
+      }
+    ],
+    "upcoming": [
+      {
+        "name": "PDCM Gwagwalada",
+        "text": "Coming soon as a new expression of Peculiar Cherubs.",
+        "logo": "assets/logos/pdcm-generic.png"
+      },
+      {
+        "name": "PDCM Bwari",
+        "text": "Coming soon to extend worship, discipleship, and evangelism.",
+        "logo": "assets/logos/pdcm-generic.png"
+      }
+    ]
+  },
+  "sermons": {
+    "hero": {
+      "eyebrow": "Sermons",
+      "title": "Truth for life.\nFaith for the journey.",
+      "description": "Watch, listen, and grow through messages from across the Peculiar Cherubs family."
+    },
+    "items": [
+      {
+        "category": "Faith Series",
+        "title": "Grace for the Journey",
+        "speaker": "Pastor Name",
+        "duration": "42 min",
+        "image": "https://images.unsplash.com/photo-1491396023581-4344e51fec5c?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        "category": "Discipleship",
+        "title": "Built on the Rock",
+        "speaker": "Pastor Name",
+        "duration": "51 min",
+        "image": "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        "category": "Prayer",
+        "title": "Mercy for Direction",
+        "speaker": "Pastor Name",
+        "duration": "37 min",
+        "image": "https://images.unsplash.com/photo-1548625361-58a9b86aa83b?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        "category": "Identity",
+        "title": "A Peculiar People",
+        "speaker": "Pastor Name",
+        "duration": "45 min",
+        "image": "https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        "category": "Kingdom Living",
+        "title": "Living as Light",
+        "speaker": "Pastor Name",
+        "duration": "39 min",
+        "image": "https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        "category": "Worship",
+        "title": "The Sound of Surrender",
+        "speaker": "Pastor Name",
+        "duration": "48 min",
+        "image": "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=900&q=80"
+      }
+    ]
+  },
+  "publications": {
+    "hero": {
+      "eyebrow": "Publications",
+      "title": "Read. Reflect.\nGrow.",
+      "description": "Explore Daily Morning Devotion, Goodnews This Week, Sunday School Outline, church news, teaching resources, and ministry updates from Peculiar Cherubs."
+    },
+    "dailyDevotion": {
+      "type": "Daily Morning Devotion",
+      "title": "Start the day in God’s presence.",
+      "text": "A daily scripture, reflection, and prayer to help you begin each morning rooted in God’s Word.",
+      "button": "Read Today’s Devotion",
+      "href": "#"
+    },
+    "latestGoodnews": {
+      "eyebrow": "Latest edition",
+      "heading": "Stay informed and encouraged.",
+      "supportingText": "Upload each weekly edition as a PDF or link it to an online reader.",
+      "coverTop": "Peculiar Cherubs",
+      "coverTitle": "Goodnews\nThis Week",
+      "coverBottom": "Latest Edition",
+      "label": "Weekly Publication",
+      "title": "Church news, devotion, and updates.",
+      "text": "Read the latest issue and browse previous editions from the publication archive.",
+      "button": "Read Latest Edition",
+      "href": "#"
+    },
+    "archive": [
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 01",
+        "status": "Latest edition",
+        "title": "Walking in Purpose",
+        "text": "Devotional insight, announcements, and ministry updates.",
+        "href": "#",
+        "theme": "yellow"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 02",
+        "status": "Archive",
+        "title": "Growing Through Prayer",
+        "text": "Encouragement, testimonies, and updates from the chapels.",
+        "href": "#",
+        "theme": "navy"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 03",
+        "status": "Archive",
+        "title": "Prepared for Impact",
+        "text": "Highlights from worship, teaching, and church programmes.",
+        "href": "#",
+        "theme": "red"
+      }
+    ],
+    "sundaySchool": {
+      "type": "Sunday School Outline",
+      "title": "This Week’s Lesson",
+      "text": "Study notes, lesson objectives, discussion questions, and scriptures for Sunday School.",
+      "button": "View Sunday School Outline",
+      "href": "#"
+    }
+  },
+  "quickLinks": {
+    "hero": {
+      "eyebrow": "Quick links",
+      "title": "Connect. Worship.\nStay informed.",
+      "description": "Access church information, weekly publications, services, events, prayer, and ways to connect with Peculiar Cherubs."
+    },
+    "links": [
+      {
+        "icon": "📰",
+        "title": "Goodnews This Week",
+        "text": "Read the church’s weekly publication.",
+        "href": "publications.html"
+      },
+      {
+        "icon": "▶",
+        "title": "Watch Live",
+        "text": "Join the latest service online.",
+        "href": "#"
+      },
+      {
+        "icon": "◉",
+        "title": "Prayer Request",
+        "text": "Share your prayer needs with us.",
+        "href": "#"
+      },
+      {
+        "icon": "↗",
+        "title": "Plan a Visit",
+        "text": "Find a chapel and service information.",
+        "href": "pdcms.html"
+      },
+      {
+        "icon": "✦",
+        "title": "Join a Team",
+        "text": "Serve with your gifts and skills.",
+        "href": "#"
+      },
+      {
+        "icon": "☏",
+        "title": "Contact Us",
+        "text": "Reach the church office or a chapel.",
+        "href": "#"
+      },
+      {
+        "icon": "⌁",
+        "title": "Events Calendar",
+        "text": "See upcoming church programmes.",
+        "href": "#"
+      }
+    ],
+    "events": [
+      {
+        "frequency": "Weekly",
+        "title": "Sunday Service",
+        "text": "Our regular Sunday worship gathering across the chapels."
+      },
+      {
+        "frequency": "Every Wednesday",
+        "title": "Shiloh Service",
+        "text": "A midweek service of prayer, worship, the Word, and spiritual renewal."
+      },
+      {
+        "frequency": "Annual",
+        "title": "Peculiar Cherubs Conference",
+        "text": "A major gathering for worship, teaching, fellowship, and renewal."
+      },
+      {
+        "frequency": "Annual",
+        "title": "Founder’s Day",
+        "text": "A celebration of the church’s heritage, vision, and founding legacy."
+      },
+      {
+        "frequency": "Annual",
+        "title": "Choir Fiesta",
+        "text": "A music and worship celebration featuring the church choir and invited ministers."
+      },
+      {
+        "frequency": "Annual",
+        "title": "Harvest",
+        "text": "A thanksgiving celebration of God’s faithfulness and provision."
+      }
+    ]
+  },
+  "give": {
+    "hero": {
+      "eyebrow": "Give",
+      "title": "Generosity that\nadvances the mission.",
+      "description": "Your giving supports worship, evangelism, discipleship, publications, outreach, church programmes, and the continued growth of PDCM chapels."
+    },
+    "why": {
+      "eyebrow": "Why we give",
+      "title": "Giving is worship.",
+      "description": "We give in gratitude to God and in partnership with the work He is doing through Peculiar Cherubs. Every gift helps the ministry serve people, share the gospel, and strengthen communities.",
+      "quote": "God loves a cheerful giver."
+    },
+    "options": [
+      {
+        "label": "Online Giving",
+        "href": "#"
+      },
+      {
+        "label": "Bank Transfer",
+        "href": "#"
+      },
+      {
+        "label": "Offering & Tithe",
+        "href": "#"
+      },
+      {
+        "label": "Special Projects",
+        "href": "#"
+      }
+    ]
+  },
+  "bibleCollege": {
+    "hero": {
+      "eyebrow": "Christian Heritage Bible School",
+      "title": "Grounded in truth.\nEquipped for ministry.",
+      "description": "Christian Heritage Bible School exists to help believers understand Scripture, grow in spiritual maturity, and become equipped for effective Christian service and leadership.",
+      "primaryButton": {
+        "label": "Register Now",
+        "href": "#registration"
+      },
+      "secondaryButton": {
+        "label": "Student Portal",
+        "href": "#student-portal"
+      }
+    },
+    "introduction": {
+      "eyebrow": "About the school",
+      "title": "Biblical education for purposeful Christian living.",
+      "description": "Whether you are preparing for ministry, strengthening your biblical foundation, or seeking deeper spiritual growth, Christian Heritage Bible School provides structured teaching, practical resources, and a supportive learning community."
+    },
+    "pathways": [
+      {
+        "icon": "✦",
+        "title": "Register",
+        "text": "Begin your application, review admission requirements, and submit your registration details.",
+        "button": "Start Registration",
+        "href": "#registration",
+        "theme": "navy"
+      },
+      {
+        "icon": "▶",
+        "title": "Take Classes",
+        "text": "Access current lessons, course materials, assignments, and class schedules.",
+        "button": "View Classes",
+        "href": "#classes",
+        "theme": "red"
+      },
+      {
+        "icon": "↻",
+        "title": "Catch Up",
+        "text": "Watch missed classes, download notes, and continue from where you stopped.",
+        "button": "Catch Up Now",
+        "href": "#catch-up",
+        "theme": "yellow"
+      }
+    ],
+    "courses": [
+      {
+        "code": "CHBS 101",
+        "title": "Foundations of Christian Faith",
+        "text": "An introduction to essential Christian doctrines, salvation, spiritual growth, and faithful discipleship."
+      },
+      {
+        "code": "CHBS 201",
+        "title": "Biblical Interpretation",
+        "text": "Learn responsible principles for studying, understanding, and applying Scripture."
+      },
+      {
+        "code": "CHBS 301",
+        "title": "Christian Leadership and Ministry",
+        "text": "Develop biblical leadership character, ministry skills, and a heart for serving people."
+      },
+      {
+        "code": "CHBS 401",
+        "title": "Evangelism and Missions",
+        "text": "Explore the biblical mandate for evangelism and practical approaches to sharing the gospel."
+      },
+      {
+        "code": "CHBS 501",
+        "title": "Prayer and Spiritual Formation",
+        "text": "Build a disciplined prayer life and cultivate habits that deepen your walk with God."
+      },
+      {
+        "code": "CHBS 601",
+        "title": "Church History and Heritage",
+        "text": "Study major movements, people, and events that have shaped the Christian faith."
+      }
+    ],
+    "studentServices": [
+      {
+        "icon": "▣",
+        "title": "Student Dashboard",
+        "text": "See enrolled courses, class progress, announcements, and upcoming deadlines."
+      },
+      {
+        "icon": "✓",
+        "title": "Assignments and Assessments",
+        "text": "Submit coursework, complete assessments, and review lecturer feedback."
+      },
+      {
+        "icon": "⌁",
+        "title": "Class Schedule",
+        "text": "View lecture dates, live-class links, academic calendar, and important notices."
+      },
+      {
+        "icon": "↓",
+        "title": "Learning Resources",
+        "text": "Download lecture notes, reading lists, outlines, recordings, and study guides."
+      },
+      {
+        "icon": "◎",
+        "title": "Academic Support",
+        "text": "Contact school administrators or lecturers when you need help with your studies."
+      },
+      {
+        "icon": "★",
+        "title": "Certificates and Records",
+        "text": "Request academic records and access completion or graduation information."
+      }
+    ],
+    "registration": {
+      "eyebrow": "Admissions",
+      "title": "Begin your Bible-school journey.",
+      "description": "Complete the registration process to join the next Christian Heritage Bible School session. Official dates, fees, entry requirements, and payment information can be added here.",
+      "steps": [
+        "Complete the registration form",
+        "Submit required personal information",
+        "Select your programme or courses",
+        "Receive confirmation and student-access details"
+      ],
+      "button": "Open Registration Form",
+      "href": "#"
+    },
+    "portal": {
+      "eyebrow": "Student Portal",
+      "title": "Continue your learning.",
+      "description": "Returning students can access classes, catch-up recordings, assignments, learning materials, announcements, and academic support.",
+      "buttons": [
+        {
+          "label": "Sign In to Portal",
+          "href": "#"
+        },
+        {
+          "label": "Catch Up on Classes",
+          "href": "#"
+        },
+        {
+          "label": "Download Course Materials",
+          "href": "#"
+        }
+      ]
+    }
+  }
+}
