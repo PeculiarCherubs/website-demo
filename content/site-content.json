@@ -55,7 +55,8 @@
         "label": "Watch Sermons",
         "href": "sermons.html"
       },
-      "scrollText": "Scroll to discover more ↓",
+      "scrollText": "Scroll to discover more ↓"
+	  
 	  "themes": {
 		  "year": {
 			  "label": "2026 Theme",
