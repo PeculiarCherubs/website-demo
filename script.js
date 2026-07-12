@@ -209,6 +209,16 @@ function renderHome(content) {
   if (quickLinks) {
     quickLinks.innerHTML = content.quickLinks.links.slice(2, 5).map(link => quickLinkCard(link)).join("");
   }
+  
+  const themes = content.home.themes;
+
+  setText("[data-year-theme-label]", themes.year.label);
+  setText("[data-year-theme-title]", themes.year.title);
+  setText("[data-year-theme-scripture]", themes.year.scripture);
+
+  setText("[data-month-theme-label]", themes.month.label);
+  setText("[data-month-theme-title]", themes.month.title);
+  setText("[data-month-theme-scripture]", themes.month.scripture);
 }
 
 function sermonCard(sermon) {
