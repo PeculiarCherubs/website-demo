@@ -3237,3 +3237,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
     flex-direction: column
   }
 }
+
+/* LECTIONARY FIX BUILD
+   The matching .lectionary-* styles are present in this file.
+   Keep this file named exactly styles.css beside publications.html. */

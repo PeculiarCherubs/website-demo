@@ -394,8 +394,25 @@ function renderPublications(content) {
   });
 
 
-  const lectionary = content.publications.lectionaryCalendar;
-  if (lectionary) {
+  const lectionary = content.publications?.lectionaryCalendar;
+  const lectionaryContainer = document.querySelector("[data-lectionary-readings]");
+
+  if (!lectionary) {
+    console.error("Lectionary data is missing at publications.lectionaryCalendar.");
+
+    if (lectionaryContainer) {
+      lectionaryContainer.innerHTML = `
+        <article class="lectionary-card">
+          <h3>Lectionary unavailable</h3>
+          <p>The lectionary data could not be found in content/site-content.json.</p>
+        </article>
+      `;
+    }
+
+    return;
+  }
+
+  {
     setText(
       "[data-lectionary-eyebrow]",
       lectionary.eyebrow
@@ -424,12 +441,14 @@ function renderPublications(content) {
       }
     );
 
-    const readings = document.querySelector(
-      "[data-lectionary-readings]"
-    );
+    const readings = lectionaryContainer;
 
     if (readings) {
-      readings.innerHTML = lectionary.readings
+      const readingItems = Array.isArray(lectionary.readings)
+        ? lectionary.readings
+        : [];
+
+      readings.innerHTML = readingItems
         .map(reading => `
           <article class="lectionary-card">
             <div class="lectionary-date">
