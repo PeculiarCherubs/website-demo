@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Quick Links | Peculiar Cherubs</title>
-  <meta name="description" content="Peculiar Cherubs">
+  <title>House Fellowship Centres | Peculiar Cherubs</title>
+  <meta name="description" content="Find Peculiar Cherubs House Fellowship Centres by name and area.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="quickLinks" data-content-loading="true">
+<body data-page="houseFellowships" data-content-loading="true" >
 <header class="site-header">
   <div class="container nav">
     <a class="brand" href="index.html">
@@ -27,36 +27,30 @@
 </header>
 
 <main>
-  <section class="page-hero branded-page-hero">
+  <section class="page-hero branded-page-hero house-fellowship-hero">
     <div class="page-hero-brand-mark" aria-hidden="true"></div>
     <div class="container">
-      <span class="eyebrow" data-page-hero-eyebrow></span>
-      <h1 data-page-hero-title></h1>
-      <p data-page-hero-description></p>
-    </div>
-  </section>
-
-  <section class="section section-soft">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Useful links</span>
-          <h2>Your next step starts here.</h2>
-        </div>
-      </div>
-      <div class="quick-grid" data-quick-links></div>
+      <span class="eyebrow">House Fellowship Centres</span>
+      <h1>Faith and fellowship<br>closer to home.</h1>
+      <p>Explore the current network of community-based House Fellowship Centres. Phone numbers are intentionally not published at this stage.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <div class="section-head">
+      <div class="house-directory-toolbar">
         <div>
-          <span class="eyebrow">Church calendar</span>
-          <h2>Regular services and major events.</h2>
+          <span class="eyebrow">Current directory</span>
+          <h2><span data-house-count></span> fellowship centres.</h2>
         </div>
+        <label class="house-search">
+          <span>Search by name or area</span>
+          <input type="search" data-house-search placeholder="e.g. Gwarinpa, Byazhin, Lugbe">
+        </label>
       </div>
-      <div class="grid-3" data-events-list></div>
+
+      <div class="house-directory-grid" data-house-directory></div>
+      <p class="house-empty-state" data-house-empty hidden>No fellowship centre matches your search.</p>
     </div>
   </section>
 </main>

@@ -2352,9 +2352,92 @@ body[data-page="chapels"] .page-hero-brand-mark {
   }
 }
 
-/* Yearly and monthly themes */
+
+/* ================================================================
+   DEVELOP FEATURE: Ministries
+   ================================================================ */
+
+/* Dropdown navigation */
+.nav-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-dropdown-trigger {
+  display: flex;
+  align-items: center;
+}
+
+.nav-submenu-toggle {
+  border: 0;
+  background: transparent;
+  color: var(--navy);
+  font: inherit;
+  font-size: 1rem;
+  padding: .35rem .15rem .35rem .35rem;
+  cursor: pointer;
+  transition: transform .2s ease, color .2s ease;
+}
+
+.nav-dropdown:hover .nav-submenu-toggle,
+.nav-dropdown:focus-within .nav-submenu-toggle,
+.nav-dropdown.submenu-open .nav-submenu-toggle {
+  color: var(--red);
+  transform: rotate(180deg);
+}
+
+.nav-submenu {
+  position: absolute;
+  top: calc(100% + 1rem);
+  left: -1rem;
+  z-index: 1000;
+  min-width: 310px;
+  max-height: min(70vh, 560px);
+  overflow: auto;
+  padding: .8rem;
+  border: 1px solid rgba(22, 34, 73, .1);
+  border-radius: 20px;
+  background: var(--white);
+  box-shadow: 0 24px 60px rgba(22, 34, 73, .18);
+  display: grid;
+  gap: .18rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity .2s ease, visibility .2s ease, transform .2s ease;
+}
+
+.nav-dropdown:hover .nav-submenu,
+.nav-dropdown:focus-within .nav-submenu,
+.nav-dropdown.submenu-open .nav-submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.nav-submenu a {
+  display: block;
+  padding: .72rem .85rem;
+  border-radius: 12px;
+  color: var(--navy);
+  font-size: .88rem;
+  line-height: 1.25;
+}
+
+.nav-submenu a::after {
+  display: none !important;
+}
+
+.nav-submenu a:hover,
+.nav-submenu a.active {
+  background: var(--sky);
+  color: var(--red);
+}
+
+/* Annual and monthly themes */
 .theme-section {
-  background: #ffffff;
+  background: var(--white)
 }
 
 .theme-grid {
@@ -2372,9 +2455,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+  transition: transform .25s ease, box-shadow .25s ease;
 }
 
 .theme-card::after {
@@ -2384,59 +2465,775 @@ body[data-page="chapels"] .page-hero-brand-mark {
   bottom: -65px;
   width: 250px;
   aspect-ratio: 1;
-  background: url("assets/logos/cross-radiance.png") center / contain no-repeat;
-  opacity: 0.1;
+  background: url("assets/logos/cross-radiance.png") center/contain no-repeat;
+  opacity: .1;
   pointer-events: none;
 }
 
 .theme-card:hover {
   transform: translateY(-7px);
-  box-shadow: 0 24px 52px rgba(22, 34, 73, 0.18);
+  box-shadow: 0 24px 52px rgba(22, 34, 73, .18);
 }
 
 .theme-year {
   background: var(--navy);
-  color: var(--white);
-}
-
-.theme-year h2,
-.theme-year p {
-  color: var(--white);
-}
-
-.theme-year p {
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.theme-year .eyebrow {
-  color: var(--yellow);
+  color: var(--white)
 }
 
 .theme-month {
   background: var(--red);
-  color: var(--white);
+  color: var(--white)
 }
 
+.theme-year h2,
+.theme-year p,
 .theme-month h2,
 .theme-month p {
+  color: var(--white)
+}
+
+.theme-year .eyebrow,
+.theme-month .eyebrow {
+  color: var(--yellow)
+}
+
+.theme-card p {
+  font-weight: 800;
+  letter-spacing: .03em
+}
+
+
+/* Calendar of Lectionary */
+.lectionary-section {
+  background: var(--white);
+}
+
+.lectionary-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem 1.8rem;
+  border-radius: 24px;
+  background: var(--navy);
+}
+
+.lectionary-toolbar h3 {
+  margin: 0;
+  color: var(--white);
+  font-size: 1.8rem;
+}
+
+.lectionary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.4rem;
+}
+
+.lectionary-card {
+  padding: 2rem;
+  border-radius: 28px;
+  background: var(--sky);
+  border: 1px solid rgba(22, 34, 73, 0.1);
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.lectionary-card:nth-child(3n + 1):hover {
+  background: var(--navy);
   color: var(--white);
 }
 
-.theme-month p {
-  color: rgba(255, 255, 255, 0.78);
+.lectionary-card:nth-child(3n + 2):hover {
+  background: var(--red);
+  color: var(--white);
 }
 
-.theme-month .eyebrow {
-  color: var(--yellow);
+.lectionary-card:nth-child(3n):hover {
+  background: var(--yellow);
+  color: var(--navy);
+}
+
+.lectionary-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 20px 45px rgba(22, 34, 73, 0.18);
+}
+
+.lectionary-card h3 {
+  margin: 0.6rem 0 1.4rem;
+}
+
+.lectionary-card:hover h3,
+.lectionary-card:hover p,
+.lectionary-card:hover strong {
+  color: inherit;
+}
+
+.lectionary-date {
+  display: inline-flex;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--navy);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.lectionary-card:nth-child(3n):hover .lectionary-date {
+  background: var(--red);
+  color: var(--white);
+}
+
+.lectionary-reading-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lectionary-reading-list p {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(22, 34, 73, 0.12);
+}
+
+.lectionary-reading-list span {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lectionary-reading-list strong {
+  color: var(--navy);
+  text-align: right;
+}
+
+.lectionary-card:hover .lectionary-reading-list p {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.lectionary-card:nth-child(3n):hover .lectionary-reading-list p {
+  border-color: rgba(22, 34, 73, 0.18);
 }
 
 @media (max-width: 800px) {
-  .theme-grid {
+  .lectionary-grid {
     grid-template-columns: 1fr;
   }
 
+  .lectionary-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lectionary-reading-list p {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lectionary-reading-list strong {
+    text-align: left;
+  }
+}
+
+
+/* Ministries landing */
+.ministries-page-hero {
+  background:
+    radial-gradient(circle at 78% 40%, rgba(255, 255, 0, .16), transparent 24%),
+    linear-gradient(150deg, var(--navy), #263e88);
+}
+
+.ministry-mission-section {
+  background: var(--white)
+}
+
+.ministry-vision-card {
+  margin: 2rem 0;
+  padding: 2rem 2.2rem;
+  border-radius: 26px;
+  background: var(--navy);
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.ministry-vision-card::after {
+  content: "";
+  position: absolute;
+  right: -45px;
+  top: -60px;
+  width: 230px;
+  aspect-ratio: 1;
+  background: url("assets/logos/cross-radiance.png") center/contain no-repeat;
+  opacity: .08;
+}
+
+.ministry-vision-card span {
+  color: var(--yellow);
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-size: .78rem;
+}
+
+.ministry-vision-card h3 {
+  color: var(--white);
+  font-size: clamp(1.7rem, 3vw, 2.7rem);
+  max-width: 850px;
+}
+
+.ministry-mandate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.ministry-mandate-card {
+  min-height: 300px;
+  padding: 2rem;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.ministry-mandate-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 20px 45px rgba(22, 34, 73, .18);
+}
+
+.ministry-mandate-card span {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: auto;
+}
+
+.ministry-mandate-card h3 {
+  font-size: 2rem;
+  color: inherit
+}
+
+.ministry-mandate-card p {
+  color: inherit;
+  opacity: .78
+}
+
+.mandate-1 {
+  background: var(--navy);
+  color: var(--white)
+}
+
+.mandate-2 {
+  background: var(--red);
+  color: var(--white)
+}
+
+.mandate-3 {
+  background: var(--yellow);
+  color: var(--navy)
+}
+
+.ministry-group-section {
+  scroll-margin-top: 100px
+}
+
+.ministry-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.35rem;
+}
+
+.ministry-card {
+  min-height: 440px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--white);
+  border: 1px solid rgba(22, 34, 73, .1);
+  box-shadow: 0 12px 35px rgba(22, 34, 73, .08);
+  display: flex;
+  flex-direction: column;
+  transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease, color .25s ease;
+}
+
+.ministry-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 55px rgba(22, 34, 73, .18);
+}
+
+.ministry-card:nth-child(3n+1):hover {
+  background: var(--navy);
+  color: var(--white)
+}
+
+.ministry-card:nth-child(3n+2):hover {
+  background: var(--red);
+  color: var(--white)
+}
+
+.ministry-card:nth-child(3n):hover {
+  background: var(--yellow);
+  color: var(--navy)
+}
+
+.ministry-card-image {
+  height: 225px;
+  background-position: center;
+  background-size: cover;
+  background-color: var(--sky);
+  transition: transform .45s ease;
+}
+
+.ministry-card:hover .ministry-card-image {
+  transform: scale(1.025)
+}
+
+.ministry-card-body {
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ministry-card h3 {
+  font-size: 1.55rem;
+  color: inherit
+}
+
+.ministry-card p {
+  color: inherit;
+  opacity: .72
+}
+
+.ministry-card .meta {
+  color: var(--red)
+}
+
+.ministry-card:nth-child(3n+1):hover .meta,
+.ministry-card:nth-child(3n+2):hover .meta {
+  color: var(--yellow)
+}
+
+.ministry-card:nth-child(3n):hover .meta {
+  color: var(--red)
+}
+
+.ministry-card-link {
+  margin-top: auto;
+  padding-top: 1rem;
+  font-weight: 900;
+  color: inherit;
+}
+
+/* Ministry detail pages */
+.ministry-detail-hero {
+  background:
+    radial-gradient(circle at 82% 45%, rgba(255, 255, 0, .15), transparent 24%),
+    linear-gradient(145deg, var(--navy), #243c88);
+}
+
+.ministry-overview-grid {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.ministry-detail-image {
+  min-height: 550px;
+  border-radius: 30px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow);
+}
+
+.ministry-facts {
+  display: grid;
+  gap: .75rem;
+  margin-top: 1.6rem;
+}
+
+.ministry-fact {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(22, 34, 73, .13);
+}
+
+.ministry-fact span {
+  color: var(--red);
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.ministry-fact strong {
+  color: var(--navy)
+}
+
+.ministry-leader-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.ministry-leader-card {
+  min-height: 230px;
+  padding: 1.8rem;
+  border-radius: 26px;
+  background: var(--white);
+  border: 1px solid rgba(22, 34, 73, .1);
+  transition: .25s ease;
+}
+
+.ministry-leader-card:nth-child(3n+1):hover {
+  background: var(--navy);
+  color: var(--white)
+}
+
+.ministry-leader-card:nth-child(3n+2):hover {
+  background: var(--red);
+  color: var(--white)
+}
+
+.ministry-leader-card:nth-child(3n):hover {
+  background: var(--yellow);
+  color: var(--navy)
+}
+
+.ministry-leader-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow)
+}
+
+.ministry-leader-card h3 {
+  color: inherit
+}
+
+.ministry-leader-card p {
+  color: inherit;
+  opacity: .75
+}
+
+.ministry-leader-number {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 2.2rem;
+  color: var(--red);
+  margin-bottom: 2rem;
+}
+
+.ministry-leader-card:nth-child(3n+1):hover .ministry-leader-number,
+.ministry-leader-card:nth-child(3n+2):hover .ministry-leader-number {
+  color: var(--yellow)
+}
+
+.ministry-functions-section {
+  background: var(--navy)
+}
+
+.ministry-functions-section h2 {
+  color: var(--white)
+}
+
+.ministry-function-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.ministry-function-card {
+  padding: 1.4rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .06);
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 1rem;
+  align-items: start;
+  transition: .25s ease;
+}
+
+.ministry-function-card:hover {
+  background: var(--yellow);
+  transform: translateY(-4px)
+}
+
+.ministry-function-card span {
+  color: var(--yellow);
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.4rem;
+}
+
+.ministry-function-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, .78)
+}
+
+.ministry-function-card:hover span,
+.ministry-function-card:hover p {
+  color: var(--navy)
+}
+
+.ministry-back-banner {
+  min-height: 260px;
+  padding: 2.5rem;
+  border-radius: 30px;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+/* House Fellowship directory */
+.house-fellowship-hero {
+  background:
+    radial-gradient(circle at 82% 45%, rgba(255, 255, 0, .15), transparent 24%),
+    linear-gradient(145deg, var(--navy), #243c88);
+}
+
+.house-directory-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.house-search {
+  display: grid;
+  gap: .45rem;
+  width: min(430px, 100%);
+}
+
+.house-search span {
+  color: var(--navy);
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.house-search input {
+  width: 100%;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(22, 34, 73, .18);
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--navy);
+  font: inherit;
+}
+
+.house-search input:focus {
+  outline: 3px solid rgba(255, 255, 0, .45);
+  border-color: var(--navy);
+}
+
+.house-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+
+.house-card {
+  min-height: 315px;
+  padding: 1.7rem;
+  border-radius: 26px;
+  background: var(--white);
+  border: 1px solid rgba(22, 34, 73, .1);
+  transition: .25s ease;
+}
+
+.house-card:nth-child(3n+1):hover {
+  background: var(--navy);
+  color: var(--white)
+}
+
+.house-card:nth-child(3n+2):hover {
+  background: var(--red);
+  color: var(--white)
+}
+
+.house-card:nth-child(3n):hover {
+  background: var(--yellow);
+  color: var(--navy)
+}
+
+.house-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow)
+}
+
+.house-card h3 {
+  font-size: 1.5rem;
+  color: inherit
+}
+
+.house-card .meta {
+  color: var(--red)
+}
+
+.house-card:nth-child(3n+1):hover .meta,
+.house-card:nth-child(3n+2):hover .meta {
+  color: var(--yellow)
+}
+
+.house-card-number {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 2.2rem;
+  color: var(--red);
+  margin-bottom: 1.4rem;
+}
+
+.house-card:nth-child(3n+1):hover .house-card-number,
+.house-card:nth-child(3n+2):hover .house-card-number {
+  color: var(--yellow)
+}
+
+.house-card dl {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.2rem
+}
+
+.house-card dl div {
+  display: grid;
+  gap: .25rem
+}
+
+.house-card dt {
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.house-card:nth-child(3n+1):hover dt,
+.house-card:nth-child(3n+2):hover dt {
+  color: var(--yellow)
+}
+
+.house-card dd {
+  margin: 0;
+  color: inherit;
+  font-weight: 700
+}
+
+.house-empty-state {
+  padding: 2rem;
+  text-align: center;
+  border-radius: 20px;
+  background: var(--sky);
+  color: var(--navy);
+  font-weight: 800;
+}
+
+/* Responsive */
+@media(max-width:1050px) {
+
+  .ministry-card-grid,
+  .house-directory-grid {
+    grid-template-columns: repeat(2, 1fr)
+  }
+
+  .ministry-leader-grid {
+    grid-template-columns: repeat(2, 1fr)
+  }
+}
+
+@media(max-width:900px) {
+  .nav-dropdown {
+    width: 100%;
+    display: block;
+  }
+
+  .nav-dropdown-trigger {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav-submenu {
+    position: static;
+    min-width: 0;
+    max-height: none;
+    padding: .5rem 0 .5rem 1rem;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    display: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .nav-dropdown:hover .nav-submenu,
+  .nav-dropdown:focus-within .nav-submenu {
+    display: none;
+  }
+
+  .nav-dropdown.submenu-open .nav-submenu {
+    display: grid
+  }
+
+  .nav-submenu a {
+    background: rgba(214, 231, 244, .5);
+  }
+
+  .theme-grid,
+  .ministry-overview-grid {
+    grid-template-columns: 1fr
+  }
+
+  .ministry-mandate-grid {
+    grid-template-columns: 1fr
+  }
+
+  .ministry-detail-image {
+    min-height: 430px
+  }
+
+  .house-directory-toolbar {
+    align-items: stretch;
+    flex-direction: column
+  }
+}
+
+@media(max-width:650px) {
+
+  .theme-grid,
+  .ministry-card-grid,
+  .ministry-leader-grid,
+  .ministry-function-grid,
+  .house-directory-grid {
+    grid-template-columns: 1fr
+  }
+
   .theme-card {
-    min-height: 280px;
-    padding: 2rem;
+    min-height: 270px;
+    padding: 2rem
+  }
+
+  .ministry-fact {
+    grid-template-columns: 1fr;
+    gap: .35rem
+  }
+
+  .ministry-back-banner {
+    align-items: flex-start;
+    flex-direction: column
   }
 }

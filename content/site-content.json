@@ -16,8 +16,54 @@
       "href": "about.html"
     },
     {
-      "label": "PDCMs",
-      "href": "pdcms.html"
+      "label": "MINISTRIES",
+      "href": "ministries.html",
+      "children": [
+        {
+          "label": "All Ministries",
+          "href": "ministries.html"
+        },
+        {
+          "label": "PDCM Mission",
+          "href": "pdcm-mission.html"
+        },
+        {
+          "label": "PDCM Gwarinpa",
+          "href": "pdcm-gwarinpa.html"
+        },
+        {
+          "label": "PDCM English",
+          "href": "pdcm-english.html"
+        },
+        {
+          "label": "PDCM Byazhin",
+          "href": "pdcm-byazhin.html"
+        },
+        {
+          "label": "PDCM Mega Youth",
+          "href": "pdcm-mega-youth.html"
+        },
+        {
+          "label": "Christian Heritage Bible School",
+          "href": "bible-college.html"
+        },
+        {
+          "label": "PESACH International Academy",
+          "href": "pesach-academy.html"
+        },
+        {
+          "label": "Children Ministry",
+          "href": "children-ministry.html"
+        },
+        {
+          "label": "Teenage Ministry",
+          "href": "teenage-ministry.html"
+        },
+        {
+          "label": "House Fellowship Centres",
+          "href": "house-fellowships.html"
+        }
+      ]
     },
     {
       "label": "SERMONS",
@@ -26,10 +72,6 @@
     {
       "label": "PUBLICATIONS",
       "href": "publications.html"
-    },
-    {
-      "label": "BIBLE COLLEGE",
-      "href": "bible-college.html"
     },
     {
       "label": "QUICK LINKS",
@@ -58,54 +100,26 @@
       "scrollText": "Scroll to discover more ↓",
       "slides": [
         {
-          "image": "assets/hero/Senior-Pastor.jpg",
-          "alt": "Senior Pastor ministering during a church service"
+          "image": "assets/hero/senior-pastor-preaching.jpg",
+          "alt": "Special Apostle Pastor Alex Ogundipe ministering"
         },
         {
-          "image": "assets/hero/PDCM-English.jpg",
-          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
+          "image": "assets/ministries/pdcm-english.jpg",
+          "alt": "PDCM English Chapel worship gathering"
         },
         {
-          "image": "assets/hero/Peculiar-People1.jpg",
-          "alt": "Cherubim and Seraphim Movement Church identity"
+          "image": "assets/ministries/pdcm-byazhin.jpg",
+          "alt": "PDCM Byazhin Chapel worship gathering"
         },
         {
-          "image": "assets/hero/mother-church-brand.jpg",
-          "alt": "Senior Pastor ministering during a church service"
+          "image": "assets/ministries/pdcm-gwarinpa.jpg",
+          "alt": "PDCM Gwarinpa Chapel congregation"
         },
         {
-          "image": "assets/hero/Peculiar-Peoiple2.jpg",
-          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
-        },
-        {
-          "image": "assets/hero/Bible-College1.jpg",
-          "alt": "Cherubim and Seraphim Movement Church identity"
-        },
-        {
-          "image": "assets/hero/Peculiar-People5.jpg",
-          "alt": "Senior Pastor ministering during a church service"
-        },
-        {
-          "image": "assets/hero/Peculiar-People3.jpg",
-          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
-        },
-        {
-          "image": "assets/hero/Peculiar People4.jpg",
-          "alt": "Cherubim and Seraphim Movement Church identity"
+          "image": "assets/ministries/pdcm-mega-youth.jpg",
+          "alt": "PDCM Mega Youth Chapel members"
         }
       ]
-    },
-    "themes": {
-      "year": {
-        "label": "2026 Theme",
-        "title": "Our Year of Great Mercies",
-        "scripture": "Isaiah 54:8"
-      },
-      "month": {
-        "label": "Theme for the Month",
-        "title": "July - Our Month of Divine Revelation",
-        "scripture": "1 Corinthians 2:10"
-      }
     },
     "identity": {
       "eyebrow": "Who we are",
@@ -133,8 +147,8 @@
       "eyebrow": "Our Senior Pastor",
       "title": "Leading with faith, wisdom, and a heart for people.",
       "text": "Our Senior Pastor provides spiritual leadership to Peculiar Cherubs and its PDCM chapels, faithfully teaching the Word, nurturing believers, and advancing the vision of deliverance through evangelism.",
-      "name": "Pastor Alex Ogundipe",
-      "role": "Senior Pastor, Peculiar Cherubs",
+      "name": "Special Apostle Pastor Alex Ogundipe",
+      "role": "Senior Pastor / Leader in Charge",
       "image": "assets/people/senior-pastor.jpg",
       "linkLabel": "Read more about our leadership",
       "linkHref": "about.html"
@@ -152,7 +166,7 @@
         {
           "quote": "I came seeking direction and found a spiritual family. The Word helped me understand my purpose and walk confidently with God.",
           "name": "Member Name",
-          "chapel": "PDCM Gwarimpa Chapel",
+          "chapel": "PDCM Gwarinpa Chapel",
           "featured": true
         },
         {
@@ -161,6 +175,18 @@
           "chapel": "PDCM Mega Youth Chapel"
         }
       ]
+    },
+    "themes": {
+      "year": {
+        "label": "2026 Theme",
+        "title": "My Year of Great Mercies",
+        "scripture": "Isaiah 54:7"
+      },
+      "month": {
+        "label": "Theme for the Month",
+        "title": "July - Our Month of Divine Restoration",
+        "scripture": "joel 2:25-26"
+      }
     }
   },
   "about": {
@@ -173,8 +199,8 @@
       "eyebrow": "Our story",
       "title": "A people called to be peculiar.",
       "paragraphs": [
-        "We believe the church is more than a building. It is a living family of people called out of darkness into the marvellous light of Christ.",
-        "Across every PDCM chapel, our focus remains the same: authentic worship, sound teaching, intentional discipleship, compassionate service, and kingdom impact."
+        "Cherubim and Seraphim Movement Church, Center for Deliverance through Evangelism, Kubwa, came about through a divine call and anointing on July 10, 2005.",
+        "The founding vision is that an end-time army should move in the power of God’s Word and deliver people from the bondage of the devil. Across every ministry and PDCM chapel, the church remains committed to worship, sound teaching, prayer, discipleship, evangelism, and compassionate service."
       ],
       "quote": "You are a chosen generation, a royal priesthood, a holy nation, a peculiar people."
     },
@@ -211,7 +237,7 @@
         "logo": "assets/logos/pdcm-english.png"
       },
       {
-        "name": "PDCM Gwarimpa Chapel",
+        "name": "PDCM Gwarinpa Chapel",
         "subtitle": "A local worship and discipleship community under Peculiar Cherubs.",
         "status": "Current Chapel",
         "logo": "assets/logos/pdcm-generic.png"
@@ -354,6 +380,48 @@
       "text": "Study notes, lesson objectives, discussion questions, and scriptures for Sunday School.",
       "button": "View Sunday School Outline",
       "href": "#"
+    },
+    "lectionaryCalendar": {
+      "eyebrow": "Calendar of Lectionary",
+      "title": "Follow the church’s scripture readings.",
+      "description": "View the appointed Bible readings for Sundays, services, seasons, and special church observances.",
+      "currentMonth": "January 2026",
+      "button": "Download Full Lectionary",
+      "href": "#",
+      "readings": [
+        {
+          "date": "January 4",
+          "occasion": "First Sunday of the Year",
+          "oldTestament": "Isaiah 43:18–19",
+          "psalm": "Psalm 103:1–5",
+          "epistle": "2 Corinthians 5:17–21",
+          "gospel": "Luke 5:1–11"
+        },
+        {
+          "date": "January 11",
+          "occasion": "Second Sunday",
+          "oldTestament": "Genesis 12:1–4",
+          "psalm": "Psalm 121",
+          "epistle": "Romans 8:28–39",
+          "gospel": "Matthew 4:18–22"
+        },
+        {
+          "date": "January 18",
+          "occasion": "Third Sunday",
+          "oldTestament": "Exodus 3:1–12",
+          "psalm": "Psalm 27",
+          "epistle": "Ephesians 2:1–10",
+          "gospel": "John 15:1–8"
+        },
+        {
+          "date": "January 25",
+          "occasion": "Fourth Sunday",
+          "oldTestament": "Joshua 1:1–9",
+          "psalm": "Psalm 91",
+          "epistle": "Philippians 3:7–14",
+          "gospel": "Mark 10:46–52"
+        }
+      ]
     }
   },
   "quickLinks": {
@@ -384,14 +452,14 @@
       {
         "icon": "↗",
         "title": "Plan a Visit",
-        "text": "Find a chapel and service information.",
-        "href": "pdcms.html"
+        "text": "Explore chapels and ministry locations.",
+        "href": "ministries.html#pdcm-chapels"
       },
       {
         "icon": "✦",
         "title": "Join a Team",
-        "text": "Serve with your gifts and skills.",
-        "href": "#"
+        "text": "Discover ministries where you can serve.",
+        "href": "ministries.html"
       },
       {
         "icon": "☏",
@@ -611,5 +679,611 @@
         }
       ]
     }
+  },
+  "ministries": {
+    "hero": {
+      "eyebrow": "Ministries",
+      "title": "One mission.\nMany expressions.",
+      "description": "Explore the chapels, schools, age-grade ministries, fellowship centres, and outreach expressions through which Peculiar Cherubs disciples, mentors, intercedes, teaches, serves, and reaches people."
+    },
+    "mission": {
+      "eyebrow": "PDCM Mission",
+      "title": "To disciple, to mentor, and to intercede.",
+      "description": "Peculiar Disciples of Christ Ministry is the church’s mission arm, charged with reaching the reached, the unreached, and those alienated from the church with the message of Jesus Christ.",
+      "vision": "A world free from bondage through the teaching of the Word of God.",
+      "mandates": [
+        {
+          "title": "Discipleship",
+          "text": "Helping people believe in and follow Jesus Christ, while sharing the transforming work of Christ with others."
+        },
+        {
+          "title": "Mentoring",
+          "text": "Advising, counselling, guiding, and encouraging people until they grow into the fullness of Christ."
+        },
+        {
+          "title": "Intercession",
+          "text": "Standing in the gap, presenting people’s burdens to God, and praying for relief, restoration, and freedom."
+        }
+      ]
+    },
+    "groups": [
+      {
+        "id": "pdcm-chapels",
+        "eyebrow": "PDCM Chapels",
+        "title": "Standalone worshipping communities.",
+        "description": "Each chapel carries the shared mission of Peculiar Cherubs while serving its immediate community.",
+        "items": [
+          "pdcm-mission",
+          "pdcm-gwarinpa",
+          "pdcm-english",
+          "pdcm-byazhin",
+          "pdcm-mega-youth"
+        ]
+      },
+      {
+        "id": "education",
+        "eyebrow": "Education and formation",
+        "title": "Learning for faith and life.",
+        "description": "Structured biblical formation and child-centred education for different stages of life.",
+        "items": [
+          "bible-college",
+          "pesach-academy"
+        ]
+      },
+      {
+        "id": "age-grade",
+        "eyebrow": "Age-grade ministries",
+        "title": "Faith formation for every generation.",
+        "description": "Age-appropriate spiritual, educational, and psychological development.",
+        "items": [
+          "children-ministry",
+          "teenage-ministry"
+        ]
+      },
+      {
+        "id": "fellowship-outreach",
+        "eyebrow": "Fellowship and outreach",
+        "title": "Church life beyond the auditorium.",
+        "description": "Community-based fellowship, compassionate service, prayer, and practical support.",
+        "items": [
+          "house-fellowships",
+          "feeding-ministry"
+        ]
+      }
+    ],
+    "homeFeatured": [
+      "pdcm-mission",
+      "bible-college",
+      "pesach-academy"
+    ],
+    "details": {
+      "pdcm-mission": {
+        "href": "pdcm-mission.html",
+        "category": "Mission Arm",
+        "title": "Peculiar Disciples of Christ Ministry",
+        "shortTitle": "PDCM Mission",
+        "summary": "The church’s mission arm, committed to discipleship, mentoring, intercession, evangelism, prayer, and deliverance through Jesus Christ.",
+        "image": "assets/ministries/pdcm-mission.jpg",
+        "facts": [
+          {
+            "label": "Core mandate",
+            "value": "Disciple · Mentor · Intercede"
+          },
+          {
+            "label": "First chapel commissioned",
+            "value": "15 September 2013"
+          },
+          {
+            "label": "Founding chapel name",
+            "value": "Peculiar English Chapel"
+          }
+        ],
+        "overview": [
+          "PDCM draws its mission from Christ’s proclamation in Luke 4:18–19 and the Great Commission in Matthew 28:18–20.",
+          "It is responsible for reaching people with the message of Jesus Christ and bringing them into the Kingdom of God the Father."
+        ],
+        "leaders": [
+          {
+            "name": "Special Apostle Pastor Alex Ogundipe",
+            "role": "Senior Pastor / Leader in Charge"
+          }
+        ],
+        "functionsTitle": "Mission commitments",
+        "functions": [
+          "Preach the good tidings of Jesus Christ to all people.",
+          "Proclaim liberty to captives.",
+          "Teach the efficacy of prayer.",
+          "Teach the Bible as the divinely inspired Word of God.",
+          "Assemble an end-time army in the power of God.",
+          "Preach the Word and deliver people from the bondage of the devil through Jesus Christ."
+        ]
+      },
+      "pdcm-gwarinpa": {
+        "href": "pdcm-gwarinpa.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM Gwarinpa Chapel",
+        "shortTitle": "Gwarinpa Chapel",
+        "summary": "A standalone PDCM chapel serving Gwarinpa through worship, discipleship, prayer, evangelism, and community.",
+        "image": "assets/ministries/pdcm-gwarinpa.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 October 2013"
+          },
+          {
+            "label": "First Gwarinpa service",
+            "value": "5 February 2017"
+          },
+          {
+            "label": "Location",
+            "value": "Plot 14, Ken Saro-Wiwa Street, off Alhassan Dantata Road, 3rd Avenue Cornershop, Gwarinpa Estate"
+          }
+        ],
+        "overview": [
+          "The chapel began as Peculiar English Chapel at A. A. Bodunrin Hall, Kubwa, before relocating to Gwarinpa.",
+          "Following the relocation, it became Peculiar Disciples of Christ Ministry, Gwarinpa Chapel."
+        ],
+        "leaders": [
+          {
+            "name": "Prophet Kayode Aliyu",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Pastor Tope Yoosuf",
+            "role": "Secretary"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "Worship and prayer",
+          "Biblical teaching and discipleship",
+          "Evangelism and community outreach",
+          "Fellowship and pastoral care"
+        ]
+      },
+      "pdcm-english": {
+        "href": "pdcm-english.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM English Chapel",
+        "shortTitle": "English Chapel",
+        "summary": "An English-speaking PDCM chapel meeting every Sunday in the Church Auditorium, Kubwa.",
+        "image": "assets/ministries/pdcm-english.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 February 2022"
+          },
+          {
+            "label": "Meeting time",
+            "value": "Sundays, 7:00–9:00 a.m."
+          },
+          {
+            "label": "Location",
+            "value": "Church Auditorium, Kubwa"
+          }
+        ],
+        "overview": [
+          "The chapel held its Inaugural and Proclamation Service on Sunday, 6 February 2022.",
+          "It provides an English-language worship and discipleship expression within the Peculiar Cherubs family."
+        ],
+        "leaders": [
+          {
+            "name": "Special Apostle Oyebode Fadipe",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Special Apostle Pastor Seun Oshagbami",
+            "role": "Secretary"
+          },
+          {
+            "name": "Brother Temitope Okubote",
+            "role": "Assistant Secretary"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "English-language worship services",
+          "Prayer and biblical teaching",
+          "Discipleship and fellowship",
+          "Evangelism and community service"
+        ]
+      },
+      "pdcm-byazhin": {
+        "href": "pdcm-byazhin.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM Byazhin Chapel",
+        "shortTitle": "Byazhin Chapel",
+        "summary": "A PDCM worshipping community serving Byazhin Across and surrounding areas.",
+        "image": "assets/ministries/pdcm-byazhin.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 February 2022"
+          },
+          {
+            "label": "Location",
+            "value": "Behind Football Field Area, Byazhin Across, by Kubwa"
+          },
+          {
+            "label": "Formation",
+            "value": "Following a week-long revival and commendation service"
+          }
+        ],
+        "overview": [
+          "PDCM Byazhin Chapel was inaugurated after a week-long revival and commendation service.",
+          "The chapel serves believers and families through worship, prayer, the Word, evangelism, and fellowship."
+        ],
+        "leaders": [
+          {
+            "name": "Pastor Kayode Ajadi",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Pastor Jerry Adesewo",
+            "role": "Deputy Shepherd"
+          },
+          {
+            "name": "Pastor Akintunde Ojo",
+            "role": "Secretary"
+          },
+          {
+            "name": "Prophetess Grace Olutola",
+            "role": "Choir Coordinator"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "Worship and prayer",
+          "Biblical teaching",
+          "Evangelism and discipleship",
+          "Music ministry and community fellowship"
+        ]
+      },
+      "pdcm-mega-youth": {
+        "href": "pdcm-mega-youth.html",
+        "category": "Standalone PDCM Chapel",
+        "title": "PDCM Mega Youth Chapel",
+        "shortTitle": "Mega Youth Chapel",
+        "summary": "A standalone church for adults aged 20–40, raising disciples, leaders, worshippers, volunteers, and witnesses for Christ.",
+        "image": "assets/ministries/pdcm-mega-youth.jpg",
+        "facts": [
+          {
+            "label": "Age group",
+            "value": "20–40 years"
+          },
+          {
+            "label": "Church status",
+            "value": "Standalone PDCM chapel"
+          },
+          {
+            "label": "Location",
+            "value": "A. A. Bodunrin Hall, Church Complex, Kubwa"
+          }
+        ],
+        "overview": [
+          "The Peculiar Youth Ministry was upgraded to a full-fledged chapel and renamed PDCM Mega Youth Chapel.",
+          "Its programmes support spiritual, educational, psychological, leadership, vocational, and relational development."
+        ],
+        "leaders": [
+          {
+            "name": "Special Mother in Israel Pastor Dayo Arogundade",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Senior Apostle Adedeji Ademefun",
+            "role": "Deputy Shepherd in Charge"
+          },
+          {
+            "name": "Mother in Israel Temitayo Ogunbiyi",
+            "role": "Secretary"
+          }
+        ],
+        "functionsTitle": "What the chapel provides",
+        "functions": [
+          "Spiritual, educational, and psychological development for adults aged 20–40.",
+          "Evangelism training and participation in mission projects.",
+          "Volunteer service within the church and wider community.",
+          "Leadership training through small groups, teaching, and practical service.",
+          "Career, relationship, marriage, and life guidance and counselling.",
+          "Participation in district, national, and wider Christian youth programmes, camps, conventions, and retreats."
+        ]
+      },
+      "bible-college": {
+        "href": "bible-college.html",
+        "category": "Education and Formation",
+        "title": "Christian Heritage Bible School",
+        "shortTitle": "Bible College",
+        "summary": "Structured biblical education with registration, classes, catch-up lessons, assignments, resources, and student support.",
+        "image": "assets/logos/cross-radiance.png"
+      },
+      "pesach-academy": {
+        "href": "pesach-academy.html",
+        "category": "Education",
+        "title": "PESACH International Academy",
+        "shortTitle": "PESACH Academy",
+        "summary": "A child-centred school in Kubwa offering Crèche, Nursery, and Primary education.",
+        "image": "assets/ministries/pesach-academy.jpg",
+        "facts": [
+          {
+            "label": "Levels",
+            "value": "Crèche · Nursery · Primary"
+          },
+          {
+            "label": "Admissions",
+            "value": "Admission information available through the school"
+          },
+          {
+            "label": "Location",
+            "value": "Plot 53A/54A, 2/2 Junction, Hamza Abdullahi Road, off Gado Nasko Road, Kubwa, Abuja"
+          }
+        ],
+        "overview": [
+          "PESACH International Academy provides child-centred education in a structured learning environment.",
+          "The academy combines classroom learning, extracurricular development, technology, and practical support for families."
+        ],
+        "leaders": [],
+        "functionsTitle": "Facilities and features",
+        "functions": [
+          "Serene learning environment",
+          "Extracurricular activities",
+          "Qualified and dedicated staff",
+          "Well-tailored child-centred curriculum",
+          "Efficient ICT facilities",
+          "School bus services"
+        ]
+      },
+      "children-ministry": {
+        "href": "children-ministry.html",
+        "category": "Age-Grade Ministry",
+        "title": "Children Ministry",
+        "shortTitle": "Children Ministry",
+        "summary": "Spiritual, educational, and psychological development for children from birth to age 12.",
+        "image": "assets/ministries/children-ministry.jpg",
+        "facts": [
+          {
+            "label": "Age group",
+            "value": "Birth–12 years"
+          },
+          {
+            "label": "Curriculum",
+            "value": "National Children Ministry curriculum"
+          },
+          {
+            "label": "Learning resources",
+            "value": "Teachers’ handbooks and children’s manuals"
+          }
+        ],
+        "overview": [
+          "The ministry provides inclusive, age-appropriate Christian formation for children.",
+          "Children who can read and write are encouraged to attend with their Bible and writing materials."
+        ],
+        "leaders": [
+          {
+            "name": "Pastor Jumoke Dele-Raji",
+            "role": "Captain, Children Ministry"
+          },
+          {
+            "name": "Senior Apostle Seun Sodipe",
+            "role": "Secretary, Children Ministry"
+          }
+        ],
+        "functionsTitle": "Ministry functions",
+        "functions": [
+          "Coordinate the national curriculum with teachers and ministry workers.",
+          "Organize training for teachers and handlers.",
+          "Connect classes to sermons and the 12-noon prayer.",
+          "Organize camps, excursions, summer schools, and other developmental activities.",
+          "Arrange children into appropriate classes for easier learning."
+        ]
+      },
+      "teenage-ministry": {
+        "href": "teenage-ministry.html",
+        "category": "Age-Grade Ministry",
+        "title": "Teenage Ministry",
+        "shortTitle": "Teenage Ministry",
+        "summary": "Spiritual, educational, and psychological development for teenagers aged 13–19.",
+        "image": "assets/ministries/teenage-ministry.jpg",
+        "facts": [
+          {
+            "label": "Age group",
+            "value": "13–19 years"
+          },
+          {
+            "label": "Junior teens",
+            "value": "13–15 years"
+          },
+          {
+            "label": "Senior teens",
+            "value": "16–19 years"
+          }
+        ],
+        "overview": [
+          "Teenagers are grouped into structured classes with class prefects and a curriculum designed around their needs.",
+          "The ministry teaches faith in Christ, C&S liturgy, hymnals, prayer, worship, and practical Christian living."
+        ],
+        "leaders": [
+          {
+            "name": "Special Apostle Pastor Funso Ibikunle",
+            "role": "Captain, Teenage Ministry"
+          },
+          {
+            "name": "Apostle Biodun Ogundokun",
+            "role": "Deputy Captain, Teenage Ministry"
+          }
+        ],
+        "functionsTitle": "Ministry functions",
+        "functions": [
+          "Train teenage ministry handlers.",
+          "Organize annual camps, excursions, summer school, and youth activities.",
+          "Provide interactive platforms where teenagers can discuss their challenges.",
+          "Prepare older teenagers for national youth programmes and church activities.",
+          "Encourage every teenager to attend with a Bible and writing materials."
+        ]
+      },
+      "house-fellowships": {
+        "href": "house-fellowships.html",
+        "category": "Community Fellowship",
+        "title": "House Fellowship Centres",
+        "shortTitle": "House Fellowships",
+        "summary": "Twenty community-based fellowship centres serving neighbourhoods across Abuja and surrounding areas.",
+        "image": "assets/ministries/house-fellowships.jpg"
+      },
+      "feeding-ministry": {
+        "href": "feeding-ministry.html",
+        "category": "Community Outreach",
+        "title": "Jesus Loves You Feeding Ministry",
+        "shortTitle": "Feeding Ministry",
+        "summary": "A compassionate outreach providing food and palliatives to less-privileged and indigent people in communities around the church and Abuja.",
+        "image": "assets/logos/mother-church.png",
+        "facts": [
+          {
+            "label": "Focus",
+            "value": "Food and palliative support"
+          },
+          {
+            "label": "Service area",
+            "value": "Communities around the churches and Abuja"
+          },
+          {
+            "label": "Support model",
+            "value": "Voluntary sponsorship and contribution"
+          }
+        ],
+        "overview": [
+          "Jesus Loves You Feeding Ministry was established to provide practical support to people experiencing need.",
+          "The ministry is sustained through voluntary participation and generosity."
+        ],
+        "leaders": [],
+        "functionsTitle": "Outreach focus",
+        "functions": [
+          "Provide food support.",
+          "Distribute palliatives.",
+          "Serve less-privileged and indigent people.",
+          "Mobilize voluntary sponsors and ministry partners."
+        ]
+      }
+    },
+    "houseFellowships": [
+      {
+        "name": "Believers HF",
+        "area": "2/1, Post Army Scheme and environs",
+        "host": "Pastor Gbenga R. Ayoola",
+        "coordinator": "Lady Leader Mayowa Ebun Adeigbe"
+      },
+      {
+        "name": "Yahweh HF",
+        "area": "Phase IV and environs",
+        "host": "MII Opeyemi Catherine Ademola",
+        "coordinator": "Lady Leader Olubunmi Araba"
+      },
+      {
+        "name": "Salvation HF",
+        "area": "Gwarinpa and environs",
+        "host": "Ogundipe Family",
+        "coordinator": "MII Toyin Yoosuf"
+      },
+      {
+        "name": "Elohim HF",
+        "area": "Dutse Alhaji and environs",
+        "host": "MSA Kehinde Arowosegbe",
+        "coordinator": "Lady Leader Olaleye Oluwatoyin Thomas"
+      },
+      {
+        "name": "Mercy of God HF",
+        "area": "Byazhin Across 1 and environs",
+        "host": "Edgar Family",
+        "coordinator": "MII Lawson"
+      },
+      {
+        "name": "Shekinah HF",
+        "area": "Byazhin Across 2 and environs",
+        "host": "Evangelist Isaac Dosumu",
+        "coordinator": "Prophet Olumide Okanlawon"
+      },
+      {
+        "name": "Rehoboth HF",
+        "area": "Gbazango and environs",
+        "host": "Ogunleye Family",
+        "coordinator": "Alderman Kolawole Albert"
+      },
+      {
+        "name": "El-Shadai HF",
+        "area": "Byazhin Main and environs",
+        "host": "Arowolo Family",
+        "coordinator": "Apostle Benjamin Oluyomi Fayomi"
+      },
+      {
+        "name": "Gethsemane HF",
+        "area": "Millionaires Quarters and environs",
+        "host": "Special MII Yemisi Olateju",
+        "coordinator": "Brother Biodun Ogundokun"
+      },
+      {
+        "name": "Paradise HF",
+        "area": "Bwari and environs",
+        "host": "Odupaye Family",
+        "coordinator": "Special Apostle Adeyemi Owookade"
+      },
+      {
+        "name": "Pentecost HF",
+        "area": "Dantata and environs",
+        "host": "Pastor Samson Aliyu Family",
+        "coordinator": "Brother Seun Sodipe"
+      },
+      {
+        "name": "His Praise HF",
+        "area": "Suleja and environs",
+        "host": "MSA Olabisi Lawrence",
+        "coordinator": "MSA Olabisi Lawrence"
+      },
+      {
+        "name": "Abundant Grace HF",
+        "area": "Gwagwalada and environs",
+        "host": "Brother Abiodun Abel Tomi",
+        "coordinator": "Apostle Yinka Oguntade"
+      },
+      {
+        "name": "Paniel HF",
+        "area": "Dei-Dei Material and environs",
+        "host": "Lady Leader Funmilola Adeniran",
+        "coordinator": "Teacher Yemi Awokoya"
+      },
+      {
+        "name": "Rock of Salvation HF",
+        "area": "Arab Road and environs",
+        "host": "MII Felicia Fadecke Jerry-Adesewo",
+        "coordinator": "Lady Leader Owolabi Olufunke"
+      },
+      {
+        "name": "Throne of Mercy HF",
+        "area": "Dawaki and environs",
+        "host": "Alderman Brother Yomi Ayanlola",
+        "coordinator": "Brother Kehinde Showunmi"
+      },
+      {
+        "name": "Replenish HF",
+        "area": "2/2, Church and environs",
+        "host": "Special MII Bukola Gabriel",
+        "coordinator": "Evangelist Adeshina Ajimati"
+      },
+      {
+        "name": "Triumphant HF",
+        "area": "Airport, Lugbe and environs",
+        "host": "MII Adebola Ajayi",
+        "coordinator": "Alderman Sister Soyeye Veronica Oluwatoyin"
+      },
+      {
+        "name": "Overcomers HF",
+        "area": "Peze and environs",
+        "host": "Odumosu Family",
+        "coordinator": "Prophet Oyelade Emmanuel"
+      },
+      {
+        "name": "Assurance HF",
+        "area": "Byazhin 3 and environs",
+        "host": "Afolayan Family",
+        "coordinator": "Brother Michael Lawal"
+      }
+    ]
   }
 }

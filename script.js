@@ -75,8 +75,28 @@ function renderShared(content) {
   const navigation = document.querySelector("[data-navigation]");
   if (navigation) {
     navigation.innerHTML = content.navigation.map(item => {
-      const className = item.className ? ` class="${escapeHtml(item.className)}"` : "";
-      return `<a${className} href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`;
+      const classNames = [item.className].filter(Boolean).join(" ");
+      const className = classNames ? ` class="${escapeHtml(classNames)}"` : "";
+
+      if (!item.children?.length) {
+        return `<a${className} href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`;
+      }
+
+      const children = item.children.map(child => `
+        <a href="${escapeHtml(child.href)}">${escapeHtml(child.label)}</a>
+      `).join("");
+
+      return `
+        <div class="nav-dropdown">
+          <div class="nav-dropdown-trigger">
+            <a${className} href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>
+            <button class="nav-submenu-toggle" type="button"
+              aria-label="Open ${escapeHtml(item.label)} menu"
+              aria-expanded="false">⌄</button>
+          </div>
+          <div class="nav-submenu">${children}</div>
+        </div>
+      `;
     }).join("");
   }
 }
@@ -124,6 +144,16 @@ function renderHeroSlides(slides) {
 function renderHome(content) {
   const home = content.home;
 
+  if (home.themes) {
+    setText("[data-year-theme-label]", home.themes.year?.label);
+    setText("[data-year-theme-title]", home.themes.year?.title);
+    setText("[data-year-theme-scripture]", home.themes.year?.scripture);
+
+    setText("[data-month-theme-label]", home.themes.month?.label);
+    setText("[data-month-theme-title]", home.themes.month?.title);
+    setText("[data-month-theme-scripture]", home.themes.month?.scripture);
+  }
+
   renderHeroSlides(home.hero.slides);
   setText("[data-home-hero-badge]", home.hero.badge);
   setText("[data-home-hero-title]", home.hero.title);
@@ -148,20 +178,13 @@ function renderHome(content) {
     `).join("");
   }
 
-  const chapelList = document.querySelector("[data-home-chapels]");
-  if (chapelList) {
-    chapelList.innerHTML = content.chapels.current.slice(0, 3).map(chapel => `
-      <article class="card campus-card">
-        <div class="campus-logo-wrap">
-          <img class="campus-logo" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} logo">
-        </div>
-        <div class="campus-body">
-          <div class="meta">${escapeHtml(chapel.status)}</div>
-          <h3>${escapeHtml(chapel.name)}</h3>
-          <p>${escapeHtml(chapel.subtitle)}</p>
-        </div>
-      </article>
-    `).join("");
+  const homeMinistries = document.querySelector("[data-home-ministries]");
+  if (homeMinistries) {
+    homeMinistries.innerHTML = content.ministries.homeFeatured
+      .map(key => content.ministries.details[key])
+      .filter(Boolean)
+      .map(item => ministryCard(item))
+      .join("");
   }
 
   setText("[data-pastor-eyebrow]", home.pastor.eyebrow);
@@ -209,16 +232,6 @@ function renderHome(content) {
   if (quickLinks) {
     quickLinks.innerHTML = content.quickLinks.links.slice(2, 5).map(link => quickLinkCard(link)).join("");
   }
-  
-  const themes = content.home.themes;
-
-  setText("[data-year-theme-label]", themes.year.label);
-  setText("[data-year-theme-title]", themes.year.title);
-  setText("[data-year-theme-scripture]", themes.year.scripture);
-
-  setText("[data-month-theme-label]", themes.month.label);
-  setText("[data-month-theme-title]", themes.month.title);
-  setText("[data-month-theme-scripture]", themes.month.scripture);
 }
 
 function sermonCard(sermon) {
@@ -379,6 +392,88 @@ function renderPublications(content) {
     label: school.button,
     href: school.href
   });
+
+
+  const lectionary = content.publications.lectionaryCalendar;
+  if (lectionary) {
+    setText(
+      "[data-lectionary-eyebrow]",
+      lectionary.eyebrow
+    );
+
+    setText(
+      "[data-lectionary-title]",
+      lectionary.title
+    );
+
+    setText(
+      "[data-lectionary-description]",
+      lectionary.description
+    );
+
+    setText(
+      "[data-lectionary-month]",
+      lectionary.currentMonth
+    );
+
+    setLink(
+      "[data-lectionary-download]",
+      {
+        label: lectionary.button,
+        href: lectionary.href
+      }
+    );
+
+    const readings = document.querySelector(
+      "[data-lectionary-readings]"
+    );
+
+    if (readings) {
+      readings.innerHTML = lectionary.readings
+        .map(reading => `
+          <article class="lectionary-card">
+            <div class="lectionary-date">
+              ${escapeHtml(reading.date)}
+            </div>
+        
+            <h3>
+              ${escapeHtml(reading.occasion)}
+            </h3>
+        
+            <div class="lectionary-reading-list">
+              <p>
+                <span>Old Testament</span>
+                <strong>
+                  ${escapeHtml(reading.oldTestament)}
+                </strong>
+              </p>
+        
+              <p>
+                <span>Psalm</span>
+                <strong>
+                  ${escapeHtml(reading.psalm)}
+                </strong>
+              </p>
+        
+              <p>
+                <span>Epistle</span>
+                <strong>
+                  ${escapeHtml(reading.epistle)}
+                </strong>
+              </p>
+        
+              <p>
+                <span>Gospel</span>
+                <strong>
+                  ${escapeHtml(reading.gospel)}
+                </strong>
+              </p>
+            </div>
+          </article>
+        `)
+        .join("");
+    }
+  }
 }
 
 function renderQuickLinks(content) {
@@ -399,6 +494,173 @@ function renderQuickLinks(content) {
       </article>
     `).join("");
   }
+}
+
+
+
+function ministryCard(item) {
+  return `
+    <a class="ministry-card" href="${escapeHtml(item.href)}">
+      <div class="ministry-card-image"
+        style="background-image:url('${escapeHtml(item.image || "assets/logos/cross-radiance.png")}')">
+      </div>
+      <div class="ministry-card-body">
+        <div class="meta">${escapeHtml(item.category)}</div>
+        <h3>${escapeHtml(item.shortTitle || item.title)}</h3>
+        <p>${escapeHtml(item.summary)}</p>
+        <span class="ministry-card-link">Explore ministry ↗</span>
+      </div>
+    </a>
+  `;
+}
+
+function renderMinistries(content) {
+  renderStandardHero(content.ministries);
+
+  const mission = content.ministries.mission;
+  setText("[data-ministry-mission-eyebrow]", mission.eyebrow);
+  setText("[data-ministry-mission-title]", mission.title);
+  setText("[data-ministry-mission-description]", mission.description);
+  setText("[data-ministry-mission-vision]", mission.vision);
+
+  const mandates = document.querySelector("[data-ministry-mandates]");
+  if (mandates) {
+    mandates.innerHTML = mission.mandates.map((item, index) => `
+      <article class="ministry-mandate-card mandate-${index + 1}">
+        <span>${String(index + 1).padStart(2, "0")}</span>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.text)}</p>
+      </article>
+    `).join("");
+  }
+
+  const groups = document.querySelector("[data-ministry-groups]");
+  if (groups) {
+    groups.innerHTML = content.ministries.groups.map((group, index) => {
+      const cards = group.items
+        .map(key => content.ministries.details[key])
+        .filter(Boolean)
+        .map(item => ministryCard(item))
+        .join("");
+
+      return `
+        <section class="section ${index % 2 ? "" : "section-soft"} ministry-group-section"
+          id="${escapeHtml(group.id)}">
+          <div class="container">
+            <div class="section-head">
+              <div>
+                <span class="eyebrow">${escapeHtml(group.eyebrow)}</span>
+                <h2>${escapeHtml(group.title)}</h2>
+              </div>
+              <p>${escapeHtml(group.description)}</p>
+            </div>
+            <div class="ministry-card-grid">${cards}</div>
+          </div>
+        </section>
+      `;
+    }).join("");
+  }
+}
+
+function renderMinistryDetail(content) {
+  const key = document.body.dataset.ministryKey;
+  const item = content.ministries.details[key];
+
+  if (!item) {
+    throw new Error(`Unknown ministry key: ${key}`);
+  }
+
+  setText("[data-ministry-detail-category]", item.category);
+  setText("[data-ministry-detail-title]", item.title);
+  setText("[data-ministry-detail-summary]", item.summary);
+
+  const image = document.querySelector("[data-ministry-detail-image]");
+  if (image) {
+    image.style.backgroundImage = `url("${item.image || "assets/logos/cross-radiance.png"}")`;
+    image.setAttribute("role", "img");
+    image.setAttribute("aria-label", item.title);
+  }
+
+  const overview = document.querySelector("[data-ministry-detail-overview]");
+  if (overview) {
+    overview.innerHTML = (item.overview || [])
+      .map(paragraph => `<p>${escapeHtml(paragraph)}</p>`)
+      .join("");
+  }
+
+  const facts = document.querySelector("[data-ministry-detail-facts]");
+  if (facts) {
+    facts.innerHTML = (item.facts || []).map(fact => `
+      <div class="ministry-fact">
+        <span>${escapeHtml(fact.label)}</span>
+        <strong>${escapeHtml(fact.value)}</strong>
+      </div>
+    `).join("");
+  }
+
+  const leadersSection = document.querySelector("[data-ministry-leaders-section]");
+  const leaders = document.querySelector("[data-ministry-detail-leaders]");
+  if (!item.leaders?.length) {
+    leadersSection?.remove();
+  } else if (leaders) {
+    leaders.innerHTML = item.leaders.map((leader, index) => `
+      <article class="ministry-leader-card">
+        <div class="ministry-leader-number">${String(index + 1).padStart(2, "0")}</div>
+        <h3>${escapeHtml(leader.name)}</h3>
+        <p>${escapeHtml(leader.role)}</p>
+      </article>
+    `).join("");
+  }
+
+  const functionsSection = document.querySelector("[data-ministry-functions-section]");
+  const functions = document.querySelector("[data-ministry-detail-functions]");
+  if (!item.functions?.length) {
+    functionsSection?.remove();
+  } else if (functions) {
+    setText("[data-ministry-functions-title]", item.functionsTitle || "What the ministry does");
+    functions.innerHTML = item.functions.map((value, index) => `
+      <article class="ministry-function-card">
+        <span>${String(index + 1).padStart(2, "0")}</span>
+        <p>${escapeHtml(value)}</p>
+      </article>
+    `).join("");
+  }
+}
+
+function renderHouseFellowships(content) {
+  const fellowships = content.ministries.houseFellowships;
+  const directory = document.querySelector("[data-house-directory]");
+  const count = document.querySelector("[data-house-count]");
+  const input = document.querySelector("[data-house-search]");
+  const empty = document.querySelector("[data-house-empty]");
+
+  if (count) count.textContent = String(fellowships.length);
+  if (!directory) return;
+
+  const render = value => {
+    const query = String(value || "").trim().toLowerCase();
+    const filtered = fellowships.filter(item =>
+      [item.name, item.area, item.host, item.coordinator]
+        .some(field => String(field).toLowerCase().includes(query))
+    );
+
+    directory.innerHTML = filtered.map((item, index) => `
+      <article class="house-card">
+        <div class="house-card-number">${String(index + 1).padStart(2, "0")}</div>
+        <div class="meta">${escapeHtml(item.area)}</div>
+        <h3>${escapeHtml(item.name)}</h3>
+        <dl>
+          <div><dt>Host</dt><dd>${escapeHtml(item.host)}</dd></div>
+          <div><dt>Coordinator</dt><dd>${escapeHtml(item.coordinator)}</dd></div>
+        </dl>
+      </article>
+    `).join("");
+
+    if (empty) empty.hidden = filtered.length > 0;
+  };
+
+  input?.addEventListener("input", event => render(event.target.value));
+  render("");
 }
 
 
@@ -514,18 +776,41 @@ function setupNavigation() {
     });
   }
 
+  document.querySelectorAll(".nav-submenu-toggle").forEach(toggle => {
+    toggle.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const dropdown = toggle.closest(".nav-dropdown");
+      const isOpen = dropdown?.classList.toggle("submenu-open") || false;
+      toggle.setAttribute("aria-expanded", String(isOpen));
+    });
+  });
+
   const current = window.location.pathname.split("/").pop() || "index.html";
 
   document.querySelectorAll(".nav-links a").forEach(link => {
     if (link.getAttribute("href") === current) {
       link.classList.add("active");
       link.setAttribute("aria-current", "page");
+
+      const dropdown = link.closest(".nav-dropdown");
+      dropdown?.querySelector(".nav-dropdown-trigger > a")?.classList.add("active");
     }
 
     link.addEventListener("click", () => {
       navigation?.classList.remove("open");
       button?.setAttribute("aria-expanded", "false");
     });
+  });
+
+  document.addEventListener("click", event => {
+    if (!event.target.closest(".nav-dropdown")) {
+      document.querySelectorAll(".nav-dropdown.submenu-open").forEach(dropdown => {
+        dropdown.classList.remove("submenu-open");
+        dropdown.querySelector(".nav-submenu-toggle")?.setAttribute("aria-expanded", "false");
+      });
+    }
   });
 }
 
@@ -544,6 +829,9 @@ async function initialiseSite() {
     const renderers = {
       home: renderHome,
       about: renderAbout,
+      ministries: renderMinistries,
+      ministryDetail: renderMinistryDetail,
+      houseFellowships: renderHouseFellowships,
       chapels: renderChapels,
       sermons: renderSermons,
       publications: renderPublications,

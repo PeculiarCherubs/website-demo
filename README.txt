@@ -118,3 +118,25 @@ BIBLE COLLEGE UPDATE
   content/site-content.json under bibleCollege.
 - Registration and student-portal links are placeholders until the
   school selects its form, learning platform or portal system.
+
+
+DEVELOP FEATURE — MINISTRIES
+- Replaced the standalone PDCMs and Bible College navigation tabs with one MINISTRIES menu.
+- Added desktop and mobile Ministries dropdown navigation.
+- Added a Ministries landing page grouped into PDCM Chapels, Education,
+  Age-Grade Ministries, and Fellowship/Outreach.
+- Added individual pages for the current PDCM chapels, PESACH International
+  Academy, Children Ministry, Teenage Ministry, the PDCM mission, and the
+  Feeding Ministry.
+- Christian Heritage Bible School remains a dedicated page but is now reached
+  through Ministries.
+- Added the current 20-centre House Fellowship directory without phone numbers.
+- Corrected Gwarinpa spelling throughout the feature.
+- PDCM Mega Youth Chapel is presented as a standalone church for ages 20–40.
+- Senior Pastor title is Special Apostle Pastor.
+- The old pdcms.html URL redirects to the Ministries page for compatibility.
+
+CONTENT SOURCE
+- Current ministry leaders and chapel addresses are based on the latest media
+  supplied for the development build.
+- Phone numbers are intentionally excluded from all public page content.
