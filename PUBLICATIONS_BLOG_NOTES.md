@@ -74,3 +74,9 @@ Then add the template-specific object:
 
 No new HTML page is needed for each publication. The single `publication.html`
 page renders the correct article based on the slug in the URL.
+
+
+## Ministries dropdown correction
+
+- Added **Jesus Loves You Feeding Ministry** to the Ministries dropdown.
+- The existing `feeding-ministry.html` page and Ministries landing-page card remain unchanged.
