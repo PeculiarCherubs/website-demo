@@ -396,10 +396,10 @@ function renderPublications(content) {
 
   const lectionary = content.publications?.lectionaryCalendar;
   const lectionaryContainer = document.querySelector("[data-lectionary-readings]");
+  const monthSelect = document.querySelector("[data-lectionary-month-select]");
 
   if (!lectionary) {
     console.error("Lectionary data is missing at publications.lectionaryCalendar.");
-
     if (lectionaryContainer) {
       lectionaryContainer.innerHTML = `
         <article class="lectionary-card">
@@ -408,91 +408,76 @@ function renderPublications(content) {
         </article>
       `;
     }
-
     return;
   }
 
-  {
-    setText(
-      "[data-lectionary-eyebrow]",
-      lectionary.eyebrow
-    );
+  setText("[data-lectionary-eyebrow]", lectionary.eyebrow);
+  setText("[data-lectionary-title]", lectionary.title);
+  setText("[data-lectionary-description]", lectionary.description);
+  setLink("[data-lectionary-download]", {
+    label: lectionary.button,
+    href: lectionary.href
+  });
 
-    setText(
-      "[data-lectionary-title]",
-      lectionary.title
-    );
+  const readingItems = Array.isArray(lectionary.readings) ? lectionary.readings : [];
+  const months = [...new Set(readingItems.map(item => item.month).filter(Boolean))];
 
-    setText(
-      "[data-lectionary-description]",
-      lectionary.description
-    );
+  const currentMonthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date());
+  let selectedMonth = months.includes(currentMonthName)
+    ? currentMonthName
+    : (lectionary.currentMonth || months[0] || "").split(" ")[0];
 
-    setText(
-      "[data-lectionary-month]",
-      lectionary.currentMonth
-    );
-
-    setLink(
-      "[data-lectionary-download]",
-      {
-        label: lectionary.button,
-        href: lectionary.href
-      }
-    );
-
-    const readings = lectionaryContainer;
-
-    if (readings) {
-      const readingItems = Array.isArray(lectionary.readings)
-        ? lectionary.readings
-        : [];
-
-      readings.innerHTML = readingItems
-        .map(reading => `
-          <article class="lectionary-card">
-            <div class="lectionary-date">
-              ${escapeHtml(reading.date)}
-            </div>
-        
-            <h3>
-              ${escapeHtml(reading.occasion)}
-            </h3>
-        
-            <div class="lectionary-reading-list">
-              <p>
-                <span>Old Testament</span>
-                <strong>
-                  ${escapeHtml(reading.oldTestament)}
-                </strong>
-              </p>
-        
-              <p>
-                <span>Psalm</span>
-                <strong>
-                  ${escapeHtml(reading.psalm)}
-                </strong>
-              </p>
-        
-              <p>
-                <span>Epistle</span>
-                <strong>
-                  ${escapeHtml(reading.epistle)}
-                </strong>
-              </p>
-        
-              <p>
-                <span>Gospel</span>
-                <strong>
-                  ${escapeHtml(reading.gospel)}
-                </strong>
-              </p>
-            </div>
-          </article>
-        `)
-        .join("");
-    }
+  if (monthSelect) {
+    monthSelect.innerHTML = months
+      .map(month => `<option value="${escapeHtml(month)}">${escapeHtml(month)}</option>`)
+      .join("");
+    monthSelect.value = selectedMonth;
   }
+
+  const renderLectionaryMonth = month => {
+    selectedMonth = month;
+    setText("[data-lectionary-month]", `${month} 2026`);
+
+    if (!lectionaryContainer) return;
+
+    const filtered = readingItems.filter(item => item.month === month);
+    lectionaryContainer.innerHTML = filtered.map(reading => `
+      <article class="lectionary-card">
+        <div class="lectionary-card-top">
+          <div class="lectionary-date">${escapeHtml(reading.dateDisplay || reading.date)}</div>
+          <span class="lectionary-week">${escapeHtml(reading.week)}</span>
+        </div>
+
+        ${reading.event ? `<div class="lectionary-special-event">${escapeHtml(reading.event)}</div>` : ""}
+        <h3>${escapeHtml(reading.topic)}</h3>
+
+        <div class="lectionary-scripture">
+          <span>Scripture</span>
+          <strong>${escapeHtml(reading.scripture)}</strong>
+        </div>
+
+        ${reading.objective ? `
+          <details class="lectionary-objective">
+            <summary>View sermon objective</summary>
+            <p>${escapeHtml(reading.objective)}</p>
+          </details>
+        ` : ""}
+
+        ${reading.verificationNote ? `
+          <p class="lectionary-verification">${escapeHtml(reading.verificationNote)}</p>
+        ` : ""}
+      </article>
+    `).join("");
+
+    if (!filtered.length) {
+      lectionaryContainer.innerHTML = `
+        <div class="event-empty-state">No lectionary entries were found for ${escapeHtml(month)}.</div>
+      `;
+    }
+  };
+
+  monthSelect?.addEventListener("change", event => renderLectionaryMonth(event.target.value));
+  renderLectionaryMonth(selectedMonth);
 }
 
 function renderQuickLinks(content) {
@@ -766,6 +751,493 @@ function renderBibleCollege(content) {
   }
 }
 
+
+function parseEventDate(dateValue, timeValue = "00:00", endOfDay = false) {
+  if (!dateValue) return null;
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const [hour, minute] = String(timeValue || "00:00").split(":").map(Number);
+  return new Date(
+    year,
+    month - 1,
+    day,
+    endOfDay && !timeValue ? 23 : (hour || 0),
+    endOfDay && !timeValue ? 59 : (minute || 0),
+    endOfDay && !timeValue ? 59 : 0
+  );
+}
+
+function eventStart(event) {
+  return parseEventDate(event.startDate, event.startTime);
+}
+
+function eventEnd(event) {
+  return parseEventDate(
+    event.endDate || event.startDate,
+    event.endTime || event.startTime,
+    event.allDay || (!event.endTime && !event.startTime)
+  );
+}
+
+function eventDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatEventSchedule(event) {
+  const start = eventStart(event);
+  const end = eventEnd(event);
+  if (!start) return "";
+
+  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const timeFormatter = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  const sameDate = start && end && eventDateKey(start) === eventDateKey(end);
+  let dateText = dateFormatter.format(start);
+
+  if (!sameDate && end) {
+    dateText = `${dateFormatter.format(start)} – ${dateFormatter.format(end)}`;
+  }
+
+  if (!event.allDay && event.startTime) {
+    dateText += ` · ${timeFormatter.format(start)}`;
+    if (event.endTime && end) dateText += `–${timeFormatter.format(end)}`;
+  }
+
+  return dateText;
+}
+
+function recurringOccurrencesForMonth(recurringItems, year, monthIndex) {
+  const occurrences = [];
+  const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+
+  recurringItems.filter(item => item.published !== false).forEach(item => {
+    let occurrenceNumber = 0;
+
+    for (let day = 1; day <= lastDay; day += 1) {
+      const date = new Date(year, monthIndex, day);
+      if (date.getDay() !== Number(item.weekday)) continue;
+
+      occurrenceNumber += 1;
+      if (item.weekOfMonth && occurrenceNumber !== Number(item.weekOfMonth)) continue;
+
+      const dateValue = eventDateKey(date);
+      occurrences.push({
+        ...item,
+        id: `${item.id}-${dateValue}`,
+        parentId: item.id,
+        startDate: dateValue,
+        endDate: dateValue,
+        allDay: false,
+        recurring: true
+      });
+    }
+  });
+
+  return occurrences;
+}
+
+function eventCard(event, type = "upcoming") {
+  const links = Array.isArray(event.catchUpLinks) ? event.catchUpLinks : [];
+  const linkMarkup = links.map(link => `
+    <a class="text-link" href="${escapeHtml(link.href)}">${escapeHtml(link.label)} ↗</a>
+  `).join("");
+
+  return `
+    <article class="event-list-card event-category-${escapeHtml(event.category || "event").toLowerCase().replaceAll(" ", "-").replaceAll("&", "and")}">
+      <div class="meta">${escapeHtml(event.category || "Event")}</div>
+      <h3>${escapeHtml(event.title)}</h3>
+      <p class="event-list-date">${escapeHtml(formatEventSchedule(event))}</p>
+      <p>${escapeHtml(event.description || "")}</p>
+      <div class="event-card-actions">
+        <button class="text-link event-detail-button" type="button" data-open-event="${escapeHtml(event.id)}">View details ↗</button>
+        ${type === "catchup" ? linkMarkup : ""}
+      </div>
+    </article>
+  `;
+}
+
+function renderEvents(content) {
+  renderStandardHero(content.events);
+
+  const eventContent = content.events || {};
+  const specialEvents = (eventContent.items || []).filter(item => item.published !== false);
+  const recurringItems = (eventContent.recurring || []).filter(item => item.published !== false);
+  const now = new Date();
+
+  const upcoming = specialEvents
+    .filter(item => eventEnd(item) >= now)
+    .sort((a, b) => eventStart(a) - eventStart(b));
+
+  const past = specialEvents
+    .filter(item => eventEnd(item) < now)
+    .sort((a, b) => eventEnd(b) - eventEnd(a));
+
+  const nextEvent = upcoming.find(item => eventStart(item) <= now && eventEnd(item) >= now)
+    || upcoming[0];
+
+  const runtimeEvents = new Map(specialEvents.map(item => [item.id, item]));
+  let selectedDialogEvent = null;
+
+  const nextCard = document.querySelector("[data-next-event]");
+  if (!nextEvent) {
+    nextCard?.classList.add("event-watch-empty");
+    setText("[data-next-event-status]", "Calendar update");
+    setText("[data-next-event-title]", "No upcoming special event is currently published.");
+    setText("[data-next-event-description]", "Regular weekly services remain available in the calendar below.");
+  } else {
+    const ongoing = eventStart(nextEvent) <= now && eventEnd(nextEvent) >= now;
+    setText("[data-next-event-status]", ongoing ? "Happening now" : "Next special event");
+    setText("[data-next-event-title]", nextEvent.title);
+    setText("[data-next-event-description]", nextEvent.description);
+
+    const meta = document.querySelector("[data-next-event-meta]");
+    if (meta) {
+      meta.innerHTML = `
+        <span>${escapeHtml(formatEventSchedule(nextEvent))}</span>
+        ${nextEvent.location ? `<span>${escapeHtml(nextEvent.location)}</span>` : ""}
+        <button class="text-link event-detail-button" type="button" data-open-event="${escapeHtml(nextEvent.id)}">View details ↗</button>
+      `;
+    }
+
+    const countdown = document.querySelector("[data-next-event-countdown]");
+    const updateCountdown = () => {
+      if (!countdown) return;
+      const difference = eventStart(nextEvent) - new Date();
+
+      if (difference <= 0 && eventEnd(nextEvent) >= new Date()) {
+        countdown.innerHTML = `<strong>NOW</strong><span>Join the programme</span>`;
+        return;
+      }
+
+      if (difference <= 0) {
+        countdown.innerHTML = `<strong>DONE</strong><span>See Catch Up below</span>`;
+        return;
+      }
+
+      const days = Math.floor(difference / 86400000);
+      const hours = Math.floor((difference % 86400000) / 3600000);
+      const minutes = Math.floor((difference % 3600000) / 60000);
+      countdown.innerHTML = `
+        <strong>${days > 0 ? `${days}d` : `${hours}h`}</strong>
+        <span>${days > 0 ? `${hours} hours remaining` : `${minutes} minutes remaining`}</span>
+      `;
+    };
+
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+  }
+
+  const upcomingContainer = document.querySelector("[data-upcoming-events]");
+  const upcomingEmpty = document.querySelector("[data-upcoming-empty]");
+  if (upcomingContainer) {
+    upcomingContainer.innerHTML = upcoming.slice(0, 9).map(item => eventCard(item)).join("");
+  }
+  if (upcomingEmpty) upcomingEmpty.hidden = upcoming.length > 0;
+
+  const catchupContainer = document.querySelector("[data-catchup-events]");
+  const catchupToggle = document.querySelector("[data-catchup-toggle]");
+  let catchupExpanded = false;
+
+  const renderCatchup = () => {
+    if (!catchupContainer) return;
+    const visible = catchupExpanded ? past : past.slice(0, 6);
+    catchupContainer.innerHTML = visible.map(item => eventCard(item, "catchup")).join("");
+
+    if (catchupToggle) {
+      catchupToggle.hidden = past.length <= 6;
+      catchupToggle.textContent = catchupExpanded ? "Show fewer past events" : "Show all past events";
+    }
+  };
+
+  catchupToggle?.addEventListener("click", () => {
+    catchupExpanded = !catchupExpanded;
+    renderCatchup();
+  });
+  renderCatchup();
+
+  const rhythm = document.querySelector("[data-weekly-rhythm]");
+  if (rhythm) {
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    rhythm.innerHTML = recurringItems.map(item => `
+      <article class="weekly-rhythm-card">
+        <div class="weekly-rhythm-day">${escapeHtml(dayNames[item.weekday])}</div>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.startTime)}${item.endTime ? `–${escapeHtml(item.endTime)}` : ""}</p>
+        ${item.weekOfMonth ? `<span>First ${escapeHtml(dayNames[item.weekday])} monthly</span>` : `<span>Every ${escapeHtml(dayNames[item.weekday])}</span>`}
+      </article>
+    `).join("");
+  }
+
+  const socialFeed = (eventContent.socialFeed || []).filter(item => item.published !== false);
+  const socialContainer = document.querySelector("[data-event-social-feed]");
+  const socialEmpty = document.querySelector("[data-social-feed-empty]");
+
+  if (socialContainer) {
+    socialContainer.innerHTML = socialFeed.map(item => `
+      <a class="social-event-card" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">
+        ${item.thumbnail ? `<div class="social-event-thumb" style="background-image:url('${escapeHtml(item.thumbnail)}')"></div>` : ""}
+        <div>
+          <div class="meta">${escapeHtml(item.platform || item.type || "Media")}</div>
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(item.text || "")}</p>
+          <span>Open post ↗</span>
+        </div>
+      </a>
+    `).join("");
+  }
+
+  if (socialEmpty) {
+    socialEmpty.hidden = socialFeed.length > 0;
+    setText("[data-social-empty-title]", eventContent.socialFeedEmpty?.title);
+    setText("[data-social-empty-text]", eventContent.socialFeedEmpty?.text);
+  }
+
+  const calendar = document.querySelector("[data-event-calendar]");
+  const calendarMonth = document.querySelector("[data-calendar-month]");
+  const categoryFilter = document.querySelector("[data-calendar-filter]");
+  const categories = [...new Set([
+    ...specialEvents.map(item => item.category),
+    ...recurringItems.map(item => item.category)
+  ].filter(Boolean))].sort();
+
+  if (categoryFilter) {
+    categoryFilter.innerHTML = `
+      <option value="all">All events</option>
+      ${categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join("")}
+    `;
+  }
+
+  const today = new Date();
+  const defaultParts = String(eventContent.defaultMonth || "").split("-").map(Number);
+  let viewDate = (
+    specialEvents.some(item => eventStart(item)?.getFullYear() === today.getFullYear())
+      ? new Date(today.getFullYear(), today.getMonth(), 1)
+      : new Date(defaultParts[0] || today.getFullYear(), (defaultParts[1] || today.getMonth() + 1) - 1, 1)
+  );
+
+  const renderCalendar = () => {
+    if (!calendar) return;
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const filterValue = categoryFilter?.value || "all";
+    const monthName = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(viewDate);
+    if (calendarMonth) calendarMonth.textContent = monthName;
+
+    const theme = (eventContent.monthlyThemes || []).find(item =>
+      item.month.toLowerCase() === new Intl.DateTimeFormat("en-US", { month: "long" }).format(viewDate).toLowerCase()
+    );
+
+    setText("[data-calendar-quarter]", theme?.quarterAim || "");
+    setText("[data-calendar-theme]", theme?.centralTheme || "");
+    setText("[data-calendar-declaration]", theme?.declaration || "");
+
+    const recurringOccurrences = recurringOccurrencesForMonth(recurringItems, year, month);
+    recurringOccurrences.forEach(item => runtimeEvents.set(item.id, item));
+
+    const monthEvents = [...specialEvents, ...recurringOccurrences].filter(item => {
+      const start = eventStart(item);
+      const end = eventEnd(item);
+      const monthStart = new Date(year, month, 1);
+      const monthEnd = new Date(year, month + 1, 0, 23, 59, 59);
+      const inMonth = start <= monthEnd && end >= monthStart;
+      return inMonth && (filterValue === "all" || item.category === filterValue);
+    });
+
+    const eventMap = new Map();
+    monthEvents.forEach(item => {
+      const start = eventStart(item);
+      const end = eventEnd(item);
+      if (!start || !end) return;
+
+      const cursor = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+      while (cursor <= endDay) {
+        if (cursor.getFullYear() === year && cursor.getMonth() === month) {
+          const key = eventDateKey(cursor);
+          if (!eventMap.has(key)) eventMap.set(key, []);
+          eventMap.get(key).push(item);
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
+    });
+
+    const firstWeekday = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const previousMonthDays = new Date(year, month, 0).getDate();
+    const cells = [];
+
+    for (let index = 0; index < 42; index += 1) {
+      const dayNumber = index - firstWeekday + 1;
+      let cellDate;
+      let outside = false;
+
+      if (dayNumber < 1) {
+        cellDate = new Date(year, month - 1, previousMonthDays + dayNumber);
+        outside = true;
+      } else if (dayNumber > daysInMonth) {
+        cellDate = new Date(year, month + 1, dayNumber - daysInMonth);
+        outside = true;
+      } else {
+        cellDate = new Date(year, month, dayNumber);
+      }
+
+      const key = eventDateKey(cellDate);
+      const dayEvents = outside ? [] : (eventMap.get(key) || []);
+      const isToday = key === eventDateKey(new Date());
+
+      cells.push(`
+        <div class="calendar-day${outside ? " outside-month" : ""}${isToday ? " calendar-today-cell" : ""}">
+          <span class="calendar-day-number">${cellDate.getDate()}</span>
+          <div class="calendar-day-events">
+            ${dayEvents.slice(0, 3).map(item => `
+              <button class="calendar-event-chip${item.recurring ? " recurring-chip" : ""}"
+                type="button"
+                data-open-event="${escapeHtml(item.id)}"
+                title="${escapeHtml(item.title)}">
+                ${escapeHtml(item.title)}
+              </button>
+            `).join("")}
+            ${dayEvents.length > 3 ? `<span class="calendar-more">+${dayEvents.length - 3} more</span>` : ""}
+          </div>
+        </div>
+      `);
+    }
+
+    calendar.innerHTML = `
+      <div class="calendar-weekdays">
+        ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => `<span>${day}</span>`).join("")}
+      </div>
+      <div class="calendar-days">${cells.join("")}</div>
+    `;
+  };
+
+  document.querySelector("[data-calendar-prev]")?.addEventListener("click", () => {
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+    renderCalendar();
+  });
+
+  document.querySelector("[data-calendar-next]")?.addEventListener("click", () => {
+    viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+    renderCalendar();
+  });
+
+  document.querySelector("[data-calendar-today]")?.addEventListener("click", () => {
+    viewDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    renderCalendar();
+  });
+
+  categoryFilter?.addEventListener("change", renderCalendar);
+  renderCalendar();
+
+  const dialog = document.querySelector("[data-event-dialog]");
+  const dialogLinks = document.querySelector("[data-dialog-links]");
+
+  const openDialog = event => {
+    if (!event || !dialog) return;
+    selectedDialogEvent = event;
+    setText("[data-dialog-category]", event.category || "Event");
+    setText("[data-dialog-title]", event.title);
+    setText("[data-dialog-description]", event.description || "");
+
+    const meta = document.querySelector("[data-dialog-meta]");
+    if (meta) {
+      meta.innerHTML = `
+        <span>${escapeHtml(formatEventSchedule(event))}</span>
+        ${event.location ? `<span>${escapeHtml(event.location)}</span>` : ""}
+        ${event.recurring ? `<span>Recurring event</span>` : ""}
+      `;
+    }
+
+    if (dialogLinks) {
+      const links = Array.isArray(event.catchUpLinks) ? event.catchUpLinks : [];
+      dialogLinks.innerHTML = links.map(link => `
+        <a class="text-link" href="${escapeHtml(link.href)}">${escapeHtml(link.label)} ↗</a>
+      `).join("");
+    }
+
+    if (typeof dialog.showModal === "function") {
+      dialog.showModal();
+    } else {
+      dialog.setAttribute("open", "");
+    }
+  };
+
+  document.addEventListener("click", event => {
+    const trigger = event.target.closest("[data-open-event]");
+    if (!trigger) return;
+    const selected = runtimeEvents.get(trigger.dataset.openEvent);
+    openDialog(selected);
+  });
+
+  document.querySelector("[data-event-dialog-close]")?.addEventListener("click", () => dialog?.close());
+  dialog?.addEventListener("click", event => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  document.querySelector("[data-dialog-calendar]")?.addEventListener("click", () => {
+    if (!selectedDialogEvent) return;
+
+    const clean = value => String(value || "")
+      .replaceAll("\\", "\\\\")
+      .replaceAll(",", "\\,")
+      .replaceAll(";", "\\;")
+      .replaceAll("\n", "\\n");
+
+    const formatIcsDate = (date, allDay) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      if (allDay) return `${y}${m}${d}`;
+      const h = String(date.getHours()).padStart(2, "0");
+      const min = String(date.getMinutes()).padStart(2, "0");
+      return `${y}${m}${d}T${h}${min}00`;
+    };
+
+    const start = eventStart(selectedDialogEvent);
+    const end = eventEnd(selectedDialogEvent) || start;
+    const allDay = Boolean(selectedDialogEvent.allDay);
+    const lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Peculiar Cherubs//Events//EN",
+      "BEGIN:VEVENT",
+      `UID:${clean(selectedDialogEvent.id)}@peculiarcherubs.org`,
+      allDay
+        ? `DTSTART;VALUE=DATE:${formatIcsDate(start, true)}`
+        : `DTSTART;TZID=Africa/Lagos:${formatIcsDate(start, false)}`,
+      allDay
+        ? `DTEND;VALUE=DATE:${formatIcsDate(new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1), true)}`
+        : `DTEND;TZID=Africa/Lagos:${formatIcsDate(end, false)}`,
+      `SUMMARY:${clean(selectedDialogEvent.title)}`,
+      `DESCRIPTION:${clean(selectedDialogEvent.description)}`,
+      `LOCATION:${clean(selectedDialogEvent.location)}`,
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ];
+
+    const blob = new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${selectedDialogEvent.id}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  });
+}
+
 function renderGive(content) {
   renderStandardHero(content.give);
   setText("[data-give-why-eyebrow]", content.give.why.eyebrow);
@@ -855,6 +1327,7 @@ async function initialiseSite() {
       sermons: renderSermons,
       publications: renderPublications,
       quickLinks: renderQuickLinks,
+      events: renderEvents,
       give: renderGive,
       bibleCollege: renderBibleCollege
     };

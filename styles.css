@@ -3241,3 +3241,684 @@ body[data-page="chapels"] .page-hero-brand-mark {
 /* LECTIONARY FIX BUILD
    The matching .lectionary-* styles are present in this file.
    Keep this file named exactly styles.css beside publications.html. */
+
+
+/* ================================================================
+   DEVELOP FEATURE: Full-year Lectionary + Events Calendar
+   ================================================================ */
+
+.lectionary-month-control {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+}
+
+.lectionary-month-control label,
+.calendar-filter {
+  display: grid;
+  gap: .3rem;
+}
+
+.lectionary-month-control label span,
+.calendar-filter span {
+  color: rgba(255,255,255,.72);
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.lectionary-month-control select,
+.calendar-filter select {
+  min-width: 170px;
+  padding: .72rem .9rem;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--navy);
+  font: inherit;
+  font-weight: 800;
+}
+
+.lectionary-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.lectionary-week {
+  color: var(--red);
+  font-weight: 900;
+  font-size: .78rem;
+}
+
+.lectionary-special-event {
+  display: inline-flex;
+  margin-top: 1rem;
+  padding: .4rem .7rem;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--white);
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.lectionary-scripture {
+  display: grid;
+  gap: .45rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(22,34,73,.12);
+  border-bottom: 1px solid rgba(22,34,73,.12);
+}
+
+.lectionary-scripture span {
+  color: var(--red);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.lectionary-scripture strong {
+  color: var(--navy);
+}
+
+.lectionary-objective {
+  margin-top: 1rem;
+}
+
+.lectionary-objective summary {
+  cursor: pointer;
+  color: var(--navy);
+  font-weight: 900;
+}
+
+.lectionary-objective p {
+  margin-top: .8rem;
+}
+
+.lectionary-verification {
+  margin-top: 1rem;
+  padding: .8rem;
+  border-radius: 12px;
+  background: #fff5d8;
+  color: #6d5200;
+  font-size: .82rem;
+}
+
+.lectionary-card:hover .lectionary-scripture span,
+.lectionary-card:hover .lectionary-scripture strong,
+.lectionary-card:hover .lectionary-objective summary,
+.lectionary-card:hover .lectionary-week {
+  color: inherit;
+}
+
+.events-page-hero {
+  background:
+    radial-gradient(circle at 80% 40%, rgba(255,255,0,.18), transparent 25%),
+    linear-gradient(150deg, var(--navy), #263e88);
+}
+
+.event-watch-section {
+  background: var(--white);
+}
+
+.event-watch-card {
+  min-height: 420px;
+  padding: 3rem;
+  border-radius: 34px;
+  display: grid;
+  grid-template-columns: 1.25fr .75fr;
+  gap: 3rem;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  background:
+    radial-gradient(circle at 82% 50%, rgba(255,255,0,.22), transparent 25%),
+    var(--navy);
+  color: var(--white);
+}
+
+.event-watch-card::after {
+  content: "";
+  position: absolute;
+  right: -80px;
+  bottom: -100px;
+  width: 360px;
+  aspect-ratio: 1;
+  background: url("assets/logos/cross-radiance.png") center/contain no-repeat;
+  opacity: .08;
+}
+
+.event-watch-card h2,
+.event-watch-card p {
+  color: var(--white);
+}
+
+.event-watch-card p {
+  color: rgba(255,255,255,.75);
+  max-width: 700px;
+}
+
+.event-watch-status {
+  margin: .8rem 0;
+  color: var(--yellow);
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.event-watch-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem 1.2rem;
+  align-items: center;
+  color: rgba(255,255,255,.78);
+  font-weight: 700;
+}
+
+.event-watch-meta .text-link {
+  color: var(--yellow);
+}
+
+.event-countdown {
+  min-height: 230px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+  background: var(--yellow);
+  color: var(--navy);
+  position: relative;
+  z-index: 2;
+}
+
+.event-countdown strong {
+  display: block;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: .9;
+}
+
+.event-countdown span {
+  margin-top: .7rem;
+  font-weight: 900;
+}
+
+.events-calendar-section {
+  background: #f7f8fb;
+}
+
+.calendar-theme-banner {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 20px;
+  background: var(--sky);
+  color: var(--navy);
+}
+
+.calendar-theme-banner span {
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.calendar-theme-banner strong {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.25rem;
+}
+
+.calendar-theme-banner em {
+  color: var(--red);
+  font-weight: 800;
+}
+
+.calendar-toolbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.2rem;
+  border-radius: 22px 22px 0 0;
+  background: var(--navy);
+}
+
+.calendar-toolbar h3 {
+  margin: 0;
+  color: var(--white);
+  text-align: center;
+  font-size: 1.8rem;
+}
+
+.calendar-nav-controls {
+  display: flex;
+  gap: .45rem;
+}
+
+.calendar-control {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 12px;
+  background: rgba(255,255,255,.08);
+  color: var(--white);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.calendar-control:hover {
+  background: var(--yellow);
+  color: var(--navy);
+  border-color: var(--yellow);
+}
+
+.calendar-today {
+  padding-inline: .9rem;
+}
+
+.event-calendar {
+  overflow: hidden;
+  border: 1px solid rgba(22,34,73,.12);
+  border-top: 0;
+  border-radius: 0 0 22px 22px;
+  background: var(--white);
+}
+
+.calendar-weekdays,
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.calendar-weekdays span {
+  padding: .8rem;
+  background: var(--sky);
+  color: var(--navy);
+  text-align: center;
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  min-height: 145px;
+  padding: .65rem;
+  border-top: 1px solid rgba(22,34,73,.09);
+  border-right: 1px solid rgba(22,34,73,.09);
+  background: var(--white);
+}
+
+.calendar-day:nth-child(7n) {
+  border-right: 0;
+}
+
+.calendar-day.outside-month {
+  background: #f5f6f8;
+  opacity: .52;
+}
+
+.calendar-today-cell {
+  box-shadow: inset 0 0 0 3px var(--yellow);
+}
+
+.calendar-day-number {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--navy);
+  font-weight: 900;
+  font-size: .82rem;
+}
+
+.calendar-today-cell .calendar-day-number {
+  background: var(--navy);
+  color: var(--yellow);
+}
+
+.calendar-day-events {
+  display: grid;
+  gap: .35rem;
+  margin-top: .45rem;
+}
+
+.calendar-event-chip {
+  width: 100%;
+  padding: .42rem .48rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--red);
+  color: var(--white);
+  text-align: left;
+  font: inherit;
+  font-size: .68rem;
+  font-weight: 800;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.calendar-event-chip:hover {
+  background: var(--navy);
+  color: var(--yellow);
+}
+
+.recurring-chip {
+  background: var(--sky);
+  color: var(--navy);
+}
+
+.calendar-more {
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.weekly-rhythm-grid,
+.upcoming-event-grid,
+.catchup-event-grid,
+.social-event-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.weekly-rhythm-card,
+.event-list-card {
+  min-height: 260px;
+  padding: 1.7rem;
+  border-radius: 26px;
+  border: 1px solid rgba(22,34,73,.1);
+  background: var(--white);
+  transition: .25s ease;
+}
+
+.weekly-rhythm-card:hover,
+.event-list-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
+}
+
+.weekly-rhythm-card:nth-child(3n+1):hover,
+.event-list-card:nth-child(3n+1):hover {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.weekly-rhythm-card:nth-child(3n+2):hover,
+.event-list-card:nth-child(3n+2):hover {
+  background: var(--red);
+  color: var(--white);
+}
+
+.weekly-rhythm-card:nth-child(3n):hover,
+.event-list-card:nth-child(3n):hover {
+  background: var(--yellow);
+  color: var(--navy);
+}
+
+.weekly-rhythm-card h3,
+.event-list-card h3,
+.weekly-rhythm-card p,
+.event-list-card p {
+  color: inherit;
+}
+
+.weekly-rhythm-day {
+  color: var(--red);
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  font-size: .75rem;
+}
+
+.weekly-rhythm-card:nth-child(3n+1):hover .weekly-rhythm-day,
+.weekly-rhythm-card:nth-child(3n+2):hover .weekly-rhythm-day,
+.event-list-card:nth-child(3n+1):hover .meta,
+.event-list-card:nth-child(3n+2):hover .meta {
+  color: var(--yellow);
+}
+
+.weekly-rhythm-card span {
+  color: inherit;
+  opacity: .72;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.event-list-date {
+  color: var(--red) !important;
+  font-weight: 900;
+}
+
+.event-list-card:nth-child(3n+1):hover .event-list-date,
+.event-list-card:nth-child(3n+2):hover .event-list-date {
+  color: var(--yellow) !important;
+}
+
+.event-card-actions,
+.event-dialog-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem 1.2rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.event-detail-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.event-catchup-section {
+  background: var(--sky);
+}
+
+.catchup-toggle {
+  display: flex;
+  margin: 2rem auto 0;
+}
+
+.social-events-section {
+  background: var(--navy);
+}
+
+.social-events-section h2 {
+  color: var(--white);
+}
+
+.social-event-card {
+  overflow: hidden;
+  border-radius: 26px;
+  background: var(--white);
+  transition: .25s ease;
+}
+
+.social-event-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 55px rgba(0,0,0,.24);
+}
+
+.social-event-thumb {
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+}
+
+.social-event-card > div:last-child {
+  padding: 1.5rem;
+}
+
+.social-event-card span {
+  color: var(--red);
+  font-weight: 900;
+}
+
+.social-feed-empty {
+  padding: 2rem;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 24px;
+  background: rgba(255,255,255,.06);
+}
+
+.social-feed-empty h3 {
+  color: var(--white);
+}
+
+.social-feed-empty p {
+  color: rgba(255,255,255,.7);
+}
+
+.event-empty-state {
+  padding: 2rem;
+  border-radius: 22px;
+  background: var(--sky);
+  color: var(--navy);
+  text-align: center;
+  font-weight: 800;
+}
+
+.event-dialog {
+  width: min(680px, 92vw);
+  padding: 2.5rem;
+  border: 0;
+  border-radius: 28px;
+  box-shadow: 0 30px 90px rgba(15,24,56,.35);
+}
+
+.event-dialog::backdrop {
+  background: rgba(15,24,56,.72);
+  backdrop-filter: blur(5px);
+}
+
+.event-dialog-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sky);
+  color: var(--navy);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.event-dialog-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--red);
+  font-weight: 800;
+}
+
+.quick-events-cta {
+  margin-top: 2rem;
+  padding: 2rem;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  background: var(--navy);
+}
+
+.quick-events-cta h3,
+.quick-events-cta p {
+  color: var(--white);
+}
+
+.quick-events-cta p {
+  color: rgba(255,255,255,.7);
+  max-width: 680px;
+}
+
+@media(max-width:1000px) {
+  .weekly-rhythm-grid,
+  .upcoming-event-grid,
+  .catchup-event-grid,
+  .social-event-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .calendar-day {
+    min-height: 120px;
+  }
+}
+
+@media(max-width:800px) {
+  .event-watch-card {
+    grid-template-columns: 1fr;
+  }
+
+  .event-countdown {
+    min-height: 230px;
+    width: min(280px, 100%);
+    aspect-ratio: 1;
+    margin-inline: auto;
+  }
+
+  .calendar-theme-banner,
+  .calendar-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-toolbar h3 {
+    text-align: left;
+  }
+
+  .calendar-filter select {
+    width: 100%;
+  }
+
+  .event-calendar {
+    overflow-x: auto;
+  }
+
+  .calendar-weekdays,
+  .calendar-days {
+    min-width: 820px;
+  }
+
+  .quick-events-cta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lectionary-month-control {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media(max-width:620px) {
+  .weekly-rhythm-grid,
+  .upcoming-event-grid,
+  .catchup-event-grid,
+  .social-event-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-watch-card {
+    padding: 2rem;
+  }
+
+  .calendar-theme-banner {
+    gap: .5rem;
+  }
+}
