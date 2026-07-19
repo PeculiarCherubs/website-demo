@@ -71,11 +71,43 @@
     },
     {
       "label": "PUBLICATIONS",
-      "href": "publications.html"
+      "href": "publications.html",
+      "children": [
+        {
+          "label": "All Publications",
+          "href": "publications.html"
+        },
+        {
+          "label": "Daily Morning Devotion",
+          "href": "publications.html#daily-devotion"
+        },
+        {
+          "label": "Goodnews This Week",
+          "href": "publications.html#goodnews"
+        },
+        {
+          "label": "Sunday School Bible Study",
+          "href": "publications.html#sunday-school"
+        },
+        {
+          "label": "Calendar of Lectionary",
+          "href": "publications.html#lectionary"
+        }
+      ]
     },
     {
       "label": "QUICK LINKS",
-      "href": "quick-links.html"
+      "href": "quick-links.html",
+      "children": [
+        {
+          "label": "All Quick Links",
+          "href": "quick-links.html"
+        },
+        {
+          "label": "Events Calendar",
+          "href": "events.html"
+        }
+      ]
     },
     {
       "label": "GIVE",
@@ -322,8 +354,8 @@
   "publications": {
     "hero": {
       "eyebrow": "Publications",
-      "title": "Read. Reflect.\nGrow.",
-      "description": "Explore Daily Morning Devotion, Goodnews This Week, Sunday School Outline, church news, teaching resources, and ministry updates from Peculiar Cherubs."
+      "title": "Read the Word.\nLive the truth.",
+      "description": "Explore Daily Morning Devotion, Goodnews This Week, Sunday School Bible Study, and the 2026 Calendar of Lectionary in a consistent, readable blog format."
     },
     "dailyDevotion": {
       "type": "Daily Morning Devotion",
@@ -382,44 +414,1118 @@
       "href": "#"
     },
     "lectionaryCalendar": {
-      "eyebrow": "Calendar of Lectionary",
-      "title": "Follow the church’s scripture readings.",
-      "description": "View the appointed Bible readings for Sundays, services, seasons, and special church observances.",
-      "currentMonth": "January 2026",
+      "eyebrow": "2026 Calendar of Lectionary",
+      "title": "Follow the church’s scripture readings and teaching plan.",
+      "description": "Browse the authenticated 2026 headquarters lectionary by month, including scripture texts, sermon topics, objectives, and special observances.",
+      "currentMonth": "July 2026",
       "button": "Download Full Lectionary",
       "href": "#",
       "readings": [
         {
-          "date": "January 4",
-          "occasion": "First Sunday of the Year",
-          "oldTestament": "Isaiah 43:18–19",
-          "psalm": "Psalm 103:1–5",
-          "epistle": "2 Corinthians 5:17–21",
-          "gospel": "Luke 5:1–11"
+          "date": "2026-01-04",
+          "dateDisplay": "January 4, 2026",
+          "month": "January",
+          "week": "WK1",
+          "topic": "MERCY AS A GIFT OF GOD’S GRACE",
+          "scripture": "Isaiah 54:1-14 Luke 1:68-79",
+          "objective": "Define the concept of mercy. Teach on how believers can access this gift of God’s grace and share the same in this hurting world. Using biblical examples, illustrate on a lifestyle marked by Mercy and the drawbacks of not embracing a lifestyle marked by mercy",
+          "event": "NEW YEAR THANKSGIVING"
         },
         {
-          "date": "January 11",
-          "occasion": "Second Sunday",
-          "oldTestament": "Genesis 12:1–4",
-          "psalm": "Psalm 121",
-          "epistle": "Romans 8:28–39",
-          "gospel": "Matthew 4:18–22"
+          "date": "2026-01-11",
+          "dateDisplay": "January 11, 2026",
+          "month": "January",
+          "week": "WK2",
+          "topic": "TRANSFORMATIONAL POWER OF MERCY",
+          "scripture": "Psalm 103: 7-18 Ephesians 4: 25-32",
+          "objective": "What is the importance of mercy in relationships, and illuminate how God's boundless mercy is the foundation of every relationship. Using Ephesians 4:32, teach on Mercy’s Transformative Impact on family relationships. Highlight biblical Steps for nurturing a Mercy-Centered relationship, its benefits, and the effect of not doing so",
+          "event": ""
         },
         {
-          "date": "January 18",
-          "occasion": "Third Sunday",
-          "oldTestament": "Exodus 3:1–12",
-          "psalm": "Psalm 27",
-          "epistle": "Ephesians 2:1–10",
-          "gospel": "John 15:1–8"
+          "date": "2026-01-20",
+          "dateDisplay": "January 20, 2026",
+          "month": "January",
+          "week": "WK3",
+          "topic": "KINGDOM WEALTH WITH MERCY",
+          "scripture": "Psalms 37:20-26 2 Corinthians 9:6-8",
+          "objective": "Define wealth, kingdom wealth, and the essence of mercy in being a good steward. Using Acts 9:39, teach on how to steward kingdom wealth for an eternal reward. Identify biblical principles for unlocking kingdom wealth, including faith, generosity, and wise stewardship, and the disadvantages of not unlocking it.",
+          "event": "",
+          "verificationNote": "The source workbook lists January 20. Please confirm whether January 18 was intended."
         },
         {
-          "date": "January 25",
-          "occasion": "Fourth Sunday",
-          "oldTestament": "Joshua 1:1–9",
-          "psalm": "Psalm 91",
-          "epistle": "Philippians 3:7–14",
-          "gospel": "Mark 10:46–52"
+          "date": "2026-01-25",
+          "dateDisplay": "January 25, 2026",
+          "month": "January",
+          "week": "WK4",
+          "topic": "PREPARING THE BRIDE FOR THE KING",
+          "scripture": "Malachi 3:1-5 Matthew 25:1-13",
+          "objective": "Biblically illustrate who is the bride, who is the King, and explain the need to prepare for the coming of the King. Using Luke 15:11 explain how mercy functions in the context of repentance and its role in helping believers spiritually ready for the return of Christ. Teach on how to awaken believers to the urgency of preparing for the King and the danger of living un-prepared.",
+          "event": ""
+        },
+        {
+          "date": "2026-02-01",
+          "dateDisplay": "February 1, 2026",
+          "month": "February",
+          "week": "WK 5",
+          "topic": "CLEANSE THROUGH MERCY",
+          "scripture": "Psalm 51:1–12 1 John 1:5–10",
+          "objective": "Explain mercy as the foundation for cleansing and true spiritual transformation. Teach the church how to move from brokenness to wholeness and continually grow through God’s mercies. Highlight how believers can cultivate a clean lifestyle, its benefits, and the drawbacks of an unclean life.",
+          "event": ""
+        },
+        {
+          "date": "2026-02-08",
+          "dateDisplay": "February 8, 2026",
+          "month": "February",
+          "week": "WK 6",
+          "topic": "FORGIVENESS: THE CORNERSTONE OF FAMILY UNITY",
+          "scripture": "Genesis 50:15–21 Colossian 3: 12-23",
+          "objective": "Explain the concept of forgiveness in building strong, godly families. Using James 5:16, teach on how to build the value that entrenches open communication in the family. Discuss the dangers of unresolved offenses and bitterness within the family and the benefits of living a life of advanced forgiveness as stated in Col 3:13",
+          "event": ""
+        },
+        {
+          "date": "2026-02-15",
+          "dateDisplay": "February 15, 2026",
+          "month": "February",
+          "week": "WK 7",
+          "topic": "MERCY IN FINANCIAL STEWARDSHIP",
+          "scripture": "Deuteronomy 15:1–11 Matthew 18:23–35",
+          "objective": "Explore biblical principles of mercy in financial dealings and stewardship. Teach on how to practice generosity within and outside the household of faith. Highlight how unforgiveness can hinder financial fruitfulness and the benefit of forgiveness in financial fruitfulness.",
+          "event": "PRAISE DAY"
+        },
+        {
+          "date": "2026-02-22",
+          "dateDisplay": "February 22, 2026",
+          "month": "February",
+          "week": "WK 8",
+          "topic": "A LIFE ABOVE SIN",
+          "scripture": "Jeremiah 31:31-34 Romans 6:1-14",
+          "objective": "Describe the concept of living above sin as a promise for believers in Christ. Highlight the practical steps believers should take to overcome temptation and live a life pleasing to God in this generation. Enumerate the advantages of God pleasers and the disadvantages of man pleasers in this end time.",
+          "event": ""
+        },
+        {
+          "date": "2026-03-01",
+          "dateDisplay": "March 1, 2026",
+          "month": "March",
+          "week": "WK 9",
+          "topic": "LIVING IN RIGHTEOUSNESS",
+          "scripture": "Isaiah 1:11-19 Romans 8:1–15",
+          "objective": "Define righteousness, make a distinction between self-righteousness and God's righteousness. Teach on how righteousness is a gift received through grace. Enumerate the benefits of living as the righteousness of God and the disadvantages of living otherwise.",
+          "event": ""
+        },
+        {
+          "date": "2026-03-08",
+          "dateDisplay": "March 8, 2026",
+          "month": "March",
+          "week": "WK 10",
+          "topic": "COVENANT PARENTING",
+          "scripture": "Genesis 18:11–19 Ephesians 6:1–10",
+          "objective": "Establish the biblical foundation of parenting as a sacred covenant with God. Equip parents with spiritual and practical tools for raising righteous, godly children. List the benefits of entrenching righteousness as a family culture and the demerits of doing otherwise.",
+          "event": "INT'L WOMEN'S DAY"
+        },
+        {
+          "date": "2026-03-15",
+          "dateDisplay": "March 15, 2026",
+          "month": "March",
+          "week": "WK 11",
+          "topic": "UNLOCKING FINANCIAL COVENANT",
+          "scripture": "Deuteronomy 28:1-14 Philippians 4:10-19",
+          "objective": "Explain the meaning and components of financial covenant. Teach Spirit-led financial stewardship rooted in obedience, generosity, and faith that unlocks financial blessings. Highlight the benefits of living a life of Spirit-led financial stewardship and the drawbacks of not doing so.",
+          "event": ""
+        },
+        {
+          "date": "2026-03-22",
+          "dateDisplay": "March 22, 2026",
+          "month": "March",
+          "week": "WK 12",
+          "topic": "THE RETURN OF THE KING",
+          "scripture": "Isaiah 33:14–17 Romans 12:9–21",
+          "objective": "Teach the church on the King and the imminence of His return. Call the Church to purity, love, and faithful witness in anticipation of the second coming. Demystified the misconception around the return of the King and the benefit for believers to stay prepared.",
+          "event": ""
+        },
+        {
+          "date": "2026-03-29",
+          "dateDisplay": "March 29, 2026",
+          "month": "March",
+          "week": "WK 13",
+          "topic": "THE GIFT OF RIGHTEOUSNESS",
+          "scripture": "Isaiah 52:1–12 Romans 5:12–21",
+          "objective": "Describe Jesus Christ as the gift of righteousness and trace the doctrine of righteousness from Old Testament typologies to New Testament fulfillment in Christ. Using Matthew 5:20, teach on imputed and practical righteousness as a spiritual principle for daily living. Enumerate the benefits of living daily as the righteousness of Christ and the demerits of not doing so.",
+          "event": "SEMINAR/PALM SUNDAY"
+        },
+        {
+          "date": "2026-04-05",
+          "dateDisplay": "April 5, 2026",
+          "month": "April",
+          "week": "WK 14",
+          "topic": "REDEMPTIVE POWER OF MERCY",
+          "scripture": "Lamentations 3:22–23 Matthew 28:1-10",
+          "objective": "Explain the redemptive power of mercy and its significance. Help believers understand how to access the redemptive power of mercy provided through the death and resurrection of Christ. Enumerate the benefits of enjoying the redemptive power of mercy and the demerits of not enjoying it.",
+          "event": "EASTER SUNDAY"
+        },
+        {
+          "date": "2026-04-12",
+          "dateDisplay": "April 12, 2026",
+          "month": "April",
+          "week": "WK 15",
+          "topic": "FAMILY: RESTORED THROUGH MERCY",
+          "scripture": "Genesis 45:1-15 Luke 15:11-24",
+          "objective": "Explain the role of mercy in healing and strengthening family relationships. Equip families with biblical tools for resolving conflict and nurturing godly values. Highlights the advantages of entrenching mercy as a core family value and its demerits if not entrenched,",
+          "event": ""
+        },
+        {
+          "date": "2026-04-19",
+          "dateDisplay": "April 19, 2026",
+          "month": "April",
+          "week": "WK 16",
+          "topic": "SPENDING THE CURRENCY OF MERCY",
+          "scripture": "Psalm 41:1-13 Luke 6:30-36",
+          "objective": "Using Psalms 18:25 explain mercy as a currency, particularly as a believer's interaction with humanity and financial stewardship. Teach on how the act of mercy and generosity brings divine provision. Teach on how to explore opportunities to do good to the household of faith, Gal 6:10, highlighting the benefits and the drawbacks.",
+          "event": ""
+        },
+        {
+          "date": "2026-04-26",
+          "dateDisplay": "April 26, 2026",
+          "month": "April",
+          "week": "WK 17",
+          "topic": "MERCY IN A BROKEN SOCIETY",
+          "scripture": "Genesis 19:1-16 Matthew 9:10-13",
+          "objective": "Explain the role of mercy as a divine strategy for believers’ preparedness in this end-time. Teach on how to live as citizens of God's kingdom, embodying values such as mercy in anticipation of the return of Jesus Christ. Highlight the use of mercy as a tool for evangelism to bring unbelievers to Christ and the missed opportunities of not using mercy as a tool for evangelism.",
+          "event": ""
+        },
+        {
+          "date": "2026-05-02",
+          "dateDisplay": "May 2, 2026",
+          "month": "May",
+          "week": "WK 18",
+          "topic": "ABUNDANT GRACE",
+          "scripture": "Exodus 33.17-23 Titus 2: 11-14",
+          "objective": "Explain the term abundant grace and describe grace as a person. Teach on the mystery of grace and how to receive and live in abundant grace. Highlights the advantages of living in abundant grace and the disadvantages of doing otherwise.",
+          "event": ""
+        },
+        {
+          "date": "2026-05-09",
+          "dateDisplay": "May 9, 2026",
+          "month": "May",
+          "week": "WK 19",
+          "topic": "LEGACIES OF GRACE",
+          "scripture": "Exodus 2:1-11 2 Timothy 1:1-5",
+          "objective": "Using Matriarchs (Jochebed and Ruth) teach on the legacies bound by grace. Teach on how we can align with the generational covenant of grace and steps needed to pass down the legacies to the next generation. Enumerate the benefits of a family bonded by grace and the dangers of neglecting grace",
+          "event": ""
+        },
+        {
+          "date": "2026-05-16",
+          "dateDisplay": "May 16, 2026",
+          "month": "May",
+          "week": "WK 20",
+          "topic": "THE SECRET OF SUFFICIENCY",
+          "scripture": "1 Kings 17:2-16 2 Corinthians 9: 5-11",
+          "objective": "Define the term sufficiency and the role of grace in accessing divine sufficiency. Teach on how to access divine sufficiency, exploring obedience and giving as some of the gateways to divine sufficiency. Identify the gains of living in divine sufficiency. Using Deuteronomy 32:15, list the dangers of times of comfort",
+          "event": "MOTHER'S DAY"
+        },
+        {
+          "date": "2026-05-23",
+          "dateDisplay": "May 23, 2026",
+          "month": "May",
+          "week": "WK 21",
+          "topic": "EMPOWERED BY GOD’S GRACE",
+          "scripture": "Isaiah 61:1 – 11 Titus 3:1 – 7",
+          "objective": "Define on who grace is, explain His nature of empowering His Children. Teach on the place of grace in the spiritual empowerment for God’s service (1 Cor. 15:9-10). Explain the conditions for receiving God's empowering grace and warn about the consequences of resisting it.",
+          "event": "PENTECOST SUNDAY"
+        },
+        {
+          "date": "2026-05-31",
+          "dateDisplay": "May 31, 2026",
+          "month": "May",
+          "week": "WK 22",
+          "topic": "MYSTERY OF GRACE",
+          "scripture": "1 Chronicles 29:9-17 1 Corinthians 15: 1-11",
+          "objective": "Explain the mystery of grace and how grace manifests in our lives. Teach on how to unlock the mystery of grace. Highlight the benefits of unlocking grace and the demerits of not unlocking grace",
+          "event": ""
+        },
+        {
+          "date": "2026-06-07",
+          "dateDisplay": "June 7, 2026",
+          "month": "June",
+          "week": "WK 23",
+          "topic": "REDEEMED OF THE LORD",
+          "scripture": "Isaiah 43: 1-5 Ephesians 1:1-14",
+          "objective": "Explain who the redeemed of the Lord is and the pathway to redemption. Teach about principles to retain and enjoy the redemption power granted unto men. Highlight the eternal and temporal benefits available to the redeemed of the Lord.",
+          "event": ""
+        },
+        {
+          "date": "2026-06-14",
+          "dateDisplay": "June 14, 2026",
+          "month": "June",
+          "week": "WK 24",
+          "topic": "SOUGHT OUT",
+          "scripture": "Judges 11: 1-11 Matthew 18:10-14",
+          "objective": "Describe what it means to be sought out and how Christ's love seeks out the lost in the family, no matter what. Teach on how parents should showcase Christ's love by not giving up on any of the family members. Highlight the benefits of praying for all relationship/family members, especially the unredeemed",
+          "event": ""
+        },
+        {
+          "date": "2026-06-21",
+          "dateDisplay": "June 21, 2026",
+          "month": "June",
+          "week": "WK 25",
+          "topic": "PRIESTHOOD OF THE FATHER",
+          "scripture": "Job 1:1-5 1 Timothy 3:1-7",
+          "objective": "Explain the term priest, and how God has called all into priesthood, with emphasis on the Father as the head of the family altar. Teach on the roles of fathers as a priest over his household. Highlights the dangers of neglecting the roles of the family altar priesthood",
+          "event": "FATHER'S DAY"
+        },
+        {
+          "date": "2026-06-28",
+          "dateDisplay": "June 28, 2026",
+          "month": "June",
+          "week": "WK 26",
+          "topic": "HE THAT OVERCOMES",
+          "scripture": "Isaiah 40: 20-31 Revelation 21:7-9",
+          "objective": "Explain to the Church who an overcomer is, the benefits on earth and in heaven. Teach on how to overcome in a world of crises and temptations. Highlights the dangers of a life that is not redeemed",
+          "event": ""
+        },
+        {
+          "date": "2026-07-05",
+          "dateDisplay": "July 5, 2026",
+          "month": "July",
+          "week": "WK27",
+          "topic": "RESTORATION OF IDENTITY",
+          "scripture": "Ezekiel 11:16-21 Titus 3:3-7",
+          "objective": "Explain the concept of restored identity (Gen1:26) and the working of the Holy Spirit in achieving this. Using Simon Peter as an illustrative example, teach on how the power of the Holy Spirit restores. Identify and speak on the dangers of resisting change",
+          "event": "MID YEAR THANKSGIVING"
+        },
+        {
+          "date": "2026-07-12",
+          "dateDisplay": "July 12, 2026",
+          "month": "July",
+          "week": "WK28",
+          "topic": "RESTORED IDENTITY:  BUILDING A GODLY GENERATION",
+          "scripture": "Isaiah 11:1-10 Romans 8:26-32",
+          "objective": "Teach the principle of building a godly generation. With reference to the Holy Spirit, teach on how to partner with the Holy Spirit to create, develop, and run a Godly home. Highlight the need for intentional discipleship under the leadership of the Holy Spirit within the family unit and the drawbacks of not.",
+          "event": "FOUNDERS' DAY"
+        },
+        {
+          "date": "2026-07-19",
+          "dateDisplay": "July 19, 2026",
+          "month": "July",
+          "week": "WK29",
+          "topic": "RESTORED YEARS",
+          "scripture": "2 Samuel 9:9-13 Acts 9:36-42",
+          "objective": "Using 2 Sam 9:9-10, teach on the meaning of restored years and how God restores to the fullest. Using the Widow of Zarephath (I Kings 17:12-14) as an illustrative example, teach the church the principles of activating God’s restoration. Highlights the features of restoration and the benefits thereof",
+          "event": ""
+        },
+        {
+          "date": "2026-07-26",
+          "dateDisplay": "July 26, 2026",
+          "month": "July",
+          "week": "WK30",
+          "topic": "THE RESTORED MANDATE",
+          "scripture": "Daniel 6:1–10 Acts 4:23–31",
+          "objective": "Using Matthew 28:19-20, explain the defining feature of the mandate. Teach on how end-time believers can leverage on the power of the Holy Spirit to fulfill this mandate. Enumerate the benefits of walking in the divine mandate and the danger of doing otherwise.",
+          "event": ""
+        },
+        {
+          "date": "2026-08-02",
+          "dateDisplay": "August 2, 2026",
+          "month": "August",
+          "week": "WK 31",
+          "topic": "THE BELIEVER'S PRIESTHOOD",
+          "scripture": "Numbers 3:5-10 1 Petetr 2:1-9",
+          "objective": "Identify and teach on the priesthood of the believers. Explain the steps to becoming a priest and the reason for the believers priesthood. Teach on the benefits of the priesthood and the dangers of otherwise.",
+          "event": ""
+        },
+        {
+          "date": "2026-08-09",
+          "dateDisplay": "August 9, 2026",
+          "month": "August",
+          "week": "WK 32",
+          "topic": "THE FAMILY OF KINGS AND PRIESTS",
+          "scripture": "Isaiah 61:1 - 6 Ephesians 5:21-33",
+          "objective": "Identify and teach on the attributes of the family of kings and priests. Teach on how a family can obtain, retain and sustain their kingship and/or priesthood. Teach on the benefits of sustaining family kingship and dangers of not doing so.",
+          "event": "CHOIR ANNIVERSARY"
+        },
+        {
+          "date": "2026-08-16",
+          "dateDisplay": "August 16, 2026",
+          "month": "August",
+          "week": "WK 33",
+          "topic": "ACCESSING DIVINE WEALTH",
+          "scripture": "Psalm 112:1–10 Matthew 6:19–33",
+          "objective": "Identify and teach on the heritage of royals as related to wealth. Teach on the responsibilities of kingdom royals in relation to divine wealth. Teach on the benefits of the right usage of divine wealth and the dangers of doing otherwise",
+          "event": ""
+        },
+        {
+          "date": "2026-08-16",
+          "dateDisplay": "August 16, 2026",
+          "month": "August",
+          "week": "WK 33",
+          "topic": "ROYAL PRIESTHOOD",
+          "scripture": "Numbers 3:5-10 1 Peter 2:1-9",
+          "objective": "Teach the Children on the identity and calling of a Royal Priesthood. Teach the role of the parents on how to raise the character and practices of a Royal priesthood. Highlight the benefits of being a Royal Priest and the dangers of not.",
+          "event": "HQ CHILDREN HARVEST"
+        },
+        {
+          "date": "2026-08-23",
+          "dateDisplay": "August 23, 2026",
+          "month": "August",
+          "week": "WK 34",
+          "topic": "GOD'S ENDTIME ARMIES (KINGS and PRIESTS)",
+          "scripture": "Isaiah 26:1-10 Philippians 3:15-21",
+          "objective": "Identify God's end-time armies and teach on their roles. Teach on how to be enlisted in the end time army of God. Highlight the benefits of being enlisted as God's end time armies.",
+          "event": ""
+        },
+        {
+          "date": "2026-08-23",
+          "dateDisplay": "August 23, 2026",
+          "month": "August",
+          "week": "WK 34",
+          "topic": "CULTIVATING THE MINDSET OF ROYALTY",
+          "scripture": "Genesis 39:1 – 10 Philippians 2:5 - 11",
+          "objective": "Teach on what royalty is, and how to embrace your value and worth as a royal being. Using Esther, teach on the steps to transit from a servant mentality to a son or daughter mentality. Highlight the benefits of having the mind of Christ Jesus and the danger of not having it.",
+          "event": "HQ TEENAGERS HARVEST"
+        },
+        {
+          "date": "2026-08-30",
+          "dateDisplay": "August 30, 2026",
+          "month": "August",
+          "week": "WK 35",
+          "topic": "ROYAL PRIESTHOOD",
+          "scripture": "Revelations 5:10",
+          "objective": "Define the term royal priesthood and the qualities of a priest. Teach on the functions of a royal priesthood in God's kingdom expansion. Highlight the importance of being a royal priesthood and the dangers of not being enlisted.",
+          "event": "SEMINAR"
+        },
+        {
+          "date": "2026-09-06",
+          "dateDisplay": "September 6, 2026",
+          "month": "September",
+          "week": "WK 36",
+          "topic": "ABUNDANT LIFE",
+          "scripture": "Psalm 36:5–10 John 10:10 -18",
+          "objective": "Explain what Abundant life is and its importance. Teach on how to access and sustain an abundant life. Demonstrate the benefit of unlocking the transformative power of abundant life in daily living and the danger of not unlocking same",
+          "event": ""
+        },
+        {
+          "date": "2026-09-13",
+          "dateDisplay": "September 13, 2026",
+          "month": "September",
+          "week": "WK 37",
+          "topic": "FAMILY: EPITOME OF GOD’S ABUNDANT LIFE",
+          "scripture": "Deuteronomy 6: 1 – 9 2 Timothy 3: 10 – 17",
+          "objective": "Enumerate God’s purpose for family. Teach how a family can access and sustain abundant life in Christ Jesus. Explain the merits of families seeking God's abundant life collectively (Joshua 24:15.) and the drawback of not.",
+          "event": ""
+        },
+        {
+          "date": "2026-09-20",
+          "dateDisplay": "September 20, 2026",
+          "month": "September",
+          "week": "WK 38",
+          "topic": "LIVING BUOYANTLY IN ABUNDANCE.",
+          "scripture": "Proverbs 3: 9 – 10 Philippians 4: 10 – 13",
+          "objective": "Define what true abundance is and that true abundance is not just material wealth but a life of peace, joy and purpose rooted in God. Teach on why true abundance is important and the benefits of living buoyantly in abundance. Explain the effect of not living in true abundance",
+          "event": ""
+        },
+        {
+          "date": "2026-09-27",
+          "dateDisplay": "September 27, 2026",
+          "month": "September",
+          "week": "WK39",
+          "topic": "THE ETERNAL NATURE OF ABUNDANT LIFE",
+          "scripture": "Daniel 12:1–13 Romans 6:15-23",
+          "objective": "Reflect on the eternal perspective of abundant life that is found in salvation through Jesus Christ and its relevance in modern society. Highlight how the principles of God's Kingdom, such as justice, mercy, and love, are essential for addressing challenges in the 21st-century society (Micah 6:8). Enumerate the features of abundant life that extend beyond the present, offering eternal hope and security in Christ.",
+          "event": ""
+        },
+        {
+          "date": "2026-09-27",
+          "dateDisplay": "September 27, 2026",
+          "month": "September",
+          "week": "WK39",
+          "topic": "GREAT MERCY",
+          "scripture": "Isaiah 54:1-10 Luke 1:68:79",
+          "objective": "Explain what mercy is and identify the nature of God's great mercies Highlight how great mercies serve as a foundation for God's redemptive plan Discuss the benefits of enjoying God's great mercies and the consequences of rejecting them.",
+          "event": "HEADQUARTERS HARVEST"
+        },
+        {
+          "date": "2026-10-04",
+          "dateDisplay": "October 4, 2026",
+          "month": "October",
+          "week": "WK 40",
+          "topic": "THE BELIEVER’S PEACE",
+          "scripture": "1 Samuel 1:10-18 Philippians 4:4 -9",
+          "objective": "Explain to the Church what peace is and what it is not; and the nature of Jesus’ peace (Isaiah 9:6, John 14:27). Teach on how a believer can walk in the realm of peace in this contemporary world and be victorious. Enumerate the benefits of aligning with Prince of peace and the dangers of departing from Him.",
+          "event": "NIGERIA INDEPENDENCE THANKSGIVING"
+        },
+        {
+          "date": "2026-10-11",
+          "dateDisplay": "October 11, 2026",
+          "month": "October",
+          "week": "WK 41",
+          "topic": "FAMILY: THE PATH OF PEACE",
+          "scripture": "Genesis 50:15–21 Colossians 3:5-17",
+          "objective": "Enlighten the church on how peace of a godly family begins by surrendering every aspect of the household to Christ’s leadership. Explain how peace is sustained when discipline is balanced with love and respect is mutual among all family members. Give reasons why conflict is inevitable, but peace becomes a lifestyle when forgiveness flows freely in the family.",
+          "event": ""
+        },
+        {
+          "date": "2026-10-18",
+          "dateDisplay": "October 18, 2026",
+          "month": "October",
+          "week": "WK 42",
+          "topic": "WEALTH AND CONTENTMENT",
+          "scripture": "2 Kings 5:20-27 Acts 5:1-11",
+          "objective": "Explain the relationship between inner peace, wealth and contentment. Enumerate how financial peace is not just about personal blessing. Teach on the benefits of living a life of contentment",
+          "event": ""
+        },
+        {
+          "date": "2026-10-25",
+          "dateDisplay": "October 25, 2026",
+          "month": "October",
+          "week": "WK 43",
+          "topic": "SECURED IN ETERNAL PEACE",
+          "scripture": "Genesis 9:1-17 1 Thessalonians 5:2-6",
+          "objective": "Teach on eternal peace and what it means to be secured in it. Explain how to be secured in eternal peace. Highlight the benefits of being secured in eternal peace and the dangers of not.",
+          "event": ""
+        },
+        {
+          "date": "2026-11-01",
+          "dateDisplay": "November 1, 2026",
+          "month": "November",
+          "week": "WK 44",
+          "topic": "GOD'S REST",
+          "scripture": "Psalms 37: 1-7 Hebrew 4:1-11",
+          "objective": "Differentiate between rest and God’s rest, and identify the characteristics of God’s rest. Teach on how a believer can access God's rest. State the benefits of enjoying God’s rest and the negative effects of not enjoying it.",
+          "event": ""
+        },
+        {
+          "date": "2026-11-08",
+          "dateDisplay": "November 8, 2026",
+          "month": "November",
+          "week": "WK 45",
+          "topic": "PRESERVING THE FAMILY ALTAR",
+          "scripture": "Deuteronomy 6:1-7 Ephesians: 6:1-6",
+          "objective": "Using biblical references teach on family altar preservation. Explain how to maintain family altar and its importance. Highlight the consequences of not preserving the family altar",
+          "event": ""
+        },
+        {
+          "date": "2026-11-15",
+          "dateDisplay": "November 15, 2026",
+          "month": "November",
+          "week": "WK 46",
+          "topic": "PRINCIPLES OF DEBT MANAGEMENT",
+          "scripture": "Proverbs 22:1-10 Matthew 6:25-33",
+          "objective": "Teach on what debt is and debt management. Highlight the principles of managing debt and their application. Enumerate the dangers of not managing debt and the benefits of debt management",
+          "event": ""
+        },
+        {
+          "date": "2026-11-22",
+          "dateDisplay": "November 22, 2026",
+          "month": "November",
+          "week": "WK 47",
+          "topic": "THE COVENANT OF REST",
+          "scripture": "2 Samuel 7:8-21 Matthew 11:25-30",
+          "objective": "Briefly explain what covenant is and covenant of rest (Exo. 33:14). Teach on how to enjoy the covenant of Rest. Enumerate the benefits of enjoying covenant rest and dangers of not",
+          "event": ""
+        },
+        {
+          "date": "2026-11-29",
+          "dateDisplay": "November 29, 2026",
+          "month": "November",
+          "week": "WK 48",
+          "topic": "TOTAL REST",
+          "scripture": "2 Chronicles 15:1-15",
+          "objective": "Teach on the biblical concept of rest and the need for rest in daily life. Using references explain God’s covenant of rest on every side and its purpose in the life of believers. Teach on the conditions to enjoy God’s rest and how to retain His rest.",
+          "event": "SEMINAR"
+        },
+        {
+          "date": "2026-12-06",
+          "dateDisplay": "December 6, 2026",
+          "month": "December",
+          "week": "WK 49",
+          "topic": "CHRIST: THE GREAT ADVOCATE",
+          "scripture": "Job 33:23-33 Hebrews 9:15-28",
+          "objective": "Explain Christ as the Great Advocate and His role in the work of salvation. Teach on how believers can replicate in advocating for people without strive using the Jesus principle of love. State the dangers of rejecting Christ’s advocacy (John 1:11) and the benefits of accepting it (John 1:12)",
+          "event": ""
+        },
+        {
+          "date": "2026-12-13",
+          "dateDisplay": "December 13, 2026",
+          "month": "December",
+          "week": "WK 50",
+          "topic": "PARENTING: ADVOCATING FOR GODLY HERITAGE",
+          "scripture": "Proverbs 1:8 - 19 1 Thessalonians 2:1 - 12",
+          "objective": "Define parenting and identify the responsibilities of parents on children (biological and spiritual). Highlight how the parents can advocate intentionally for these godly heritage (with emphasis on not being a bad mentor). Teach the merits and demerits of advocating and not advocating for these godly heritages",
+          "event": ""
+        },
+        {
+          "date": "2026-12-20",
+          "dateDisplay": "December 20, 2026",
+          "month": "December",
+          "week": "WK 51",
+          "topic": "GOD’S PROVISIONS",
+          "scripture": "Genesis 22:6-14 Philippians 4:10 - 20",
+          "objective": "Explain the nature of God in relation to His unending provisions (Psalm 68:19). Teach on what qualifies one to be a recipient of God’s provisions. Teach on the benefits of enjoying divine provision and how to maintain it.",
+          "event": ""
+        },
+        {
+          "date": "2026-12-25",
+          "dateDisplay": "December 25, 2026",
+          "month": "December",
+          "week": "WK 51",
+          "topic": "THE KING’S ARRIVAL",
+          "scripture": "Isaiah 9:1-8 Luke 1:26-38",
+          "objective": "Explain to the Church who a king is and what specific features that define Jesus' Kingship. Teach on the importance of King Jesus arrival to the world",
+          "event": "CHRISTMAS"
+        },
+        {
+          "date": "2026-12-27",
+          "dateDisplay": "December 27, 2026",
+          "month": "December",
+          "week": "WK 52",
+          "topic": "THE ROLE OF BELIEVERS IN ADVOCACY",
+          "scripture": "Genesis 18:20 - 33 Acts 12:1 -1 6",
+          "objective": "Explain what believers’ advocacy is and its importance. How can a believer advocate for the world. Highlight the danger of refusing the call to be an advocate mouthpiece for Christ, and benefits of being obedient.",
+          "event": ""
+        },
+        {
+          "date": "2026-12-31",
+          "dateDisplay": "December 31, 2026",
+          "month": "December",
+          "week": "WK 52",
+          "topic": "Expound on the theme of Year 2027",
+          "scripture": "",
+          "objective": "Expound on the theme of Year 2027",
+          "event": "CROSS OVER SERVICE"
+        }
+      ]
+    },
+    "blog": {
+      "eyebrow": "Publication Blog",
+      "title": "One archive for every publication.",
+      "description": "Every post uses one dependable reading experience, while each publication type retains the sections it needs.",
+      "categories": [
+        {
+          "id": "all",
+          "label": "All Publications"
+        },
+        {
+          "id": "devotion",
+          "label": "Daily Devotion"
+        },
+        {
+          "id": "goodnews",
+          "label": "Goodnews This Week"
+        },
+        {
+          "id": "sunday-school",
+          "label": "Sunday School Bible Study"
+        }
+      ],
+      "posts": [
+        {
+          "id": "goodnews-2026-week-28",
+          "slug": "building-a-godly-generation",
+          "type": "Goodnews This Week",
+          "category": "goodnews",
+          "template": "goodnews",
+          "date": "2026-07-12",
+          "title": "Building a Godly Generation",
+          "excerpt": "A Founder’s Day message on intentional Christian parenting, dependence on the Holy Spirit, and raising generations who know and honour God.",
+          "author": "Peculiar Cherubs Editorial Team",
+          "featured": true,
+          "tags": [
+            "Restored Identity",
+            "Family",
+            "Discipleship",
+            "Founder’s Day"
+          ],
+          "cover": {
+            "theme": "red",
+            "label": "Goodnews This Week",
+            "monogram": "32"
+          },
+          "details": {
+            "volume": "21",
+            "issue": "32",
+            "edition": "Week 28",
+            "monthlyTheme": "Restored Identity / My Month of Divine Restoration",
+            "occasion": "21st Founder’s Day Celebration",
+            "keyText": "Romans 8:30"
+          },
+          "blocks": [
+            {
+              "type": "lead",
+              "text": "Dearly beloved of our LORD JESUS CHRIST, I welcome you to the 21st Founders Day Celebration of the Church. Truly, JEHOVAH have been faithful in every sphere of our being these 21 years; in our individual lives, in our family, in the Church and the nation at large, GOD has been good. “Great is the LORD, and greatly to be praised; and HIS greatness is unsearchable. One generation shall praise YOUR Works to another, and shall declare YOUR mighty Acts” Ps 145: 3-4. We are blessed to be a part of this Peculiar Family called and anointed to deliver people from the devil’s bondage with the Word of GOD."
+            },
+            {
+              "type": "callout",
+              "label": "Sermon focus",
+              "title": "Building a Godly Generation",
+              "text": "Key text: Romans 8:30"
+            },
+            {
+              "type": "paragraph",
+              "text": "As we celebrate, our Sermon Topic today, in continuation of the theme Restored Identity, is Building a Godly Generation. The objective is to teach on the principle of building a godly generation. We will reference the HOLY SPIRIT as we teach on how to partner with HIM to create, develop and run a Godly home. We will highlight the need for intentional discipleship within the family unit and the drawbacks of not. May the HOLY SPIRIT teach and quicken our understanding in JESUS mighty name, amen!"
+            },
+            {
+              "type": "paragraph",
+              "text": "Building a godly generation is teaching and instilling GOD’s righteousness in to the consciousness of our children and wards that they may live righteously and pleasing unto GOD. This involves ensuring imbibing faith, godly and biblical teachings in our children; ensuring they grow to know and to honour GOD in all their ways. This endeavour requires faithfulness to GOD, absolute reliance on the HOLY SPIRIT, grace through JESUS and intentionality. It does not happen by accident; you must pray fervently, be rooted and obedient to GOD. The goal is for our children, children’s children and grandchildren to all our generations to know and reference GOD that they may show the glory of GOD."
+            },
+            {
+              "type": "paragraph",
+              "text": "Beloved, it is the HOLY SPIRIT that enables a Godly Generation, it is “not by works of righteousness… but …through the washing of regeneration and renewing of the HOLY SPIRIT, whom HE poured out on us abundantly through JESUS CHRIST…” Tit 3: 5-6. Prophet Isaiah says of JESUS CHRIST that “The SPIRIT of the LORD shall rest upon HIM, the SPIRIT of Wisdom and Understanding, the SPIRIT of Counsel and Might, the SPIRIT of Knowledge and of the fear of the LORD. HIS delight is in the fear of the LORD, and HE shall not judge by the sight of HIS eyes, nor decide by the hearing of HIS ears” Isa 11: 2-3. HOLY SPIRIT empowered JESUS for HIS mission on earth, JESUS gave us the HOLY SPIRIT to guild, to teach and to empower us to build a Godly Generation (Jhn 3:5–8 & Jhn 16:8)."
+            },
+            {
+              "type": "paragraph",
+              "text": "GOD ALMIGHTY is seeking a Godly Generation that HE will glorify and propagate HIMSELF, a family that will continually abide in HIM and do HIS will; one that have received JESUS as LORD (Jhn 1: 12) and accepted HOLY SPIRIT’s leadership (Rom 8:14) that they may conform to the image of JESUS CHRIST. This Apostle Paul explained that “we know that all things work together for good to those who love GOD, to those who are the called according to HIS purpose. For whom HE foreknew, HE also predestined to be conformed to the image of HIS SON, that HE might be the firstborn among many brethren… HE predestined, these HE also called; whom HE called, these HE also justified; and whom HE justified, these HE also glorified” Rom 8: 28-30."
+            },
+            {
+              "type": "paragraph",
+              "text": "Beloved Peculiar People of GOD, as I wish you a happy 21st year anniversary, I plead with you, give your life to JESUS and surrender to the leadership of the HOLY SPIRIT that HE may make your home and family a Godly Generation to GOD’s glory. May the blessings and joy of this day abide with you forever in JESUS name. Ayo Ni O!!!"
+            }
+          ],
+          "goodnews": {
+            "sundaySchool": {
+              "topic": "Bible Verses Memorization",
+              "text": "Lamentations 3:22–23"
+            },
+            "specialService": {
+              "label": "Monthly Vigil",
+              "topic": "Ashes to Glory",
+              "text": "Isaiah 61:1–7",
+              "revivalist": "Evangelist Tosin Ademola"
+            },
+            "nextWeekMinisters": [
+              {
+                "label": "Minister for the Week",
+                "value": "Evangelist Kehinde Oladimeji"
+              },
+              {
+                "label": "Worship Leader",
+                "value": "Ald Bro Richard Erebi"
+              },
+              {
+                "label": "Thanksgiving Prayer",
+                "value": "Prophetess Comfort Adebayo"
+              },
+              {
+                "label": "Sermon",
+                "value": "Pastor Seun Oshagbami"
+              },
+              {
+                "label": "Lay Reader",
+                "value": "Ald Sis Olayinka Osoba (2 Samuel 9:1–13)"
+              }
+            ],
+            "bibleMeditation": [
+              {
+                "day": "Monday",
+                "reading": "Isaiah 32–34"
+              },
+              {
+                "day": "Tuesday",
+                "reading": "Isaiah 35–37"
+              },
+              {
+                "day": "Wednesday",
+                "reading": "Isaiah 38–40"
+              },
+              {
+                "day": "Thursday",
+                "reading": "Isaiah 41–43"
+              },
+              {
+                "day": "Friday",
+                "reading": "Isaiah 44–46"
+              },
+              {
+                "day": "Saturday",
+                "reading": "Isaiah 47–48"
+              },
+              {
+                "day": "Sunday",
+                "reading": "Isaiah 49–52"
+              }
+            ]
+          }
+        },
+        {
+          "id": "goodnews-2026-week-27",
+          "slug": "restoration-of-identity",
+          "type": "Goodnews This Week",
+          "category": "goodnews",
+          "template": "goodnews",
+          "date": "2026-07-05",
+          "title": "Restoration of Identity",
+          "excerpt": "A teaching on humanity’s identity in God, restoration through Jesus Christ, and the transforming work of the Holy Spirit.",
+          "author": "Peculiar Cherubs Editorial Team",
+          "featured": false,
+          "tags": [
+            "Restored Identity",
+            "Holy Spirit",
+            "Restoration",
+            "Goodness Harvest"
+          ],
+          "cover": {
+            "theme": "yellow",
+            "label": "Goodnews This Week",
+            "monogram": "31"
+          },
+          "details": {
+            "volume": "21",
+            "issue": "31",
+            "edition": "Week 27",
+            "monthlyTheme": "Restored Identity / My Month of Divine Restoration",
+            "occasion": "Goodness Family Harvest Thanksgiving and Testimonies",
+            "keyText": "Titus 3:4–5"
+          },
+          "blocks": [
+            {
+              "type": "lead",
+              "text": "Dearly beloved of our LORD JESUS CHRIST, I welcome you to July, Our Month of Divine Restoration. This is the 2nd half of the year and the beginning of the 3rd quarter; truly JEHOVAH the ALMIGHTY GOD has been good to us. It is by HIS Grace, we thankful for life, the blessings, the joy and the victories we have received. “Praise the LORD! Praise GOD in HIS Sanctuary; Praise HIM in HIS mighty firmament! Praise HIM for HIS mighty acts; Praise HIM according to HIS excellent greatness!” Ps 150: 1-2, HE alone is worthy, for great things HE had done and is still doing."
+            },
+            {
+              "type": "callout",
+              "label": "Sermon focus",
+              "title": "Restoration of Identity",
+              "text": "Key text: Titus 3:4–5"
+            },
+            {
+              "type": "paragraph",
+              "text": "This month our central theme is Restored Identity, it shall be an exposition on redemption, renewal and purpose in CHRIST JESUS. We shall be learning that our true identity is in GOD; how HE sees us in HIS image and as CHRIST presents us before HIM (Mat 7:21-23)."
+            },
+            {
+              "type": "paragraph",
+              "text": "Today, as Goodness Family and their invitees come before the LORD with their Harvest Thanksgiving and Testimonies, our Sermon Topic is ‘Restoration of Identity’. We shall be explaining the concept of restored identity (Gen1:26), and using Apostle Peter as an illustrative example we shall teach on the working power of the HOLY SPIRIT restores. We shall also identify and speak on the dangers of resisting change. May the HOLY SPIRIT teach and quicken our understanding in JESUS mighty name, amen!"
+            },
+            {
+              "type": "paragraph",
+              "text": "GOD created Man in HIS own image (Gen 1:26 & Gen 3:7); in perfection, blessed and with dominion over all other creations (Gen 1:28), GOD endowed him with glory and honour (Ps 8: 5), placed in the Garden of Eden and fellowshipped with him in the cool of the day (Gen 2). Man, however disobeyed and lost the fellowship with GOD, and was banished from GOD’s presence (Gen 3: 22-24). Once perfect he became imperfect, vulnerable and a fugitive covered in shame (Rom 3: 23) without an identity. GOD’s entire plan for humanity and creation became altered, necessitating a need for restoration."
+            },
+            {
+              "type": "paragraph",
+              "text": "The Bible says, “But when the kindness and the love of GOD our Savior toward man appeared, not by works of righteousness which we have done, but according to HIS mercy HE saved us, through the washing of regeneration and renewing of the HOLY SPIRIT, whom HE poured out on us abundantly through JESUS CHRIST our Savior” Tit 3: 4-6. GOD in HIS benevolence made a way for our restoration, in that HE gave JESUS CHRIST, HIS Son as an unconditional sacrifice for our sin and disobedience, even when we were still in sin (Rom 5:8). “But as many as received HIM, to them HE gave the right to become Children of GOD …” Jhn 1:12, JESUS also gave us the HOLY SPIRIT to help us, convict us of sin, righteousness, of judgment and to teach us unto righteousness (Jhn 16: 5-15) that we may be justified before GOD and our identity restored; “that having been justified by HIS grace we should become heirs according to the hope of Eternal Life” Titus 3: 7."
+            },
+            {
+              "type": "paragraph",
+              "text": "Apostle Peter, on whose confession of JESUS as the SON of GOD, JESUS says HE will build HIS Church (Mat 16: 16-18), remained timid and fearful. This same Apostle denied JESUS 3 times (Luk 22: 54-62), but when the HOLY SPIRIT came upon him, he became transformed and embolden; his true identity as ‘Rock’ was established."
+            },
+            {
+              "type": "paragraph",
+              "text": "Beloved, GOD wants to restore you to the place of sonship, HE wants to put HIS SPIRIT in you that you may keep HIS statues and do HIS will (Ezk 11: 19-20), surrender therefore to the leadership of the HOLY SPIRIT and be restored to GOD. May this be accomplished in you. GOD bless you all in JESUS name. Happy Anniversary. Ayo Ni O!!!"
+            }
+          ],
+          "goodnews": {
+            "sundaySchool": {
+              "topic": "The Role of Prayer in the Christian Life",
+              "text": "Matthew 6:5–13"
+            },
+            "specialService": {
+              "label": "Covenant Service",
+              "topic": "Covenant of Goodness and Approval",
+              "text": "Genesis 1:31",
+              "revivalist": "Snr Apst Adedeji Ademefun"
+            },
+            "nextWeekMinisters": [
+              {
+                "label": "Minister for the Week",
+                "value": "Prophet Oluwole Ejalonibu"
+              },
+              {
+                "label": "Worship Leader",
+                "value": "Sp. Apst Stephen Babarinde"
+              },
+              {
+                "label": "Thanksgiving Prayer",
+                "value": "Prophetess Ibijoke Ogundipe"
+              },
+              {
+                "label": "Sermon",
+                "value": "Prophet Isaac Esan"
+              },
+              {
+                "label": "Lay Reader",
+                "value": "M/I/I Omolara Oyinbo (Isaiah 11:1–10)"
+              }
+            ],
+            "bibleMeditation": [
+              {
+                "day": "Monday",
+                "reading": "Isaiah 4–8"
+              },
+              {
+                "day": "Tuesday",
+                "reading": "Isaiah 9–11"
+              },
+              {
+                "day": "Wednesday",
+                "reading": "Isaiah 12–14"
+              },
+              {
+                "day": "Thursday",
+                "reading": "Isaiah 15–19"
+              },
+              {
+                "day": "Friday",
+                "reading": "Isaiah 20–24"
+              },
+              {
+                "day": "Saturday",
+                "reading": "Isaiah 25–28"
+              },
+              {
+                "day": "Sunday",
+                "reading": "Isaiah 29–31"
+              }
+            ]
+          }
+        },
+        {
+          "id": "devotion-2026-07-19",
+          "slug": "remembered-by-mercy",
+          "type": "Daily Morning Devotion",
+          "category": "devotion",
+          "template": "devotion",
+          "date": "2026-07-19",
+          "title": "Remembered by Mercy",
+          "excerpt": "God’s mercy gathers, restores, and gives us courage to begin again with renewed purpose.",
+          "author": "Peculiar Cherubs Devotional Team",
+          "featured": false,
+          "tags": [
+            "Great Mercies",
+            "Restoration",
+            "Morning Devotion"
+          ],
+          "cover": {
+            "theme": "navy",
+            "label": "Morning Devotion",
+            "monogram": "19"
+          },
+          "details": {
+            "readingTime": "4 minutes",
+            "series": "My Year of Great Mercies"
+          },
+          "blocks": [
+            {
+              "type": "scripture",
+              "reference": "Isaiah 54:7",
+              "text": "For a mere moment I have forsaken you, but with great mercies I will gather you."
+            },
+            {
+              "type": "heading",
+              "text": "Mercy does not abandon the story"
+            },
+            {
+              "type": "paragraph",
+              "text": "There are moments when delay, disappointment, or failure can make us feel forgotten. Yet God describes His response to His people as great mercy. His mercy is not passive sympathy; it is the power that gathers, restores, cleanses, and repositions."
+            },
+            {
+              "type": "paragraph",
+              "text": "Today, refuse to define yourself by the moment that hurt you. Let God’s Word define you. You are not outside His reach, and your present chapter is not the conclusion of your story."
+            },
+            {
+              "type": "callout",
+              "label": "Today’s truth",
+              "title": "Mercy gathers what pain scattered.",
+              "text": "Receive God’s restoring grace and take the next faithful step."
+            }
+          ],
+          "devotion": {
+            "keyVerse": "Isaiah 54:7",
+            "prayer": "Father, thank You for Your great mercies. Gather every scattered area of my life, restore my confidence in You, and guide me into renewed purpose in Jesus’ name. Amen.",
+            "declaration": "I am remembered, gathered, and restored by the great mercy of God.",
+            "actionPoint": "Reach out to one person today with a word or act of mercy."
+          }
+        },
+        {
+          "id": "devotion-2026-07-18",
+          "slug": "restored-to-purpose",
+          "type": "Daily Morning Devotion",
+          "category": "devotion",
+          "template": "devotion",
+          "date": "2026-07-18",
+          "title": "Restored to Purpose",
+          "excerpt": "The Holy Spirit renews us so that restoration becomes a return to God’s purpose, not merely relief from pain.",
+          "author": "Peculiar Cherubs Devotional Team",
+          "featured": false,
+          "tags": [
+            "Restored Identity",
+            "Purpose",
+            "Holy Spirit"
+          ],
+          "cover": {
+            "theme": "red",
+            "label": "Morning Devotion",
+            "monogram": "18"
+          },
+          "details": {
+            "readingTime": "4 minutes",
+            "series": "Restored Identity"
+          },
+          "blocks": [
+            {
+              "type": "scripture",
+              "reference": "Titus 3:5–7",
+              "text": "According to His mercy He saved us, through the washing of regeneration and renewing of the Holy Spirit."
+            },
+            {
+              "type": "heading",
+              "text": "Restoration returns us to God’s intention"
+            },
+            {
+              "type": "paragraph",
+              "text": "God does not restore us merely so that we feel better. He renews us so that we can live again as His children, carry His character, and fulfil the work He has entrusted to us."
+            },
+            {
+              "type": "paragraph",
+              "text": "Ask the Holy Spirit to show you one area where old fear, shame, or disappointment has interrupted obedience. Restoration becomes visible when renewed identity produces renewed action."
+            }
+          ],
+          "devotion": {
+            "keyVerse": "Titus 3:5–7",
+            "prayer": "Holy Spirit, renew my mind and restore me to the purpose of God. Help me to walk today as a child and heir of grace. Amen.",
+            "declaration": "My identity is restored in Christ, and I walk boldly in God’s purpose.",
+            "actionPoint": "Complete one action today that you have delayed because of fear."
+          }
+        },
+        {
+          "id": "sunday-school-2026-07-12",
+          "slug": "bible-verses-memorization",
+          "type": "Sunday School Bible Study",
+          "category": "sunday-school",
+          "template": "sundaySchool",
+          "date": "2026-07-12",
+          "title": "Bible Verses Memorization",
+          "excerpt": "A practical lesson on keeping God’s Word in the heart and allowing remembered Scripture to shape daily life.",
+          "author": "Peculiar Cherubs Sunday School",
+          "featured": false,
+          "tags": [
+            "Bible Study",
+            "Scripture",
+            "Spiritual Growth"
+          ],
+          "cover": {
+            "theme": "yellow",
+            "label": "Sunday School",
+            "monogram": "SS"
+          },
+          "details": {
+            "lessonText": "Lamentations 3:22–23",
+            "lessonSeries": "July 2026"
+          },
+          "blocks": [
+            {
+              "type": "scripture",
+              "reference": "Lamentations 3:22–23",
+              "text": "The steadfast love of the Lord never ceases; His mercies never come to an end; they are new every morning."
+            },
+            {
+              "type": "paragraph",
+              "text": "Memorizing Scripture allows the truth of God to remain available when a Bible is not physically open. The purpose is not merely recitation, but meditation, obedience, encouragement, and spiritual defence."
+            },
+            {
+              "type": "callout",
+              "label": "Lesson emphasis",
+              "title": "Store the Word. Live the Word.",
+              "text": "A verse becomes fruitful when it moves from memory into practice."
+            }
+          ],
+          "sundaySchool": {
+            "lessonText": "Lamentations 3:22–23",
+            "memoryVerse": "Lamentations 3:22–23",
+            "objectives": [
+              "Explain why Scripture memorization is important in Christian growth.",
+              "Identify practical methods for memorizing and reviewing Bible verses.",
+              "Demonstrate how remembered Scripture guides choices, prayer, and encouragement."
+            ],
+            "outline": [
+              {
+                "title": "Why we keep the Word",
+                "text": "God’s Word renews the mind, strengthens faith, and gives direction."
+              },
+              {
+                "title": "How to memorize effectively",
+                "text": "Read the verse in context, repeat it aloud, write it, review it, and apply it."
+              },
+              {
+                "title": "From memory to obedience",
+                "text": "Use the verse in prayer, decisions, conversations, and daily conduct."
+              }
+            ],
+            "questions": [
+              "Which Bible verse has helped you during a difficult season?",
+              "What habit can help you review Scripture consistently?",
+              "How can families and small groups practise memorization together?"
+            ],
+            "closingPrayer": "Lord, write Your Word upon our hearts and help us to remember, understand, and obey it in every season."
+          }
+        },
+        {
+          "id": "sunday-school-2026-07-05",
+          "slug": "the-role-of-prayer-in-the-christian-life",
+          "type": "Sunday School Bible Study",
+          "category": "sunday-school",
+          "template": "sundaySchool",
+          "date": "2026-07-05",
+          "title": "The Role of Prayer in the Christian Life",
+          "excerpt": "A study of Jesus’ teaching on sincere prayer and the place of communion with God in daily Christian living.",
+          "author": "Peculiar Cherubs Sunday School",
+          "featured": false,
+          "tags": [
+            "Prayer",
+            "Bible Study",
+            "Discipleship"
+          ],
+          "cover": {
+            "theme": "navy",
+            "label": "Sunday School",
+            "monogram": "SS"
+          },
+          "details": {
+            "lessonText": "Matthew 6:5–13",
+            "lessonSeries": "July 2026"
+          },
+          "blocks": [
+            {
+              "type": "scripture",
+              "reference": "Matthew 6:5–13",
+              "text": "When you pray, go into your room, close the door and pray to your Father, who is unseen."
+            },
+            {
+              "type": "paragraph",
+              "text": "Prayer is fellowship with God, not a performance before people. Jesus teaches believers to approach the Father sincerely, reverently, confidently, and with hearts ready to forgive."
+            },
+            {
+              "type": "callout",
+              "label": "Lesson emphasis",
+              "title": "Prayer forms the life that follows God.",
+              "text": "Consistent prayer aligns our desires, strengthens obedience, and deepens dependence on the Father."
+            }
+          ],
+          "sundaySchool": {
+            "lessonText": "Matthew 6:5–13",
+            "memoryVerse": "Matthew 6:6",
+            "objectives": [
+              "Define prayer as fellowship and communication with God.",
+              "Explain the principles Jesus teaches in Matthew 6:5–13.",
+              "Develop a consistent and sincere personal prayer life."
+            ],
+            "outline": [
+              {
+                "title": "Prayer is relationship",
+                "text": "Believers approach God as Father, not as distant strangers."
+              },
+              {
+                "title": "Prayer is sincere",
+                "text": "Jesus warns against prayer designed mainly to impress people."
+              },
+              {
+                "title": "Prayer shapes priorities",
+                "text": "The Lord’s Prayer places God’s name, kingdom, will, provision, forgiveness, and protection in proper order."
+              }
+            ],
+            "questions": [
+              "What usually distracts believers from consistent prayer?",
+              "What does the Lord’s Prayer teach about our priorities?",
+              "How does forgiveness affect our prayer life?"
+            ],
+            "closingPrayer": "Father, teach us to pray with sincerity, faith, forgiveness, and submission to Your will."
+          }
         }
       ]
     }
@@ -471,39 +1577,54 @@
         "icon": "⌁",
         "title": "Events Calendar",
         "text": "See upcoming church programmes.",
-        "href": "#"
+        "href": "events.html"
       }
     ],
     "events": [
       {
-        "frequency": "Weekly",
-        "title": "Sunday Service",
-        "text": "Our regular Sunday worship gathering across the chapels."
+        "frequency": "Tuesday · 18:00–19:00",
+        "title": "Prayer Clinic",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Every Wednesday",
-        "title": "Shiloh Service",
-        "text": "A midweek service of prayer, worship, the Word, and spiritual renewal."
+        "frequency": "Wednesday · 10:00–11:00",
+        "title": "Shiloh Prayer Service",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Annual",
-        "title": "Peculiar Cherubs Conference",
-        "text": "A major gathering for worship, teaching, fellowship, and renewal."
+        "frequency": "Wednesday · 18:00–19:30",
+        "title": "Mid-Week Service",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Annual",
-        "title": "Founder’s Day",
-        "text": "A celebration of the church’s heritage, vision, and founding legacy."
+        "frequency": "Saturday · 06:00–07:00",
+        "title": "Anointing Service (first Saturday)",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Annual",
-        "title": "Choir Fiesta",
-        "text": "A music and worship celebration featuring the church choir and invited ministers."
+        "frequency": "Saturday · 08:00–10:00",
+        "title": "Evangelical Outreach",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Annual",
-        "title": "Harvest",
-        "text": "A thanksgiving celebration of God’s faithfulness and provision."
+        "frequency": "Saturday · 14:45–17:30",
+        "title": "Deliverance Service",
+        "text": "Part of the church’s regular weekly rhythm."
+      },
+      {
+        "frequency": "Sunday · 07:00–08:50",
+        "title": "First Service (English)",
+        "text": "Part of the church’s regular weekly rhythm."
+      },
+      {
+        "frequency": "Sunday · 09:00–09:55",
+        "title": "Bible Study",
+        "text": "Part of the church’s regular weekly rhythm."
+      },
+      {
+        "frequency": "Sunday · 10:00–12:00",
+        "title": "Second Service (Traditional)",
+        "text": "Part of the church’s regular weekly rhythm."
       }
     ]
   },
@@ -1285,5 +2406,821 @@
         "coordinator": "Brother Michael Lawal"
       }
     ]
+  },
+  "events": {
+    "hero": {
+      "eyebrow": "Events",
+      "title": "Worship. Gather.\nGrow together.",
+      "description": "Explore the Peculiar Cherubs calendar, see what is coming next, and catch up on past programmes and celebrations."
+    },
+    "timezone": "Africa/Lagos",
+    "defaultMonth": "2026-07",
+    "monthlyThemes": [
+      {
+        "month": "January",
+        "centralTheme": "Great Mercies",
+        "declaration": "My Month Of Divine Remembrance",
+        "quarterAim": "1ST QUARTER aim: THE FOUNDATION OF MERCY"
+      },
+      {
+        "month": "February",
+        "centralTheme": "Sin And Forgiveness",
+        "declaration": "My Month Of Total Cleansing",
+        "quarterAim": "1ST QUARTER aim: THE FOUNDATION OF MERCY"
+      },
+      {
+        "month": "March",
+        "centralTheme": "Gift Of Righteousness",
+        "declaration": "My Month Of Divine Exchange",
+        "quarterAim": "1ST QUARTER aim: THE FOUNDATION OF MERCY"
+      },
+      {
+        "month": "April",
+        "centralTheme": "Power Of Mercy",
+        "declaration": "My Month Of Unending Compassion",
+        "quarterAim": "2ND QUARTER aim: THE POWER OF REDEMPTION AND GRACE"
+      },
+      {
+        "month": "May",
+        "centralTheme": "Mystery Of Grace",
+        "declaration": "My Month Of Overflowing Grace",
+        "quarterAim": "2ND QUARTER aim: THE POWER OF REDEMPTION AND GRACE"
+      },
+      {
+        "month": "June",
+        "centralTheme": "Perfect Redemption",
+        "declaration": "My Month Of Complete Deliverance",
+        "quarterAim": "2ND QUARTER aim: THE POWER OF REDEMPTION AND GRACE"
+      },
+      {
+        "month": "July",
+        "centralTheme": "Restored Identity",
+        "declaration": "My Month Of Divine Restoration",
+        "quarterAim": "3RD QUARTER aim: LIVING IN COVENANT IDENTITY"
+      },
+      {
+        "month": "August",
+        "centralTheme": "Royal Priesthood",
+        "declaration": "My Month Of Kingship And Authority",
+        "quarterAim": "3RD QUARTER aim: LIVING IN COVENANT IDENTITY"
+      },
+      {
+        "month": "September",
+        "centralTheme": "Abundant Life",
+        "declaration": "My Month Of Supernatural Supply",
+        "quarterAim": "3RD QUARTER aim: LIVING IN COVENANT IDENTITY"
+      },
+      {
+        "month": "October",
+        "centralTheme": "Inner Peace",
+        "declaration": "My Month Of Divine Serenity",
+        "quarterAim": "4TH QUARTER aim: THE MERCIFUL LIFE"
+      },
+      {
+        "month": "November",
+        "centralTheme": "Total Rest",
+        "declaration": "My Month Of Rest On All Sides",
+        "quarterAim": "4TH QUARTER aim: THE MERCIFUL LIFE"
+      },
+      {
+        "month": "December",
+        "centralTheme": "The Great Advocate",
+        "declaration": "My Month Of Divine Advocacy",
+        "quarterAim": "4TH QUARTER aim: THE MERCIFUL LIFE"
+      }
+    ],
+    "recurring": [
+      {
+        "id": "weekly-1",
+        "title": "Prayer Clinic",
+        "weekday": 2,
+        "startTime": "18:00",
+        "endTime": "19:00",
+        "category": "Weekly Service",
+        "description": "Prayer Clinic as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-2",
+        "title": "Shiloh Prayer Service",
+        "weekday": 3,
+        "startTime": "10:00",
+        "endTime": "11:00",
+        "category": "Weekly Service",
+        "description": "Shiloh Prayer Service as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-3",
+        "title": "Mid-Week Service",
+        "weekday": 3,
+        "startTime": "18:00",
+        "endTime": "19:30",
+        "category": "Weekly Service",
+        "description": "Mid-Week Service as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-4",
+        "title": "Anointing Service",
+        "weekday": 6,
+        "startTime": "06:00",
+        "endTime": "07:00",
+        "category": "Monthly Service",
+        "description": "Anointing Service (first Saturday) as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "weekOfMonth": 1
+      },
+      {
+        "id": "weekly-5",
+        "title": "Evangelical Outreach",
+        "weekday": 6,
+        "startTime": "08:00",
+        "endTime": "10:00",
+        "category": "Weekly Service",
+        "description": "Evangelical Outreach as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-6",
+        "title": "Deliverance Service",
+        "weekday": 6,
+        "startTime": "14:45",
+        "endTime": "17:30",
+        "category": "Weekly Service",
+        "description": "Deliverance Service as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-7",
+        "title": "First Service (English)",
+        "weekday": 0,
+        "startTime": "07:00",
+        "endTime": "08:50",
+        "category": "Weekly Service",
+        "description": "First Service (English) as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-8",
+        "title": "Bible Study",
+        "weekday": 0,
+        "startTime": "09:00",
+        "endTime": "09:55",
+        "category": "Weekly Service",
+        "description": "Bible Study as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-9",
+        "title": "Second Service (Traditional)",
+        "weekday": 0,
+        "startTime": "10:00",
+        "endTime": "12:00",
+        "category": "Weekly Service",
+        "description": "Second Service (Traditional) as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      }
+    ],
+    "items": [
+      {
+        "id": "hour-of-praise-anointing-service-2026-01-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-01-01",
+        "endDate": "2026-01-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "DIVINE REMEMBRANCE - Isaiah 49:15-16",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "new-year-thanksgiving-2026-01-04",
+        "title": "New Year Thanksgiving",
+        "startDate": "2026-01-04",
+        "endDate": "2026-01-04",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-02-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-02-01",
+        "endDate": "2026-02-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "TOTAL CLEANSING - Jeremiah 33:8",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "praise-day-2026-02-15",
+        "title": "Praise Day",
+        "startDate": "2026-02-15",
+        "endDate": "2026-02-15",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A gathering of praise, prayer, worship, and thanksgiving.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-03-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-03-01",
+        "endDate": "2026-03-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "DIVINE EXCHANGE - 2 Corinthian 8:9",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "int-l-women-s-day-2026-03-08",
+        "title": "Int'L Women'S Day",
+        "startDate": "2026-03-08",
+        "endDate": "2026-03-08",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "seminar-palm-sunday-2026-03-29",
+        "title": "Seminar/Palm Sunday",
+        "startDate": "2026-03-29",
+        "endDate": "2026-03-29",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Christian Calendar",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-04-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-04-01",
+        "endDate": "2026-04-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "UNENDING COMPASSION - Lamentation 3:22-23",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "easter-sunday-2026-04-05",
+        "title": "Easter Sunday",
+        "startDate": "2026-04-05",
+        "endDate": "2026-04-05",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Christian Calendar",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-05-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-05-01",
+        "endDate": "2026-05-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "OVERFLOWING GRACE - John 1:16-17",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "mother-s-day-2026-05-16",
+        "title": "Mother'S Day",
+        "startDate": "2026-05-16",
+        "endDate": "2026-05-16",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "pentecost-sunday-2026-05-23",
+        "title": "Pentecost Sunday",
+        "startDate": "2026-05-23",
+        "endDate": "2026-05-23",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Christian Calendar",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-06-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-06-01",
+        "endDate": "2026-06-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "COMPLETE DELIVERANCE - Psalm 34:17-18",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "father-s-day-2026-06-21",
+        "title": "Father'S Day",
+        "startDate": "2026-06-21",
+        "endDate": "2026-06-21",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-2026-07-01",
+        "title": "Hour of Praise",
+        "startDate": "2026-07-01",
+        "endDate": "2026-07-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Service",
+        "description": "A gathering of praise, prayer, worship, and thanksgiving.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "goodness-family-harvest-2026-07-05",
+        "title": "Goodness Family Harvest",
+        "startDate": "2026-07-05",
+        "endDate": "2026-07-05",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme",
+        "catchUpLinks": [
+          {
+            "label": "Read Week 27 Goodnews",
+            "href": "publications.html"
+          }
+        ]
+      },
+      {
+        "id": "mid-year-thanksgiving-2026-07-05",
+        "title": "Mid Year Thanksgiving",
+        "startDate": "2026-07-05",
+        "endDate": "2026-07-05",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "church-convention-2026-07-06",
+        "title": "Church Convention",
+        "startDate": "2026-07-06",
+        "endDate": "2026-07-11",
+        "startTime": "",
+        "endTime": "",
+        "allDay": true,
+        "category": "Convention",
+        "description": "A multi-day church gathering for worship, teaching, prayer, fellowship, and renewal.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "new-converts-baptism-2026-07-11",
+        "title": "New Converts Baptism",
+        "startDate": "2026-07-11",
+        "endDate": "2026-07-11",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Service",
+        "description": "A baptism service for new converts.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "21st-church-founder-s-day-anniversary-2026-07-12",
+        "title": "21st Church Founder’s Day Anniversary",
+        "startDate": "2026-07-12",
+        "endDate": "2026-07-12",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Service",
+        "description": "A celebration of the church’s founding, heritage, vision, and continuing mission.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme",
+        "catchUpLinks": [
+          {
+            "label": "Read Founder’s Day issue",
+            "href": "publications.html"
+          }
+        ]
+      },
+      {
+        "id": "international-evangelical-convention-2026-07-15",
+        "title": "International Evangelical Convention",
+        "startDate": "2026-07-15",
+        "endDate": "2026-07-18",
+        "startTime": "",
+        "endTime": "",
+        "allDay": true,
+        "category": "Convention",
+        "description": "A multi-day church gathering for worship, teaching, prayer, fellowship, and renewal.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": false,
+        "source": "2026 July programme",
+        "editorNote": "The event appears in Week 27 material but is absent from the Week 28 notice list. Confirm before publishing."
+      },
+      {
+        "id": "gentleness-family-harvest-2026-07-19",
+        "title": "Gentleness Family Harvest",
+        "startDate": "2026-07-19",
+        "endDate": "2026-07-19",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "temperance-family-harvest-2026-07-26",
+        "title": "Temperance Family Harvest",
+        "startDate": "2026-07-26",
+        "endDate": "2026-07-26",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "prayer-retreat-2026-07-28",
+        "title": "Prayer Retreat",
+        "startDate": "2026-07-28",
+        "endDate": "2026-07-30",
+        "startTime": "17:30",
+        "endTime": "",
+        "allDay": false,
+        "category": "Prayer & Revival",
+        "description": "A focused season of prayer, consecration, and spiritual renewal.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "shiloh-ministry-quarterly-revival-2026-07-29",
+        "title": "Shiloh Ministry Quarterly Revival",
+        "startDate": "2026-07-29",
+        "endDate": "2026-07-31",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Prayer & Revival",
+        "description": "A special revival programme of prayer, worship, and the Word.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-08-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-08-01",
+        "endDate": "2026-08-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "KINGSHIP AND AUTHORITY - Ephesians 2:6",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "choir-anniversary-2026-08-09",
+        "title": "Choir Anniversary",
+        "startDate": "2026-08-09",
+        "endDate": "2026-08-09",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hq-children-harvest-2026-08-16",
+        "title": "Hq Children Harvest",
+        "startDate": "2026-08-16",
+        "endDate": "2026-08-16",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hq-teenagers-harvest-2026-08-23",
+        "title": "Hq Teenagers Harvest",
+        "startDate": "2026-08-23",
+        "endDate": "2026-08-23",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "seminar-2026-08-30",
+        "title": "Seminar",
+        "startDate": "2026-08-30",
+        "endDate": "2026-08-30",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-09-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "SUPERNATURAL SUPPLY - 2 Corinthians 9:8",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "headquarters-harvest-2026-09-27",
+        "title": "Headquarters Harvest",
+        "startDate": "2026-09-27",
+        "endDate": "2026-09-27",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-10-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-10-01",
+        "endDate": "2026-10-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "DIVINE SERENITY - Isaiah 30:15",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "nigeria-independence-thanksgiving-2026-10-04",
+        "title": "Nigeria Independence Thanksgiving",
+        "startDate": "2026-10-04",
+        "endDate": "2026-10-04",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-11-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-11-01",
+        "endDate": "2026-11-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "REST ON ALL SIDES - 2 Kings 6:16-17",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "seminar-2026-11-29",
+        "title": "Seminar",
+        "startDate": "2026-11-29",
+        "endDate": "2026-11-29",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-12-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-12-01",
+        "endDate": "2026-12-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "DIVINE ADVOCACY - 1 John 2:1",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "christmas-2026-12-25",
+        "title": "Christmas",
+        "startDate": "2026-12-25",
+        "endDate": "2026-12-25",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Christian Calendar",
+        "description": "A celebration of the birth of Jesus Christ.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "cross-over-service-2026-12-31",
+        "title": "Cross Over Service",
+        "startDate": "2026-12-31",
+        "endDate": "2026-12-31",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "The year-end service of worship, thanksgiving, prayer, and prophetic direction.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      }
+    ],
+    "socialFeed": [
+      {
+        "platform": "Website Placeholder",
+        "type": "PHOTO GALLERY",
+        "title": "Founder’s Day Highlights",
+        "text": "Celebrating our heritage, vision, and continuing mission.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/founders-day-highlights.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "VIDEO",
+        "title": "Choir Fiesta Highlights",
+        "text": "A celebration of worship, music, and joyful praise.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/choir-fiesta-video.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "VIDEO",
+        "title": "Shiloh Revival",
+        "text": "Prayer, renewal, worship, and the Word.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/shiloh-revival-video.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "PHOTOS",
+        "title": "Sunday Worship Moments",
+        "text": "Worship, fellowship, prayer, and transformed lives.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/sunday-worship-gallery.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "REEL",
+        "title": "Mega Youth Gathering",
+        "text": "Young adults growing, serving, and leading for Christ.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/mega-youth-reel.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "SHORT CLIP",
+        "title": "Great Mercies Testimony",
+        "text": "Stories of God’s mercy, restoration, and favour.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/great-mercies-testimony.jpg",
+        "published": true,
+        "placeholder": true
+      }
+    ],
+    "socialFeedEmpty": {
+      "title": "Social highlights will appear here.",
+      "text": "Add official Facebook, Instagram, YouTube, photo-gallery, or livestream links under events.socialFeed in site-content.json."
+    },
+    "socialFeedNotice": {
+      "title": "Generated placeholders",
+      "text": "These cards are temporary visual placeholders. Replace them later with approved photos, videos, galleries, or social-media links."
+    }
   }
 }
