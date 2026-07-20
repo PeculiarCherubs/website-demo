@@ -353,7 +353,7 @@
       "title": "Church news, devotion, and updates.",
       "text": "Read the latest issue and browse previous editions from the publication archive.",
       "button": "Read Latest Edition",
-      "href": "#"
+      "href": "publication-detail.html?issue=issue-01"
     },
     "archive": [
       {
@@ -362,7 +362,7 @@
         "status": "Latest edition",
         "title": "Walking in Purpose",
         "text": "Devotional insight, announcements, and ministry updates.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-01",
         "theme": "yellow"
       },
       {
@@ -371,7 +371,7 @@
         "status": "Archive",
         "title": "Growing Through Prayer",
         "text": "Encouragement, testimonies, and updates from the chapels.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-02",
         "theme": "navy"
       },
       {
@@ -380,10 +380,201 @@
         "status": "Archive",
         "title": "Prepared for Impact",
         "text": "Highlights from worship, teaching, and church programmes.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-03",
+        "theme": "red"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 04",
+        "status": "Archive",
+        "title": "Faith and Service",
+        "text": "Serving our community and growing together.",
+        "href": "publication-detail.html?issue=issue-04",
+        "theme": "yellow"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 05",
+        "status": "Archive",
+        "title": "The Power of Praise",
+        "text": "Understanding worship as a lifestyle of power.",
+        "href": "publication-detail.html?issue=issue-05",
+        "theme": "navy"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 06",
+        "status": "Archive",
+        "title": "Walking in Love",
+        "text": "Building family and community through grace.",
+        "href": "publication-detail.html?issue=issue-06",
         "theme": "red"
       }
     ],
+    "details": {
+      "issue-01": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 01",
+        "date": "July 5, 2026",
+        "title": "Walking in Purpose",
+        "theme": "yellow",
+        "subtitle": "Discovering God's Plan for Your Life",
+        "content": [
+          "What does it mean to walk in purpose? It means matching our daily actions with God's design. In a world full of distractions, finding your calling can seem daunting. However, scripture assures us that God has pre-ordained good works for us to walk in.",
+          "Walking in purpose requires active listening and surrender. When we allow the Holy Spirit to direct our steps, even mundane tasks become opportunities for spiritual impact. This week, reflect on how your current roles can serve God's kingdom."
+        ],
+        "scriptures": [
+          {
+            "ref": "Proverbs 3:5-6",
+            "text": "Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight."
+          },
+          {
+            "ref": "Ephesians 2:10",
+            "text": "For we are God’s handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do."
+          }
+        ],
+        "announcements": [
+          "Join us for our Wednesday Shiloh Service at 6:00 PM as we continue our series on Purpose.",
+          "The Children's Ministry is recruiting teachers. Contact the parish office to register interest."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-02": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 02",
+        "date": "July 12, 2026",
+        "title": "Growing Through Prayer",
+        "theme": "navy",
+        "subtitle": "Strengthening Your Connection to the Father",
+        "content": [
+          "Prayer is not just a ritual; it is the lifeblood of the believer. It is the space where our weakness meets God's strength. Growing in prayer means moving beyond a checklist of needs to an intimate conversation of love.",
+          "Consistency is key to a robust prayer life. Just as physical exercise strengthens the body, setting daily moments aside to talk with and listen to God builds spiritual resilience. Let us cultivate a posture of constant communion."
+        ],
+        "scriptures": [
+          {
+            "ref": "1 Thessalonians 5:17",
+            "text": "Pray without ceasing."
+          },
+          {
+            "ref": "Philippians 4:6",
+            "text": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God."
+          }
+        ],
+        "announcements": [
+          "Monthly Hour of Praise and Deliverance will hold this Friday at 10:00 PM. Come ready for breakthroughs.",
+          "Publications team is accepting testimonies for the next monthly edition."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-03": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 03",
+        "date": "July 19, 2026",
+        "title": "Prepared for Impact",
+        "theme": "red",
+        "subtitle": "Equipping Believers to Change Their World",
+        "content": [
+          "God does not call the qualified; He qualifies the called. Being prepared for impact means being willing to step out of comfort zones and be used as instruments of His grace in our schools, workplaces, and families.",
+          "Preparation happens in the quiet, daily moments of study, prayer, and service. When the opportunity arises, a prepared heart is ready to give an answer for the hope that lies within. Step forward with bold faith."
+        ],
+        "scriptures": [
+          {
+            "ref": "2 Timothy 2:21",
+            "text": "Those who cleanse themselves from the latter will be instruments for special purposes, made holy, useful to the Master and prepared to do any good work."
+          },
+          {
+            "ref": "1 Peter 3:15",
+            "text": "But in your hearts revere Christ as Lord. Always be prepared to give an answer to everyone who asks you to give the reason for the hope that you have."
+          }
+        ],
+        "announcements": [
+          "Registration for Pesach International Academy's new term is now open. See student services for details.",
+          "Youth Fellowship will hold a special outreach seminar this Saturday at 12:00 PM."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-04": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 04",
+        "date": "July 26, 2026",
+        "title": "Faith and Service",
+        "theme": "yellow",
+        "subtitle": "Faith Without Works is Dead",
+        "content": [
+          "True faith is active, not passive. It expresses itself through service and love to those around us. When we serve, we reflect the heart of Jesus, who came not to be served, but to serve.",
+          "Every act of kindness, whether big or small, represents a seed of God's love sown into the community. Let us seek daily opportunities to be the hands and feet of Christ to those who are hurting."
+        ],
+        "scriptures": [
+          {
+            "ref": "James 2:26",
+            "text": "As the body without the spirit is dead, so faith without deeds is dead."
+          },
+          {
+            "ref": "Galatians 5:13",
+            "text": "You, my brothers and sisters, were called to be free. But do not use your freedom to indulge the flesh; rather, serve one another humbly in love."
+          }
+        ],
+        "announcements": [
+          "Feeding Ministry outreach will take place this Saturday morning. Volunteers should gather at 8:00 AM.",
+          "Weekly contributions for church development project can be submitted via the give portal."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-05": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 05",
+        "date": "August 2, 2026",
+        "title": "The Power of Praise",
+        "theme": "navy",
+        "subtitle": "Worship That Breaks Chains",
+        "content": [
+          "Praise is a powerful spiritual weapon. When we praise God in the midst of trials, we shift our focus from the size of our problems to the greatness of our God. Praise invites His manifest presence into our situations.",
+          "We see throughout scripture that praise often precedes victory. Let us make a habit of offering a sacrifice of praise, declaring God's goodness even when circumstances are challenging. Joy is found in His presence."
+        ],
+        "scriptures": [
+          {
+            "ref": "Psalm 150:6",
+            "text": "Let everything that has breath praise the Lord. Praise the Lord."
+          },
+          {
+            "ref": "Acts 16:25-26",
+            "text": "About midnight Paul and Silas were praying and singing hymns to God... Suddenly there was such a violent earthquake that the foundations of the prison were shaken."
+          }
+        ],
+        "announcements": [
+          "Praise Night rehearsals will hold on Thursday at 5:00 PM for all choir members.",
+          "New believers class starts next Sunday immediately after the first service."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-06": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 06",
+        "date": "August 9, 2026",
+        "title": "Walking in Love",
+        "theme": "red",
+        "subtitle": "The Greatest Commandment",
+        "content": [
+          "Love is the defining mark of a disciple. Jesus told us that the world will know we are His by our love for one another. This love is patient, kind, and does not keep a record of wrongs.",
+          "To walk in love is to choose forgiveness and empathy over pride and resentment. It is a daily decision that heals families, builds community, and shines God's light into a broken world. Choose love today."
+        ],
+        "scriptures": [
+          {
+            "ref": "John 13:34-35",
+            "text": "A new command I give you: Love one another. As I have loved you, so you must love one another. By this everyone will know that you are my disciples, if you love one another."
+          },
+          {
+            "ref": "1 Corinthians 13:4-8",
+            "text": "Love is patient, love is kind. It does not envy, it does not boast, it is not proud... Love never fails."
+          }
+        ],
+        "announcements": [
+          "Couples Fellowship is hosting a dinner seminar on family relationships on August 15. Register today.",
+          "House Fellowship coordinators meeting will hold after the Wednesday service."
+        ],
+        "pdfUrl": "#"
+      }
+    },
     "sundaySchool": {
       "type": "Sunday School Outline",
       "title": "This Week’s Lesson",

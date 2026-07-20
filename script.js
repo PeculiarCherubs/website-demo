@@ -367,20 +367,224 @@ function renderPublications(content) {
 
   const archive = document.querySelector("[data-publication-archive]");
   if (archive) {
-    archive.innerHTML = content.publications.archive.map(item => `
-      <article class="publication-issue-card publication-theme-${escapeHtml(item.theme)}">
-        <div class="publication-issue-cover">
-          <span class="publication-type">${escapeHtml(item.type)}</span>
-          <strong>${escapeHtml(item.issue)}</strong>
-          <small>Weekly Publication</small>
+    const itemsPerPage = 3;
+    let currentPage = 1;
+    const items = content.publications.archive || [];
+    const totalPages = Math.ceil(items.length / itemsPerPage);
+
+    let paginationContainer = document.querySelector(".publication-pagination");
+    if (!paginationContainer) {
+      paginationContainer = document.createElement("div");
+      paginationContainer.className = "publication-pagination";
+      archive.after(paginationContainer);
+    }
+
+    const render = (pageNum) => {
+      currentPage = pageNum;
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const paginatedItems = items.slice(start, end);
+
+      archive.innerHTML = paginatedItems.map(item => `
+        <article class="publication-issue-card publication-theme-${escapeHtml(item.theme)}">
+          <div class="publication-issue-cover">
+            <span class="publication-type">${escapeHtml(item.type)}</span>
+            <strong>${escapeHtml(item.issue)}</strong>
+            <small>Weekly Publication</small>
+          </div>
+          <div class="publication-issue-body">
+            <div class="meta">${escapeHtml(item.status)}</div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.text)}</p>
+            <a class="text-link publication-read-link" href="${escapeHtml(item.href)}">Read edition ↗</a>
+          </div>
+        </article>
+      `).join("");
+
+      if (totalPages > 1) {
+        paginationContainer.innerHTML = `
+          <button class="btn btn-secondary pagination-btn-prev" ${currentPage === 1 ? "disabled" : ""}>Previous</button>
+          <span class="pagination-info">Page ${currentPage} of ${totalPages}</span>
+          <button class="btn btn-secondary pagination-btn-next" ${currentPage === totalPages ? "disabled" : ""}>Next</button>
+        `;
+
+        paginationContainer.querySelector(".pagination-btn-prev")?.addEventListener("click", () => {
+          if (currentPage > 1) {
+            render(currentPage - 1);
+            document.querySelector(".publications-showcase")?.scrollIntoView({ behavior: "smooth" });
+          }
+        });
+
+        paginationContainer.querySelector(".pagination-btn-next")?.addEventListener("click", () => {
+          if (currentPage < totalPages) {
+            render(currentPage + 1);
+            document.querySelector(".publications-showcase")?.scrollIntoView({ behavior: "smooth" });
+          }
+        });
+      } else {
+        paginationContainer.innerHTML = "";
+      }
+    };
+
+    render(1);
+  }
+  const school = content.publications.sundaySchool;
+  setText("[data-sunday-school-type]", school.type);
+  setText("[data-sunday-school-title]", school.title);
+  setText("[data-sunday-school-text]", school.text);
+  setLink("[data-sunday-school-button]", {
+    label: school.button,
+    href: school.href
+  });
+
+
+  const lectionary = content.publications?.lectionaryCalendar;
+  const lectionaryContainer = document.querySelector("[data-lectionary-readings]");
+  const monthSelect = document.querySelector("[data-lectionary-month-select]");
+
+  if (!lectionary) {
+    console.error("Lectionary data is missing at publications.lectionaryCalendar.");
+    if (lectionaryContainer) {
+      lectionaryContainer.innerHTML = `
+        <article class="lectionary-card">
+          <h3>Lectionary unavailable</h3>
+          <p>The lectionary data could not be found in content/site-content.json.</p>
+        </article>
+      `;
+    }
+    return;
+  }
+
+  setText("[data-lectionary-eyebrow]", lectionary.eyebrow);
+  setText("[data-lectionary-title]", lectionary.title);
+  setText("[data-lectionary-description]", lectionary.description);
+  setLink("[data-lectionary-download]", {
+    label: lectionary.button,
+    href: lectionary.href
+  });
+
+  const readingItems = Array.isArray(lectionary.readings) ? lectionary.readings : [];
+  const months = [...new Set(readingItems.map(item => item.month).filter(Boolean))];
+
+  const currentMonthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date());
+  let selectedMonth = months.includes(currentMonthName)
+    ? currentMonthName
+    : (lectionary.currentMonth || months[0] || "").split(" ")[0];
+
+  if (monthSelect) {
+    monthSelect.innerHTML = months
+      .map(month => `<option value="${escapeHtml(month)}">${escapeHtml(month)}</option>`)
+      .join("");
+    monthSelect.value = selectedMonth;
+  }
+
+  const renderLectionaryMonth = month => {
+    selectedMonth = month;
+    setText("[data-lectionary-month]", `${month} 2026`);
+
+    if (!lectionaryContainer) return;
+
+    const filtered = readingItems.filter(item => item.month === month);
+    lectionaryContainer.innerHTML = filtered.map(reading => `
+      <article class="lectionary-card">
+        <div class="lectionary-card-top">
+          <div class="lectionary-date">${escapeHtml(reading.dateDisplay || reading.date)}</div>
+          <span class="lectionary-week">${escapeHtml(reading.week)}</span>
         </div>
-        <div class="publication-issue-body">
-          <div class="meta">${escapeHtml(item.status)}</div>
-          <h3>${escapeHtml(item.title)}</h3>
-          <p>${escapeHtml(item.text)}</p>
-          <a class="text-link publication-read-link" href="${escapeHtml(item.href)}">Read edition ↗</a>
+
+        ${reading.event ? `<div class="lectionary-special-event">${escapeHtml(reading.event)}</div>` : ""}
+        <h3>${escapeHtml(reading.topic)}</h3>
+
+        <div class="lectionary-scripture">
+          <span>Scripture</span>
+          <strong>${escapeHtml(reading.scripture)}</strong>
         </div>
+
+        ${reading.objective ? `
+          <details class="lectionary-objective">
+            <summary>View sermon objective</summary>
+            <p>${escapeHtml(reading.objective)}</p>
+          </details>
+        ` : ""}
+
+        ${reading.verificationNote ? `
+          <p class="lectionary-verification">${escapeHtml(reading.verificationNote)}</p>
+        ` : ""}
       </article>
+    `).join("");
+
+    if (!filtered.length) {
+      lectionaryContainer.innerHTML = `
+        <div class="event-empty-state">No lectionary entries were found for ${escapeHtml(month)}.</div>
+      `;
+    }
+  };
+
+  monthSelect?.addEventListener("change", event => renderLectionaryMonth(event.target.value));
+  renderLectionaryMonth(selectedMonth);
+}
+
+function renderPublicationDetail(content) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const issueKey = urlParams.get("issue") || "issue-01";
+  const item = content.publications.details?.[issueKey];
+
+  if (!item) {
+    const main = document.querySelector("main");
+    if (main) {
+      main.innerHTML = `
+        <div class="container" style="padding: 6rem 1rem; text-align: center;">
+          <h2>Publication Issue Not Found</h2>
+          <p>The requested publication could not be loaded. Please return to the publications list.</p>
+          <a class="btn btn-primary" href="publications.html" style="margin-top: 1.5rem; display: inline-block;">Back to Publications</a>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  setText("[data-pub-meta-top]", `${item.type} · ${item.issue} · ${item.date}`);
+  setText("[data-pub-title]", item.title);
+  setText("[data-pub-subtitle]", item.subtitle);
+
+  const hero = document.querySelector("[data-pub-hero-theme]");
+  if (hero) {
+    hero.classList.add(`publication-theme-${item.theme || "yellow"}`);
+  }
+
+  const contentContainer = document.querySelector("[data-pub-content]");
+  if (contentContainer) {
+    contentContainer.innerHTML = (item.content || [])
+      .map(p => `<p style="margin-bottom:1.5rem; line-height:1.75; font-size:1.15rem; color:var(--navy);">${escapeHtml(p)}</p>`)
+      .join("");
+  }
+
+  const pdfLink = document.querySelector("[data-pub-pdf]");
+  if (pdfLink) {
+    pdfLink.href = item.pdfUrl || "#";
+    if (!item.pdfUrl || item.pdfUrl === "#") {
+      pdfLink.style.opacity = "0.6";
+      pdfLink.textContent = "PDF Coming Soon";
+      pdfLink.addEventListener("click", e => e.preventDefault());
+    } else {
+      pdfLink.textContent = `Download ${item.issue} PDF`;
+    }
+  }
+
+  const scripturesContainer = document.querySelector("[data-pub-scriptures]");
+  if (scripturesContainer) {
+    scripturesContainer.innerHTML = (item.scriptures || []).map(scripture => `
+      <article class="scripture-card" style="margin-bottom:1.2rem; padding:1.2rem; border-radius:16px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);">
+        <strong style="display:block; font-size:0.95rem; color:var(--yellow); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.4rem;">${escapeHtml(scripture.ref)}</strong>
+        <p style="font-size:0.95rem; line-height:1.5; color:rgba(255,255,255,0.85); margin:0;">“${escapeHtml(scripture.text)}”</p>
+      </article>
+    `).join("");
+  }
+
+  const announcementsContainer = document.querySelector("[data-pub-announcements]");
+  if (announcementsContainer) {
+    announcementsContainer.innerHTML = (item.announcements || []).map(ann => `
+      <li style="margin-bottom:0.8rem; font-size:0.95rem; line-height:1.5; color:var(--navy); padding-left:0.5rem; border-left:3px solid var(--red);">${escapeHtml(ann)}</li>
     `).join("");
   }
 
@@ -1315,6 +1519,7 @@ async function initialiseSite() {
 
     const content = await response.json();
     renderShared(content);
+    console.log(content);
 
     const page = document.body.dataset.page;
     const renderers = {
@@ -1326,6 +1531,7 @@ async function initialiseSite() {
       chapels: renderChapels,
       sermons: renderSermons,
       publications: renderPublications,
+      publicationDetail: renderPublicationDetail,
       quickLinks: renderQuickLinks,
       events: renderEvents,
       give: renderGive,

@@ -3261,7 +3261,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 
 .lectionary-month-control label span,
 .calendar-filter span {
-  color: rgba(255,255,255,.72);
+  color: rgba(255, 255, 255, .72);
   font-size: .7rem;
   font-weight: 900;
   letter-spacing: .08em;
@@ -3272,7 +3272,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 .calendar-filter select {
   min-width: 170px;
   padding: .72rem .9rem;
-  border: 1px solid rgba(255,255,255,.22);
+  border: 1px solid rgba(255, 255, 255, .22);
   border-radius: 12px;
   background: var(--white);
   color: var(--navy);
@@ -3310,8 +3310,8 @@ body[data-page="chapels"] .page-hero-brand-mark {
   display: grid;
   gap: .45rem;
   padding: 1rem 0;
-  border-top: 1px solid rgba(22,34,73,.12);
-  border-bottom: 1px solid rgba(22,34,73,.12);
+  border-top: 1px solid rgba(22, 34, 73, .12);
+  border-bottom: 1px solid rgba(22, 34, 73, .12);
 }
 
 .lectionary-scripture span {
@@ -3358,7 +3358,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 
 .events-page-hero {
   background:
-    radial-gradient(circle at 80% 40%, rgba(255,255,0,.18), transparent 25%),
+    radial-gradient(circle at 80% 40%, rgba(255, 255, 0, .18), transparent 25%),
     linear-gradient(150deg, var(--navy), #263e88);
 }
 
@@ -3377,7 +3377,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
   overflow: hidden;
   position: relative;
   background:
-    radial-gradient(circle at 82% 50%, rgba(255,255,0,.22), transparent 25%),
+    radial-gradient(circle at 82% 50%, rgba(255, 255, 0, .22), transparent 25%),
     var(--navy);
   color: var(--white);
 }
@@ -3399,7 +3399,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 }
 
 .event-watch-card p {
-  color: rgba(255,255,255,.75);
+  color: rgba(255, 255, 255, .75);
   max-width: 700px;
 }
 
@@ -3416,7 +3416,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
   flex-wrap: wrap;
   gap: .7rem 1.2rem;
   align-items: center;
-  color: rgba(255,255,255,.78);
+  color: rgba(255, 255, 255, .78);
   font-weight: 700;
 }
 
@@ -3506,9 +3506,9 @@ body[data-page="chapels"] .page-hero-brand-mark {
 .calendar-control {
   min-width: 44px;
   min-height: 44px;
-  border: 1px solid rgba(255,255,255,.25);
+  border: 1px solid rgba(255, 255, 255, .25);
   border-radius: 12px;
-  background: rgba(255,255,255,.08);
+  background: rgba(255, 255, 255, .08);
   color: var(--white);
   font: inherit;
   font-weight: 900;
@@ -3528,7 +3528,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 
 .event-calendar {
   overflow: hidden;
-  border: 1px solid rgba(22,34,73,.12);
+  border: 1px solid rgba(22, 34, 73, .12);
   border-top: 0;
   border-radius: 0 0 22px 22px;
   background: var(--white);
@@ -3554,8 +3554,8 @@ body[data-page="chapels"] .page-hero-brand-mark {
 .calendar-day {
   min-height: 145px;
   padding: .65rem;
-  border-top: 1px solid rgba(22,34,73,.09);
-  border-right: 1px solid rgba(22,34,73,.09);
+  border-top: 1px solid rgba(22, 34, 73, .09);
+  border-right: 1px solid rgba(22, 34, 73, .09);
   background: var(--white);
 }
 
@@ -3639,7 +3639,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
   min-height: 260px;
   padding: 1.7rem;
   border-radius: 26px;
-  border: 1px solid rgba(22,34,73,.1);
+  border: 1px solid rgba(22, 34, 73, .1);
   background: var(--white);
   transition: .25s ease;
 }
@@ -3749,7 +3749,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 
 .social-event-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 24px 55px rgba(0,0,0,.24);
+  box-shadow: 0 24px 55px rgba(0, 0, 0, .24);
 }
 
 .social-event-thumb {
@@ -3758,7 +3758,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
   background-position: center;
 }
 
-.social-event-card > div:last-child {
+.social-event-card>div:last-child {
   padding: 1.5rem;
 }
 
@@ -3769,9 +3769,9 @@ body[data-page="chapels"] .page-hero-brand-mark {
 
 .social-feed-empty {
   padding: 2rem;
-  border: 1px solid rgba(255,255,255,.16);
+  border: 1px solid rgba(255, 255, 255, .16);
   border-radius: 24px;
-  background: rgba(255,255,255,.06);
+  background: rgba(255, 255, 255, .06);
 }
 
 .social-feed-empty h3 {
@@ -3779,7 +3779,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 }
 
 .social-feed-empty p {
-  color: rgba(255,255,255,.7);
+  color: rgba(255, 255, 255, .7);
 }
 
 .event-empty-state {
@@ -3796,11 +3796,11 @@ body[data-page="chapels"] .page-hero-brand-mark {
   padding: 2.5rem;
   border: 0;
   border-radius: 28px;
-  box-shadow: 0 30px 90px rgba(15,24,56,.35);
+  box-shadow: 0 30px 90px rgba(15, 24, 56, .35);
 }
 
 .event-dialog::backdrop {
-  background: rgba(15,24,56,.72);
+  background: rgba(15, 24, 56, .72);
   backdrop-filter: blur(5px);
 }
 
@@ -3844,11 +3844,12 @@ body[data-page="chapels"] .page-hero-brand-mark {
 }
 
 .quick-events-cta p {
-  color: rgba(255,255,255,.7);
+  color: rgba(255, 255, 255, .7);
   max-width: 680px;
 }
 
 @media(max-width:1000px) {
+
   .weekly-rhythm-grid,
   .upcoming-event-grid,
   .catchup-event-grid,
@@ -3907,6 +3908,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 }
 
 @media(max-width:620px) {
+
   .weekly-rhythm-grid,
   .upcoming-event-grid,
   .catchup-event-grid,
@@ -3920,5 +3922,189 @@ body[data-page="chapels"] .page-hero-brand-mark {
 
   .calendar-theme-banner {
     gap: .5rem;
+  }
+}
+
+/* Publication Pagination Styling */
+.publication-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+  padding: 1rem 0;
+}
+
+.publication-pagination .btn {
+  padding: 0.75rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(22, 34, 73, 0.15);
+  background: var(--white);
+  color: var(--navy);
+}
+
+.publication-pagination .btn:hover:not([disabled]) {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(22, 34, 73, 0.12);
+}
+
+.publication-pagination .btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pagination-info {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+/* Publication Detail Page Layout */
+.publication-detail-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  gap: 3.5rem;
+  align-items: start;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.pub-main-read {
+  background: var(--white);
+  border-radius: 32px;
+  padding: 3rem;
+  border: 1px solid rgba(22, 34, 73, 0.08);
+  box-shadow: 0 16px 40px rgba(22, 34, 73, 0.05);
+}
+
+.pub-main-read p {
+  color: var(--navy);
+  font-size: 1.15rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+.pub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(22, 34, 73, 0.08);
+}
+
+.pub-side-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.pub-sidebar-block {
+  padding: 2.2rem;
+  border-radius: 30px;
+  box-shadow: 0 16px 40px rgba(22, 34, 73, 0.08);
+}
+
+.pub-scriptures-block {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.pub-scriptures-block h3 {
+  color: var(--white);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pub-announcements-block {
+  background: var(--sky);
+  color: var(--navy);
+}
+
+.pub-announcements-block h3 {
+  color: var(--navy);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pub-announcements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Theme variations for publication detail page hero */
+.publication-detail-hero.publication-theme-yellow {
+  background: var(--yellow);
+  color: var(--navy);
+}
+
+.publication-detail-hero.publication-theme-yellow .eyebrow,
+.publication-detail-hero.publication-theme-yellow h1,
+.publication-detail-hero.publication-theme-yellow p {
+  color: var(--navy);
+}
+
+.publication-detail-hero.publication-theme-navy {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.publication-detail-hero.publication-theme-navy .eyebrow {
+  color: var(--yellow);
+}
+
+.publication-detail-hero.publication-theme-navy h1,
+.publication-detail-hero.publication-theme-navy p {
+  color: var(--white);
+}
+
+.publication-detail-hero.publication-theme-red {
+  background: var(--red);
+  color: var(--white);
+}
+
+.publication-detail-hero.publication-theme-red .eyebrow {
+  color: var(--yellow);
+}
+
+.publication-detail-hero.publication-theme-red h1,
+.publication-detail-hero.publication-theme-red p {
+  color: var(--white);
+}
+
+.publications-showcase .container .section-head {
+  color: var(--navy)
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .publication-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .pub-main-read {
+    padding: 2rem 1.5rem;
+  }
+
+  .pub-actions {
+    flex-direction: column;
+  }
+
+  .pub-actions .btn {
+    width: 100%;
+    text-align: center;
   }
 }

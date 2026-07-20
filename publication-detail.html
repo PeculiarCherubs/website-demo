@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Publication Details | Peculiar Cherubs</title>
+  <meta name="description" content="Read dynamic church publications, devotional messages and announcements from Peculiar Cherubs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body data-page="publicationDetail" data-content-loading="true">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" data-site-logo alt="Peculiar Cherubs logo">
+        <span data-site-short-name></span>
+      </a>
+
+      <button class="menu-btn" type="button" aria-label="Open navigation" aria-expanded="false">
+        ☰
+      </button>
+
+      <nav class="nav-links" aria-label="Primary navigation" data-navigation></nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero branded-page-hero publication-detail-hero" data-pub-hero-theme>
+      <div class="page-hero-brand-mark" aria-hidden="true"></div>
+      <div class="container">
+        <span class="eyebrow" data-pub-meta-top></span>
+        <h1 data-pub-title></h1>
+        <p data-pub-subtitle></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container publication-detail-grid">
+        <div class="pub-main-read">
+          <span class="eyebrow">Weekly Devotional</span>
+          <div data-pub-content></div>
+
+          <div class="pub-actions">
+            <a class="btn btn-primary" data-pub-pdf>Download Issue PDF</a>
+            <a class="btn btn-secondary" href="publications.html">Back to Publications</a>
+          </div>
+        </div>
+
+        <div class="pub-side-rail">
+          <div class="pub-sidebar-block pub-scriptures-block">
+            <span class="eyebrow" style="color:var(--yellow);margin-bottom:0.8rem">Word of Grace</span>
+            <h3>Devotional Scriptures</h3>
+            <div class="pub-scriptures-list" data-pub-scriptures></div>
+          </div>
+
+          <div class="pub-sidebar-block pub-announcements-block">
+            <span class="eyebrow" style="color:var(--red);margin-bottom:0.8rem">Notice Board</span>
+            <h3>Weekly Announcements</h3>
+            <ul class="pub-announcements-list" data-pub-announcements></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="brand" style="color:white;margin-bottom:1rem">
+            <img class="brand-logo footer-logo" data-site-logo alt="Peculiar Cherubs logo">
+            <span data-site-short-name></span>
+          </div>
+          <p data-site-full-name></p>
+        </div>
+
+        <div>
+          <h3>Explore</h3>
+          <p><a href="about.html">About Us</a></p>
+          <p><a href="pdcms.html">Our Chapels</a></p>
+        </div>
+
+        <div>
+          <h3>Connect</h3>
+          <p><a href="sermons.html">Sermons</a></p>
+          <p><a href="publications.html">Publications</a></p>
+          <p><a href="bible-college.html">Bible College</a></p>
+          <p><a href="events.html">Events</a></p>
+          <p><a href="quick-links.html">Quick Links</a></p>
+          <p><a href="give.html">Give</a></p>
+        </div>
+
+        <div>
+          <h3>Service Times</h3>
+          <p data-service-sunday></p>
+          <p data-service-midweek></p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span data-copyright-year></span> <span data-site-full-name></span>.</span>
+        <span data-site-tagline></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

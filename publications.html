@@ -101,45 +101,45 @@
           <div class="sunday-school-symbol" aria-hidden="true">✦</div>
           <div>
             <div class="meta" data-sunday-school-type></div>
-            <h2 data-sunday-school-title></h2>
+            <h2 style="color: aliceblue;" data-sunday-school-title></h2>
             <p data-sunday-school-text></p>
             <a class="btn btn-primary" data-sunday-school-button></a>
           </div>
         </div>
       </div>
     </section>
-  
+
 
     <section class="section lectionary-section">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow" data-lectionary-eyebrow>
-          </span>
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow" data-lectionary-eyebrow>
+            </span>
 
-          <h2 data-lectionary-title></h2>
+            <h2 data-lectionary-title></h2>
+          </div>
+
+          <p data-lectionary-description></p>
         </div>
 
-        <p data-lectionary-description></p>
-      </div>
+        <div class="lectionary-toolbar">
+          <div class="lectionary-month-control">
+            <h3 data-lectionary-month></h3>
+            <label>
+              <span>Browse month</span>
+              <select data-lectionary-month-select></select>
+            </label>
+          </div>
 
-      <div class="lectionary-toolbar">
-        <div class="lectionary-month-control">
-          <h3 data-lectionary-month></h3>
-          <label>
-            <span>Browse month</span>
-            <select data-lectionary-month-select></select>
-          </label>
+          <a class="btn btn-primary" data-lectionary-download>
+          </a>
         </div>
 
-        <a class="btn btn-primary" data-lectionary-download>
-        </a>
+        <div class="lectionary-grid" data-lectionary-readings>
+        </div>
       </div>
-
-      <div class="lectionary-grid" data-lectionary-readings>
-      </div>
-    </div>
-  </section>
+    </section>
   </main>
   <footer class="footer">
     <div class="container">
@@ -164,7 +164,7 @@
           <p><a href="publications.html">Publications</a></p>
           <p><a href="bible-college.html">Bible College</a></p>
           <p><a href="events.html">Events</a></p>
-        <p><a href="quick-links.html">Quick Links</a></p>
+          <p><a href="quick-links.html">Quick Links</a></p>
           <p><a href="give.html">Give</a></p>
         </div>
 
@@ -183,6 +183,9 @@
   </footer>
 
   <script src="script.js"></script>
+  <script>
+    console.log("Publications Data:", data);
+  </script>
 </body>
 
 </html>
