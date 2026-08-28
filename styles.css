@@ -1451,6 +1451,8 @@ body[data-page="give"] .page-hero-brand-mark {
 
 .publication-issue-body {
   padding: 2rem;
+  align-items: flex-start;
+  height: 350px;
 }
 
 .publication-issue-body h3 {
