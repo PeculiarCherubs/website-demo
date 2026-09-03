@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Management Portal — Peculiar Cherubs</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Admin Stylesheet (imports website-demo/styles.css) -->
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- ======================================================================
+       Passcode Authentication Overlay
+       ====================================================================== -->
+  <div id="adminAuthOverlay" class="admin-auth-overlay">
+    <div class="admin-auth-card">
+      <div class="admin-auth-icon">🛡️</div>
+      <h2>Admin Access</h2>
+      <p>Enter the master passcode to manage site content live in Supabase DB.</p>
+      
+      <form id="adminAuthForm">
+        <div class="admin-input-group">
+          <label for="adminPasscode">Passcode</label>
+          <input type="password" id="adminPasscode" class="admin-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <div id="adminAuthError" class="admin-auth-error">Invalid passcode. Please try again.</div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+          Unlock Portal
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       Top Header Bar
+       ====================================================================== -->
+  <header class="admin-header">
+    <div class="admin-header-brand">
+      <button id="adminMenuToggle" class="admin-menu-toggle" aria-label="Toggle Navigation Menu">
+        ☰
+      </button>
+      <a href="../index.html" target="_blank" style="display: flex; align-items: center; gap: 0.75rem;">
+        <img src="../assets/logos/mother-church.png" alt="Peculiar Cherubs Logo" class="admin-header-logo" onerror="this.style.display='none'">
+        <div class="admin-header-title">
+          <h1>Peculiar Cherubs</h1>
+          <span class="admin-header-subtitle">Content Management Portal</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="admin-header-actions">
+      <div id="adminStatusIndicator" class="admin-status-indicator">
+        <span class="admin-status-dot"></span>
+        <span class="admin-status-text">Connected to Supabase DB</span>
+      </div>
+
+      <button id="adminExportBtn" class="btn btn-secondary admin-btn-sm" title="Download updated site-content.json for local repository backup">
+        📥 Export JSON
+      </button>
+
+      <button id="adminLogoutBtn" class="btn btn-secondary admin-btn-sm" style="border-color: rgba(255,255,255,0.3); color: var(--white);">
+        🔒 Lock
+      </button>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       Workspace Main Layout
+       ====================================================================== -->
+  <div class="admin-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside id="adminSidebar" class="admin-sidebar">
+      <div class="admin-sidebar-section">
+        <div class="admin-sidebar-label">Navigation</div>
+        <ul class="admin-nav-list">
+          <li class="admin-nav-item active" data-tab="dashboard">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">📊</span>
+                <span>Dashboard</span>
+              </div>
+            </button>
+          </li>
+          <li class="admin-nav-item" data-tab="publications">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">📚</span>
+                <span>Publications</span>
+              </div>
+              <span id="badgePublications" class="admin-nav-badge">0</span>
+            </button>
+          </li>
+          <li class="admin-nav-item" data-tab="sermons">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">🎙️</span>
+                <span>Sermons</span>
+              </div>
+              <span id="badgeSermons" class="admin-nav-badge">0</span>
+            </button>
+          </li>
+          <li class="admin-nav-item" data-tab="events">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">📅</span>
+                <span>Events</span>
+              </div>
+              <span id="badgeEvents" class="admin-nav-badge">0</span>
+            </button>
+          </li>
+          <li class="admin-nav-item" data-tab="fellowships">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">🏠</span>
+                <span>House Fellowships</span>
+              </div>
+              <span id="badgeFellowships" class="admin-nav-badge">0</span>
+            </button>
+          </li>
+          <li class="admin-nav-item" data-tab="ministries">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">⛪</span>
+                <span>Ministries & Chapels</span>
+              </div>
+              <span id="badgeMinistries" class="admin-nav-badge">0</span>
+            </button>
+          </li>
+          <li class="admin-nav-item" data-tab="siteSettings">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">⚙️</span>
+                <span>Site Settings</span>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="admin-sidebar-section" style="margin-top: auto; padding-bottom: 1.5rem;">
+        <div style="background: var(--sky); padding: 1rem; border-radius: 16px; text-align: center;">
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--navy);">MAIN WEBSITE</div>
+          <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem;">View changes live on website</div>
+          <a href="../index.html" target="_blank" class="btn btn-primary admin-btn-sm" style="width: 100%;">
+            🌐 Open Website
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace View Panels -->
+    <main class="admin-main">
+
+      <!-- ------------------------------------------------------------------
+           Panel: Dashboard
+           ------------------------------------------------------------------ -->
+      <section id="panelDashboard" class="admin-view-panel active">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Website Overview</h2>
+            <p>Monitor and manage content published across Peculiar Cherubs website.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.switchTab('publications')">
+              + New Publication
+            </button>
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">
+              + New Sermon
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Stats Grid -->
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">📚</div>
+            <div class="admin-stat-info">
+              <div id="statPublicationsCount" class="admin-stat-number">0</div>
+              <div class="admin-stat-label">Publications</div>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">🎙️</div>
+            <div class="admin-stat-info">
+              <div id="statSermonsCount" class="admin-stat-number">0</div>
+              <div class="admin-stat-label">Sermons</div>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">📅</div>
+            <div class="admin-stat-info">
+              <div id="statEventsCount" class="admin-stat-number">0</div>
+              <div class="admin-stat-label">Events</div>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">🏠</div>
+            <div class="admin-stat-info">
+              <div id="statFellowshipsCount" class="admin-stat-number">0</div>
+              <div class="admin-stat-label">Fellowships</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Links / Recent Activity -->
+        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
+          <h3 style="color: var(--navy); margin-bottom: 0.5rem;">Quick Management Actions</h3>
+          <p style="color: var(--muted); font-size: 0.92rem; margin-bottom: 1.25rem;">Direct shortcuts to create, update, or edit live site data.</p>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            <div style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
+              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Sunday School Manuals</h4>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage Christian Heritage Sunday School manuals & lessons.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('publications')">Manage Publications →</button>
+            </div>
+            <div style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
+              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Audio & Video Sermons</h4>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Add latest audio messages, YouTube links, and transcripts.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">Manage Sermons →</button>
+            </div>
+            <div style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
+              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">House Fellowships</h4>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Update fellowship centres, hosts, areas, and coordinators.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('fellowships')">Manage Fellowships →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Publications
+           ------------------------------------------------------------------ -->
+      <section id="panelPublications" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Publications & Manuals</h2>
+            <p>Manage church publications, Sunday School manuals, and downloadable PDFs.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('publications')">
+              + Add Publication
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <span class="admin-search-icon">🔍</span>
+            <input type="text" id="searchPublications" placeholder="Search publications by title or category..." oninput="AdminPortal.filterItems('publications')">
+          </div>
+          <div class="admin-filter-group">
+            <select id="filterPublicationCategory" class="admin-select" onchange="AdminPortal.filterItems('publications')">
+              <option value="all">All Categories</option>
+              <option value="Sunday School">Sunday School</option>
+              <option value="Books">Books</option>
+              <option value="Magazines">Magazines</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="gridPublications" class="admin-cards-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Sermons
+           ------------------------------------------------------------------ -->
+      <section id="panelSermons" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Sermons & Messages</h2>
+            <p>Manage preachings, sermon series, audio files, and video recordings.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('sermons')">
+              + Add Sermon
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <span class="admin-search-icon">🔍</span>
+            <input type="text" id="searchSermons" placeholder="Search sermons by title, preacher, or series..." oninput="AdminPortal.filterItems('sermons')">
+          </div>
+        </div>
+
+        <div id="gridSermons" class="admin-cards-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Events
+           ------------------------------------------------------------------ -->
+      <section id="panelEvents" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Events & Calendar</h2>
+            <p>Manage upcoming church conventions, services, and special events.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('events')">
+              + Add Event
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <span class="admin-search-icon">🔍</span>
+            <input type="text" id="searchEvents" placeholder="Search events..." oninput="AdminPortal.filterItems('events')">
+          </div>
+        </div>
+
+        <div id="gridEvents" class="admin-cards-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: House Fellowships
+           ------------------------------------------------------------------ -->
+      <section id="panelFellowships" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>House Fellowships</h2>
+            <p>Manage fellowship centres, meeting points, hosts, and coordinators.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('fellowships')">
+              + Add Fellowship Centre
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <span class="admin-search-icon">🔍</span>
+            <input type="text" id="searchFellowships" placeholder="Search fellowship centres or areas..." oninput="AdminPortal.filterItems('fellowships')">
+          </div>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Centre Name</th>
+                <th>Area / Location</th>
+                <th>Host</th>
+                <th>Coordinator</th>
+                <th>Schedule</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableFellowshipsBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Ministries & Chapels
+           ------------------------------------------------------------------ -->
+      <section id="panelMinistries" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Ministries & Chapels</h2>
+            <p>Manage church departments, branch chapels, and leadership details.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('ministries')">
+              + Add Ministry / Chapel
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <span class="admin-search-icon">🔍</span>
+            <input type="text" id="searchMinistries" placeholder="Search ministries or branch chapels..." oninput="AdminPortal.filterItems('ministries')">
+          </div>
+        </div>
+
+        <div id="gridMinistries" class="admin-cards-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Site Settings
+           ------------------------------------------------------------------ -->
+      <section id="panelSiteSettings" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>General Site Settings</h2>
+            <p>Edit global website information, hero headers, service times, and contact details.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveSiteSettings()">
+              💾 Save Site Settings
+            </button>
+          </div>
+        </div>
+
+        <form id="formSiteSettings" style="background: var(--white); padding: 2rem; border-radius: 20px; border: 1px solid var(--admin-border);">
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label for="settingShortName">Church Short Name</label>
+              <input type="text" id="settingShortName" class="admin-input">
+            </div>
+            <div class="admin-input-group">
+              <label for="settingTagline">Church Tagline</label>
+              <input type="text" id="settingTagline" class="admin-input">
+            </div>
+          </div>
+
+          <div class="admin-input-group">
+            <label for="settingFullName">Full Church Name</label>
+            <input type="text" id="settingFullName" class="admin-input">
+          </div>
+
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label for="settingSundayService">Sunday Service Time</label>
+              <input type="text" id="settingSundayService" class="admin-input" placeholder="Sunday Worship — 9:00 AM">
+            </div>
+            <div class="admin-input-group">
+              <label for="settingMidweekService">Midweek Service Time</label>
+              <input type="text" id="settingMidweekService" class="admin-input" placeholder="Shiloh Service — Wednesday, 6:00 PM">
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--admin-border);">
+            <h3 style="color: var(--navy); margin-bottom: 1rem;">Homepage Hero Section</h3>
+            <div class="admin-input-group">
+              <label for="settingHeroBadge">Hero Badge Text</label>
+              <input type="text" id="settingHeroBadge" class="admin-input">
+            </div>
+            <div class="admin-modal-grid-2">
+              <div class="admin-input-group">
+                <label for="settingHeroTitle">Hero Main Title</label>
+                <input type="text" id="settingHeroTitle" class="admin-input">
+              </div>
+              <div class="admin-input-group">
+                <label for="settingHeroHighlight">Hero Highlight Subtitle</label>
+                <input type="text" id="settingHeroHighlight" class="admin-input">
+              </div>
+            </div>
+          </div>
+        </form>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       Content Item Edit Modal (Universal Form & Live Card Preview)
+       ====================================================================== -->
+  <div id="adminItemModal" class="admin-modal">
+    <div class="admin-modal-content">
+      <div class="admin-modal-header">
+        <h3 id="adminModalTitle" class="admin-modal-title">Edit Item</h3>
+        <button type="button" class="admin-modal-close" onclick="AdminPortal.closeItemModal()">×</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <form id="adminItemForm" oninput="AdminPortal.updateModalLivePreview()">
+          <!-- Dynamic Form Inputs injected here by admin.js -->
+          <div id="adminModalFormFields"></div>
+        </form>
+
+        <!-- Live Website Card Preview Box -->
+        <div class="admin-preview-container">
+          <div class="admin-preview-title">
+            <span>👁️</span> Live Website Card Preview
+          </div>
+          <div id="adminModalLivePreview" class="admin-preview-box">
+            <!-- Preview markup rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.closeItemModal()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveModalItem()">
+          💾 Save to Supabase DB
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="adminToastContainer" class="admin-toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="../js/contentService.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
