@@ -1,4 +1,4 @@
-# Ministries Feature — Develop Build
+# Ministries & Site Content Feature — Develop Build
 
 ## Navigation change
 
@@ -30,8 +30,16 @@ represented by one **Ministries** navigation item with a dropdown.
 No personal telephone numbers are rendered. The House Fellowship page shows
 only fellowship name, area, host, and coordinator.
 
-## Editing
+## Content Service & Supabase DB Integration
 
-All ministry content is stored under `ministries` in:
+Unified client-side data fetching is managed by `ContentService` (`js/contentService.js`):
+
+- **Live Database Rerouting:** Dynamically queries the `site_content` table in Supabase DB (`pdcm` project).
+- **Rerouted Pages:** `ministries`, `ministryDetail`, `houseFellowships`, `bibleCollege`, `publications`, `publicationDetail`, `sermons`, `about`, `sundaySchoolDetail`.
+- **Automatic Fallback:** Seamlessly falls back to `content/site-content.json` if Supabase DB is unreachable or network requests fail.
+
+## Editing Content
+
+Content can be edited live in the Supabase DB (`site_content` table by section key) or in the local fallback repository file:
 
 `content/site-content.json`

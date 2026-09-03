@@ -2071,17 +2071,22 @@ function setupNavigation() {
 
 async function initialiseSite() {
   try {
-    const response = await fetch(CONTENT_PATH, { cache: "no-store" });
+    const page = document.body.dataset.page;
+    let content;
 
-    if (!response.ok) {
-      throw new Error(`Content request failed with status ${response.status}.`);
+    if (typeof ContentService !== "undefined") {
+      content = await ContentService.getPageContent(page);
+    } else {
+      const response = await fetch(CONTENT_PATH, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Content request failed with status ${response.status}.`);
+      }
+      content = await response.json();
     }
 
-    const content = await response.json();
     renderShared(content);
-    console.log(content);
+    console.log(`[SiteInit] Loaded page '${page}' content (source: ${content._source || "local"}):`, content);
 
-    const page = document.body.dataset.page;
     const renderers = {
       home: renderHome,
       about: renderAbout,

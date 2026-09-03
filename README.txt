@@ -140,3 +140,13 @@ CONTENT SOURCE
 - Current ministry leaders and chapel addresses are based on the latest media
   supplied for the development build.
 - Phone numbers are intentionally excluded from all public page content.
+
+
+SUPABASE DB & CONTENT SERVICE INTEGRATION
+- Added unified ContentService (js/contentService.js) for live site content delivery.
+- Integrated dynamic querying from the site_content table in Supabase DB (pdcm project).
+- Configured DB dynamic rerouting for: Ministries, House Fellowships, Bible College,
+  Publications, Sermons, About Us, Publication Details, and Sunday School Outlines.
+- Implemented automatic failover to content/site-content.json if Supabase DB is unreachable.
+- Updated DEVELOP_NOTES.md and EVENTS_FEATURE_NOTES.md with content delivery & editing workflows.
+

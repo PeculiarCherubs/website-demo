@@ -22,7 +22,7 @@
 
 ## Editing events
 
-Open:
+Content can be updated in Supabase DB (`site_content` table under `key = 'events'`) or locally in the fallback file:
 
 `content/site-content.json`
 
@@ -46,6 +46,12 @@ Example social item:
   "published": true
 }
 ```
+
+## Content Delivery & Supabase DB Integration
+
+Unified data fetching is handled by `ContentService` (`js/contentService.js`):
+- Queries Supabase DB (`pdcm` project, `site_content` table) for live events and site data.
+- Automatically falls back to `content/site-content.json` if offline or if network queries fail.
 
 ## Automatic behaviour
 
