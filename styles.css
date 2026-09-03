@@ -4088,14 +4088,6 @@ body[data-page="chapels"] .page-hero-brand-mark {
   color: var(--navy)
 }
 
-/* Responsive adjustments */
-@media (max-width: 992px) {
-  .publication-detail-grid {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-}
-
 @media (max-width: 600px) {
   .pub-main-read {
     padding: 2rem 1.5rem;
@@ -4109,4 +4101,1266 @@ body[data-page="chapels"] .page-hero-brand-mark {
     width: 100%;
     text-align: center;
   }
+}
+
+/* ==========================================================================
+   SUNDAY SCHOOL OUTLINE DETAILS PAGE STYLES
+   ========================================================================== */
+
+:root {
+  --ss-font-scale: 1;
+}
+
+/* Hero Section */
+.sunday-school-hero {
+  background: var(--navy);
+  color: var(--white);
+  padding: 4.5rem 0 3.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.sunday-school-hero h1 {
+  color: var(--white);
+  margin-bottom: 0.8rem;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.sunday-school-hero p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.25rem;
+  max-width: 800px;
+  margin-bottom: 2rem;
+}
+
+.hero-meta-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.ss-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ss-badge-quarter {
+  background: var(--yellow);
+  color: var(--navy);
+}
+
+.ss-badge-lesson-num {
+  background: var(--red);
+  color: var(--white);
+}
+
+.ss-hero-quick-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.2rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 1.25rem 1.8rem;
+  border-radius: 20px;
+  margin-top: 1.5rem;
+}
+
+.ss-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.ss-meta-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  font-weight: 700;
+}
+
+.ss-meta-item strong {
+  font-size: 1.05rem;
+  color: var(--white);
+  font-weight: 600;
+}
+
+/* Sticky Control Toolbar */
+.ss-toolbar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(22, 34, 73, 0.12);
+  box-shadow: 0 4px 20px rgba(22, 34, 73, 0.06);
+  padding: 0.75rem 0;
+}
+
+.ss-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ss-toolbar-left,
+.ss-toolbar-center,
+.ss-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.ss-toolbar-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.ss-lesson-select {
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(22, 34, 73, 0.2);
+  background: var(--white);
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  max-width: 320px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.ss-lesson-select:focus {
+  border-color: var(--navy);
+}
+
+.ss-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(22, 34, 73, 0.2);
+  background: var(--white);
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.ss-mode-btn.active,
+body.teacher-mode .ss-mode-btn {
+  background: var(--red);
+  color: var(--white);
+  border-color: var(--red);
+  box-shadow: 0 4px 12px rgba(215, 38, 30, 0.25);
+}
+
+.ss-audio-player {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(214, 231, 244, 0.4);
+  padding: 0.35rem 0.8rem 0.35rem 0.4rem;
+  border-radius: 999px;
+}
+
+.ss-audio-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--navy);
+  color: var(--yellow);
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.ss-audio-play-btn.playing {
+  background: var(--red);
+  color: var(--white);
+}
+
+.ss-audio-play-btn:hover {
+  transform: scale(1.04);
+}
+
+.ss-audio-status {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.ss-font-adjuster {
+  display: flex;
+  align-items: center;
+  background: rgba(22, 34, 73, 0.05);
+  border-radius: 999px;
+  padding: 0.2rem;
+}
+
+.ss-font-btn {
+  border: none;
+  background: transparent;
+  color: var(--navy);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.ss-font-btn:hover {
+  background: var(--white);
+}
+
+.ss-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(22, 34, 73, 0.2);
+  background: var(--white);
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ss-action-btn:hover {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: var(--white);
+}
+
+.ss-btn-primary {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+
+.ss-btn-primary:hover {
+  background: var(--navy-2);
+}
+
+/* Multi-Column Main Layout */
+.ss-main-section {
+  padding: 3rem 0 5rem;
+  background: #f8fafc;
+}
+
+.ss-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Left Table of Contents */
+.ss-toc-sticky {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.ss-toc-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 1.4rem;
+  border: 1px solid rgba(22, 34, 73, 0.08);
+  box-shadow: var(--shadow);
+}
+
+.ss-toc-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  color: var(--navy);
+}
+
+.ss-reading-progress {
+  height: 4px;
+  background: rgba(22, 34, 73, 0.08);
+  border-radius: 999px;
+  margin-bottom: 1.2rem;
+  overflow: hidden;
+}
+
+.ss-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--red);
+  transition: width 0.15s ease-out;
+}
+
+.ss-toc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ss-toc-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.ss-toc-link:hover,
+.ss-toc-link.active {
+  color: var(--navy);
+  background: rgba(214, 231, 244, 0.4);
+  border-left-color: var(--red);
+}
+
+.ss-toc-teacher-only {
+  display: none;
+}
+
+body.teacher-mode .ss-toc-teacher-only {
+  display: block;
+}
+
+/* Center Reader Area */
+.ss-reader-col {
+  font-size: calc(1rem * var(--ss-font-scale, 1));
+}
+
+.ss-card {
+  background: var(--white);
+  border-radius: 28px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(22, 34, 73, 0.08);
+  box-shadow: var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ss-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(22, 34, 73, 0.08);
+  padding-bottom: 1rem;
+}
+
+.ss-card-header h2 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  margin: 0;
+}
+
+/* Memory Verse Card */
+.ss-verse-card {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.ss-verse-card h2,
+.ss-verse-card p,
+.ss-verse-card cite {
+  color: var(--white);
+}
+
+.ss-drill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--yellow);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.ss-drill-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.ss-verse-quote {
+  margin: 0 0 1.5rem;
+  padding-left: 1.5rem;
+  border-left: 4px solid var(--yellow);
+}
+
+.ss-verse-quote p {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+
+.ss-verse-quote cite {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--yellow);
+  font-style: normal;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.ss-verse-context {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  margin-bottom: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ss-golden-text {
+  background: rgba(255, 255, 0, 0.12);
+  border: 1px solid rgba(255, 255, 0, 0.3);
+  padding: 1.2rem 1.5rem;
+  border-radius: 16px;
+}
+
+.ss-golden-label {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--yellow);
+  margin-bottom: 0.3rem;
+}
+
+.ss-golden-text p {
+  margin: 0;
+  font-weight: 600;
+  color: var(--white);
+}
+
+/* Scripture Readings Grid */
+.ss-scriptures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.ss-scripture-item {
+  background: rgba(214, 231, 244, 0.25);
+  border: 1px solid rgba(22, 34, 73, 0.1);
+  padding: 1.4rem;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ss-scripture-top {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.8rem;
+}
+
+.ss-scripture-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--red);
+  letter-spacing: 0.08em;
+}
+
+.ss-scripture-top strong {
+  font-size: 1.15rem;
+  color: var(--navy);
+}
+
+.ss-scripture-snippet {
+  font-size: 0.92rem;
+  color: var(--ink);
+  margin-bottom: 1.2rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ss-open-modal-btn {
+  align-self: start;
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.ss-open-modal-btn:hover {
+  background: var(--navy-2);
+  transform: translateY(-2px);
+}
+
+/* Objectives & Intro */
+.ss-objectives-box {
+  background: rgba(214, 231, 244, 0.35);
+  padding: 1.5rem;
+  border-radius: 18px;
+  margin-bottom: 1.8rem;
+}
+
+.ss-objectives-box h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--navy);
+}
+
+.ss-objectives-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ss-objectives-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.ss-check-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--yellow);
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ss-intro-text p {
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+/* Outlines Section */
+.ss-outlines-wrapper {
+  margin-bottom: 2rem;
+}
+
+.ss-section-title {
+  margin-bottom: 1.5rem;
+}
+
+.ss-outline-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.8rem;
+}
+
+.ss-outline-number {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(22, 34, 73, 0.15);
+  line-height: 1;
+}
+
+.ss-outline-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.ss-outline-head h3 {
+  font-size: 1.35rem;
+  margin: 0;
+  color: var(--navy);
+}
+
+.ss-outline-ref {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--red);
+  background: rgba(215, 38, 30, 0.08);
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+}
+
+.ss-outline-summary {
+  font-size: 1.05rem;
+  color: var(--navy);
+  margin-bottom: 1.2rem;
+}
+
+.ss-outline-points {
+  padding-left: 1.2rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ss-outline-points li {
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.ss-insight-box {
+  background: #fffbeb;
+  border-left: 4px solid var(--yellow);
+  padding: 1.1rem 1.4rem;
+  border-radius: 0 14px 14px 0;
+  font-size: 0.98rem;
+  color: var(--navy);
+}
+
+/* Discussion Questions Card */
+.ss-questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.ss-question-item {
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(22, 34, 73, 0.08);
+  padding: 1.6rem;
+  border-radius: 20px;
+}
+
+.ss-question-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--red);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+}
+
+.ss-question-item h4 {
+  font-size: 1.18rem;
+  color: var(--navy);
+  margin: 0 0 0.6rem;
+}
+
+.ss-question-hint {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.ss-user-note-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.ss-user-note-area label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.ss-discussion-input {
+  width: 100%;
+  min-height: 90px;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1.5px solid rgba(22, 34, 73, 0.15);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.ss-discussion-input:focus {
+  border-color: var(--navy);
+}
+
+.ss-note-saved-msg {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #16a34a;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.ss-note-saved-msg.visible {
+  opacity: 1;
+}
+
+/* Teacher Mode Card */
+.ss-teacher-card {
+  display: none;
+  background: #fdf2f2;
+  border: 2px dashed var(--red);
+}
+
+body.teacher-mode .ss-teacher-card {
+  display: block;
+}
+
+.ss-teacher-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.ss-teacher-box {
+  background: var(--white);
+  padding: 1.4rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(215, 38, 30, 0.06);
+}
+
+.ss-teacher-box h3 {
+  font-size: 1.1rem;
+  color: var(--red);
+  margin-bottom: 0.8rem;
+}
+
+.ss-teacher-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.92rem;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* Application Card */
+.ss-application-card {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+  color: var(--white);
+}
+
+.ss-application-card h2 {
+  color: var(--white);
+}
+
+.ss-app-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.ss-app-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.ss-app-content p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--white);
+  margin: 0;
+}
+
+/* Right Side Rail */
+.ss-siderail-sticky {
+  position: sticky;
+  top: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ss-side-block {
+  background: var(--white);
+  border-radius: 22px;
+  padding: 1.5rem;
+  border: 1px solid rgba(22, 34, 73, 0.08);
+  box-shadow: var(--shadow);
+}
+
+.ss-side-block h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--navy);
+}
+
+/* Curriculum List */
+.ss-lesson-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ss-lesson-list li a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.ss-lesson-list li a:hover,
+.ss-lesson-list li.active a {
+  background: rgba(214, 231, 244, 0.45);
+}
+
+.ss-side-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--yellow);
+  font-weight: 800;
+  font-size: 0.75rem;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.ss-side-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.ss-side-info strong {
+  font-size: 0.88rem;
+  color: var(--navy);
+  line-height: 1.2;
+}
+
+.ss-side-info small {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Class Schedule */
+.ss-schedule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ss-schedule-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.ss-schedule-time {
+  background: var(--navy);
+  color: var(--white);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.ss-schedule-phase {
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* Quick Notes Side Block */
+.ss-notes-help {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
+}
+
+.ss-quick-notes-input {
+  width: 100%;
+  min-height: 110px;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1.5px solid rgba(22, 34, 73, 0.15);
+  font-family: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+  outline: none;
+}
+
+.ss-notes-status {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: right;
+  margin-top: 0.3rem;
+  font-weight: 600;
+}
+
+/* Scripture Modal Popover */
+.ss-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(16, 22, 47, 0.6);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.ss-modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ss-modal-card {
+  background: var(--white);
+  border-radius: 28px;
+  max-width: 650px;
+  width: 100%;
+  padding: 2.5rem;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  transform: translateY(20px);
+  transition: transform 0.25s ease;
+}
+
+.ss-modal-backdrop.open .ss-modal-card {
+  transform: translateY(0);
+}
+
+.ss-modal-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  border: none;
+  background: rgba(22, 34, 73, 0.08);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.ss-modal-title {
+  font-size: 1.8rem;
+  color: var(--navy);
+  margin-bottom: 1.2rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 1100px) {
+  .ss-grid {
+    grid-template-columns: 1fr 280px;
+  }
+
+  .ss-toc-col {
+    display: none;
+  }
+}
+
+@media (max-width: 850px) {
+  .ss-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ss-siderail-sticky {
+    position: static;
+  }
+
+  .ss-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ss-toolbar-left,
+  .ss-toolbar-center,
+  .ss-toolbar-right {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .ss-lesson-select {
+    max-width: 100%;
+    flex: 1;
+  }
+}
+
+/* Print Styles */
+@media print {
+
+  .site-header,
+  .footer,
+  .ss-toolbar-wrapper,
+  .ss-toc-col,
+  .ss-siderail-col,
+  .ss-drill-btn,
+  .ss-open-modal-btn {
+    display: none !important;
+  }
+
+  .ss-grid {
+    display: block !important;
+  }
+
+  .ss-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    break-inside: avoid;
+    padding: 1.5rem !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .sunday-school-hero {
+    background: #fff !important;
+    color: #000 !important;
+    padding: 1rem 0 !important;
+  }
+
+  .sunday-school-hero h1,
+  .sunday-school-hero p {
+    color: #000 !important;
+  }
+}
+
+/* ==========================================================================
+   MINISTRY SOCIAL MEDIA FEEDS & HANDLES STYLES
+   ========================================================================== */
+
+.social-handles-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 2rem;
+}
+
+.social-handle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(22, 34, 73, 0.12);
+  background: var(--white);
+  color: var(--navy);
+}
+
+.social-handle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(22, 34, 73, 0.12);
+}
+
+.platform-instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888) !important;
+  color: var(--white) !important;
+  border: none !important;
+}
+
+.platform-youtube {
+  background: #ff0000 !important;
+  color: var(--white) !important;
+  border: none !important;
+}
+
+.platform-facebook {
+  background: #1877f2 !important;
+  color: var(--white) !important;
+  border: none !important;
+}
+
+.platform-tiktok {
+  background: #010101 !important;
+  color: var(--white) !important;
+  border: none !important;
+}
+
+.platform-whatsapp {
+  background: #25d366 !important;
+  color: var(--white) !important;
+  border: none !important;
+}
+
+.ministry-social-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1.8rem;
+}
+
+.social-post-card {
+  background: var(--white);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(22, 34, 73, 0.08);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.social-post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(22, 34, 73, 0.15);
+}
+
+.social-post-thumb {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  padding: 1rem;
+}
+
+.social-platform-pill {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.social-post-body {
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.social-post-body h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.6rem;
+  color: var(--white);
+}
+
+.social-post-body p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+  flex-grow: 1;
+}
+
+.social-post-link {
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.platform-youtube .social-post-body h3,
+.platform-youtube .social-post-body .meta {
+  color: var(--yellow) !important;
+}
+
+.platform-youtube .social-post-body p,
+.platform-youtube .social-post-link {
+  color: var(--white) !important;
+}
+
+.platform-facebook .social-post-body h3 {
+  color: var(--white) !important;
+}
+
+.platform-facebook .social-post-body p,
+.platform-facebook .social-post-body .meta {
+  color: var(--navy) !important;
+}
+
+.platform-facebook .social-post-link {
+  color: var(--red) !important;
+}
+
+.platform-tiktok .social-post-body h3 {
+  color: var(--yellow) !important;
+}
+
+.platform-tiktok .social-post-body p,
+.platform-tiktok .social-post-link {
+  color: var(--white) !important;
+}
+
+.platform-instagram .social-post-body h3 {
+  color: var(--white) !important;
+}
+
+.platform-instagram .social-post-body .meta,
+.platform-instagram .social-post-body p {
+  color: var(--yellow) !important;
+}
+
+.platform-instagram .social-post-link {
+  color: var(--white) !important;
+}
+
+.platform-whatsapp .social-post-body h3 {
+  color: var(--white) !important;
+}
+
+.platform-whatsapp .social-post-body p,
+.platform-whatsapp .social-post-link {
+  color: var(--white) !important;
+}
+
+.platform-twitter .social-post-body h3 {
+  color: var(--white) !important;
+}
+
+.platform-twitter .social-post-body p,
+.platform-twitter .social-post-link {
+  color: var(--white) !important;
 }

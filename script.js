@@ -833,6 +833,59 @@ function renderMinistryDetail(content) {
       </article>
     `).join("");
   }
+
+  // Render Social Media Handles & Feed
+  const socialSection = document.querySelector("[data-ministry-social-section]");
+  const handlesContainer = document.querySelector("[data-ministry-social-handles]");
+  const feedContainer = document.querySelector("[data-ministry-social-feed]");
+
+  if (item.social) {
+    if (handlesContainer && item.social.handles) {
+      const handleIcons = {
+        instagram: "📸 Instagram",
+        youtube: "▶ YouTube",
+        facebook: "👍 Facebook",
+        tiktok: "🎵 TikTok",
+        whatsapp: "💬 WhatsApp Channel"
+      };
+
+      handlesContainer.innerHTML = Object.entries(item.social.handles).map(([platform, url]) => `
+        <a class="social-handle-btn platform-${platform}" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+          ${handleIcons[platform] || platform} ↗
+        </a>
+      `).join("");
+    }
+
+    if (feedContainer) {
+      const feed = (item.social.feed || []).filter(post => post.published !== false);
+
+      if (feed.length > 0) {
+        feedContainer.innerHTML = feed.map(post => `
+          <article class="card social-post-card platform-${(post.platform || "").toLowerCase()}">
+            <div class="social-post-thumb" style="background-image:url('${escapeHtml(post.thumbnail)}')">
+              <span class="social-platform-pill platform-${(post.platform || "").toLowerCase()}">
+                ${escapeHtml(post.platform)} · ${escapeHtml(post.type || 'Post')}
+              </span>
+            </div>
+            <div class="social-post-body">
+              <div class="meta">${escapeHtml(post.date || "")}</div>
+              <h3>${escapeHtml(post.title)}</h3>
+              <p>${escapeHtml(post.text)}</p>
+              <a class="text-link social-post-link" href="${escapeHtml(post.url)}" target="_blank" rel="noopener noreferrer">
+                View on ${escapeHtml(post.platform)} ↗
+              </a>
+            </div>
+          </article>
+        `).join("");
+      } else {
+        feedContainer.innerHTML = `
+          <div class="event-empty-state">No recent social media posts currently published for this ministry.</div>
+        `;
+      }
+    }
+  } else if (socialSection) {
+    socialSection.style.display = "none";
+  }
 }
 
 function renderHouseFellowships(content) {
@@ -1460,6 +1513,513 @@ function renderGive(content) {
   }
 }
 
+function renderSundaySchoolDetail(content) {
+  const details = content.publications?.sundaySchoolDetails;
+  if (!details || !details.lessons) {
+    console.error("Sunday School details data is missing in site-content.json.");
+    return;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const lessonKey = urlParams.get("lesson") || details.currentLesson || Object.keys(details.lessons)[0];
+  const lesson = details.lessons[lessonKey] || details.lessons[details.currentLesson] || Object.values(details.lessons)[0];
+
+  if (!lesson) return;
+
+  // Header Hero Elements
+  setText("[data-ss-eyebrow]", "Publications · Sunday School");
+  setText("[data-ss-quarter]", details.quarter || "Quarter 3, 2026");
+  setText("[data-ss-lesson-num]", `Lesson ${lesson.lessonNumber}`);
+  setText("[data-ss-title]", lesson.topic);
+  setText("[data-ss-subtitle]", lesson.subtitle || "");
+  setText("[data-ss-date]", lesson.dateDisplay || lesson.date);
+  setText("[data-ss-verse-ref]", lesson.memoryVerse?.reference || "");
+  setText("[data-ss-audience]", lesson.targetAudience || "General");
+  setText("[data-ss-duration]", lesson.duration || "45 Mins");
+  setText("[data-ss-volume-title]", details.volume || "2026 Headquarters Curriculum");
+
+  // PDF Link
+  const pdfBtn = document.querySelector("[data-ss-pdf-btn]");
+  if (pdfBtn) {
+    if (lesson.pdfUrl && lesson.pdfUrl !== "#") {
+      pdfBtn.href = lesson.pdfUrl;
+      pdfBtn.classList.remove("disabled");
+    } else {
+      pdfBtn.href = "#";
+      pdfBtn.style.opacity = "0.6";
+      pdfBtn.title = "PDF version coming soon";
+      pdfBtn.addEventListener("click", e => e.preventDefault());
+    }
+  }
+
+  // Populate Lesson Selector Dropdown
+  const lessonSelect = document.querySelector("[data-ss-lesson-select]");
+  if (lessonSelect) {
+    lessonSelect.innerHTML = Object.values(details.lessons).map(l => `
+      <option value="${l.id}" ${l.id === lesson.id ? "selected" : ""}>
+        Lesson ${l.lessonNumber}: ${escapeHtml(l.topic)} (${l.date})
+      </option>
+    `).join("");
+
+    lessonSelect.addEventListener("change", e => {
+      const selected = e.target.value;
+      window.location.href = `sunday-school.html?lesson=${selected}`;
+    });
+  }
+
+  // Populate Side Rail Curriculum Lessons List
+  const sideLessonList = document.querySelector("[data-ss-lesson-list]");
+  if (sideLessonList) {
+    sideLessonList.innerHTML = Object.values(details.lessons).map(l => `
+      <li class="${l.id === lesson.id ? "active" : ""}">
+        <a href="sunday-school.html?lesson=${l.id}">
+          <span class="ss-side-num">L${l.lessonNumber}</span>
+          <div class="ss-side-info">
+            <strong>${escapeHtml(l.topic)}</strong>
+            <small>${escapeHtml(l.date)}</small>
+          </div>
+        </a>
+      </li>
+    `).join("");
+  }
+
+  // Populate Class Flow Schedule List
+  const scheduleList = document.querySelector("[data-ss-schedule-list]");
+  if (scheduleList && lesson.teacherNotes?.classFlow) {
+    scheduleList.innerHTML = lesson.teacherNotes.classFlow.map(step => `
+      <li>
+        <span class="ss-schedule-time">${escapeHtml(step.time)}</span>
+        <span class="ss-schedule-phase">${escapeHtml(step.phase)}</span>
+      </li>
+    `).join("");
+  }
+
+  // Render Main Content
+  const contentContainer = document.querySelector("[data-ss-content]");
+  if (contentContainer) {
+    let mainHtml = "";
+
+    // 1. Memory Verse & Golden Text Section
+    if (lesson.memoryVerse) {
+      const verseText = lesson.memoryVerse.text;
+      const wordsToHide = lesson.memoryVerse.keywordsToHide || [];
+      
+      let hiddenVerseText = verseText;
+      wordsToHide.forEach(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        hiddenVerseText = hiddenVerseText.replace(regex, "______");
+      });
+
+      mainHtml += `
+        <article id="ss-section-verse" class="ss-card ss-verse-card">
+          <div class="ss-card-header">
+            <span class="eyebrow" style="color:var(--yellow)">Memory Verse & Recitation</span>
+            <button type="button" class="ss-drill-btn" data-ss-toggle-drill>
+              <span class="ss-drill-icon">👁️</span> <span data-ss-drill-text>Practice Recitation (Hide Words)</span>
+            </button>
+          </div>
+
+          <blockquote class="ss-verse-quote">
+            <p class="ss-verse-full" data-ss-verse-full>“${escapeHtml(verseText)}”</p>
+            <p class="ss-verse-hidden hidden" data-ss-verse-hidden>“${escapeHtml(hiddenVerseText)}”</p>
+            <cite>— ${escapeHtml(lesson.memoryVerse.reference)}</cite>
+          </blockquote>
+
+          ${lesson.memoryVerse.context ? `
+            <div class="ss-verse-context">
+              <strong>Context & Focus:</strong> ${escapeHtml(lesson.memoryVerse.context)}
+            </div>
+          ` : ""}
+
+          ${lesson.goldenText ? `
+            <div class="ss-golden-text">
+              <span class="ss-golden-label">Golden Key Text</span>
+              <p>${escapeHtml(lesson.goldenText)}</p>
+            </div>
+          ` : ""}
+        </article>
+      `;
+    }
+
+    // 2. Main Scripture Readings Section
+    if (lesson.mainScriptures && lesson.mainScriptures.length > 0) {
+      mainHtml += `
+        <article id="ss-section-scriptures" class="ss-card ss-scriptures-card">
+          <div class="ss-card-header">
+            <span class="eyebrow" style="color:var(--red)">Word of Grace</span>
+            <h2>Scripture Passages for Today</h2>
+          </div>
+
+          <div class="ss-scriptures-grid">
+            ${lesson.mainScriptures.map((s, idx) => `
+              <div class="ss-scripture-item">
+                <div class="ss-scripture-top">
+                  <span class="ss-scripture-tag">${escapeHtml(s.label || `Reading ${idx + 1}`)}</span>
+                  <strong>${escapeHtml(s.reference)}</strong>
+                </div>
+                <p class="ss-scripture-snippet">“${escapeHtml(s.text)}”</p>
+                <button type="button" class="ss-open-modal-btn" data-scripture-ref="${escapeHtml(s.reference)}" data-scripture-label="${escapeHtml(s.label || 'Passage')}" data-scripture-text="${escapeHtml(s.text)}">
+                  📖 View Full Passage ↗
+                </button>
+              </div>
+            `).join("")}
+          </div>
+        </article>
+      `;
+    }
+
+    // 3. Objectives & Introduction Section
+    mainHtml += `
+      <article id="ss-section-objectives" class="ss-card ss-intro-card">
+        <div class="ss-card-header">
+          <span class="eyebrow">Foundation</span>
+          <h2>Lesson Objectives & Introduction</h2>
+        </div>
+
+        ${lesson.objectives && lesson.objectives.length ? `
+          <div class="ss-objectives-box">
+            <h3>Lesson Objectives</h3>
+            <ul class="ss-objectives-list">
+              ${lesson.objectives.map(obj => `
+                <li>
+                  <span class="ss-check-icon">✓</span>
+                  <span>${escapeHtml(obj)}</span>
+                </li>
+              `).join("")}
+            </ul>
+          </div>
+        ` : ""}
+
+        <div class="ss-intro-text">
+          <h3>Introduction</h3>
+          <p>${escapeHtml(lesson.introduction)}</p>
+        </div>
+      </article>
+    `;
+
+    // 4. Outlines Section
+    if (lesson.outlines && lesson.outlines.length > 0) {
+      mainHtml += `
+        <section id="ss-section-outlines" class="ss-outlines-wrapper">
+          <div class="ss-section-title">
+            <span class="eyebrow" style="color:var(--yellow)">Deep Dive</span>
+            <h2>Lesson Outlines & Exegesis</h2>
+          </div>
+
+          ${lesson.outlines.map(ot => `
+            <article class="ss-card ss-outline-card">
+              <div class="ss-outline-number">${escapeHtml(ot.number)}</div>
+              <div class="ss-outline-body">
+                <div class="ss-outline-head">
+                  <h3>OUTLINE ${escapeHtml(ot.number)}: ${escapeHtml(ot.title)}</h3>
+                  <span class="ss-outline-ref">📖 ${escapeHtml(ot.scripture)}</span>
+                </div>
+                <p class="ss-outline-summary"><strong>Summary:</strong> ${escapeHtml(ot.summary)}</p>
+
+                <ul class="ss-outline-points">
+                  ${ot.points.map(pt => {
+                    const formatted = escapeHtml(pt).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    return `<li>${formatted}</li>`;
+                  }).join("")}
+                </ul>
+
+                ${ot.keyInsight ? `
+                  <div class="ss-insight-box">
+                    <strong>💡 Key Insight:</strong> ${escapeHtml(ot.keyInsight)}
+                  </div>
+                ` : ""}
+              </div>
+            </article>
+          `).join("")}
+        </section>
+      `;
+    }
+
+    // 5. Class Discussion Questions Section
+    if (lesson.discussionQuestions && lesson.discussionQuestions.length > 0) {
+      mainHtml += `
+        <article id="ss-section-discussion" class="ss-card ss-discussion-card">
+          <div class="ss-card-header">
+            <span class="eyebrow" style="color:var(--red)">Interactive Study</span>
+            <h2>Class Discussion & Reflection</h2>
+          </div>
+
+          <div class="ss-questions-list">
+            ${lesson.discussionQuestions.map((dq, idx) => `
+              <div class="ss-question-item">
+                <div class="ss-question-num">Question ${idx + 1}</div>
+                <h4>${escapeHtml(dq.question)}</h4>
+                ${dq.hint ? `<p class="ss-question-hint">💡 <em>Facilitator Hint: ${escapeHtml(dq.hint)}</em></p>` : ""}
+
+                <div class="ss-user-note-area">
+                  <label for="note-${dq.id}">Write your answer or thoughts:</label>
+                  <textarea id="note-${dq.id}" class="ss-discussion-input" data-discussion-id="${dq.id}" placeholder="Type your personal thoughts or small group findings..."></textarea>
+                  <div class="ss-note-saved-msg" data-note-msg="${dq.id}">Saved</div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </article>
+      `;
+    }
+
+    // 6. Teacher's Corner (Teacher Mode Feature)
+    if (lesson.teacherNotes) {
+      mainHtml += `
+        <article id="ss-section-teacher" class="ss-card ss-teacher-card ss-teacher-only">
+          <div class="ss-card-header">
+            <span class="eyebrow" style="color:var(--yellow)">Teacher & Leader Guide</span>
+            <h2>Sunday School Facilitator's Corner</h2>
+          </div>
+
+          <div class="ss-teacher-grid">
+            ${lesson.teacherNotes.facilitatorTips ? `
+              <div class="ss-teacher-box">
+                <h3>Teaching Tips & Pedagogy</h3>
+                <ul>
+                  ${lesson.teacherNotes.facilitatorTips.map(tip => `<li>• ${escapeHtml(tip)}</li>`).join("")}
+                </ul>
+              </div>
+            ` : ""}
+
+            ${lesson.teacherNotes.prayerPoints ? `
+              <div class="ss-teacher-box">
+                <h3>Closing Prayer Focus</h3>
+                <ul>
+                  ${lesson.teacherNotes.prayerPoints.map(pp => `<li>🙏 ${escapeHtml(pp)}</li>`).join("")}
+                </ul>
+              </div>
+            ` : ""}
+          </div>
+        </article>
+      `;
+    }
+
+    // 7. Life Application Section
+    if (lesson.lifeApplication) {
+      mainHtml += `
+        <article id="ss-section-application" class="ss-card ss-application-card">
+          <div class="ss-card-header">
+            <span class="eyebrow" style="color:var(--yellow)">Action Point</span>
+            <h2>Weekly Faith Application</h2>
+          </div>
+          <div class="ss-app-content">
+            <span class="ss-app-icon">🎯</span>
+            <p>${escapeHtml(lesson.lifeApplication)}</p>
+          </div>
+        </article>
+      `;
+    }
+
+    contentContainer.innerHTML = mainHtml;
+  }
+
+  // --- Interactive Features Setup ---
+
+  // 1. Teacher Mode Toggle
+  const teacherToggleBtn = document.querySelector("[data-ss-toggle-teacher]");
+  if (teacherToggleBtn) {
+    const isTeacher = localStorage.getItem("ss_teacher_mode") === "true";
+    if (isTeacher) {
+      document.body.classList.add("teacher-mode");
+      teacherToggleBtn.setAttribute("aria-pressed", "true");
+      teacherToggleBtn.classList.add("active");
+    }
+
+    teacherToggleBtn.addEventListener("click", () => {
+      const active = document.body.classList.toggle("teacher-mode");
+      teacherToggleBtn.setAttribute("aria-pressed", String(active));
+      teacherToggleBtn.classList.toggle("active", active);
+      localStorage.setItem("ss_teacher_mode", String(active));
+    });
+  }
+
+  // 2. Memory Verse Recitation Drill Toggle
+  const drillToggleBtn = document.querySelector("[data-ss-toggle-drill]");
+  if (drillToggleBtn) {
+    drillToggleBtn.addEventListener("click", () => {
+      const fullText = document.querySelector("[data-ss-verse-full]");
+      const hiddenText = document.querySelector("[data-ss-verse-hidden]");
+      const btnText = drillToggleBtn.querySelector("[data-ss-drill-text]");
+
+      if (fullText && hiddenText) {
+        const isHidden = fullText.classList.toggle("hidden");
+        hiddenText.classList.toggle("hidden", !isHidden);
+
+        if (btnText) {
+          btnText.textContent = isHidden ? "Show Full Verse" : "Practice Recitation (Hide Words)";
+        }
+      }
+    });
+  }
+
+  // 3. Audio Text-to-Speech Player
+  const audioPlayBtn = document.querySelector("[data-ss-audio-play]");
+  const audioStatus = document.querySelector("[data-ss-audio-status]");
+  const audioBtnText = document.querySelector("[data-ss-audio-btn-text]");
+  let isSpeaking = false;
+
+  if (audioPlayBtn && "speechSynthesis" in window) {
+    audioPlayBtn.addEventListener("click", () => {
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        if (audioStatus) audioStatus.textContent = "Audio paused";
+        if (audioBtnText) audioBtnText.textContent = "Listen";
+        audioPlayBtn.classList.remove("playing");
+      } else {
+        window.speechSynthesis.cancel();
+        const textToRead = `Sunday School Lesson ${lesson.lessonNumber}: ${lesson.topic}. Memory Verse: ${lesson.memoryVerse?.text || ''}. Introduction: ${lesson.introduction}`;
+        
+        const utterance = new SpeechSynthesisUtterance(textToRead);
+        utterance.rate = 0.95;
+        utterance.pitch = 1.0;
+
+        utterance.onstart = () => {
+          isSpeaking = true;
+          if (audioStatus) audioStatus.textContent = "Reading lesson aloud...";
+          if (audioBtnText) audioBtnText.textContent = "Pause";
+          audioPlayBtn.classList.add("playing");
+        };
+
+        utterance.onend = () => {
+          isSpeaking = false;
+          if (audioStatus) audioStatus.textContent = "Finished reading";
+          if (audioBtnText) audioBtnText.textContent = "Listen";
+          audioPlayBtn.classList.remove("playing");
+        };
+
+        utterance.onerror = () => {
+          isSpeaking = false;
+          if (audioStatus) audioStatus.textContent = "Audio playback error";
+          if (audioBtnText) audioBtnText.textContent = "Listen";
+          audioPlayBtn.classList.remove("playing");
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
+    });
+  } else if (audioPlayBtn) {
+    if (audioStatus) audioStatus.textContent = "Audio reader unsupported";
+  }
+
+  // 4. Font Size Adjuster
+  let currentFontSize = parseFloat(localStorage.getItem("ss_font_scale") || "1.0");
+  const updateFontScale = (scale) => {
+    currentFontSize = Math.max(0.85, Math.min(1.35, scale));
+    document.documentElement.style.setProperty("--ss-font-scale", currentFontSize);
+    localStorage.setItem("ss_font_scale", currentFontSize.toString());
+  };
+  updateFontScale(currentFontSize);
+
+  document.querySelector("[data-ss-font-increase]")?.addEventListener("click", () => updateFontScale(currentFontSize + 0.1));
+  document.querySelector("[data-ss-font-decrease]")?.addEventListener("click", () => updateFontScale(currentFontSize - 0.1));
+
+  // 5. Print Button
+  document.querySelector("[data-ss-print]")?.addEventListener("click", () => window.print());
+
+  // 6. Scripture Popover Modal
+  const modal = document.querySelector("[data-ss-scripture-modal]");
+  const modalTitle = document.querySelector("[data-ss-modal-title]");
+  const modalBody = document.querySelector("[data-ss-modal-body]");
+  const modalClose = document.querySelector("[data-ss-modal-close]");
+
+  document.querySelectorAll("[data-scripture-ref]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const ref = btn.getAttribute("data-scripture-ref");
+      const label = btn.getAttribute("data-scripture-label");
+      const text = btn.getAttribute("data-scripture-text");
+
+      if (modalTitle) modalTitle.textContent = `${label} — ${ref}`;
+      if (modalBody) modalBody.innerHTML = `<p style="font-size:1.2rem; line-height:1.8; color:var(--navy);">“${escapeHtml(text)}”</p>`;
+      if (modal) {
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+    });
+  });
+
+  const closeModal = () => {
+    if (modal) {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+  };
+
+  modalClose?.addEventListener("click", closeModal);
+  modal?.addEventListener("click", e => {
+    if (e.target === modal) closeModal();
+  });
+
+  // 7. Discussion Questions Local Storage Persistence
+  document.querySelectorAll("[data-discussion-id]").forEach(input => {
+    const qId = input.getAttribute("data-discussion-id");
+    const storageKey = `ss_note_${lesson.id}_${qId}`;
+    const saved = localStorage.getItem(storageKey);
+
+    if (saved) input.value = saved;
+
+    input.addEventListener("input", () => {
+      localStorage.setItem(storageKey, input.value);
+      const msg = document.querySelector(`[data-note-msg="${qId}"]`);
+      if (msg) {
+        msg.classList.add("visible");
+        setTimeout(() => msg.classList.remove("visible"), 2000);
+      }
+    });
+  });
+
+  // 8. Side Rail Quick Notes Persistence
+  const quickNotesInput = document.querySelector("[data-ss-quick-notes]");
+  const quickNotesStatus = document.querySelector("[data-ss-notes-status]");
+
+  if (quickNotesInput) {
+    const notesKey = `ss_quick_notes_${lesson.id}`;
+    quickNotesInput.value = localStorage.getItem(notesKey) || "";
+
+    quickNotesInput.addEventListener("input", () => {
+      localStorage.setItem(notesKey, quickNotesInput.value);
+      if (quickNotesStatus) {
+        quickNotesStatus.textContent = "Saved";
+        setTimeout(() => { quickNotesStatus.textContent = "Saved locally"; }, 2000);
+      }
+    });
+  }
+
+  // 9. Reading Progress Bar & Scrollspy TOC
+  const progressBar = document.querySelector("[data-ss-progress-bar]");
+  const tocLinks = document.querySelectorAll(".ss-toc-link");
+
+  const onScroll = () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = Math.min(100, Math.max(0, (scrollTop / docHeight) * 100));
+    
+    if (progressBar) {
+      progressBar.style.width = `${progress}%`;
+    }
+
+    // Scrollspy highlight
+    const sections = document.querySelectorAll("[id^='ss-section-']");
+    let currentId = "";
+
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 180;
+      if (scrollTop >= top) {
+        currentId = sec.getAttribute("id");
+      }
+    });
+
+    if (currentId) {
+      tocLinks.forEach(link => {
+        link.classList.toggle("active", link.getAttribute("href") === `#${currentId}`);
+      });
+    }
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
 function setupNavigation() {
   const button = document.querySelector(".menu-btn");
   const navigation = document.querySelector(".nav-links");
@@ -1532,6 +2092,7 @@ async function initialiseSite() {
       sermons: renderSermons,
       publications: renderPublications,
       publicationDetail: renderPublicationDetail,
+      sundaySchoolDetail: renderSundaySchoolDetail,
       quickLinks: renderQuickLinks,
       events: renderEvents,
       give: renderGive,

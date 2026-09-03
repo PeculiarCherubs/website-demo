@@ -577,10 +577,211 @@
     },
     "sundaySchool": {
       "type": "Sunday School Outline",
-      "title": "This Week’s Lesson",
-      "text": "Study notes, lesson objectives, discussion questions, and scriptures for Sunday School.",
+      "title": "This Week’s Lesson: Walking in God’s Unfailing Mercy",
+      "text": "Study notes, lesson objectives, discussion questions, memory verses, and scriptures for Sunday School.",
       "button": "View Sunday School Outline",
-      "href": "#"
+      "href": "sunday-school.html"
+    },
+    "sundaySchoolDetails": {
+      "quarter": "Quarter 3, 2026",
+      "volume": "Volume 14 · Series on Divine Mercy & Stewardship",
+      "currentLesson": "lesson-35",
+      "lessons": {
+        "lesson-35": {
+          "id": "lesson-35",
+          "lessonNumber": 35,
+          "date": "August 30, 2026",
+          "dateDisplay": "Sunday, August 30, 2026",
+          "topic": "WALKING IN GOD’S UNFAILING MERCY",
+          "subtitle": "Understanding the breadth of divine compassion and extending grace in an unforgiving world.",
+          "memoryVerse": {
+            "text": "Be merciful, just as your Father is merciful.",
+            "reference": "Luke 6:36 (NIV)",
+            "context": "Jesus instructs His disciples on loving enemies and reflecting the divine nature of the Father through active compassion.",
+            "keywordsToHide": ["merciful", "Father", "merciful"]
+          },
+          "goldenText": "Isaiah 54:10 — 'Though the mountains be shaken and the hills be removed, yet my unfailing love for you will not be shaken nor my covenant of peace be removed,' says the LORD, who has compassion on you.",
+          "mainScriptures": [
+            {
+              "reference": "Isaiah 54:1-14",
+              "label": "Old Testament Reading",
+              "text": "Sing, O barren woman... For the LORD has called you like a woman forsaken and grieved in spirit... For a brief moment I deserted you, but with great compassion I will gather you."
+            },
+            {
+              "reference": "Luke 1:68-79",
+              "label": "Gospel Reading",
+              "text": "Praise be to the Lord, the God of Israel, because he has come to his people and redeemed them... to guide our feet into the path of peace."
+            },
+            {
+              "reference": "Ephesians 4:31-32",
+              "label": "Epistle Reading",
+              "text": "Get rid of all bitterness, rage and anger, brawling and slander, along with every form of malice. Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you."
+            }
+          ],
+          "targetAudience": "Adults, Youth & Teachers",
+          "duration": "45 Minutes",
+          "author": "Peculiar Cherubs Sunday School Department & HQ Lectionary Committee",
+          "pdfUrl": "#",
+          "objectives": [
+            "Define the biblical concept of divine mercy (Hebrew: Hesed; Greek: Eleos).",
+            "Understand how believers access God's gift of grace through repentance and faith.",
+            "Learn how to cultivate a mercy-centered lifestyle in family, church, and workplace relationships.",
+            "Identify the severe spiritual drawbacks of harboring bitterness and refusing to show mercy."
+          ],
+          "introduction": "Mercy is not merely the withholding of deserved punishment; it is the active, lavish expression of divine love toward those in need. In a culture often dominated by retaliation, judgment, and unforgiveness, God calls His covenant people to reflect His compassionate character. As we study Isaiah 54 and Luke 1, we discover that God's mercy restores broken lives, breaks generational chains, and empowers us to love unconditionally.",
+          "outlines": [
+            {
+              "number": "01",
+              "title": "The Nature and Source of Divine Mercy",
+              "scripture": "Isaiah 54:7-10, Psalm 103:8-12",
+              "summary": "Mercy originates from the unchangeable character of God, rooted in His covenant faithfulness.",
+              "points": [
+                "**Mercy is Unmerited:** We do not earn God's compassion; it flows freely from His eternal grace (Titus 3:5).",
+                "**Mercy is Enduring:** Unlike human affection which fluctuates, divine mercy stands firm even when mountains crumble (Isaiah 54:10).",
+                "**Mercy Restores and Gathers:** God allows seasons of refining, but His ultimate purpose is always redemption and emotional healing (Isaiah 54:7)."
+              ],
+              "keyInsight": "Divine mercy does not ignore sin; it provides the remedy through the sacrifice of Christ, granting a fresh start to every penitent heart."
+            },
+            {
+              "number": "02",
+              "title": "Living as Instruments of Mercy",
+              "scripture": "Ephesians 4:25-32, Luke 6:35-36",
+              "summary": "Receiving mercy obligates every believer to become a conduit of mercy to others.",
+              "points": [
+                "**Releasing Bitterness and Malice:** Forgiveness is not optional; it is the natural evidence of a heart transformed by Christ (Ephesians 4:31).",
+                "**Active Compassion in Action:** Mercy is practical—visiting the sick, comforting the grieving, feeding the hungry, and encouraging the weary.",
+                "**Nurturing Mercy-Centered Families:** Building homes on patience, active listening, and quick reconciliation prevents conflict from dividing households."
+              ],
+              "keyInsight": "The measure of mercy you give to others is the measure of peace and freedom you experience in your own soul."
+            }
+          ],
+          "discussionQuestions": [
+            {
+              "id": "q1",
+              "question": "What is the difference between showing sympathy and demonstrating biblical mercy in daily life?",
+              "hint": "Consider Luke 10:30-37 (The Good Samaritan) — sympathy feels bad, but mercy acts to help."
+            },
+            {
+              "id": "q2",
+              "question": "How can family members resolve deep-seated conflicts using the principles in Ephesians 4:32?",
+              "hint": "Focus on immediate forgiveness, abandoning hurtful words, and extending grace."
+            },
+            {
+              "id": "q3",
+              "question": "What practical steps can our Sunday School class take this week to minister to someone needing God's mercy?",
+              "hint": "Identify practical community outreach, visitation, or reconciliation efforts."
+            }
+          ],
+          "teacherNotes": {
+            "classFlow": [
+              { "phase": "Opening Prayer & Memory Verse Recitation", "time": "10 Mins" },
+              { "phase": "Introduction & Outline 1 Teaching", "time": "15 Mins" },
+              { "phase": "Outline 2 & Group Discussion", "time": "12 Mins" },
+              { "phase": "Summary, Action Points & Closing Prayer", "time": "8 Mins" }
+            ],
+            "facilitatorTips": [
+              "Begin by asking students to share a time they experienced unexpected mercy or kindness.",
+              "Emphasize that forgiveness does not mean condoning abuse or lack of boundaries, but releasing resentment to God.",
+              "Ensure every small group member gets an opportunity to contribute during discussion."
+            ],
+            "prayerPoints": [
+              "Pray for God to break every root of bitterness and resentment in the hearts of believers.",
+              "Ask for a fresh outpouring of divine compassion across all Peculiar Cherubs chapels and ministries.",
+              "Intercede for families undergoing strain, praying for divine healing and reconciliation."
+            ]
+          },
+          "lifeApplication": "This week, identify one person against whom you have held a grudge or hard feelings. Write down a prayer for them, forgive them in your heart, and reach out with a kind message or gesture of peace."
+        },
+        "lesson-34": {
+          "id": "lesson-34",
+          "lessonNumber": 34,
+          "date": "August 23, 2026",
+          "dateDisplay": "Sunday, August 23, 2026",
+          "topic": "STEWARDSHIP & KINGDOM WEALTH",
+          "subtitle": "Honoring God with resources, generosity, and kingdom wisdom.",
+          "memoryVerse": {
+            "text": "Honor the LORD with your wealth, with the firstfruits of all your crops.",
+            "reference": "Proverbs 3:9 (NIV)",
+            "context": "Solomon emphasizes putting God first in finances as a key principle of kingdom abundance.",
+            "keywordsToHide": ["Honor", "wealth", "firstfruits"]
+          },
+          "goldenText": "2 Corinthians 9:7 — Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver.",
+          "mainScriptures": [
+            {
+              "reference": "Psalms 37:20-26",
+              "label": "Old Testament Reading",
+              "text": "The wicked borrow and do not repay, but the righteous give generously... I was young and now I am old, yet I have never seen the righteous forsaken or their children begging bread."
+            },
+            {
+              "reference": "2 Corinthians 9:6-11",
+              "label": "Epistle Reading",
+              "text": "Remember this: Whoever sows sparingly will also reap sparingly, and whoever sows generously will also reap generously."
+            }
+          ],
+          "targetAudience": "Adults, Youth & Business Leaders",
+          "duration": "45 Minutes",
+          "author": "Peculiar Cherubs Sunday School Department",
+          "pdfUrl": "#",
+          "objectives": [
+            "Understand the biblical definition of Kingdom Wealth vs worldly riches.",
+            "Learn principles of faithful stewardship, budgeting, and systematic giving.",
+            "Discover how generosity unlocks open doors for ministry and community impact."
+          ],
+          "introduction": "Wealth in the Kingdom of God is not measured merely by bank balances, but by stewardship, generosity, and eternal investment. When we view our material resources as entrusted by God, giving becomes a joyful privilege rather than an obligation.",
+          "outlines": [
+            {
+              "number": "01",
+              "title": "Biblical Principles of Stewardship",
+              "scripture": "Psalm 24:1, 1 Corinthians 4:2",
+              "summary": "God owns everything; humans are trustees assigned to manage His creation for His glory.",
+              "points": [
+                "**Ownership vs. Stewardship:** Recognizing God as the ultimate owner of all assets.",
+                "**Faithfulness in Small Things:** Trustworthiness in micro-finances precedes larger kingdom assignments (Luke 16:10)."
+              ],
+              "keyInsight": "A true steward measures success by how well they execute the Master's instructions, not by personal accumulation."
+            },
+            {
+              "number": "02",
+              "title": "Unlocking Kingdom Abundance",
+              "scripture": "2 Corinthians 9:6-8, Malachi 3:10",
+              "summary": "Sowing with a willing heart activates divine favor and sufficiency.",
+              "points": [
+                "**Generosity as a Seed:** Giving opens spiritual avenues for God to provide seed to the sower.",
+                "**Wise Budgeting & Integrity:** Avoiding deceptive practices, debt traps, and ungodly investments."
+              ],
+              "keyInsight": "God blesses us not to raise our standard of living, but to raise our standard of giving."
+            }
+          ],
+          "discussionQuestions": [
+            {
+              "id": "q1",
+              "question": "How can young professionals practice biblical stewardship in an inflation-heavy economy?",
+              "hint": "Prioritize tithes, wise savings, avoiding impulse debt, and trusting God's provision."
+            },
+            {
+              "id": "q2",
+              "question": "What is the correlation between cheerful giving and spiritual peace?",
+              "hint": "Giving breaks the spirit of greed and worry, anchoring our security in God."
+            }
+          ],
+          "teacherNotes": {
+            "classFlow": [
+              { "phase": "Opening Prayer & Memory Verse", "time": "10 Mins" },
+              { "phase": "Teaching & Outlines", "time": "25 Mins" },
+              { "phase": "Discussion & Closing", "time": "10 Mins" }
+            ],
+            "facilitatorTips": [
+              "Keep financial discussions practical, encouraging, and free from guilt.",
+              "Share simple examples of kingdom budgeting."
+            ],
+            "prayerPoints": [
+              "Pray for wisdom and financial discernment for every household.",
+              "Intercede for job opportunities and business breakthroughs."
+            ]
+          },
+          "lifeApplication": "Review your personal monthly budget this week, set aside a dedicated portion for charitable giving/benevolence, and bless someone in need secretly."
+        }
+      }
     },
     "lectionaryCalendar": {
       "eyebrow": "2026 Calendar of Lectionary",
@@ -1551,7 +1752,36 @@
           "Teach the Bible as the divinely inspired Word of God.",
           "Assemble an end-time army in the power of God.",
           "Preach the Word and deliver people from the bondage of the devil through Jesus Christ."
-        ]
+        ],
+        "social": {
+          "handles": {
+            "youtube": "https://youtube.com/@peculiarcherubschurch",
+            "facebook": "https://facebook.com/peculiarcherubs",
+            "instagram": "https://instagram.com/peculiarcherubs"
+          },
+          "feed": [
+            {
+              "platform": "YouTube",
+              "type": "Video",
+              "title": "PDCM Mission Evangelism & Deliverance Crusade",
+              "text": "Watch highlights from the mission outreach and deliverance service.",
+              "url": "https://youtube.com",
+              "thumbnail": "assets/sermons/sermon-1.jpg",
+              "date": "August 2026",
+              "published": true
+            },
+            {
+              "platform": "Facebook",
+              "type": "Post",
+              "title": "Intercessory Prayer Clinic Summary",
+              "text": "Photos and key prayer points from our Tuesday evening intercession session.",
+              "url": "https://facebook.com",
+              "thumbnail": "assets/sermons/sermon-2.jpg",
+              "date": "August 2026",
+              "published": true
+            }
+          ]
+        }
       },
       "pdcm-gwarinpa": {
         "href": "pdcm-gwarinpa.html",
@@ -1741,7 +1971,47 @@
           "Leadership training through small groups, teaching, and practical service.",
           "Career, relationship, marriage, and life guidance and counselling.",
           "Participation in district, national, and wider Christian youth programmes, camps, conventions, and retreats."
-        ]
+        ],
+        "social": {
+          "handles": {
+            "instagram": "https://instagram.com/peculiarcherubs_youth",
+            "youtube": "https://youtube.com/@peculiarcherubschurch",
+            "facebook": "https://facebook.com/peculiarcherubs",
+            "tiktok": "https://tiktok.com/@peculiarcherubs_youth"
+          },
+          "feed": [
+            {
+              "platform": "Instagram",
+              "type": "Photo",
+              "title": "Mega Youth Praise & Encounter Night",
+              "text": "An unforgettable evening of intense worship, prayer, and word fellowship with the youth.",
+              "url": "https://instagram.com",
+              "thumbnail": "assets/events/founders-day.jpg",
+              "date": "August 2026",
+              "published": true
+            },
+            {
+              "platform": "YouTube",
+              "type": "Video",
+              "title": "Kingdom Career & Financial Wisdom Seminar",
+              "text": "Watch the keynote session on building a career with kingdom purpose and integrity.",
+              "url": "https://youtube.com",
+              "thumbnail": "assets/sermons/sermon-3.jpg",
+              "date": "August 2026",
+              "published": true
+            },
+            {
+              "platform": "TikTok",
+              "type": "Video",
+              "title": "Behind the Scenes — Mega Youth Choir Rehearsal",
+              "text": "Sneak peek into worship preparation for the upcoming Youth Sunday service.",
+              "url": "https://tiktok.com",
+              "thumbnail": "assets/sermons/sermon-2.jpg",
+              "date": "August 2026",
+              "published": true
+            }
+          ]
+        }
       },
       "bible-college": {
         "href": "bible-college.html",
@@ -1829,7 +2099,35 @@
           "Connect classes to sermons and the 12-noon prayer.",
           "Organize camps, excursions, summer schools, and other developmental activities.",
           "Arrange children into appropriate classes for easier learning."
-        ]
+        ],
+        "social": {
+          "handles": {
+            "youtube": "https://youtube.com/@peculiarcherubschurch",
+            "facebook": "https://facebook.com/peculiarcherubs"
+          },
+          "feed": [
+            {
+              "platform": "YouTube",
+              "type": "Video",
+              "title": "Children’s Day Choir & Bible Recitation",
+              "text": "Watch the children perform memory verses and lead the congregation in songs.",
+              "url": "https://youtube.com",
+              "thumbnail": "assets/sermons/sermon-1.jpg",
+              "date": "August 2026",
+              "published": true
+            },
+            {
+              "platform": "Facebook",
+              "type": "Photo",
+              "title": "Summer Bible Camp Highlights",
+              "text": "Photos from our annual children's summer camp, Bible drills, and craft workshops.",
+              "url": "https://facebook.com",
+              "thumbnail": "assets/events/founders-day.jpg",
+              "date": "August 2026",
+              "published": true
+            }
+          ]
+        }
       },
       "teenage-ministry": {
         "href": "teenage-ministry.html",
