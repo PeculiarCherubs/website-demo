@@ -147,7 +147,7 @@ p {
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 500;
   background: rgba(255, 255, 255, .94);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255, 214, 0, .4);
@@ -4196,7 +4196,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 /* Sticky Control Toolbar */
 .ss-toolbar-wrapper {
   position: sticky;
-  top: 0;
+  top: 78px;
   z-index: 100;
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(12px);

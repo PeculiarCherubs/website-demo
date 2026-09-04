@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Content Management Portal — Peculiar Cherubs</title>
-  
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Admin Stylesheet (imports website-demo/styles.css) -->
   <link rel="stylesheet" href="admin.css">
 </head>
+
 <body class="admin-body">
 
   <!-- ======================================================================
@@ -23,14 +27,15 @@
       <div class="admin-auth-icon">🛡️</div>
       <h2>Admin Access</h2>
       <p>Enter the master passcode to manage site content live in Supabase DB.</p>
-      
+
       <form id="adminAuthForm">
         <div class="admin-input-group">
           <label for="adminPasscode">Passcode</label>
-          <input type="password" id="adminPasscode" class="admin-input" placeholder="••••••••" required autocomplete="current-password">
+          <input type="password" id="adminPasscode" class="admin-input" placeholder="••••••••" required
+            autocomplete="current-password">
         </div>
         <div id="adminAuthError" class="admin-auth-error">Invalid passcode. Please try again.</div>
-        
+
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
           Unlock Portal
         </button>
@@ -47,7 +52,8 @@
         ☰
       </button>
       <a href="../index.html" target="_blank" style="display: flex; align-items: center; gap: 0.75rem;">
-        <img src="../assets/logos/mother-church.png" alt="Peculiar Cherubs Logo" class="admin-header-logo" onerror="this.style.display='none'">
+        <img src="../assets/logos/mother-church.png" alt="Peculiar Cherubs Logo" class="admin-header-logo"
+          onerror="this.style.display='none'">
         <div class="admin-header-title">
           <h1>Peculiar Cherubs</h1>
           <span class="admin-header-subtitle">Content Management Portal</span>
@@ -61,11 +67,13 @@
         <span class="admin-status-text">Connected to Supabase DB</span>
       </div>
 
-      <button id="adminExportBtn" class="btn btn-secondary admin-btn-sm" title="Download updated site-content.json for local repository backup">
+      <button id="adminExportBtn" class="btn btn-secondary admin-btn-sm"
+        title="Download updated site-content.json for local repository backup">
         📥 Export JSON
       </button>
 
-      <button id="adminLogoutBtn" class="btn btn-secondary admin-btn-sm" style="border-color: rgba(255,255,255,0.3); color: var(--white);">
+      <button id="adminLogoutBtn" class="btn btn-secondary admin-btn-sm"
+        style="border-color: rgba(255,255,255,0.3); color: var(--white);">
         🔒 Lock
       </button>
     </div>
@@ -75,7 +83,7 @@
        Workspace Main Layout
        ====================================================================== -->
   <div class="admin-layout">
-    
+
     <!-- Sidebar Navigation -->
     <aside id="adminSidebar" class="admin-sidebar">
       <div class="admin-sidebar-section">
@@ -148,7 +156,8 @@
       <div class="admin-sidebar-section" style="margin-top: auto; padding-bottom: 1.5rem;">
         <div style="background: var(--sky); padding: 1rem; border-radius: 16px; text-align: center;">
           <div style="font-size: 0.8rem; font-weight: 800; color: var(--navy);">MAIN WEBSITE</div>
-          <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem;">View changes live on website</div>
+          <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem;">View changes live on website
+          </div>
           <a href="../index.html" target="_blank" class="btn btn-primary admin-btn-sm" style="width: 100%;">
             🌐 Open Website
           </a>
@@ -169,10 +178,14 @@
             <p>Monitor and manage content published across Peculiar Cherubs website.</p>
           </div>
           <div class="admin-panel-actions">
-            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.switchTab('publications')">
+            <button class="btn btn-primary admin-btn-sm"
+              onclick="AdminPortal.openItemModal('publications', null, true)">
+              📖 + Sunday School Immersive Outline
+            </button>
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('publications')">
               + New Publication
             </button>
-            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">
               + New Sermon
             </button>
           </div>
@@ -211,25 +224,36 @@
         </div>
 
         <!-- Quick Links / Recent Activity -->
-        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
+        <div
+          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
           <h3 style="color: var(--navy); margin-bottom: 0.5rem;">Quick Management Actions</h3>
-          <p style="color: var(--muted); font-size: 0.92rem; margin-bottom: 1.25rem;">Direct shortcuts to create, update, or edit live site data.</p>
-          
+          <p style="color: var(--muted); font-size: 0.92rem; margin-bottom: 1.25rem;">Direct shortcuts to create,
+            update, or edit live site data.</p>
+
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-            <div style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Sunday School Manuals</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage Christian Heritage Sunday School manuals & lessons.</p>
-              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('publications')">Manage Publications →</button>
+            <div
+              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
+              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Sunday School Immersive Editor</h4>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage memory verses, scripture
+                readings, lesson outlines, teacher's corner & class discussions.</p>
+              <button class="btn btn-primary admin-btn-sm"
+                onclick="AdminPortal.openItemModal('publications', null, true)">📖 Launch SS Immersive Editor →</button>
             </div>
-            <div style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
+            <div
+              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
               <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Audio & Video Sermons</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Add latest audio messages, YouTube links, and transcripts.</p>
-              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">Manage Sermons →</button>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Add latest audio messages,
+                YouTube links, and transcripts.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">Manage Sermons
+                →</button>
             </div>
-            <div style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
+            <div
+              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
               <h4 style="margin: 0 0 0.5rem; color: var(--navy);">House Fellowships</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Update fellowship centres, hosts, areas, and coordinators.</p>
-              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('fellowships')">Manage Fellowships →</button>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Update fellowship centres, hosts,
+                areas, and coordinators.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('fellowships')">Manage
+                Fellowships →</button>
             </div>
           </div>
         </div>
@@ -245,8 +269,12 @@
             <p>Manage church publications, Sunday School manuals, and downloadable PDFs.</p>
           </div>
           <div class="admin-panel-actions">
-            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('publications')">
-              + Add Publication
+            <button class="btn btn-primary admin-btn-sm"
+              onclick="AdminPortal.openItemModal('publications', null, true)">
+              📖 + Sunday School Reading (Immersive)
+            </button>
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.openItemModal('publications')">
+              + Add General Publication
             </button>
           </div>
         </div>
@@ -254,13 +282,15 @@
         <div class="admin-toolbar">
           <div class="admin-search-box">
             <span class="admin-search-icon">🔍</span>
-            <input type="text" id="searchPublications" placeholder="Search publications by title or category..." oninput="AdminPortal.filterItems('publications')">
+            <input type="text" id="searchPublications" placeholder="Search publications by title or category..."
+              oninput="AdminPortal.filterItems('publications')">
           </div>
           <div class="admin-filter-group">
-            <select id="filterPublicationCategory" class="admin-select" onchange="AdminPortal.filterItems('publications')">
+            <select id="filterPublicationCategory" class="admin-select"
+              onchange="AdminPortal.filterItems('publications')">
               <option value="all">All Categories</option>
-              <option value="Sunday School">Sunday School</option>
-              <option value="Books">Books</option>
+              <option value="Sunday School">Sunday School Outlines</option>
+              <option value="Books">Weekly Devotion</option>
               <option value="Magazines">Magazines</option>
             </select>
           </div>
@@ -290,7 +320,8 @@
         <div class="admin-toolbar">
           <div class="admin-search-box">
             <span class="admin-search-icon">🔍</span>
-            <input type="text" id="searchSermons" placeholder="Search sermons by title, preacher, or series..." oninput="AdminPortal.filterItems('sermons')">
+            <input type="text" id="searchSermons" placeholder="Search sermons by title, preacher, or series..."
+              oninput="AdminPortal.filterItems('sermons')">
           </div>
         </div>
 
@@ -318,7 +349,8 @@
         <div class="admin-toolbar">
           <div class="admin-search-box">
             <span class="admin-search-icon">🔍</span>
-            <input type="text" id="searchEvents" placeholder="Search events..." oninput="AdminPortal.filterItems('events')">
+            <input type="text" id="searchEvents" placeholder="Search events..."
+              oninput="AdminPortal.filterItems('events')">
           </div>
         </div>
 
@@ -346,7 +378,8 @@
         <div class="admin-toolbar">
           <div class="admin-search-box">
             <span class="admin-search-icon">🔍</span>
-            <input type="text" id="searchFellowships" placeholder="Search fellowship centres or areas..." oninput="AdminPortal.filterItems('fellowships')">
+            <input type="text" id="searchFellowships" placeholder="Search fellowship centres or areas..."
+              oninput="AdminPortal.filterItems('fellowships')">
           </div>
         </div>
 
@@ -388,7 +421,8 @@
         <div class="admin-toolbar">
           <div class="admin-search-box">
             <span class="admin-search-icon">🔍</span>
-            <input type="text" id="searchMinistries" placeholder="Search ministries or branch chapels..." oninput="AdminPortal.filterItems('ministries')">
+            <input type="text" id="searchMinistries" placeholder="Search ministries or branch chapels..."
+              oninput="AdminPortal.filterItems('ministries')">
           </div>
         </div>
 
@@ -413,7 +447,8 @@
           </div>
         </div>
 
-        <form id="formSiteSettings" style="background: var(--white); padding: 2rem; border-radius: 20px; border: 1px solid var(--admin-border);">
+        <form id="formSiteSettings"
+          style="background: var(--white); padding: 2rem; border-radius: 20px; border: 1px solid var(--admin-border);">
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
               <label for="settingShortName">Church Short Name</label>
@@ -437,7 +472,8 @@
             </div>
             <div class="admin-input-group">
               <label for="settingMidweekService">Midweek Service Time</label>
-              <input type="text" id="settingMidweekService" class="admin-input" placeholder="Shiloh Service — Wednesday, 6:00 PM">
+              <input type="text" id="settingMidweekService" class="admin-input"
+                placeholder="Shiloh Service — Wednesday, 6:00 PM">
             </div>
           </div>
 
@@ -483,7 +519,7 @@
         <!-- Live Website Card Preview Box -->
         <div class="admin-preview-container">
           <div class="admin-preview-title">
-            <span>👁️</span> Live Website Card Preview
+            <span>👁️</span> Live Website Card & Immersive Reader Preview
           </div>
           <div id="adminModalLivePreview" class="admin-preview-box">
             <!-- Preview markup rendered dynamically -->
@@ -506,7 +542,9 @@
   <div id="adminToastContainer" class="admin-toast-container"></div>
 
   <!-- Scripts -->
+  <script src="https://cdnjs.com/libraries/flatpickr"></script>
   <script src="../js/contentService.js"></script>
   <script src="../js/admin.js"></script>
 </body>
+
 </html>
