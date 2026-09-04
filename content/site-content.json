@@ -62,6 +62,10 @@
         {
           "label": "House Fellowship Centres",
           "href": "house-fellowships.html"
+        },
+        {
+          "label": "Jesus Loves You Feeding Ministry",
+          "href": "feeding-ministry.html"
         }
       ]
     },
@@ -71,7 +75,29 @@
     },
     {
       "label": "PUBLICATIONS",
-      "href": "publications.html"
+      "href": "publications.html",
+      "children": [
+        {
+          "label": "All Publications",
+          "href": "publications.html"
+        },
+        {
+          "label": "Daily Morning Devotion",
+          "href": "publications.html#daily-devotion"
+        },
+        {
+          "label": "Goodnews This Week",
+          "href": "publications.html#goodnews"
+        },
+        {
+          "label": "Sunday School Bible Study",
+          "href": "publications.html#sunday-school"
+        },
+        {
+          "label": "Calendar of Lectionary",
+          "href": "publications.html#lectionary"
+        }
+      ]
     },
     {
       "label": "QUICK LINKS",
@@ -332,8 +358,8 @@
   "publications": {
     "hero": {
       "eyebrow": "Publications",
-      "title": "Read. Reflect.\nGrow.",
-      "description": "Explore Daily Morning Devotion, Goodnews This Week, Sunday School Outline, church news, teaching resources, and ministry updates from Peculiar Cherubs."
+      "title": "Read the Word.\nLive the truth.",
+      "description": "Explore Daily Morning Devotion, Goodnews This Week, Sunday School Bible Study, and the 2026 Calendar of Lectionary in a consistent, readable blog format."
     },
     "dailyDevotion": {
       "type": "Daily Morning Devotion",
@@ -2786,6 +2812,75 @@
         "source": "2026 HQ Lectionary"
       }
     ],
+    "socialFeed": [
+      {
+        "platform": "Website Placeholder",
+        "type": "PHOTO GALLERY",
+        "title": "Founder’s Day Highlights",
+        "text": "Celebrating our heritage, vision, and continuing mission.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/founders-day-highlights.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "VIDEO",
+        "title": "Choir Fiesta Highlights",
+        "text": "A celebration of worship, music, and joyful praise.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/choir-fiesta-video.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "VIDEO",
+        "title": "Shiloh Revival",
+        "text": "Prayer, renewal, worship, and the Word.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/shiloh-revival-video.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "PHOTOS",
+        "title": "Sunday Worship Moments",
+        "text": "Worship, fellowship, prayer, and transformed lives.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/sunday-worship-gallery.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "REEL",
+        "title": "Mega Youth Gathering",
+        "text": "Young adults growing, serving, and leading for Christ.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/mega-youth-reel.jpg",
+        "published": true,
+        "placeholder": true
+      },
+      {
+        "platform": "Website Placeholder",
+        "type": "SHORT CLIP",
+        "title": "Great Mercies Testimony",
+        "text": "Stories of God’s mercy, restoration, and favour.",
+        "url": "#media-and-social",
+        "thumbnail": "assets/events/placeholders/great-mercies-testimony.jpg",
+        "published": true,
+        "placeholder": true
+      }
+    ],
+    "socialFeedEmpty": {
+      "title": "Social highlights will appear here.",
+      "text": "Add official Facebook, Instagram, YouTube, photo-gallery, or livestream links under events.socialFeed in site-content.json."
+    },
+    "socialFeedNotice": {
+      "title": "Generated placeholders",
+      "text": "These cards are temporary visual placeholders. Replace them later with approved photos, videos, galleries, or social-media links."
     "socialFeed": [],
     "socialFeedEmpty": {
       "title": "Social highlights will appear here.",

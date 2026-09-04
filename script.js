@@ -338,119 +338,174 @@ function renderSermons(content) {
 
 
 
+function publicationDate(value, options = {}) {
+  if (!value) return "";
+  const date = new Date(`${value}T12:00:00`);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    ...options
+  }).format(date);
+}
+
+function publicationPostUrl(post) {
+  return `publication.html?slug=${encodeURIComponent(post.slug)}`;
+}
+
+function publicationCover(post, modifier = "") {
+  const cover = post.cover || {};
+  const theme = cover.theme || "navy";
+  return `
+    <div class="publication-blog-cover publication-cover-${escapeHtml(theme)} ${escapeHtml(modifier)}">
+      <span>${escapeHtml(cover.label || post.type)}</span>
+      <strong>${escapeHtml(cover.monogram || "PC")}</strong>
+      <div>
+        <small>${escapeHtml(publicationDate(post.date))}</small>
+        <h3>${escapeHtml(post.title)}</h3>
+      </div>
+    </div>
+  `;
+}
+
+function publicationPostCard(post) {
+  return `
+    <article class="publication-blog-card" data-publication-category="${escapeHtml(post.category)}">
+      <a href="${publicationPostUrl(post)}" aria-label="Read ${escapeHtml(post.title)}">
+        ${publicationCover(post, "publication-card-cover")}
+      </a>
+      <div class="publication-blog-card-body">
+        <div class="publication-card-meta">
+          <span>${escapeHtml(post.type)}</span>
+          <time datetime="${escapeHtml(post.date)}">${escapeHtml(publicationDate(post.date))}</time>
+        </div>
+        <h3><a href="${publicationPostUrl(post)}">${escapeHtml(post.title)}</a></h3>
+        <p>${escapeHtml(post.excerpt)}</p>
+        <div class="publication-card-tags">
+          ${(post.tags || []).slice(0, 3).map(tag => `<span>${escapeHtml(tag)}</span>`).join("")}
+        </div>
+        <a class="text-link" href="${publicationPostUrl(post)}">Read publication ↗</a>
+      </div>
+    </article>
+  `;
+}
+
+function publicationCompactFeature(post) {
+  if (!post) return "";
+  return `
+    <article class="publication-compact-feature">
+      ${publicationCover(post, "publication-compact-cover")}
+      <div>
+        <div class="meta">${escapeHtml(publicationDate(post.date))}</div>
+        <h3>${escapeHtml(post.title)}</h3>
+        <p>${escapeHtml(post.excerpt)}</p>
+        <a class="btn btn-primary" href="${publicationPostUrl(post)}">Read Now</a>
+      </div>
+    </article>
+  `;
+}
+
 function renderPublications(content) {
   renderStandardHero(content.publications);
 
-  const daily = content.publications.dailyDevotion;
-  setText("[data-daily-devotion-type]", daily.type);
-  setText("[data-daily-devotion-title]", daily.title);
-  setText("[data-daily-devotion-text]", daily.text);
-  setLink("[data-daily-devotion-button]", {
-    label: daily.button,
-    href: daily.href
-  });
+  const blog = content.publications.blog;
+  const posts = [...(blog?.posts || [])].sort((a, b) =>
+    new Date(`${b.date}T12:00:00`) - new Date(`${a.date}T12:00:00`)
+  );
 
-  const latest = content.publications.latestGoodnews;
-  setText("[data-latest-goodnews-eyebrow]", latest.eyebrow);
-  setText("[data-latest-goodnews-heading]", latest.heading);
-  setText("[data-latest-goodnews-supporting]", latest.supportingText);
-  setText("[data-latest-goodnews-cover-top]", latest.coverTop);
-  setMultilineText("[data-latest-goodnews-cover-title]", latest.coverTitle);
-  setText("[data-latest-goodnews-cover-bottom]", latest.coverBottom);
-  setText("[data-latest-goodnews-label]", latest.label);
-  setText("[data-latest-goodnews-title]", latest.title);
-  setText("[data-latest-goodnews-text]", latest.text);
-  setLink("[data-latest-goodnews-button]", {
-    label: latest.button,
-    href: latest.href
-  });
+  setText("[data-publication-blog-eyebrow]", blog?.eyebrow);
+  setText("[data-publication-blog-title]", blog?.title);
+  setText("[data-publication-blog-description]", blog?.description);
 
-  const archive = document.querySelector("[data-publication-archive]");
-  if (archive) {
-    const itemsPerPage = 3;
-    let currentPage = 1;
-    const items = content.publications.archive || [];
-    const totalPages = Math.ceil(items.length / itemsPerPage);
-
-    let paginationContainer = document.querySelector(".publication-pagination");
-    if (!paginationContainer) {
-      paginationContainer = document.createElement("div");
-      paginationContainer.className = "publication-pagination";
-      archive.after(paginationContainer);
-    }
-
-    const render = (pageNum) => {
-      currentPage = pageNum;
-      const start = (currentPage - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      const paginatedItems = items.slice(start, end);
-
-      archive.innerHTML = paginatedItems.map(item => `
-        <article class="publication-issue-card publication-theme-${escapeHtml(item.theme)}">
-          <div class="publication-issue-cover">
-            <span class="publication-type">${escapeHtml(item.type)}</span>
-            <strong>${escapeHtml(item.issue)}</strong>
-            <small>Weekly Publication</small>
-          </div>
-          <div class="publication-issue-body">
-            <div class="meta">${escapeHtml(item.status)}</div>
-            <h3>${escapeHtml(item.title)}</h3>
-            <p>${escapeHtml(item.text)}</p>
-            <a class="text-link publication-read-link" href="${escapeHtml(item.href)}">Read edition ↗</a>
-          </div>
-        </article>
-      `).join("");
-
-      if (totalPages > 1) {
-        paginationContainer.innerHTML = `
-          <button class="btn btn-secondary pagination-btn-prev" ${currentPage === 1 ? "disabled" : ""}>Previous</button>
-          <span class="pagination-info">Page ${currentPage} of ${totalPages}</span>
-          <button class="btn btn-secondary pagination-btn-next" ${currentPage === totalPages ? "disabled" : ""}>Next</button>
-        `;
-
-        paginationContainer.querySelector(".pagination-btn-prev")?.addEventListener("click", () => {
-          if (currentPage > 1) {
-            render(currentPage - 1);
-            document.querySelector(".publications-showcase")?.scrollIntoView({ behavior: "smooth" });
-          }
-        });
-
-        paginationContainer.querySelector(".pagination-btn-next")?.addEventListener("click", () => {
-          if (currentPage < totalPages) {
-            render(currentPage + 1);
-            document.querySelector(".publications-showcase")?.scrollIntoView({ behavior: "smooth" });
-          }
-        });
-      } else {
-        paginationContainer.innerHTML = "";
-      }
-    };
-
-    render(1);
+  const featured = posts.find(post => post.featured) || posts[0];
+  const featuredContainer = document.querySelector("[data-publication-featured]");
+  if (featuredContainer && featured) {
+    featuredContainer.innerHTML = `
+      ${publicationCover(featured, "publication-featured-cover")}
+      <div class="publication-featured-copy">
+        <div class="meta">${escapeHtml(featured.type)} · ${escapeHtml(publicationDate(featured.date))}</div>
+        <h3>${escapeHtml(featured.title)}</h3>
+        <p>${escapeHtml(featured.excerpt)}</p>
+        <div class="publication-card-tags">
+          ${(featured.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("")}
+        </div>
+        <a class="btn btn-primary" href="${publicationPostUrl(featured)}">Read Featured Publication</a>
+      </div>
+    `;
   }
-  const school = content.publications.sundaySchool;
-  setText("[data-sunday-school-type]", school.type);
-  setText("[data-sunday-school-title]", school.title);
-  setText("[data-sunday-school-text]", school.text);
-  setLink("[data-sunday-school-button]", {
-    label: school.button,
-    href: school.href
+
+  const categoriesContainer = document.querySelector("[data-publication-categories]");
+  const postsContainer = document.querySelector("[data-publication-posts]");
+  const searchInput = document.querySelector("[data-publication-search]");
+  const empty = document.querySelector("[data-publication-empty]");
+  let selectedCategory = "all";
+  let searchValue = "";
+
+  if (categoriesContainer) {
+    categoriesContainer.innerHTML = (blog?.categories || []).map((category, index) => {
+      const count = category.id === "all"
+        ? posts.length
+        : posts.filter(post => post.category === category.id).length;
+      return `
+        <button class="publication-category-button${index === 0 ? " active" : ""}"
+          type="button" data-publication-filter="${escapeHtml(category.id)}">
+          ${escapeHtml(category.label)} <span>${count}</span>
+        </button>
+      `;
+    }).join("");
+  }
+
+  const renderPosts = () => {
+    const query = searchValue.trim().toLowerCase();
+    const filtered = posts.filter(post => {
+      const categoryMatch = selectedCategory === "all" || post.category === selectedCategory;
+      const searchable = [post.title, post.excerpt, post.type, post.author, ...(post.tags || [])]
+        .join(" ").toLowerCase();
+      return categoryMatch && (!query || searchable.includes(query));
+    });
+
+    if (postsContainer) postsContainer.innerHTML = filtered.map(publicationPostCard).join("");
+    if (empty) empty.hidden = filtered.length > 0;
+  };
+
+  categoriesContainer?.addEventListener("click", event => {
+    const button = event.target.closest("[data-publication-filter]");
+    if (!button) return;
+    selectedCategory = button.dataset.publicationFilter;
+    categoriesContainer.querySelectorAll("button").forEach(item => item.classList.toggle("active", item === button));
+    renderPosts();
   });
 
+  searchInput?.addEventListener("input", event => {
+    searchValue = event.target.value;
+    renderPosts();
+  });
+
+  document.querySelectorAll("[data-filter-publications]").forEach(link => {
+    link.addEventListener("click", () => {
+      const value = link.dataset.filterPublications;
+      const button = categoriesContainer?.querySelector(`[data-publication-filter="${value}"]`);
+      button?.click();
+    });
+  });
+
+  renderPosts();
+
+  const latestByCategory = category => posts.find(post => post.category === category);
+  const latestDevotion = document.querySelector("[data-latest-devotion]");
+  const latestGoodnews = document.querySelector("[data-latest-goodnews-blog]");
+  const latestSchool = document.querySelector("[data-latest-sunday-school]");
+  if (latestDevotion) latestDevotion.innerHTML = publicationCompactFeature(latestByCategory("devotion"));
+  if (latestGoodnews) latestGoodnews.innerHTML = publicationCompactFeature(latestByCategory("goodnews"));
+  if (latestSchool) latestSchool.innerHTML = publicationCompactFeature(latestByCategory("sunday-school"));
 
   const lectionary = content.publications?.lectionaryCalendar;
   const lectionaryContainer = document.querySelector("[data-lectionary-readings]");
   const monthSelect = document.querySelector("[data-lectionary-month-select]");
 
   if (!lectionary) {
-    console.error("Lectionary data is missing at publications.lectionaryCalendar.");
     if (lectionaryContainer) {
-      lectionaryContainer.innerHTML = `
-        <article class="lectionary-card">
-          <h3>Lectionary unavailable</h3>
-          <p>The lectionary data could not be found in content/site-content.json.</p>
-        </article>
-      `;
+      lectionaryContainer.innerHTML = `<div class="publication-empty-state">Lectionary data is currently unavailable.</div>`;
     }
     return;
   }
@@ -458,32 +513,24 @@ function renderPublications(content) {
   setText("[data-lectionary-eyebrow]", lectionary.eyebrow);
   setText("[data-lectionary-title]", lectionary.title);
   setText("[data-lectionary-description]", lectionary.description);
-  setLink("[data-lectionary-download]", {
-    label: lectionary.button,
-    href: lectionary.href
-  });
+  setLink("[data-lectionary-download]", { label: lectionary.button, href: lectionary.href });
 
   const readingItems = Array.isArray(lectionary.readings) ? lectionary.readings : [];
   const months = [...new Set(readingItems.map(item => item.month).filter(Boolean))];
-
   const currentMonthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date());
   let selectedMonth = months.includes(currentMonthName)
     ? currentMonthName
     : (lectionary.currentMonth || months[0] || "").split(" ")[0];
 
   if (monthSelect) {
-    monthSelect.innerHTML = months
-      .map(month => `<option value="${escapeHtml(month)}">${escapeHtml(month)}</option>`)
-      .join("");
+    monthSelect.innerHTML = months.map(month => `<option value="${escapeHtml(month)}">${escapeHtml(month)}</option>`).join("");
     monthSelect.value = selectedMonth;
   }
 
   const renderLectionaryMonth = month => {
     selectedMonth = month;
     setText("[data-lectionary-month]", `${month} 2026`);
-
     if (!lectionaryContainer) return;
-
     const filtered = readingItems.filter(item => item.month === month);
     lectionaryContainer.innerHTML = filtered.map(reading => `
       <article class="lectionary-card">
@@ -491,197 +538,227 @@ function renderPublications(content) {
           <div class="lectionary-date">${escapeHtml(reading.dateDisplay || reading.date)}</div>
           <span class="lectionary-week">${escapeHtml(reading.week)}</span>
         </div>
-
         ${reading.event ? `<div class="lectionary-special-event">${escapeHtml(reading.event)}</div>` : ""}
         <h3>${escapeHtml(reading.topic)}</h3>
-
         <div class="lectionary-scripture">
           <span>Scripture</span>
           <strong>${escapeHtml(reading.scripture)}</strong>
         </div>
-
         ${reading.objective ? `
           <details class="lectionary-objective">
             <summary>View sermon objective</summary>
             <p>${escapeHtml(reading.objective)}</p>
           </details>
         ` : ""}
-
-        ${reading.verificationNote ? `
-          <p class="lectionary-verification">${escapeHtml(reading.verificationNote)}</p>
-        ` : ""}
+        ${reading.verificationNote ? `<p class="lectionary-verification">${escapeHtml(reading.verificationNote)}</p>` : ""}
       </article>
     `).join("");
-
-    if (!filtered.length) {
-      lectionaryContainer.innerHTML = `
-        <div class="event-empty-state">No lectionary entries were found for ${escapeHtml(month)}.</div>
-      `;
-    }
   };
 
   monthSelect?.addEventListener("change", event => renderLectionaryMonth(event.target.value));
   renderLectionaryMonth(selectedMonth);
 }
 
-function renderPublicationDetail(content) {
-  const urlParams = new URLSearchParams(window.location.search);
-  const issueKey = urlParams.get("issue") || "issue-01";
-  const item = content.publications.details?.[issueKey];
+function renderPublicationBlocks(blocks = []) {
+  return blocks.map(block => {
+    if (block.type === "heading") return `<h2>${escapeHtml(block.text)}</h2>`;
+    if (block.type === "lead") return `<p class="publication-lead">${escapeHtml(block.text)}</p>`;
+    if (block.type === "scripture") return `
+      <blockquote class="publication-scripture-block">
+        <p>${escapeHtml(block.text)}</p>
+        <cite>${escapeHtml(block.reference)}</cite>
+      </blockquote>
+    `;
+    if (block.type === "callout") return `
+      <aside class="publication-callout">
+        <span>${escapeHtml(block.label || "Note")}</span>
+        <h3>${escapeHtml(block.title)}</h3>
+        <p>${escapeHtml(block.text || "")}</p>
+      </aside>
+    `;
+    if (block.type === "list") return `<ul>${(block.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+    return `<p>${escapeHtml(block.text || "")}</p>`;
+  }).join("");
+}
 
-  if (!item) {
-    const main = document.querySelector("main");
+function renderGoodnewsTemplate(post) {
+  const goodnews = post.goodnews || {};
+  const service = goodnews.specialService;
+  return `
+    <section class="publication-template-section">
+      <span class="eyebrow">Inside this edition</span>
+      <div class="publication-edition-grid">
+        ${goodnews.sundaySchool ? `
+          <article class="publication-edition-card edition-yellow">
+            <div class="meta">Sunday School Bible Study</div>
+            <h3>${escapeHtml(goodnews.sundaySchool.topic)}</h3>
+            <p>${escapeHtml(goodnews.sundaySchool.text)}</p>
+          </article>
+        ` : ""}
+        ${service ? `
+          <article class="publication-edition-card edition-red">
+            <div class="meta">${escapeHtml(service.label)}</div>
+            <h3>${escapeHtml(service.topic)}</h3>
+            <p>${escapeHtml(service.text)}</p>
+            <strong>${escapeHtml(service.revivalist || "")}</strong>
+          </article>
+        ` : ""}
+      </div>
+    </section>
+
+    ${(goodnews.nextWeekMinisters || []).length ? `
+      <section class="publication-template-section">
+        <span class="eyebrow">Next week</span>
+        <h2>Officiating ministers.</h2>
+        <div class="publication-info-list">
+          ${goodnews.nextWeekMinisters.map(item => `
+            <div><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong></div>
+          `).join("")}
+        </div>
+      </section>
+    ` : ""}
+
+    ${(goodnews.bibleMeditation || []).length ? `
+      <section class="publication-template-section">
+        <span class="eyebrow">Bible meditation</span>
+        <h2>Read through the week.</h2>
+        <div class="publication-meditation-grid">
+          ${goodnews.bibleMeditation.map(item => `
+            <div><span>${escapeHtml(item.day)}</span><strong>${escapeHtml(item.reading)}</strong></div>
+          `).join("")}
+        </div>
+      </section>
+    ` : ""}
+  `;
+}
+
+function renderDevotionTemplate(post) {
+  const devotion = post.devotion || {};
+  return `
+    <section class="publication-template-section devotion-response-section">
+      <span class="eyebrow">Respond to the Word</span>
+      <div class="devotion-response-grid">
+        <article class="devotion-response-card devotion-prayer">
+          <span>Prayer</span><p>${escapeHtml(devotion.prayer || "")}</p>
+        </article>
+        <article class="devotion-response-card devotion-declaration">
+          <span>Declaration</span><p>${escapeHtml(devotion.declaration || "")}</p>
+        </article>
+        <article class="devotion-response-card devotion-action">
+          <span>Action point</span><p>${escapeHtml(devotion.actionPoint || "")}</p>
+        </article>
+      </div>
+    </section>
+  `;
+}
+
+function renderSundaySchoolTemplate(post) {
+  const lesson = post.sundaySchool || {};
+  return `
+    <section class="publication-template-section">
+      <span class="eyebrow">Lesson objectives</span>
+      <ol class="publication-objective-list">
+        ${(lesson.objectives || []).map(item => `<li>${escapeHtml(item)}</li>`).join("")}
+      </ol>
+    </section>
+    <section class="publication-template-section">
+      <span class="eyebrow">Lesson outline</span>
+      <div class="publication-outline-grid">
+        ${(lesson.outline || []).map((item, index) => `
+          <article>
+            <span>${String(index + 1).padStart(2, "0")}</span>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.text)}</p>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+    <section class="publication-template-section publication-discussion-section">
+      <span class="eyebrow">Discussion questions</span>
+      <ul>${(lesson.questions || []).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      ${lesson.closingPrayer ? `<div class="publication-closing-prayer"><strong>Closing prayer</strong><p>${escapeHtml(lesson.closingPrayer)}</p></div>` : ""}
+    </section>
+  `;
+}
+
+function renderPublicationPost(content) {
+  const posts = content.publications?.blog?.posts || [];
+  const slug = new URLSearchParams(window.location.search).get("slug");
+  const post = posts.find(item => item.slug === slug);
+  const main = document.querySelector("main");
+
+  if (!post) {
     if (main) {
       main.innerHTML = `
-        <div class="container" style="padding: 6rem 1rem; text-align: center;">
-          <h2>Publication Issue Not Found</h2>
-          <p>The requested publication could not be loaded. Please return to the publications list.</p>
-          <a class="btn btn-primary" href="publications.html" style="margin-top: 1.5rem; display: inline-block;">Back to Publications</a>
-        </div>
+        <section class="section"><div class="container publication-not-found">
+          <span class="eyebrow">Publication not found</span>
+          <h1>This publication could not be opened.</h1>
+          <p>Return to the publication archive and select an available article.</p>
+          <a class="btn btn-primary" href="publications.html">View Publications</a>
+        </div></section>
       `;
     }
     return;
   }
 
-  setText("[data-pub-meta-top]", `${item.type} · ${item.issue} · ${item.date}`);
-  setText("[data-pub-title]", item.title);
-  setText("[data-pub-subtitle]", item.subtitle);
+  document.title = `${post.title} | Peculiar Cherubs`;
+  setText("[data-publication-post-type]", post.type);
+  setText("[data-publication-post-title]", post.title);
+  setText("[data-publication-post-excerpt]", post.excerpt);
 
-  const hero = document.querySelector("[data-pub-hero-theme]");
-  if (hero) {
-    hero.classList.add(`publication-theme-${item.theme || "yellow"}`);
+  const meta = document.querySelector("[data-publication-post-meta]");
+  if (meta) {
+    meta.innerHTML = `
+      <span>${escapeHtml(publicationDate(post.date))}</span>
+      <span>${escapeHtml(post.author)}</span>
+      <span>${escapeHtml(post.details?.readingTime || post.details?.edition || "Publication")}</span>
+    `;
   }
 
-  const contentContainer = document.querySelector("[data-pub-content]");
-  if (contentContainer) {
-    contentContainer.innerHTML = (item.content || [])
-      .map(p => `<p style="margin-bottom:1.5rem; line-height:1.75; font-size:1.15rem; color:var(--navy);">${escapeHtml(p)}</p>`)
-      .join("");
+  const cover = document.querySelector("[data-publication-post-cover]");
+  if (cover) cover.innerHTML = publicationCover(post, "publication-article-cover");
+
+  const tags = document.querySelector("[data-publication-post-tags]");
+  if (tags) tags.innerHTML = (post.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("");
+
+  const contentContainer = document.querySelector("[data-publication-post-content]");
+  if (contentContainer) contentContainer.innerHTML = renderPublicationBlocks(post.blocks || []);
+
+  const details = document.querySelector("[data-publication-post-details]");
+  if (details) {
+    details.innerHTML = Object.entries(post.details || {}).map(([key, value]) => `
+      <div><dt>${escapeHtml(key.replace(/([A-Z])/g, " $1").replace(/^./, letter => letter.toUpperCase()))}</dt><dd>${escapeHtml(value)}</dd></div>
+    `).join("");
   }
 
-  const pdfLink = document.querySelector("[data-pub-pdf]");
-  if (pdfLink) {
-    pdfLink.href = item.pdfUrl || "#";
-    if (!item.pdfUrl || item.pdfUrl === "#") {
-      pdfLink.style.opacity = "0.6";
-      pdfLink.textContent = "PDF Coming Soon";
-      pdfLink.addEventListener("click", e => e.preventDefault());
-    } else {
-      pdfLink.textContent = `Download ${item.issue} PDF`;
+  const templateContainer = document.querySelector("[data-publication-template-content]");
+  if (templateContainer) {
+    templateContainer.innerHTML = post.template === "goodnews"
+      ? renderGoodnewsTemplate(post)
+      : post.template === "devotion"
+        ? renderDevotionTemplate(post)
+        : post.template === "sundaySchool"
+          ? renderSundaySchoolTemplate(post)
+          : "";
+  }
+
+  const related = posts
+    .filter(item => item.slug !== post.slug)
+    .sort((a, b) => Number(b.category === post.category) - Number(a.category === post.category))
+    .slice(0, 3);
+  const relatedContainer = document.querySelector("[data-related-publications]");
+  if (relatedContainer) relatedContainer.innerHTML = related.map(publicationPostCard).join("");
+
+  const copyButton = document.querySelector("[data-copy-publication-link]");
+  copyButton?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      copyButton.textContent = "Link Copied";
+      setTimeout(() => { copyButton.textContent = "Copy Article Link"; }, 1800);
+    } catch {
+      copyButton.textContent = "Copy unavailable";
     }
-  }
-
-  const scripturesContainer = document.querySelector("[data-pub-scriptures]");
-  if (scripturesContainer) {
-    scripturesContainer.innerHTML = (item.scriptures || []).map(scripture => `
-      <article class="scripture-card" style="margin-bottom:1.2rem; padding:1.2rem; border-radius:16px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);">
-        <strong style="display:block; font-size:0.95rem; color:var(--yellow); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.4rem;">${escapeHtml(scripture.ref)}</strong>
-        <p style="font-size:0.95rem; line-height:1.5; color:rgba(255,255,255,0.85); margin:0;">“${escapeHtml(scripture.text)}”</p>
-      </article>
-    `).join("");
-  }
-
-  const announcementsContainer = document.querySelector("[data-pub-announcements]");
-  if (announcementsContainer) {
-    announcementsContainer.innerHTML = (item.announcements || []).map(ann => `
-      <li style="margin-bottom:0.8rem; font-size:0.95rem; line-height:1.5; color:var(--navy); padding-left:0.5rem; border-left:3px solid var(--red);">${escapeHtml(ann)}</li>
-    `).join("");
-  }
-
-  const school = content.publications.sundaySchool;
-  setText("[data-sunday-school-type]", school.type);
-  setText("[data-sunday-school-title]", school.title);
-  setText("[data-sunday-school-text]", school.text);
-  setLink("[data-sunday-school-button]", {
-    label: school.button,
-    href: school.href
   });
-
-
-  const lectionary = content.publications?.lectionaryCalendar;
-  const lectionaryContainer = document.querySelector("[data-lectionary-readings]");
-  const monthSelect = document.querySelector("[data-lectionary-month-select]");
-
-  if (!lectionary) {
-    console.error("Lectionary data is missing at publications.lectionaryCalendar.");
-    if (lectionaryContainer) {
-      lectionaryContainer.innerHTML = `
-        <article class="lectionary-card">
-          <h3>Lectionary unavailable</h3>
-          <p>The lectionary data could not be found in content/site-content.json.</p>
-        </article>
-      `;
-    }
-    return;
-  }
-
-  setText("[data-lectionary-eyebrow]", lectionary.eyebrow);
-  setText("[data-lectionary-title]", lectionary.title);
-  setText("[data-lectionary-description]", lectionary.description);
-  setLink("[data-lectionary-download]", {
-    label: lectionary.button,
-    href: lectionary.href
-  });
-
-  const readingItems = Array.isArray(lectionary.readings) ? lectionary.readings : [];
-  const months = [...new Set(readingItems.map(item => item.month).filter(Boolean))];
-
-  const currentMonthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date());
-  let selectedMonth = months.includes(currentMonthName)
-    ? currentMonthName
-    : (lectionary.currentMonth || months[0] || "").split(" ")[0];
-
-  if (monthSelect) {
-    monthSelect.innerHTML = months
-      .map(month => `<option value="${escapeHtml(month)}">${escapeHtml(month)}</option>`)
-      .join("");
-    monthSelect.value = selectedMonth;
-  }
-
-  const renderLectionaryMonth = month => {
-    selectedMonth = month;
-    setText("[data-lectionary-month]", `${month} 2026`);
-
-    if (!lectionaryContainer) return;
-
-    const filtered = readingItems.filter(item => item.month === month);
-    lectionaryContainer.innerHTML = filtered.map(reading => `
-      <article class="lectionary-card">
-        <div class="lectionary-card-top">
-          <div class="lectionary-date">${escapeHtml(reading.dateDisplay || reading.date)}</div>
-          <span class="lectionary-week">${escapeHtml(reading.week)}</span>
-        </div>
-
-        ${reading.event ? `<div class="lectionary-special-event">${escapeHtml(reading.event)}</div>` : ""}
-        <h3>${escapeHtml(reading.topic)}</h3>
-
-        <div class="lectionary-scripture">
-          <span>Scripture</span>
-          <strong>${escapeHtml(reading.scripture)}</strong>
-        </div>
-
-        ${reading.objective ? `
-          <details class="lectionary-objective">
-            <summary>View sermon objective</summary>
-            <p>${escapeHtml(reading.objective)}</p>
-          </details>
-        ` : ""}
-
-        ${reading.verificationNote ? `
-          <p class="lectionary-verification">${escapeHtml(reading.verificationNote)}</p>
-        ` : ""}
-      </article>
-    `).join("");
-
-    if (!filtered.length) {
-      lectionaryContainer.innerHTML = `
-        <div class="event-empty-state">No lectionary entries were found for ${escapeHtml(month)}.</div>
-      `;
-    }
-  };
-
-  monthSelect?.addEventListener("change", event => renderLectionaryMonth(event.target.value));
-  renderLectionaryMonth(selectedMonth);
 }
 
 function renderQuickLinks(content) {
@@ -1186,18 +1263,25 @@ function renderEvents(content) {
   const socialContainer = document.querySelector("[data-event-social-feed]");
   const socialEmpty = document.querySelector("[data-social-feed-empty]");
 
+  setText("[data-social-notice-title]", eventContent.socialFeedNotice?.title || "");
+  setText("[data-social-notice-text]", eventContent.socialFeedNotice?.text || "");
+
   if (socialContainer) {
-    socialContainer.innerHTML = socialFeed.map(item => `
-      <a class="social-event-card" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">
-        ${item.thumbnail ? `<div class="social-event-thumb" style="background-image:url('${escapeHtml(item.thumbnail)}')"></div>` : ""}
-        <div>
-          <div class="meta">${escapeHtml(item.platform || item.type || "Media")}</div>
-          <h3>${escapeHtml(item.title)}</h3>
-          <p>${escapeHtml(item.text || "")}</p>
-          <span>Open post ↗</span>
-        </div>
-      </a>
-    `).join("");
+    socialContainer.innerHTML = socialFeed.map(item => {
+      const target = item.placeholder ? "" : ' target="_blank" rel="noopener"';
+      const cardClass = item.placeholder ? "social-event-card social-placeholder-card" : "social-event-card";
+      return `
+        <a class="${cardClass}" href="${escapeHtml(item.url)}"${target}>
+          ${item.thumbnail ? `<div class="social-event-thumb" style="background-image:url('${escapeHtml(item.thumbnail)}')"></div>` : ""}
+          <div>
+            <div class="meta">${escapeHtml(item.platform || item.type || "Media")}</div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.text || "")}</p>
+            <span>${item.placeholder ? "Placeholder preview" : "Open post ↗"}</span>
+          </div>
+        </a>
+      `;
+    }).join("");
   }
 
   if (socialEmpty) {
@@ -1531,7 +1615,7 @@ async function initialiseSite() {
       chapels: renderChapels,
       sermons: renderSermons,
       publications: renderPublications,
-      publicationDetail: renderPublicationDetail,
+      publicationPost: renderPublicationPost,
       quickLinks: renderQuickLinks,
       events: renderEvents,
       give: renderGive,

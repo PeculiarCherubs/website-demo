@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Publication | Peculiar Cherubs</title>
+  <meta name="description" content="Read a Peculiar Cherubs publication.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="publicationPost" data-content-loading="true">
+<header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" data-site-logo alt="Peculiar Cherubs logo">
+        <span data-site-short-name></span>
+      </a>
+
+      <button class="menu-btn" type="button" aria-label="Open navigation" aria-expanded="false">
+        ☰
+      </button>
+
+      <nav class="nav-links" aria-label="Primary navigation" data-navigation></nav>
+    </div>
+  </header>
+
+<main>
+  <section class="publication-article-hero">
+    <div class="container publication-article-hero-grid">
+      <div>
+        <a class="publication-back-link" href="publications.html">← All Publications</a>
+        <span class="eyebrow" data-publication-post-type></span>
+        <h1 data-publication-post-title></h1>
+        <p data-publication-post-excerpt></p>
+        <div class="publication-post-meta" data-publication-post-meta></div>
+      </div>
+      <div data-publication-post-cover></div>
+    </div>
+  </section>
+
+  <section class="section publication-reading-section">
+    <div class="container publication-reading-grid">
+      <article class="publication-article">
+        <div class="publication-article-tags" data-publication-post-tags></div>
+        <div data-publication-post-editor-note></div>
+        <div class="publication-article-content" data-publication-post-content></div>
+        <div class="publication-template-content" data-publication-template-content></div>
+      </article>
+
+      <aside class="publication-sidebar">
+        <div class="publication-sidebar-card">
+          <span class="eyebrow">Publication details</span>
+          <dl data-publication-post-details></dl>
+        </div>
+        <div class="publication-sidebar-card publication-share-card">
+          <span class="eyebrow">Share and return</span>
+          <button class="btn btn-primary" type="button" data-copy-publication-link>Copy Article Link</button>
+          <a class="text-link" href="publications.html">Return to Publications ↗</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section-soft publication-related-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Continue reading</span>
+          <h2>Related publications.</h2>
+        </div>
+      </div>
+      <div class="publication-post-grid" data-related-publications></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="brand" style="color:white;margin-bottom:1rem">
+            <img class="brand-logo footer-logo" data-site-logo alt="Peculiar Cherubs logo">
+            <span data-site-short-name></span>
+          </div>
+          <p data-site-full-name></p>
+        </div>
+
+        <div>
+          <h3>Explore</h3>
+          <p><a href="about.html">About Us</a></p>
+          <p><a href="pdcms.html">Our Chapels</a></p>
+        </div>
+
+        <div>
+          <h3>Connect</h3>
+          <p><a href="sermons.html">Sermons</a></p>
+          <p><a href="publications.html">Publications</a></p>
+          <p><a href="bible-college.html">Bible College</a></p>
+          <p><a href="events.html">Events</a></p>
+        <p><a href="quick-links.html">Quick Links</a></p>
+          <p><a href="give.html">Give</a></p>
+        </div>
+
+        <div>
+          <h3>Service Times</h3>
+          <p data-service-sunday></p>
+          <p data-service-midweek></p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span data-copyright-year></span> <span data-site-full-name></span>.</span>
+        <span data-site-tagline></span>
+      </div>
+    </div>
+  </footer>
+<script src="script.js"></script>
+</body>
+</html>
