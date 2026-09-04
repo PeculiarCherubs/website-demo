@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Events | Peculiar Cherubs</title>
+  <meta name="description" content="Peculiar Cherubs events calendar, upcoming programmes and past-event catch up.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="events" data-content-loading="true">
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" data-site-logo alt="Peculiar Cherubs logo">
+      <span data-site-short-name></span>
+    </a>
+    <button class="menu-btn" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="nav-links" aria-label="Primary navigation" data-navigation></nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero branded-page-hero events-page-hero">
+    <div class="page-hero-brand-mark" aria-hidden="true"></div>
+    <div class="container">
+      <span class="eyebrow" data-page-hero-eyebrow></span>
+      <h1 data-page-hero-title></h1>
+      <p data-page-hero-description></p>
+    </div>
+  </section>
+
+  <section class="section event-watch-section">
+    <div class="container">
+      <article class="event-watch-card" data-next-event>
+        <div>
+          <span class="eyebrow">Watch out</span>
+          <div class="event-watch-status" data-next-event-status></div>
+          <h2 data-next-event-title></h2>
+          <p data-next-event-description></p>
+          <div class="event-watch-meta" data-next-event-meta></div>
+        </div>
+        <div class="event-countdown" data-next-event-countdown aria-live="polite"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section events-calendar-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Event calendar</span>
+          <h2>See the church year at a glance.</h2>
+        </div>
+        <p>Use the month controls and filters. Select an event to open its details and add it to your own calendar.</p>
+      </div>
+
+      <div class="calendar-theme-banner">
+        <span data-calendar-quarter></span>
+        <strong data-calendar-theme></strong>
+        <em data-calendar-declaration></em>
+      </div>
+
+      <div class="calendar-toolbar">
+        <div class="calendar-nav-controls">
+          <button class="calendar-control" type="button" data-calendar-prev aria-label="Previous month">←</button>
+          <button class="calendar-control calendar-today" type="button" data-calendar-today>Today</button>
+          <button class="calendar-control" type="button" data-calendar-next aria-label="Next month">→</button>
+        </div>
+        <h3 data-calendar-month></h3>
+        <label class="calendar-filter">
+          <span>Filter</span>
+          <select data-calendar-filter>
+            <option value="all">All events</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="event-calendar" data-event-calendar></div>
+    </div>
+  </section>
+
+  <section class="section section-soft">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Weekly rhythm</span>
+          <h2>Regular opportunities to worship and connect.</h2>
+        </div>
+      </div>
+      <div class="weekly-rhythm-grid" data-weekly-rhythm></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Upcoming events</span>
+          <h2>Prepare for what is ahead.</h2>
+        </div>
+      </div>
+      <div class="upcoming-event-grid" data-upcoming-events></div>
+      <div class="event-empty-state" data-upcoming-empty hidden>No future special events are currently published.</div>
+    </div>
+  </section>
+
+  <section class="section event-catchup-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Catch up</span>
+          <h2>Revisit past programmes and celebrations.</h2>
+        </div>
+        <p>Past events move here automatically. Add official recordings, galleries, publications, and social posts in the content file.</p>
+      </div>
+      <div class="catchup-event-grid" data-catchup-events></div>
+      <button class="btn btn-dark catchup-toggle" type="button" data-catchup-toggle hidden>Show all past events</button>
+    </div>
+  </section>
+
+  <section class="section social-events-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Media and social</span>
+          <h2>Pictures, videos, livestreams, and posts.</h2>
+        </div>
+      </div>
+      <div class="social-event-grid" data-event-social-feed></div>
+      <div class="social-feed-empty" data-social-feed-empty>
+        <h3 data-social-empty-title></h3>
+        <p data-social-empty-text></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog class="event-dialog" data-event-dialog>
+  <button class="event-dialog-close" type="button" data-event-dialog-close aria-label="Close event details">×</button>
+  <div class="meta" data-dialog-category></div>
+  <h2 data-dialog-title></h2>
+  <div class="event-dialog-meta" data-dialog-meta></div>
+  <p data-dialog-description></p>
+  <div class="event-dialog-links" data-dialog-links></div>
+  <button class="btn btn-primary" type="button" data-dialog-calendar>Add to Calendar</button>
+</dialog>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="color:white;margin-bottom:1rem">
+          <img class="brand-logo footer-logo" data-site-logo alt="Peculiar Cherubs logo">
+          <span data-site-short-name></span>
+        </div>
+        <p data-site-full-name></p>
+      </div>
+      <div>
+        <h3>Explore</h3>
+        <p><a href="about.html">About Us</a></p>
+        <p><a href="ministries.html">Ministries</a></p>
+        <p><a href="house-fellowships.html">House Fellowships</a></p>
+      </div>
+      <div>
+        <h3>Connect</h3>
+        <p><a href="sermons.html">Sermons</a></p>
+        <p><a href="publications.html">Publications</a></p>
+        <p><a href="events.html">Events</a></p>
+        <p><a href="quick-links.html">Quick Links</a></p>
+        <p><a href="give.html">Give</a></p>
+      </div>
+      <div>
+        <h3>Service Times</h3>
+        <p data-service-sunday></p>
+        <p data-service-midweek></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span data-copyright-year></span> <span data-site-full-name></span>.</span>
+      <span data-site-tagline></span>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

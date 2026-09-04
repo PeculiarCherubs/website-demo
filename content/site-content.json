@@ -16,8 +16,54 @@
       "href": "about.html"
     },
     {
-      "label": "PDCMs",
-      "href": "pdcms.html"
+      "label": "MINISTRIES",
+      "href": "ministries.html",
+      "children": [
+        {
+          "label": "All Ministries",
+          "href": "ministries.html"
+        },
+        {
+          "label": "PDCM Mission",
+          "href": "pdcm-mission.html"
+        },
+        {
+          "label": "PDCM Gwarinpa",
+          "href": "pdcm-gwarinpa.html"
+        },
+        {
+          "label": "PDCM English",
+          "href": "pdcm-english.html"
+        },
+        {
+          "label": "PDCM Byazhin",
+          "href": "pdcm-byazhin.html"
+        },
+        {
+          "label": "PDCM Mega Youth",
+          "href": "pdcm-mega-youth.html"
+        },
+        {
+          "label": "Christian Heritage Bible School",
+          "href": "bible-college.html"
+        },
+        {
+          "label": "PESACH International Academy",
+          "href": "pesach-academy.html"
+        },
+        {
+          "label": "Children Ministry",
+          "href": "children-ministry.html"
+        },
+        {
+          "label": "Teenage Ministry",
+          "href": "teenage-ministry.html"
+        },
+        {
+          "label": "House Fellowship Centres",
+          "href": "house-fellowships.html"
+        }
+      ]
     },
     {
       "label": "SERMONS",
@@ -28,12 +74,18 @@
       "href": "publications.html"
     },
     {
-      "label": "BIBLE COLLEGE",
-      "href": "bible-college.html"
-    },
-    {
       "label": "QUICK LINKS",
-      "href": "quick-links.html"
+      "href": "quick-links.html",
+      "children": [
+        {
+          "label": "All Quick Links",
+          "href": "quick-links.html"
+        },
+        {
+          "label": "Events Calendar",
+          "href": "events.html"
+        }
+      ]
     },
     {
       "label": "GIVE",
@@ -58,54 +110,26 @@
       "scrollText": "Scroll to discover more ↓",
       "slides": [
         {
-          "image": "assets/hero/Senior-Pastor.jpg",
-          "alt": "Senior Pastor ministering during a church service"
+          "image": "assets/hero/senior-pastor-preaching.jpg",
+          "alt": "Special Apostle Pastor Alex Ogundipe ministering"
         },
         {
-          "image": "assets/hero/PDCM-English.jpg",
-          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
+          "image": "assets/ministries/pdcm-english.jpg",
+          "alt": "PDCM English Chapel worship gathering"
         },
         {
-          "image": "assets/hero/Peculiar-People1.jpg",
-          "alt": "Cherubim and Seraphim Movement Church identity"
+          "image": "assets/ministries/pdcm-byazhin.jpg",
+          "alt": "PDCM Byazhin Chapel worship gathering"
         },
         {
-          "image": "assets/hero/mother-church-brand.jpg",
-          "alt": "Senior Pastor ministering during a church service"
+          "image": "assets/ministries/pdcm-gwarinpa.jpg",
+          "alt": "PDCM Gwarinpa Chapel congregation"
         },
         {
-          "image": "assets/hero/Peculiar-Peoiple2.jpg",
-          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
-        },
-        {
-          "image": "assets/hero/Bible-College1.jpg",
-          "alt": "Cherubim and Seraphim Movement Church identity"
-        },
-        {
-          "image": "assets/hero/Peculiar-People5.jpg",
-          "alt": "Senior Pastor ministering during a church service"
-        },
-        {
-          "image": "assets/hero/Peculiar-People3.jpg",
-          "alt": "Peculiar Disciples of Christ Ministry English Chapel"
-        },
-        {
-          "image": "assets/hero/Peculiar People4.jpg",
-          "alt": "Cherubim and Seraphim Movement Church identity"
+          "image": "assets/ministries/pdcm-mega-youth.jpg",
+          "alt": "PDCM Mega Youth Chapel members"
         }
       ]
-    },
-    "themes": {
-      "year": {
-        "label": "2026 Theme",
-        "title": "Our Year of Great Mercies",
-        "scripture": "Isaiah 54:8"
-      },
-      "month": {
-        "label": "Theme for the Month",
-        "title": "July - Our Month of Divine Revelation",
-        "scripture": "1 Corinthians 2:10"
-      }
     },
     "identity": {
       "eyebrow": "Who we are",
@@ -133,8 +157,8 @@
       "eyebrow": "Our Senior Pastor",
       "title": "Leading with faith, wisdom, and a heart for people.",
       "text": "Our Senior Pastor provides spiritual leadership to Peculiar Cherubs and its PDCM chapels, faithfully teaching the Word, nurturing believers, and advancing the vision of deliverance through evangelism.",
-      "name": "Pastor Alex Ogundipe",
-      "role": "Senior Pastor, Peculiar Cherubs",
+      "name": "Special Apostle Pastor Alex Ogundipe",
+      "role": "Senior Pastor / Leader in Charge",
       "image": "assets/people/senior-pastor.jpg",
       "linkLabel": "Read more about our leadership",
       "linkHref": "about.html"
@@ -152,7 +176,7 @@
         {
           "quote": "I came seeking direction and found a spiritual family. The Word helped me understand my purpose and walk confidently with God.",
           "name": "Member Name",
-          "chapel": "PDCM Gwarimpa Chapel",
+          "chapel": "PDCM Gwarinpa Chapel",
           "featured": true
         },
         {
@@ -161,6 +185,18 @@
           "chapel": "PDCM Mega Youth Chapel"
         }
       ]
+    },
+    "themes": {
+      "year": {
+        "label": "2026 Theme",
+        "title": "My Year of Great Mercies",
+        "scripture": "Isaiah 54:7"
+      },
+      "month": {
+        "label": "Theme for the Month",
+        "title": "July - Our Month of Divine Restoration",
+        "scripture": "joel 2:25-26"
+      }
     }
   },
   "about": {
@@ -173,8 +209,8 @@
       "eyebrow": "Our story",
       "title": "A people called to be peculiar.",
       "paragraphs": [
-        "We believe the church is more than a building. It is a living family of people called out of darkness into the marvellous light of Christ.",
-        "Across every PDCM chapel, our focus remains the same: authentic worship, sound teaching, intentional discipleship, compassionate service, and kingdom impact."
+        "Cherubim and Seraphim Movement Church, Center for Deliverance through Evangelism, Kubwa, came about through a divine call and anointing on July 10, 2005.",
+        "The founding vision is that an end-time army should move in the power of God’s Word and deliver people from the bondage of the devil. Across every ministry and PDCM chapel, the church remains committed to worship, sound teaching, prayer, discipleship, evangelism, and compassionate service."
       ],
       "quote": "You are a chosen generation, a royal priesthood, a holy nation, a peculiar people."
     },
@@ -211,7 +247,7 @@
         "logo": "assets/logos/pdcm-english.png"
       },
       {
-        "name": "PDCM Gwarimpa Chapel",
+        "name": "PDCM Gwarinpa Chapel",
         "subtitle": "A local worship and discipleship community under Peculiar Cherubs.",
         "status": "Current Chapel",
         "logo": "assets/logos/pdcm-generic.png"
@@ -317,7 +353,7 @@
       "title": "Church news, devotion, and updates.",
       "text": "Read the latest issue and browse previous editions from the publication archive.",
       "button": "Read Latest Edition",
-      "href": "#"
+      "href": "publication-detail.html?issue=issue-01"
     },
     "archive": [
       {
@@ -326,7 +362,7 @@
         "status": "Latest edition",
         "title": "Walking in Purpose",
         "text": "Devotional insight, announcements, and ministry updates.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-01",
         "theme": "yellow"
       },
       {
@@ -335,7 +371,7 @@
         "status": "Archive",
         "title": "Growing Through Prayer",
         "text": "Encouragement, testimonies, and updates from the chapels.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-02",
         "theme": "navy"
       },
       {
@@ -344,16 +380,788 @@
         "status": "Archive",
         "title": "Prepared for Impact",
         "text": "Highlights from worship, teaching, and church programmes.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-03",
+        "theme": "red"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 04",
+        "status": "Archive",
+        "title": "Faith and Service",
+        "text": "Serving our community and growing together.",
+        "href": "publication-detail.html?issue=issue-04",
+        "theme": "yellow"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 05",
+        "status": "Archive",
+        "title": "The Power of Praise",
+        "text": "Understanding worship as a lifestyle of power.",
+        "href": "publication-detail.html?issue=issue-05",
+        "theme": "navy"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 06",
+        "status": "Archive",
+        "title": "Walking in Love",
+        "text": "Building family and community through grace.",
+        "href": "publication-detail.html?issue=issue-06",
         "theme": "red"
       }
     ],
+    "details": {
+      "issue-01": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 01",
+        "date": "July 5, 2026",
+        "title": "Walking in Purpose",
+        "theme": "yellow",
+        "subtitle": "Discovering God's Plan for Your Life",
+        "content": [
+          "What does it mean to walk in purpose? It means matching our daily actions with God's design. In a world full of distractions, finding your calling can seem daunting. However, scripture assures us that God has pre-ordained good works for us to walk in.",
+          "Walking in purpose requires active listening and surrender. When we allow the Holy Spirit to direct our steps, even mundane tasks become opportunities for spiritual impact. This week, reflect on how your current roles can serve God's kingdom."
+        ],
+        "scriptures": [
+          {
+            "ref": "Proverbs 3:5-6",
+            "text": "Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight."
+          },
+          {
+            "ref": "Ephesians 2:10",
+            "text": "For we are God’s handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do."
+          }
+        ],
+        "announcements": [
+          "Join us for our Wednesday Shiloh Service at 6:00 PM as we continue our series on Purpose.",
+          "The Children's Ministry is recruiting teachers. Contact the parish office to register interest."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-02": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 02",
+        "date": "July 12, 2026",
+        "title": "Growing Through Prayer",
+        "theme": "navy",
+        "subtitle": "Strengthening Your Connection to the Father",
+        "content": [
+          "Prayer is not just a ritual; it is the lifeblood of the believer. It is the space where our weakness meets God's strength. Growing in prayer means moving beyond a checklist of needs to an intimate conversation of love.",
+          "Consistency is key to a robust prayer life. Just as physical exercise strengthens the body, setting daily moments aside to talk with and listen to God builds spiritual resilience. Let us cultivate a posture of constant communion."
+        ],
+        "scriptures": [
+          {
+            "ref": "1 Thessalonians 5:17",
+            "text": "Pray without ceasing."
+          },
+          {
+            "ref": "Philippians 4:6",
+            "text": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God."
+          }
+        ],
+        "announcements": [
+          "Monthly Hour of Praise and Deliverance will hold this Friday at 10:00 PM. Come ready for breakthroughs.",
+          "Publications team is accepting testimonies for the next monthly edition."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-03": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 03",
+        "date": "July 19, 2026",
+        "title": "Prepared for Impact",
+        "theme": "red",
+        "subtitle": "Equipping Believers to Change Their World",
+        "content": [
+          "God does not call the qualified; He qualifies the called. Being prepared for impact means being willing to step out of comfort zones and be used as instruments of His grace in our schools, workplaces, and families.",
+          "Preparation happens in the quiet, daily moments of study, prayer, and service. When the opportunity arises, a prepared heart is ready to give an answer for the hope that lies within. Step forward with bold faith."
+        ],
+        "scriptures": [
+          {
+            "ref": "2 Timothy 2:21",
+            "text": "Those who cleanse themselves from the latter will be instruments for special purposes, made holy, useful to the Master and prepared to do any good work."
+          },
+          {
+            "ref": "1 Peter 3:15",
+            "text": "But in your hearts revere Christ as Lord. Always be prepared to give an answer to everyone who asks you to give the reason for the hope that you have."
+          }
+        ],
+        "announcements": [
+          "Registration for Pesach International Academy's new term is now open. See student services for details.",
+          "Youth Fellowship will hold a special outreach seminar this Saturday at 12:00 PM."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-04": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 04",
+        "date": "July 26, 2026",
+        "title": "Faith and Service",
+        "theme": "yellow",
+        "subtitle": "Faith Without Works is Dead",
+        "content": [
+          "True faith is active, not passive. It expresses itself through service and love to those around us. When we serve, we reflect the heart of Jesus, who came not to be served, but to serve.",
+          "Every act of kindness, whether big or small, represents a seed of God's love sown into the community. Let us seek daily opportunities to be the hands and feet of Christ to those who are hurting."
+        ],
+        "scriptures": [
+          {
+            "ref": "James 2:26",
+            "text": "As the body without the spirit is dead, so faith without deeds is dead."
+          },
+          {
+            "ref": "Galatians 5:13",
+            "text": "You, my brothers and sisters, were called to be free. But do not use your freedom to indulge the flesh; rather, serve one another humbly in love."
+          }
+        ],
+        "announcements": [
+          "Feeding Ministry outreach will take place this Saturday morning. Volunteers should gather at 8:00 AM.",
+          "Weekly contributions for church development project can be submitted via the give portal."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-05": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 05",
+        "date": "August 2, 2026",
+        "title": "The Power of Praise",
+        "theme": "navy",
+        "subtitle": "Worship That Breaks Chains",
+        "content": [
+          "Praise is a powerful spiritual weapon. When we praise God in the midst of trials, we shift our focus from the size of our problems to the greatness of our God. Praise invites His manifest presence into our situations.",
+          "We see throughout scripture that praise often precedes victory. Let us make a habit of offering a sacrifice of praise, declaring God's goodness even when circumstances are challenging. Joy is found in His presence."
+        ],
+        "scriptures": [
+          {
+            "ref": "Psalm 150:6",
+            "text": "Let everything that has breath praise the Lord. Praise the Lord."
+          },
+          {
+            "ref": "Acts 16:25-26",
+            "text": "About midnight Paul and Silas were praying and singing hymns to God... Suddenly there was such a violent earthquake that the foundations of the prison were shaken."
+          }
+        ],
+        "announcements": [
+          "Praise Night rehearsals will hold on Thursday at 5:00 PM for all choir members.",
+          "New believers class starts next Sunday immediately after the first service."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-06": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 06",
+        "date": "August 9, 2026",
+        "title": "Walking in Love",
+        "theme": "red",
+        "subtitle": "The Greatest Commandment",
+        "content": [
+          "Love is the defining mark of a disciple. Jesus told us that the world will know we are His by our love for one another. This love is patient, kind, and does not keep a record of wrongs.",
+          "To walk in love is to choose forgiveness and empathy over pride and resentment. It is a daily decision that heals families, builds community, and shines God's light into a broken world. Choose love today."
+        ],
+        "scriptures": [
+          {
+            "ref": "John 13:34-35",
+            "text": "A new command I give you: Love one another. As I have loved you, so you must love one another. By this everyone will know that you are my disciples, if you love one another."
+          },
+          {
+            "ref": "1 Corinthians 13:4-8",
+            "text": "Love is patient, love is kind. It does not envy, it does not boast, it is not proud... Love never fails."
+          }
+        ],
+        "announcements": [
+          "Couples Fellowship is hosting a dinner seminar on family relationships on August 15. Register today.",
+          "House Fellowship coordinators meeting will hold after the Wednesday service."
+        ],
+        "pdfUrl": "#"
+      }
+    },
     "sundaySchool": {
       "type": "Sunday School Outline",
       "title": "This Week’s Lesson",
       "text": "Study notes, lesson objectives, discussion questions, and scriptures for Sunday School.",
       "button": "View Sunday School Outline",
       "href": "#"
+    },
+    "lectionaryCalendar": {
+      "eyebrow": "2026 Calendar of Lectionary",
+      "title": "Follow the church’s scripture readings and teaching plan.",
+      "description": "Browse the authenticated 2026 headquarters lectionary by month, including scripture texts, sermon topics, objectives, and special observances.",
+      "currentMonth": "July 2026",
+      "button": "Download Full Lectionary",
+      "href": "#",
+      "readings": [
+        {
+          "date": "2026-01-04",
+          "dateDisplay": "January 4, 2026",
+          "month": "January",
+          "week": "WK1",
+          "topic": "MERCY AS A GIFT OF GOD’S GRACE",
+          "scripture": "Isaiah 54:1-14 Luke 1:68-79",
+          "objective": "Define the concept of mercy. Teach on how believers can access this gift of God’s grace and share the same in this hurting world. Using biblical examples, illustrate on a lifestyle marked by Mercy and the drawbacks of not embracing a lifestyle marked by mercy",
+          "event": "NEW YEAR THANKSGIVING"
+        },
+        {
+          "date": "2026-01-11",
+          "dateDisplay": "January 11, 2026",
+          "month": "January",
+          "week": "WK2",
+          "topic": "TRANSFORMATIONAL POWER OF MERCY",
+          "scripture": "Psalm 103: 7-18 Ephesians 4: 25-32",
+          "objective": "What is the importance of mercy in relationships, and illuminate how God's boundless mercy is the foundation of every relationship. Using Ephesians 4:32, teach on Mercy’s Transformative Impact on family relationships. Highlight biblical Steps for nurturing a Mercy-Centered relationship, its benefits, and the effect of not doing so",
+          "event": ""
+        },
+        {
+          "date": "2026-01-20",
+          "dateDisplay": "January 20, 2026",
+          "month": "January",
+          "week": "WK3",
+          "topic": "KINGDOM WEALTH WITH MERCY",
+          "scripture": "Psalms 37:20-26 2 Corinthians 9:6-8",
+          "objective": "Define wealth, kingdom wealth, and the essence of mercy in being a good steward. Using Acts 9:39, teach on how to steward kingdom wealth for an eternal reward. Identify biblical principles for unlocking kingdom wealth, including faith, generosity, and wise stewardship, and the disadvantages of not unlocking it.",
+          "event": "",
+          "verificationNote": "The source workbook lists January 20. Please confirm whether January 18 was intended."
+        },
+        {
+          "date": "2026-01-25",
+          "dateDisplay": "January 25, 2026",
+          "month": "January",
+          "week": "WK4",
+          "topic": "PREPARING THE BRIDE FOR THE KING",
+          "scripture": "Malachi 3:1-5 Matthew 25:1-13",
+          "objective": "Biblically illustrate who is the bride, who is the King, and explain the need to prepare for the coming of the King. Using Luke 15:11 explain how mercy functions in the context of repentance and its role in helping believers spiritually ready for the return of Christ. Teach on how to awaken believers to the urgency of preparing for the King and the danger of living un-prepared.",
+          "event": ""
+        },
+        {
+          "date": "2026-02-01",
+          "dateDisplay": "February 1, 2026",
+          "month": "February",
+          "week": "WK 5",
+          "topic": "CLEANSE THROUGH MERCY",
+          "scripture": "Psalm 51:1–12 1 John 1:5–10",
+          "objective": "Explain mercy as the foundation for cleansing and true spiritual transformation. Teach the church how to move from brokenness to wholeness and continually grow through God’s mercies. Highlight how believers can cultivate a clean lifestyle, its benefits, and the drawbacks of an unclean life.",
+          "event": ""
+        },
+        {
+          "date": "2026-02-08",
+          "dateDisplay": "February 8, 2026",
+          "month": "February",
+          "week": "WK 6",
+          "topic": "FORGIVENESS: THE CORNERSTONE OF FAMILY UNITY",
+          "scripture": "Genesis 50:15–21 Colossian 3: 12-23",
+          "objective": "Explain the concept of forgiveness in building strong, godly families. Using James 5:16, teach on how to build the value that entrenches open communication in the family. Discuss the dangers of unresolved offenses and bitterness within the family and the benefits of living a life of advanced forgiveness as stated in Col 3:13",
+          "event": ""
+        },
+        {
+          "date": "2026-02-15",
+          "dateDisplay": "February 15, 2026",
+          "month": "February",
+          "week": "WK 7",
+          "topic": "MERCY IN FINANCIAL STEWARDSHIP",
+          "scripture": "Deuteronomy 15:1–11 Matthew 18:23–35",
+          "objective": "Explore biblical principles of mercy in financial dealings and stewardship. Teach on how to practice generosity within and outside the household of faith. Highlight how unforgiveness can hinder financial fruitfulness and the benefit of forgiveness in financial fruitfulness.",
+          "event": "PRAISE DAY"
+        },
+        {
+          "date": "2026-02-22",
+          "dateDisplay": "February 22, 2026",
+          "month": "February",
+          "week": "WK 8",
+          "topic": "A LIFE ABOVE SIN",
+          "scripture": "Jeremiah 31:31-34 Romans 6:1-14",
+          "objective": "Describe the concept of living above sin as a promise for believers in Christ. Highlight the practical steps believers should take to overcome temptation and live a life pleasing to God in this generation. Enumerate the advantages of God pleasers and the disadvantages of man pleasers in this end time.",
+          "event": ""
+        },
+        {
+          "date": "2026-03-01",
+          "dateDisplay": "March 1, 2026",
+          "month": "March",
+          "week": "WK 9",
+          "topic": "LIVING IN RIGHTEOUSNESS",
+          "scripture": "Isaiah 1:11-19 Romans 8:1–15",
+          "objective": "Define righteousness, make a distinction between self-righteousness and God's righteousness. Teach on how righteousness is a gift received through grace. Enumerate the benefits of living as the righteousness of God and the disadvantages of living otherwise.",
+          "event": ""
+        },
+        {
+          "date": "2026-03-08",
+          "dateDisplay": "March 8, 2026",
+          "month": "March",
+          "week": "WK 10",
+          "topic": "COVENANT PARENTING",
+          "scripture": "Genesis 18:11–19 Ephesians 6:1–10",
+          "objective": "Establish the biblical foundation of parenting as a sacred covenant with God. Equip parents with spiritual and practical tools for raising righteous, godly children. List the benefits of entrenching righteousness as a family culture and the demerits of doing otherwise.",
+          "event": "INT'L WOMEN'S DAY"
+        },
+        {
+          "date": "2026-03-15",
+          "dateDisplay": "March 15, 2026",
+          "month": "March",
+          "week": "WK 11",
+          "topic": "UNLOCKING FINANCIAL COVENANT",
+          "scripture": "Deuteronomy 28:1-14 Philippians 4:10-19",
+          "objective": "Explain the meaning and components of financial covenant. Teach Spirit-led financial stewardship rooted in obedience, generosity, and faith that unlocks financial blessings. Highlight the benefits of living a life of Spirit-led financial stewardship and the drawbacks of not doing so.",
+          "event": ""
+        },
+        {
+          "date": "2026-03-22",
+          "dateDisplay": "March 22, 2026",
+          "month": "March",
+          "week": "WK 12",
+          "topic": "THE RETURN OF THE KING",
+          "scripture": "Isaiah 33:14–17 Romans 12:9–21",
+          "objective": "Teach the church on the King and the imminence of His return. Call the Church to purity, love, and faithful witness in anticipation of the second coming. Demystified the misconception around the return of the King and the benefit for believers to stay prepared.",
+          "event": ""
+        },
+        {
+          "date": "2026-03-29",
+          "dateDisplay": "March 29, 2026",
+          "month": "March",
+          "week": "WK 13",
+          "topic": "THE GIFT OF RIGHTEOUSNESS",
+          "scripture": "Isaiah 52:1–12 Romans 5:12–21",
+          "objective": "Describe Jesus Christ as the gift of righteousness and trace the doctrine of righteousness from Old Testament typologies to New Testament fulfillment in Christ. Using Matthew 5:20, teach on imputed and practical righteousness as a spiritual principle for daily living. Enumerate the benefits of living daily as the righteousness of Christ and the demerits of not doing so.",
+          "event": "SEMINAR/PALM SUNDAY"
+        },
+        {
+          "date": "2026-04-05",
+          "dateDisplay": "April 5, 2026",
+          "month": "April",
+          "week": "WK 14",
+          "topic": "REDEMPTIVE POWER OF MERCY",
+          "scripture": "Lamentations 3:22–23 Matthew 28:1-10",
+          "objective": "Explain the redemptive power of mercy and its significance. Help believers understand how to access the redemptive power of mercy provided through the death and resurrection of Christ. Enumerate the benefits of enjoying the redemptive power of mercy and the demerits of not enjoying it.",
+          "event": "EASTER SUNDAY"
+        },
+        {
+          "date": "2026-04-12",
+          "dateDisplay": "April 12, 2026",
+          "month": "April",
+          "week": "WK 15",
+          "topic": "FAMILY: RESTORED THROUGH MERCY",
+          "scripture": "Genesis 45:1-15 Luke 15:11-24",
+          "objective": "Explain the role of mercy in healing and strengthening family relationships. Equip families with biblical tools for resolving conflict and nurturing godly values. Highlights the advantages of entrenching mercy as a core family value and its demerits if not entrenched,",
+          "event": ""
+        },
+        {
+          "date": "2026-04-19",
+          "dateDisplay": "April 19, 2026",
+          "month": "April",
+          "week": "WK 16",
+          "topic": "SPENDING THE CURRENCY OF MERCY",
+          "scripture": "Psalm 41:1-13 Luke 6:30-36",
+          "objective": "Using Psalms 18:25 explain mercy as a currency, particularly as a believer's interaction with humanity and financial stewardship. Teach on how the act of mercy and generosity brings divine provision. Teach on how to explore opportunities to do good to the household of faith, Gal 6:10, highlighting the benefits and the drawbacks.",
+          "event": ""
+        },
+        {
+          "date": "2026-04-26",
+          "dateDisplay": "April 26, 2026",
+          "month": "April",
+          "week": "WK 17",
+          "topic": "MERCY IN A BROKEN SOCIETY",
+          "scripture": "Genesis 19:1-16 Matthew 9:10-13",
+          "objective": "Explain the role of mercy as a divine strategy for believers’ preparedness in this end-time. Teach on how to live as citizens of God's kingdom, embodying values such as mercy in anticipation of the return of Jesus Christ. Highlight the use of mercy as a tool for evangelism to bring unbelievers to Christ and the missed opportunities of not using mercy as a tool for evangelism.",
+          "event": ""
+        },
+        {
+          "date": "2026-05-02",
+          "dateDisplay": "May 2, 2026",
+          "month": "May",
+          "week": "WK 18",
+          "topic": "ABUNDANT GRACE",
+          "scripture": "Exodus 33.17-23 Titus 2: 11-14",
+          "objective": "Explain the term abundant grace and describe grace as a person. Teach on the mystery of grace and how to receive and live in abundant grace. Highlights the advantages of living in abundant grace and the disadvantages of doing otherwise.",
+          "event": ""
+        },
+        {
+          "date": "2026-05-09",
+          "dateDisplay": "May 9, 2026",
+          "month": "May",
+          "week": "WK 19",
+          "topic": "LEGACIES OF GRACE",
+          "scripture": "Exodus 2:1-11 2 Timothy 1:1-5",
+          "objective": "Using Matriarchs (Jochebed and Ruth) teach on the legacies bound by grace. Teach on how we can align with the generational covenant of grace and steps needed to pass down the legacies to the next generation. Enumerate the benefits of a family bonded by grace and the dangers of neglecting grace",
+          "event": ""
+        },
+        {
+          "date": "2026-05-16",
+          "dateDisplay": "May 16, 2026",
+          "month": "May",
+          "week": "WK 20",
+          "topic": "THE SECRET OF SUFFICIENCY",
+          "scripture": "1 Kings 17:2-16 2 Corinthians 9: 5-11",
+          "objective": "Define the term sufficiency and the role of grace in accessing divine sufficiency. Teach on how to access divine sufficiency, exploring obedience and giving as some of the gateways to divine sufficiency. Identify the gains of living in divine sufficiency. Using Deuteronomy 32:15, list the dangers of times of comfort",
+          "event": "MOTHER'S DAY"
+        },
+        {
+          "date": "2026-05-23",
+          "dateDisplay": "May 23, 2026",
+          "month": "May",
+          "week": "WK 21",
+          "topic": "EMPOWERED BY GOD’S GRACE",
+          "scripture": "Isaiah 61:1 – 11 Titus 3:1 – 7",
+          "objective": "Define on who grace is, explain His nature of empowering His Children. Teach on the place of grace in the spiritual empowerment for God’s service (1 Cor. 15:9-10). Explain the conditions for receiving God's empowering grace and warn about the consequences of resisting it.",
+          "event": "PENTECOST SUNDAY"
+        },
+        {
+          "date": "2026-05-31",
+          "dateDisplay": "May 31, 2026",
+          "month": "May",
+          "week": "WK 22",
+          "topic": "MYSTERY OF GRACE",
+          "scripture": "1 Chronicles 29:9-17 1 Corinthians 15: 1-11",
+          "objective": "Explain the mystery of grace and how grace manifests in our lives. Teach on how to unlock the mystery of grace. Highlight the benefits of unlocking grace and the demerits of not unlocking grace",
+          "event": ""
+        },
+        {
+          "date": "2026-06-07",
+          "dateDisplay": "June 7, 2026",
+          "month": "June",
+          "week": "WK 23",
+          "topic": "REDEEMED OF THE LORD",
+          "scripture": "Isaiah 43: 1-5 Ephesians 1:1-14",
+          "objective": "Explain who the redeemed of the Lord is and the pathway to redemption. Teach about principles to retain and enjoy the redemption power granted unto men. Highlight the eternal and temporal benefits available to the redeemed of the Lord.",
+          "event": ""
+        },
+        {
+          "date": "2026-06-14",
+          "dateDisplay": "June 14, 2026",
+          "month": "June",
+          "week": "WK 24",
+          "topic": "SOUGHT OUT",
+          "scripture": "Judges 11: 1-11 Matthew 18:10-14",
+          "objective": "Describe what it means to be sought out and how Christ's love seeks out the lost in the family, no matter what. Teach on how parents should showcase Christ's love by not giving up on any of the family members. Highlight the benefits of praying for all relationship/family members, especially the unredeemed",
+          "event": ""
+        },
+        {
+          "date": "2026-06-21",
+          "dateDisplay": "June 21, 2026",
+          "month": "June",
+          "week": "WK 25",
+          "topic": "PRIESTHOOD OF THE FATHER",
+          "scripture": "Job 1:1-5 1 Timothy 3:1-7",
+          "objective": "Explain the term priest, and how God has called all into priesthood, with emphasis on the Father as the head of the family altar. Teach on the roles of fathers as a priest over his household. Highlights the dangers of neglecting the roles of the family altar priesthood",
+          "event": "FATHER'S DAY"
+        },
+        {
+          "date": "2026-06-28",
+          "dateDisplay": "June 28, 2026",
+          "month": "June",
+          "week": "WK 26",
+          "topic": "HE THAT OVERCOMES",
+          "scripture": "Isaiah 40: 20-31 Revelation 21:7-9",
+          "objective": "Explain to the Church who an overcomer is, the benefits on earth and in heaven. Teach on how to overcome in a world of crises and temptations. Highlights the dangers of a life that is not redeemed",
+          "event": ""
+        },
+        {
+          "date": "2026-07-05",
+          "dateDisplay": "July 5, 2026",
+          "month": "July",
+          "week": "WK27",
+          "topic": "RESTORATION OF IDENTITY",
+          "scripture": "Ezekiel 11:16-21 Titus 3:3-7",
+          "objective": "Explain the concept of restored identity (Gen1:26) and the working of the Holy Spirit in achieving this. Using Simon Peter as an illustrative example, teach on how the power of the Holy Spirit restores. Identify and speak on the dangers of resisting change",
+          "event": "MID YEAR THANKSGIVING"
+        },
+        {
+          "date": "2026-07-12",
+          "dateDisplay": "July 12, 2026",
+          "month": "July",
+          "week": "WK28",
+          "topic": "RESTORED IDENTITY:  BUILDING A GODLY GENERATION",
+          "scripture": "Isaiah 11:1-10 Romans 8:26-32",
+          "objective": "Teach the principle of building a godly generation. With reference to the Holy Spirit, teach on how to partner with the Holy Spirit to create, develop, and run a Godly home. Highlight the need for intentional discipleship under the leadership of the Holy Spirit within the family unit and the drawbacks of not.",
+          "event": "FOUNDERS' DAY"
+        },
+        {
+          "date": "2026-07-19",
+          "dateDisplay": "July 19, 2026",
+          "month": "July",
+          "week": "WK29",
+          "topic": "RESTORED YEARS",
+          "scripture": "2 Samuel 9:9-13 Acts 9:36-42",
+          "objective": "Using 2 Sam 9:9-10, teach on the meaning of restored years and how God restores to the fullest. Using the Widow of Zarephath (I Kings 17:12-14) as an illustrative example, teach the church the principles of activating God’s restoration. Highlights the features of restoration and the benefits thereof",
+          "event": ""
+        },
+        {
+          "date": "2026-07-26",
+          "dateDisplay": "July 26, 2026",
+          "month": "July",
+          "week": "WK30",
+          "topic": "THE RESTORED MANDATE",
+          "scripture": "Daniel 6:1–10 Acts 4:23–31",
+          "objective": "Using Matthew 28:19-20, explain the defining feature of the mandate. Teach on how end-time believers can leverage on the power of the Holy Spirit to fulfill this mandate. Enumerate the benefits of walking in the divine mandate and the danger of doing otherwise.",
+          "event": ""
+        },
+        {
+          "date": "2026-08-02",
+          "dateDisplay": "August 2, 2026",
+          "month": "August",
+          "week": "WK 31",
+          "topic": "THE BELIEVER'S PRIESTHOOD",
+          "scripture": "Numbers 3:5-10 1 Petetr 2:1-9",
+          "objective": "Identify and teach on the priesthood of the believers. Explain the steps to becoming a priest and the reason for the believers priesthood. Teach on the benefits of the priesthood and the dangers of otherwise.",
+          "event": ""
+        },
+        {
+          "date": "2026-08-09",
+          "dateDisplay": "August 9, 2026",
+          "month": "August",
+          "week": "WK 32",
+          "topic": "THE FAMILY OF KINGS AND PRIESTS",
+          "scripture": "Isaiah 61:1 - 6 Ephesians 5:21-33",
+          "objective": "Identify and teach on the attributes of the family of kings and priests. Teach on how a family can obtain, retain and sustain their kingship and/or priesthood. Teach on the benefits of sustaining family kingship and dangers of not doing so.",
+          "event": "CHOIR ANNIVERSARY"
+        },
+        {
+          "date": "2026-08-16",
+          "dateDisplay": "August 16, 2026",
+          "month": "August",
+          "week": "WK 33",
+          "topic": "ACCESSING DIVINE WEALTH",
+          "scripture": "Psalm 112:1–10 Matthew 6:19–33",
+          "objective": "Identify and teach on the heritage of royals as related to wealth. Teach on the responsibilities of kingdom royals in relation to divine wealth. Teach on the benefits of the right usage of divine wealth and the dangers of doing otherwise",
+          "event": ""
+        },
+        {
+          "date": "2026-08-16",
+          "dateDisplay": "August 16, 2026",
+          "month": "August",
+          "week": "WK 33",
+          "topic": "ROYAL PRIESTHOOD",
+          "scripture": "Numbers 3:5-10 1 Peter 2:1-9",
+          "objective": "Teach the Children on the identity and calling of a Royal Priesthood. Teach the role of the parents on how to raise the character and practices of a Royal priesthood. Highlight the benefits of being a Royal Priest and the dangers of not.",
+          "event": "HQ CHILDREN HARVEST"
+        },
+        {
+          "date": "2026-08-23",
+          "dateDisplay": "August 23, 2026",
+          "month": "August",
+          "week": "WK 34",
+          "topic": "GOD'S ENDTIME ARMIES (KINGS and PRIESTS)",
+          "scripture": "Isaiah 26:1-10 Philippians 3:15-21",
+          "objective": "Identify God's end-time armies and teach on their roles. Teach on how to be enlisted in the end time army of God. Highlight the benefits of being enlisted as God's end time armies.",
+          "event": ""
+        },
+        {
+          "date": "2026-08-23",
+          "dateDisplay": "August 23, 2026",
+          "month": "August",
+          "week": "WK 34",
+          "topic": "CULTIVATING THE MINDSET OF ROYALTY",
+          "scripture": "Genesis 39:1 – 10 Philippians 2:5 - 11",
+          "objective": "Teach on what royalty is, and how to embrace your value and worth as a royal being. Using Esther, teach on the steps to transit from a servant mentality to a son or daughter mentality. Highlight the benefits of having the mind of Christ Jesus and the danger of not having it.",
+          "event": "HQ TEENAGERS HARVEST"
+        },
+        {
+          "date": "2026-08-30",
+          "dateDisplay": "August 30, 2026",
+          "month": "August",
+          "week": "WK 35",
+          "topic": "ROYAL PRIESTHOOD",
+          "scripture": "Revelations 5:10",
+          "objective": "Define the term royal priesthood and the qualities of a priest. Teach on the functions of a royal priesthood in God's kingdom expansion. Highlight the importance of being a royal priesthood and the dangers of not being enlisted.",
+          "event": "SEMINAR"
+        },
+        {
+          "date": "2026-09-06",
+          "dateDisplay": "September 6, 2026",
+          "month": "September",
+          "week": "WK 36",
+          "topic": "ABUNDANT LIFE",
+          "scripture": "Psalm 36:5–10 John 10:10 -18",
+          "objective": "Explain what Abundant life is and its importance. Teach on how to access and sustain an abundant life. Demonstrate the benefit of unlocking the transformative power of abundant life in daily living and the danger of not unlocking same",
+          "event": ""
+        },
+        {
+          "date": "2026-09-13",
+          "dateDisplay": "September 13, 2026",
+          "month": "September",
+          "week": "WK 37",
+          "topic": "FAMILY: EPITOME OF GOD’S ABUNDANT LIFE",
+          "scripture": "Deuteronomy 6: 1 – 9 2 Timothy 3: 10 – 17",
+          "objective": "Enumerate God’s purpose for family. Teach how a family can access and sustain abundant life in Christ Jesus. Explain the merits of families seeking God's abundant life collectively (Joshua 24:15.) and the drawback of not.",
+          "event": ""
+        },
+        {
+          "date": "2026-09-20",
+          "dateDisplay": "September 20, 2026",
+          "month": "September",
+          "week": "WK 38",
+          "topic": "LIVING BUOYANTLY IN ABUNDANCE.",
+          "scripture": "Proverbs 3: 9 – 10 Philippians 4: 10 – 13",
+          "objective": "Define what true abundance is and that true abundance is not just material wealth but a life of peace, joy and purpose rooted in God. Teach on why true abundance is important and the benefits of living buoyantly in abundance. Explain the effect of not living in true abundance",
+          "event": ""
+        },
+        {
+          "date": "2026-09-27",
+          "dateDisplay": "September 27, 2026",
+          "month": "September",
+          "week": "WK39",
+          "topic": "THE ETERNAL NATURE OF ABUNDANT LIFE",
+          "scripture": "Daniel 12:1–13 Romans 6:15-23",
+          "objective": "Reflect on the eternal perspective of abundant life that is found in salvation through Jesus Christ and its relevance in modern society. Highlight how the principles of God's Kingdom, such as justice, mercy, and love, are essential for addressing challenges in the 21st-century society (Micah 6:8). Enumerate the features of abundant life that extend beyond the present, offering eternal hope and security in Christ.",
+          "event": ""
+        },
+        {
+          "date": "2026-09-27",
+          "dateDisplay": "September 27, 2026",
+          "month": "September",
+          "week": "WK39",
+          "topic": "GREAT MERCY",
+          "scripture": "Isaiah 54:1-10 Luke 1:68:79",
+          "objective": "Explain what mercy is and identify the nature of God's great mercies Highlight how great mercies serve as a foundation for God's redemptive plan Discuss the benefits of enjoying God's great mercies and the consequences of rejecting them.",
+          "event": "HEADQUARTERS HARVEST"
+        },
+        {
+          "date": "2026-10-04",
+          "dateDisplay": "October 4, 2026",
+          "month": "October",
+          "week": "WK 40",
+          "topic": "THE BELIEVER’S PEACE",
+          "scripture": "1 Samuel 1:10-18 Philippians 4:4 -9",
+          "objective": "Explain to the Church what peace is and what it is not; and the nature of Jesus’ peace (Isaiah 9:6, John 14:27). Teach on how a believer can walk in the realm of peace in this contemporary world and be victorious. Enumerate the benefits of aligning with Prince of peace and the dangers of departing from Him.",
+          "event": "NIGERIA INDEPENDENCE THANKSGIVING"
+        },
+        {
+          "date": "2026-10-11",
+          "dateDisplay": "October 11, 2026",
+          "month": "October",
+          "week": "WK 41",
+          "topic": "FAMILY: THE PATH OF PEACE",
+          "scripture": "Genesis 50:15–21 Colossians 3:5-17",
+          "objective": "Enlighten the church on how peace of a godly family begins by surrendering every aspect of the household to Christ’s leadership. Explain how peace is sustained when discipline is balanced with love and respect is mutual among all family members. Give reasons why conflict is inevitable, but peace becomes a lifestyle when forgiveness flows freely in the family.",
+          "event": ""
+        },
+        {
+          "date": "2026-10-18",
+          "dateDisplay": "October 18, 2026",
+          "month": "October",
+          "week": "WK 42",
+          "topic": "WEALTH AND CONTENTMENT",
+          "scripture": "2 Kings 5:20-27 Acts 5:1-11",
+          "objective": "Explain the relationship between inner peace, wealth and contentment. Enumerate how financial peace is not just about personal blessing. Teach on the benefits of living a life of contentment",
+          "event": ""
+        },
+        {
+          "date": "2026-10-25",
+          "dateDisplay": "October 25, 2026",
+          "month": "October",
+          "week": "WK 43",
+          "topic": "SECURED IN ETERNAL PEACE",
+          "scripture": "Genesis 9:1-17 1 Thessalonians 5:2-6",
+          "objective": "Teach on eternal peace and what it means to be secured in it. Explain how to be secured in eternal peace. Highlight the benefits of being secured in eternal peace and the dangers of not.",
+          "event": ""
+        },
+        {
+          "date": "2026-11-01",
+          "dateDisplay": "November 1, 2026",
+          "month": "November",
+          "week": "WK 44",
+          "topic": "GOD'S REST",
+          "scripture": "Psalms 37: 1-7 Hebrew 4:1-11",
+          "objective": "Differentiate between rest and God’s rest, and identify the characteristics of God’s rest. Teach on how a believer can access God's rest. State the benefits of enjoying God’s rest and the negative effects of not enjoying it.",
+          "event": ""
+        },
+        {
+          "date": "2026-11-08",
+          "dateDisplay": "November 8, 2026",
+          "month": "November",
+          "week": "WK 45",
+          "topic": "PRESERVING THE FAMILY ALTAR",
+          "scripture": "Deuteronomy 6:1-7 Ephesians: 6:1-6",
+          "objective": "Using biblical references teach on family altar preservation. Explain how to maintain family altar and its importance. Highlight the consequences of not preserving the family altar",
+          "event": ""
+        },
+        {
+          "date": "2026-11-15",
+          "dateDisplay": "November 15, 2026",
+          "month": "November",
+          "week": "WK 46",
+          "topic": "PRINCIPLES OF DEBT MANAGEMENT",
+          "scripture": "Proverbs 22:1-10 Matthew 6:25-33",
+          "objective": "Teach on what debt is and debt management. Highlight the principles of managing debt and their application. Enumerate the dangers of not managing debt and the benefits of debt management",
+          "event": ""
+        },
+        {
+          "date": "2026-11-22",
+          "dateDisplay": "November 22, 2026",
+          "month": "November",
+          "week": "WK 47",
+          "topic": "THE COVENANT OF REST",
+          "scripture": "2 Samuel 7:8-21 Matthew 11:25-30",
+          "objective": "Briefly explain what covenant is and covenant of rest (Exo. 33:14). Teach on how to enjoy the covenant of Rest. Enumerate the benefits of enjoying covenant rest and dangers of not",
+          "event": ""
+        },
+        {
+          "date": "2026-11-29",
+          "dateDisplay": "November 29, 2026",
+          "month": "November",
+          "week": "WK 48",
+          "topic": "TOTAL REST",
+          "scripture": "2 Chronicles 15:1-15",
+          "objective": "Teach on the biblical concept of rest and the need for rest in daily life. Using references explain God’s covenant of rest on every side and its purpose in the life of believers. Teach on the conditions to enjoy God’s rest and how to retain His rest.",
+          "event": "SEMINAR"
+        },
+        {
+          "date": "2026-12-06",
+          "dateDisplay": "December 6, 2026",
+          "month": "December",
+          "week": "WK 49",
+          "topic": "CHRIST: THE GREAT ADVOCATE",
+          "scripture": "Job 33:23-33 Hebrews 9:15-28",
+          "objective": "Explain Christ as the Great Advocate and His role in the work of salvation. Teach on how believers can replicate in advocating for people without strive using the Jesus principle of love. State the dangers of rejecting Christ’s advocacy (John 1:11) and the benefits of accepting it (John 1:12)",
+          "event": ""
+        },
+        {
+          "date": "2026-12-13",
+          "dateDisplay": "December 13, 2026",
+          "month": "December",
+          "week": "WK 50",
+          "topic": "PARENTING: ADVOCATING FOR GODLY HERITAGE",
+          "scripture": "Proverbs 1:8 - 19 1 Thessalonians 2:1 - 12",
+          "objective": "Define parenting and identify the responsibilities of parents on children (biological and spiritual). Highlight how the parents can advocate intentionally for these godly heritage (with emphasis on not being a bad mentor). Teach the merits and demerits of advocating and not advocating for these godly heritages",
+          "event": ""
+        },
+        {
+          "date": "2026-12-20",
+          "dateDisplay": "December 20, 2026",
+          "month": "December",
+          "week": "WK 51",
+          "topic": "GOD’S PROVISIONS",
+          "scripture": "Genesis 22:6-14 Philippians 4:10 - 20",
+          "objective": "Explain the nature of God in relation to His unending provisions (Psalm 68:19). Teach on what qualifies one to be a recipient of God’s provisions. Teach on the benefits of enjoying divine provision and how to maintain it.",
+          "event": ""
+        },
+        {
+          "date": "2026-12-25",
+          "dateDisplay": "December 25, 2026",
+          "month": "December",
+          "week": "WK 51",
+          "topic": "THE KING’S ARRIVAL",
+          "scripture": "Isaiah 9:1-8 Luke 1:26-38",
+          "objective": "Explain to the Church who a king is and what specific features that define Jesus' Kingship. Teach on the importance of King Jesus arrival to the world",
+          "event": "CHRISTMAS"
+        },
+        {
+          "date": "2026-12-27",
+          "dateDisplay": "December 27, 2026",
+          "month": "December",
+          "week": "WK 52",
+          "topic": "THE ROLE OF BELIEVERS IN ADVOCACY",
+          "scripture": "Genesis 18:20 - 33 Acts 12:1 -1 6",
+          "objective": "Explain what believers’ advocacy is and its importance. How can a believer advocate for the world. Highlight the danger of refusing the call to be an advocate mouthpiece for Christ, and benefits of being obedient.",
+          "event": ""
+        },
+        {
+          "date": "2026-12-31",
+          "dateDisplay": "December 31, 2026",
+          "month": "December",
+          "week": "WK 52",
+          "topic": "Expound on the theme of Year 2027",
+          "scripture": "",
+          "objective": "Expound on the theme of Year 2027",
+          "event": "CROSS OVER SERVICE"
+        }
+      ]
     }
   },
   "quickLinks": {
@@ -384,14 +1192,14 @@
       {
         "icon": "↗",
         "title": "Plan a Visit",
-        "text": "Find a chapel and service information.",
-        "href": "pdcms.html"
+        "text": "Explore chapels and ministry locations.",
+        "href": "ministries.html#pdcm-chapels"
       },
       {
         "icon": "✦",
         "title": "Join a Team",
-        "text": "Serve with your gifts and skills.",
-        "href": "#"
+        "text": "Discover ministries where you can serve.",
+        "href": "ministries.html"
       },
       {
         "icon": "☏",
@@ -403,39 +1211,54 @@
         "icon": "⌁",
         "title": "Events Calendar",
         "text": "See upcoming church programmes.",
-        "href": "#"
+        "href": "events.html"
       }
     ],
     "events": [
       {
-        "frequency": "Weekly",
-        "title": "Sunday Service",
-        "text": "Our regular Sunday worship gathering across the chapels."
+        "frequency": "Tuesday · 18:00–19:00",
+        "title": "Prayer Clinic",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Every Wednesday",
-        "title": "Shiloh Service",
-        "text": "A midweek service of prayer, worship, the Word, and spiritual renewal."
+        "frequency": "Wednesday · 10:00–11:00",
+        "title": "Shiloh Prayer Service",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Annual",
-        "title": "Peculiar Cherubs Conference",
-        "text": "A major gathering for worship, teaching, fellowship, and renewal."
+        "frequency": "Wednesday · 18:00–19:30",
+        "title": "Mid-Week Service",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Annual",
-        "title": "Founder’s Day",
-        "text": "A celebration of the church’s heritage, vision, and founding legacy."
+        "frequency": "Saturday · 06:00–07:00",
+        "title": "Anointing Service (first Saturday)",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Annual",
-        "title": "Choir Fiesta",
-        "text": "A music and worship celebration featuring the church choir and invited ministers."
+        "frequency": "Saturday · 08:00–10:00",
+        "title": "Evangelical Outreach",
+        "text": "Part of the church’s regular weekly rhythm."
       },
       {
-        "frequency": "Annual",
-        "title": "Harvest",
-        "text": "A thanksgiving celebration of God’s faithfulness and provision."
+        "frequency": "Saturday · 14:45–17:30",
+        "title": "Deliverance Service",
+        "text": "Part of the church’s regular weekly rhythm."
+      },
+      {
+        "frequency": "Sunday · 07:00–08:50",
+        "title": "First Service (English)",
+        "text": "Part of the church’s regular weekly rhythm."
+      },
+      {
+        "frequency": "Sunday · 09:00–09:55",
+        "title": "Bible Study",
+        "text": "Part of the church’s regular weekly rhythm."
+      },
+      {
+        "frequency": "Sunday · 10:00–12:00",
+        "title": "Second Service (Traditional)",
+        "text": "Part of the church’s regular weekly rhythm."
       }
     ]
   },
@@ -610,6 +1433,1363 @@
           "href": "#"
         }
       ]
+    }
+  },
+  "ministries": {
+    "hero": {
+      "eyebrow": "Ministries",
+      "title": "One mission.\nMany expressions.",
+      "description": "Explore the chapels, schools, age-grade ministries, fellowship centres, and outreach expressions through which Peculiar Cherubs disciples, mentors, intercedes, teaches, serves, and reaches people."
+    },
+    "mission": {
+      "eyebrow": "PDCM Mission",
+      "title": "To disciple, to mentor, and to intercede.",
+      "description": "Peculiar Disciples of Christ Ministry is the church’s mission arm, charged with reaching the reached, the unreached, and those alienated from the church with the message of Jesus Christ.",
+      "vision": "A world free from bondage through the teaching of the Word of God.",
+      "mandates": [
+        {
+          "title": "Discipleship",
+          "text": "Helping people believe in and follow Jesus Christ, while sharing the transforming work of Christ with others."
+        },
+        {
+          "title": "Mentoring",
+          "text": "Advising, counselling, guiding, and encouraging people until they grow into the fullness of Christ."
+        },
+        {
+          "title": "Intercession",
+          "text": "Standing in the gap, presenting people’s burdens to God, and praying for relief, restoration, and freedom."
+        }
+      ]
+    },
+    "groups": [
+      {
+        "id": "pdcm-chapels",
+        "eyebrow": "PDCM Chapels",
+        "title": "Standalone worshipping communities.",
+        "description": "Each chapel carries the shared mission of Peculiar Cherubs while serving its immediate community.",
+        "items": [
+          "pdcm-mission",
+          "pdcm-gwarinpa",
+          "pdcm-english",
+          "pdcm-byazhin",
+          "pdcm-mega-youth"
+        ]
+      },
+      {
+        "id": "education",
+        "eyebrow": "Education and formation",
+        "title": "Learning for faith and life.",
+        "description": "Structured biblical formation and child-centred education for different stages of life.",
+        "items": [
+          "bible-college",
+          "pesach-academy"
+        ]
+      },
+      {
+        "id": "age-grade",
+        "eyebrow": "Age-grade ministries",
+        "title": "Faith formation for every generation.",
+        "description": "Age-appropriate spiritual, educational, and psychological development.",
+        "items": [
+          "children-ministry",
+          "teenage-ministry"
+        ]
+      },
+      {
+        "id": "fellowship-outreach",
+        "eyebrow": "Fellowship and outreach",
+        "title": "Church life beyond the auditorium.",
+        "description": "Community-based fellowship, compassionate service, prayer, and practical support.",
+        "items": [
+          "house-fellowships",
+          "feeding-ministry"
+        ]
+      }
+    ],
+    "homeFeatured": [
+      "pdcm-mission",
+      "bible-college",
+      "pesach-academy"
+    ],
+    "details": {
+      "pdcm-mission": {
+        "href": "pdcm-mission.html",
+        "category": "Mission Arm",
+        "title": "Peculiar Disciples of Christ Ministry",
+        "shortTitle": "PDCM Mission",
+        "summary": "The church’s mission arm, committed to discipleship, mentoring, intercession, evangelism, prayer, and deliverance through Jesus Christ.",
+        "image": "assets/ministries/pdcm-mission.jpg",
+        "facts": [
+          {
+            "label": "Core mandate",
+            "value": "Disciple · Mentor · Intercede"
+          },
+          {
+            "label": "First chapel commissioned",
+            "value": "15 September 2013"
+          },
+          {
+            "label": "Founding chapel name",
+            "value": "Peculiar English Chapel"
+          }
+        ],
+        "overview": [
+          "PDCM draws its mission from Christ’s proclamation in Luke 4:18–19 and the Great Commission in Matthew 28:18–20.",
+          "It is responsible for reaching people with the message of Jesus Christ and bringing them into the Kingdom of God the Father."
+        ],
+        "leaders": [
+          {
+            "name": "Special Apostle Pastor Alex Ogundipe",
+            "role": "Senior Pastor / Leader in Charge"
+          }
+        ],
+        "functionsTitle": "Mission commitments",
+        "functions": [
+          "Preach the good tidings of Jesus Christ to all people.",
+          "Proclaim liberty to captives.",
+          "Teach the efficacy of prayer.",
+          "Teach the Bible as the divinely inspired Word of God.",
+          "Assemble an end-time army in the power of God.",
+          "Preach the Word and deliver people from the bondage of the devil through Jesus Christ."
+        ]
+      },
+      "pdcm-gwarinpa": {
+        "href": "pdcm-gwarinpa.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM Gwarinpa Chapel",
+        "shortTitle": "Gwarinpa Chapel",
+        "summary": "A standalone PDCM chapel serving Gwarinpa through worship, discipleship, prayer, evangelism, and community.",
+        "image": "assets/ministries/pdcm-gwarinpa.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 October 2013"
+          },
+          {
+            "label": "First Gwarinpa service",
+            "value": "5 February 2017"
+          },
+          {
+            "label": "Location",
+            "value": "Plot 14, Ken Saro-Wiwa Street, off Alhassan Dantata Road, 3rd Avenue Cornershop, Gwarinpa Estate"
+          }
+        ],
+        "overview": [
+          "The chapel began as Peculiar English Chapel at A. A. Bodunrin Hall, Kubwa, before relocating to Gwarinpa.",
+          "Following the relocation, it became Peculiar Disciples of Christ Ministry, Gwarinpa Chapel."
+        ],
+        "leaders": [
+          {
+            "name": "Prophet Kayode Aliyu",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Pastor Tope Yoosuf",
+            "role": "Secretary"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "Worship and prayer",
+          "Biblical teaching and discipleship",
+          "Evangelism and community outreach",
+          "Fellowship and pastoral care"
+        ]
+      },
+      "pdcm-english": {
+        "href": "pdcm-english.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM English Chapel",
+        "shortTitle": "English Chapel",
+        "summary": "An English-speaking PDCM chapel meeting every Sunday in the Church Auditorium, Kubwa.",
+        "image": "assets/ministries/pdcm-english.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 February 2022"
+          },
+          {
+            "label": "Meeting time",
+            "value": "Sundays, 7:00–9:00 a.m."
+          },
+          {
+            "label": "Location",
+            "value": "Church Auditorium, Kubwa"
+          }
+        ],
+        "overview": [
+          "The chapel held its Inaugural and Proclamation Service on Sunday, 6 February 2022.",
+          "It provides an English-language worship and discipleship expression within the Peculiar Cherubs family."
+        ],
+        "leaders": [
+          {
+            "name": "Special Apostle Oyebode Fadipe",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Special Apostle Pastor Seun Oshagbami",
+            "role": "Secretary"
+          },
+          {
+            "name": "Brother Temitope Okubote",
+            "role": "Assistant Secretary"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "English-language worship services",
+          "Prayer and biblical teaching",
+          "Discipleship and fellowship",
+          "Evangelism and community service"
+        ]
+      },
+      "pdcm-byazhin": {
+        "href": "pdcm-byazhin.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM Byazhin Chapel",
+        "shortTitle": "Byazhin Chapel",
+        "summary": "A PDCM worshipping community serving Byazhin Across and surrounding areas.",
+        "image": "assets/ministries/pdcm-byazhin.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 February 2022"
+          },
+          {
+            "label": "Location",
+            "value": "Behind Football Field Area, Byazhin Across, by Kubwa"
+          },
+          {
+            "label": "Formation",
+            "value": "Following a week-long revival and commendation service"
+          }
+        ],
+        "overview": [
+          "PDCM Byazhin Chapel was inaugurated after a week-long revival and commendation service.",
+          "The chapel serves believers and families through worship, prayer, the Word, evangelism, and fellowship."
+        ],
+        "leaders": [
+          {
+            "name": "Pastor Kayode Ajadi",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Pastor Jerry Adesewo",
+            "role": "Deputy Shepherd"
+          },
+          {
+            "name": "Pastor Akintunde Ojo",
+            "role": "Secretary"
+          },
+          {
+            "name": "Prophetess Grace Olutola",
+            "role": "Choir Coordinator"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "Worship and prayer",
+          "Biblical teaching",
+          "Evangelism and discipleship",
+          "Music ministry and community fellowship"
+        ]
+      },
+      "pdcm-mega-youth": {
+        "href": "pdcm-mega-youth.html",
+        "category": "Standalone PDCM Chapel",
+        "title": "PDCM Mega Youth Chapel",
+        "shortTitle": "Mega Youth Chapel",
+        "summary": "A standalone church for adults aged 20–40, raising disciples, leaders, worshippers, volunteers, and witnesses for Christ.",
+        "image": "assets/ministries/pdcm-mega-youth.jpg",
+        "facts": [
+          {
+            "label": "Age group",
+            "value": "20–40 years"
+          },
+          {
+            "label": "Church status",
+            "value": "Standalone PDCM chapel"
+          },
+          {
+            "label": "Location",
+            "value": "A. A. Bodunrin Hall, Church Complex, Kubwa"
+          }
+        ],
+        "overview": [
+          "The Peculiar Youth Ministry was upgraded to a full-fledged chapel and renamed PDCM Mega Youth Chapel.",
+          "Its programmes support spiritual, educational, psychological, leadership, vocational, and relational development."
+        ],
+        "leaders": [
+          {
+            "name": "Special Mother in Israel Pastor Dayo Arogundade",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Senior Apostle Adedeji Ademefun",
+            "role": "Deputy Shepherd in Charge"
+          },
+          {
+            "name": "Mother in Israel Temitayo Ogunbiyi",
+            "role": "Secretary"
+          }
+        ],
+        "functionsTitle": "What the chapel provides",
+        "functions": [
+          "Spiritual, educational, and psychological development for adults aged 20–40.",
+          "Evangelism training and participation in mission projects.",
+          "Volunteer service within the church and wider community.",
+          "Leadership training through small groups, teaching, and practical service.",
+          "Career, relationship, marriage, and life guidance and counselling.",
+          "Participation in district, national, and wider Christian youth programmes, camps, conventions, and retreats."
+        ]
+      },
+      "bible-college": {
+        "href": "bible-college.html",
+        "category": "Education and Formation",
+        "title": "Christian Heritage Bible School",
+        "shortTitle": "Bible College",
+        "summary": "Structured biblical education with registration, classes, catch-up lessons, assignments, resources, and student support.",
+        "image": "assets/logos/cross-radiance.png"
+      },
+      "pesach-academy": {
+        "href": "pesach-academy.html",
+        "category": "Education",
+        "title": "PESACH International Academy",
+        "shortTitle": "PESACH Academy",
+        "summary": "A child-centred school in Kubwa offering Crèche, Nursery, and Primary education.",
+        "image": "assets/ministries/pesach-academy.jpg",
+        "facts": [
+          {
+            "label": "Levels",
+            "value": "Crèche · Nursery · Primary"
+          },
+          {
+            "label": "Admissions",
+            "value": "Admission information available through the school"
+          },
+          {
+            "label": "Location",
+            "value": "Plot 53A/54A, 2/2 Junction, Hamza Abdullahi Road, off Gado Nasko Road, Kubwa, Abuja"
+          }
+        ],
+        "overview": [
+          "PESACH International Academy provides child-centred education in a structured learning environment.",
+          "The academy combines classroom learning, extracurricular development, technology, and practical support for families."
+        ],
+        "leaders": [],
+        "functionsTitle": "Facilities and features",
+        "functions": [
+          "Serene learning environment",
+          "Extracurricular activities",
+          "Qualified and dedicated staff",
+          "Well-tailored child-centred curriculum",
+          "Efficient ICT facilities",
+          "School bus services"
+        ]
+      },
+      "children-ministry": {
+        "href": "children-ministry.html",
+        "category": "Age-Grade Ministry",
+        "title": "Children Ministry",
+        "shortTitle": "Children Ministry",
+        "summary": "Spiritual, educational, and psychological development for children from birth to age 12.",
+        "image": "assets/ministries/children-ministry.jpg",
+        "facts": [
+          {
+            "label": "Age group",
+            "value": "Birth–12 years"
+          },
+          {
+            "label": "Curriculum",
+            "value": "National Children Ministry curriculum"
+          },
+          {
+            "label": "Learning resources",
+            "value": "Teachers’ handbooks and children’s manuals"
+          }
+        ],
+        "overview": [
+          "The ministry provides inclusive, age-appropriate Christian formation for children.",
+          "Children who can read and write are encouraged to attend with their Bible and writing materials."
+        ],
+        "leaders": [
+          {
+            "name": "Pastor Jumoke Dele-Raji",
+            "role": "Captain, Children Ministry"
+          },
+          {
+            "name": "Senior Apostle Seun Sodipe",
+            "role": "Secretary, Children Ministry"
+          }
+        ],
+        "functionsTitle": "Ministry functions",
+        "functions": [
+          "Coordinate the national curriculum with teachers and ministry workers.",
+          "Organize training for teachers and handlers.",
+          "Connect classes to sermons and the 12-noon prayer.",
+          "Organize camps, excursions, summer schools, and other developmental activities.",
+          "Arrange children into appropriate classes for easier learning."
+        ]
+      },
+      "teenage-ministry": {
+        "href": "teenage-ministry.html",
+        "category": "Age-Grade Ministry",
+        "title": "Teenage Ministry",
+        "shortTitle": "Teenage Ministry",
+        "summary": "Spiritual, educational, and psychological development for teenagers aged 13–19.",
+        "image": "assets/ministries/teenage-ministry.jpg",
+        "facts": [
+          {
+            "label": "Age group",
+            "value": "13–19 years"
+          },
+          {
+            "label": "Junior teens",
+            "value": "13–15 years"
+          },
+          {
+            "label": "Senior teens",
+            "value": "16–19 years"
+          }
+        ],
+        "overview": [
+          "Teenagers are grouped into structured classes with class prefects and a curriculum designed around their needs.",
+          "The ministry teaches faith in Christ, C&S liturgy, hymnals, prayer, worship, and practical Christian living."
+        ],
+        "leaders": [
+          {
+            "name": "Special Apostle Pastor Funso Ibikunle",
+            "role": "Captain, Teenage Ministry"
+          },
+          {
+            "name": "Apostle Biodun Ogundokun",
+            "role": "Deputy Captain, Teenage Ministry"
+          }
+        ],
+        "functionsTitle": "Ministry functions",
+        "functions": [
+          "Train teenage ministry handlers.",
+          "Organize annual camps, excursions, summer school, and youth activities.",
+          "Provide interactive platforms where teenagers can discuss their challenges.",
+          "Prepare older teenagers for national youth programmes and church activities.",
+          "Encourage every teenager to attend with a Bible and writing materials."
+        ]
+      },
+      "house-fellowships": {
+        "href": "house-fellowships.html",
+        "category": "Community Fellowship",
+        "title": "House Fellowship Centres",
+        "shortTitle": "House Fellowships",
+        "summary": "Twenty community-based fellowship centres serving neighbourhoods across Abuja and surrounding areas.",
+        "image": "assets/ministries/house-fellowships.jpg"
+      },
+      "feeding-ministry": {
+        "href": "feeding-ministry.html",
+        "category": "Community Outreach",
+        "title": "Jesus Loves You Feeding Ministry",
+        "shortTitle": "Feeding Ministry",
+        "summary": "A compassionate outreach providing food and palliatives to less-privileged and indigent people in communities around the church and Abuja.",
+        "image": "assets/logos/mother-church.png",
+        "facts": [
+          {
+            "label": "Focus",
+            "value": "Food and palliative support"
+          },
+          {
+            "label": "Service area",
+            "value": "Communities around the churches and Abuja"
+          },
+          {
+            "label": "Support model",
+            "value": "Voluntary sponsorship and contribution"
+          }
+        ],
+        "overview": [
+          "Jesus Loves You Feeding Ministry was established to provide practical support to people experiencing need.",
+          "The ministry is sustained through voluntary participation and generosity."
+        ],
+        "leaders": [],
+        "functionsTitle": "Outreach focus",
+        "functions": [
+          "Provide food support.",
+          "Distribute palliatives.",
+          "Serve less-privileged and indigent people.",
+          "Mobilize voluntary sponsors and ministry partners."
+        ]
+      }
+    },
+    "houseFellowships": [
+      {
+        "name": "Believers HF",
+        "area": "2/1, Post Army Scheme and environs",
+        "host": "Pastor Gbenga R. Ayoola",
+        "coordinator": "Lady Leader Mayowa Ebun Adeigbe"
+      },
+      {
+        "name": "Yahweh HF",
+        "area": "Phase IV and environs",
+        "host": "MII Opeyemi Catherine Ademola",
+        "coordinator": "Lady Leader Olubunmi Araba"
+      },
+      {
+        "name": "Salvation HF",
+        "area": "Gwarinpa and environs",
+        "host": "Ogundipe Family",
+        "coordinator": "MII Toyin Yoosuf"
+      },
+      {
+        "name": "Elohim HF",
+        "area": "Dutse Alhaji and environs",
+        "host": "MSA Kehinde Arowosegbe",
+        "coordinator": "Lady Leader Olaleye Oluwatoyin Thomas"
+      },
+      {
+        "name": "Mercy of God HF",
+        "area": "Byazhin Across 1 and environs",
+        "host": "Edgar Family",
+        "coordinator": "MII Lawson"
+      },
+      {
+        "name": "Shekinah HF",
+        "area": "Byazhin Across 2 and environs",
+        "host": "Evangelist Isaac Dosumu",
+        "coordinator": "Prophet Olumide Okanlawon"
+      },
+      {
+        "name": "Rehoboth HF",
+        "area": "Gbazango and environs",
+        "host": "Ogunleye Family",
+        "coordinator": "Alderman Kolawole Albert"
+      },
+      {
+        "name": "El-Shadai HF",
+        "area": "Byazhin Main and environs",
+        "host": "Arowolo Family",
+        "coordinator": "Apostle Benjamin Oluyomi Fayomi"
+      },
+      {
+        "name": "Gethsemane HF",
+        "area": "Millionaires Quarters and environs",
+        "host": "Special MII Yemisi Olateju",
+        "coordinator": "Brother Biodun Ogundokun"
+      },
+      {
+        "name": "Paradise HF",
+        "area": "Bwari and environs",
+        "host": "Odupaye Family",
+        "coordinator": "Special Apostle Adeyemi Owookade"
+      },
+      {
+        "name": "Pentecost HF",
+        "area": "Dantata and environs",
+        "host": "Pastor Samson Aliyu Family",
+        "coordinator": "Brother Seun Sodipe"
+      },
+      {
+        "name": "His Praise HF",
+        "area": "Suleja and environs",
+        "host": "MSA Olabisi Lawrence",
+        "coordinator": "MSA Olabisi Lawrence"
+      },
+      {
+        "name": "Abundant Grace HF",
+        "area": "Gwagwalada and environs",
+        "host": "Brother Abiodun Abel Tomi",
+        "coordinator": "Apostle Yinka Oguntade"
+      },
+      {
+        "name": "Paniel HF",
+        "area": "Dei-Dei Material and environs",
+        "host": "Lady Leader Funmilola Adeniran",
+        "coordinator": "Teacher Yemi Awokoya"
+      },
+      {
+        "name": "Rock of Salvation HF",
+        "area": "Arab Road and environs",
+        "host": "MII Felicia Fadecke Jerry-Adesewo",
+        "coordinator": "Lady Leader Owolabi Olufunke"
+      },
+      {
+        "name": "Throne of Mercy HF",
+        "area": "Dawaki and environs",
+        "host": "Alderman Brother Yomi Ayanlola",
+        "coordinator": "Brother Kehinde Showunmi"
+      },
+      {
+        "name": "Replenish HF",
+        "area": "2/2, Church and environs",
+        "host": "Special MII Bukola Gabriel",
+        "coordinator": "Evangelist Adeshina Ajimati"
+      },
+      {
+        "name": "Triumphant HF",
+        "area": "Airport, Lugbe and environs",
+        "host": "MII Adebola Ajayi",
+        "coordinator": "Alderman Sister Soyeye Veronica Oluwatoyin"
+      },
+      {
+        "name": "Overcomers HF",
+        "area": "Peze and environs",
+        "host": "Odumosu Family",
+        "coordinator": "Prophet Oyelade Emmanuel"
+      },
+      {
+        "name": "Assurance HF",
+        "area": "Byazhin 3 and environs",
+        "host": "Afolayan Family",
+        "coordinator": "Brother Michael Lawal"
+      }
+    ]
+  },
+  "events": {
+    "hero": {
+      "eyebrow": "Events",
+      "title": "Worship. Gather.\nGrow together.",
+      "description": "Explore the Peculiar Cherubs calendar, see what is coming next, and catch up on past programmes and celebrations."
+    },
+    "timezone": "Africa/Lagos",
+    "defaultMonth": "2026-07",
+    "monthlyThemes": [
+      {
+        "month": "January",
+        "centralTheme": "Great Mercies",
+        "declaration": "My Month Of Divine Remembrance",
+        "quarterAim": "1ST QUARTER aim: THE FOUNDATION OF MERCY"
+      },
+      {
+        "month": "February",
+        "centralTheme": "Sin And Forgiveness",
+        "declaration": "My Month Of Total Cleansing",
+        "quarterAim": "1ST QUARTER aim: THE FOUNDATION OF MERCY"
+      },
+      {
+        "month": "March",
+        "centralTheme": "Gift Of Righteousness",
+        "declaration": "My Month Of Divine Exchange",
+        "quarterAim": "1ST QUARTER aim: THE FOUNDATION OF MERCY"
+      },
+      {
+        "month": "April",
+        "centralTheme": "Power Of Mercy",
+        "declaration": "My Month Of Unending Compassion",
+        "quarterAim": "2ND QUARTER aim: THE POWER OF REDEMPTION AND GRACE"
+      },
+      {
+        "month": "May",
+        "centralTheme": "Mystery Of Grace",
+        "declaration": "My Month Of Overflowing Grace",
+        "quarterAim": "2ND QUARTER aim: THE POWER OF REDEMPTION AND GRACE"
+      },
+      {
+        "month": "June",
+        "centralTheme": "Perfect Redemption",
+        "declaration": "My Month Of Complete Deliverance",
+        "quarterAim": "2ND QUARTER aim: THE POWER OF REDEMPTION AND GRACE"
+      },
+      {
+        "month": "July",
+        "centralTheme": "Restored Identity",
+        "declaration": "My Month Of Divine Restoration",
+        "quarterAim": "3RD QUARTER aim: LIVING IN COVENANT IDENTITY"
+      },
+      {
+        "month": "August",
+        "centralTheme": "Royal Priesthood",
+        "declaration": "My Month Of Kingship And Authority",
+        "quarterAim": "3RD QUARTER aim: LIVING IN COVENANT IDENTITY"
+      },
+      {
+        "month": "September",
+        "centralTheme": "Abundant Life",
+        "declaration": "My Month Of Supernatural Supply",
+        "quarterAim": "3RD QUARTER aim: LIVING IN COVENANT IDENTITY"
+      },
+      {
+        "month": "October",
+        "centralTheme": "Inner Peace",
+        "declaration": "My Month Of Divine Serenity",
+        "quarterAim": "4TH QUARTER aim: THE MERCIFUL LIFE"
+      },
+      {
+        "month": "November",
+        "centralTheme": "Total Rest",
+        "declaration": "My Month Of Rest On All Sides",
+        "quarterAim": "4TH QUARTER aim: THE MERCIFUL LIFE"
+      },
+      {
+        "month": "December",
+        "centralTheme": "The Great Advocate",
+        "declaration": "My Month Of Divine Advocacy",
+        "quarterAim": "4TH QUARTER aim: THE MERCIFUL LIFE"
+      }
+    ],
+    "recurring": [
+      {
+        "id": "weekly-1",
+        "title": "Prayer Clinic",
+        "weekday": 2,
+        "startTime": "18:00",
+        "endTime": "19:00",
+        "category": "Weekly Service",
+        "description": "Prayer Clinic as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-2",
+        "title": "Shiloh Prayer Service",
+        "weekday": 3,
+        "startTime": "10:00",
+        "endTime": "11:00",
+        "category": "Weekly Service",
+        "description": "Shiloh Prayer Service as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-3",
+        "title": "Mid-Week Service",
+        "weekday": 3,
+        "startTime": "18:00",
+        "endTime": "19:30",
+        "category": "Weekly Service",
+        "description": "Mid-Week Service as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-4",
+        "title": "Anointing Service",
+        "weekday": 6,
+        "startTime": "06:00",
+        "endTime": "07:00",
+        "category": "Monthly Service",
+        "description": "Anointing Service (first Saturday) as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "weekOfMonth": 1
+      },
+      {
+        "id": "weekly-5",
+        "title": "Evangelical Outreach",
+        "weekday": 6,
+        "startTime": "08:00",
+        "endTime": "10:00",
+        "category": "Weekly Service",
+        "description": "Evangelical Outreach as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-6",
+        "title": "Deliverance Service",
+        "weekday": 6,
+        "startTime": "14:45",
+        "endTime": "17:30",
+        "category": "Weekly Service",
+        "description": "Deliverance Service as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-7",
+        "title": "First Service (English)",
+        "weekday": 0,
+        "startTime": "07:00",
+        "endTime": "08:50",
+        "category": "Weekly Service",
+        "description": "First Service (English) as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-8",
+        "title": "Bible Study",
+        "weekday": 0,
+        "startTime": "09:00",
+        "endTime": "09:55",
+        "category": "Weekly Service",
+        "description": "Bible Study as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      },
+      {
+        "id": "weekly-9",
+        "title": "Second Service (Traditional)",
+        "weekday": 0,
+        "startTime": "10:00",
+        "endTime": "12:00",
+        "category": "Weekly Service",
+        "description": "Second Service (Traditional) as listed in the church’s general weekly activities.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true
+      }
+    ],
+    "items": [
+      {
+        "id": "hour-of-praise-anointing-service-2026-01-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-01-01",
+        "endDate": "2026-01-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "DIVINE REMEMBRANCE - Isaiah 49:15-16",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "new-year-thanksgiving-2026-01-04",
+        "title": "New Year Thanksgiving",
+        "startDate": "2026-01-04",
+        "endDate": "2026-01-04",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-02-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-02-01",
+        "endDate": "2026-02-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "TOTAL CLEANSING - Jeremiah 33:8",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "praise-day-2026-02-15",
+        "title": "Praise Day",
+        "startDate": "2026-02-15",
+        "endDate": "2026-02-15",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A gathering of praise, prayer, worship, and thanksgiving.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-03-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-03-01",
+        "endDate": "2026-03-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "DIVINE EXCHANGE - 2 Corinthian 8:9",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "int-l-women-s-day-2026-03-08",
+        "title": "Int'L Women'S Day",
+        "startDate": "2026-03-08",
+        "endDate": "2026-03-08",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "seminar-palm-sunday-2026-03-29",
+        "title": "Seminar/Palm Sunday",
+        "startDate": "2026-03-29",
+        "endDate": "2026-03-29",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Christian Calendar",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-04-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-04-01",
+        "endDate": "2026-04-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "UNENDING COMPASSION - Lamentation 3:22-23",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "easter-sunday-2026-04-05",
+        "title": "Easter Sunday",
+        "startDate": "2026-04-05",
+        "endDate": "2026-04-05",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Christian Calendar",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-05-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-05-01",
+        "endDate": "2026-05-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "OVERFLOWING GRACE - John 1:16-17",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "mother-s-day-2026-05-16",
+        "title": "Mother'S Day",
+        "startDate": "2026-05-16",
+        "endDate": "2026-05-16",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "pentecost-sunday-2026-05-23",
+        "title": "Pentecost Sunday",
+        "startDate": "2026-05-23",
+        "endDate": "2026-05-23",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Christian Calendar",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-06-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-06-01",
+        "endDate": "2026-06-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "COMPLETE DELIVERANCE - Psalm 34:17-18",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "father-s-day-2026-06-21",
+        "title": "Father'S Day",
+        "startDate": "2026-06-21",
+        "endDate": "2026-06-21",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-2026-07-01",
+        "title": "Hour of Praise",
+        "startDate": "2026-07-01",
+        "endDate": "2026-07-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Service",
+        "description": "A gathering of praise, prayer, worship, and thanksgiving.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "goodness-family-harvest-2026-07-05",
+        "title": "Goodness Family Harvest",
+        "startDate": "2026-07-05",
+        "endDate": "2026-07-05",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme",
+        "catchUpLinks": [
+          {
+            "label": "Read Week 27 Goodnews",
+            "href": "publications.html"
+          }
+        ]
+      },
+      {
+        "id": "mid-year-thanksgiving-2026-07-05",
+        "title": "Mid Year Thanksgiving",
+        "startDate": "2026-07-05",
+        "endDate": "2026-07-05",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "church-convention-2026-07-06",
+        "title": "Church Convention",
+        "startDate": "2026-07-06",
+        "endDate": "2026-07-11",
+        "startTime": "",
+        "endTime": "",
+        "allDay": true,
+        "category": "Convention",
+        "description": "A multi-day church gathering for worship, teaching, prayer, fellowship, and renewal.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "new-converts-baptism-2026-07-11",
+        "title": "New Converts Baptism",
+        "startDate": "2026-07-11",
+        "endDate": "2026-07-11",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Service",
+        "description": "A baptism service for new converts.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "21st-church-founder-s-day-anniversary-2026-07-12",
+        "title": "21st Church Founder’s Day Anniversary",
+        "startDate": "2026-07-12",
+        "endDate": "2026-07-12",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Service",
+        "description": "A celebration of the church’s founding, heritage, vision, and continuing mission.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme",
+        "catchUpLinks": [
+          {
+            "label": "Read Founder’s Day issue",
+            "href": "publications.html"
+          }
+        ]
+      },
+      {
+        "id": "international-evangelical-convention-2026-07-15",
+        "title": "International Evangelical Convention",
+        "startDate": "2026-07-15",
+        "endDate": "2026-07-18",
+        "startTime": "",
+        "endTime": "",
+        "allDay": true,
+        "category": "Convention",
+        "description": "A multi-day church gathering for worship, teaching, prayer, fellowship, and renewal.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": false,
+        "source": "2026 July programme",
+        "editorNote": "The event appears in Week 27 material but is absent from the Week 28 notice list. Confirm before publishing."
+      },
+      {
+        "id": "gentleness-family-harvest-2026-07-19",
+        "title": "Gentleness Family Harvest",
+        "startDate": "2026-07-19",
+        "endDate": "2026-07-19",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "temperance-family-harvest-2026-07-26",
+        "title": "Temperance Family Harvest",
+        "startDate": "2026-07-26",
+        "endDate": "2026-07-26",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "prayer-retreat-2026-07-28",
+        "title": "Prayer Retreat",
+        "startDate": "2026-07-28",
+        "endDate": "2026-07-30",
+        "startTime": "17:30",
+        "endTime": "",
+        "allDay": false,
+        "category": "Prayer & Revival",
+        "description": "A focused season of prayer, consecration, and spiritual renewal.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "shiloh-ministry-quarterly-revival-2026-07-29",
+        "title": "Shiloh Ministry Quarterly Revival",
+        "startDate": "2026-07-29",
+        "endDate": "2026-07-31",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Prayer & Revival",
+        "description": "A special revival programme of prayer, worship, and the Word.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 July programme"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-08-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-08-01",
+        "endDate": "2026-08-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "KINGSHIP AND AUTHORITY - Ephesians 2:6",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "choir-anniversary-2026-08-09",
+        "title": "Choir Anniversary",
+        "startDate": "2026-08-09",
+        "endDate": "2026-08-09",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hq-children-harvest-2026-08-16",
+        "title": "Hq Children Harvest",
+        "startDate": "2026-08-16",
+        "endDate": "2026-08-16",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hq-teenagers-harvest-2026-08-23",
+        "title": "Hq Teenagers Harvest",
+        "startDate": "2026-08-23",
+        "endDate": "2026-08-23",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "seminar-2026-08-30",
+        "title": "Seminar",
+        "startDate": "2026-08-30",
+        "endDate": "2026-08-30",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-09-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "SUPERNATURAL SUPPLY - 2 Corinthians 9:8",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "headquarters-harvest-2026-09-27",
+        "title": "Headquarters Harvest",
+        "startDate": "2026-09-27",
+        "endDate": "2026-09-27",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Harvest",
+        "description": "A thanksgiving and harvest celebration in the Peculiar Cherubs family.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-10-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-10-01",
+        "endDate": "2026-10-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "DIVINE SERENITY - Isaiah 30:15",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "nigeria-independence-thanksgiving-2026-10-04",
+        "title": "Nigeria Independence Thanksgiving",
+        "startDate": "2026-10-04",
+        "endDate": "2026-10-04",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-11-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-11-01",
+        "endDate": "2026-11-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "REST ON ALL SIDES - 2 Kings 6:16-17",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "seminar-2026-11-29",
+        "title": "Seminar",
+        "startDate": "2026-11-29",
+        "endDate": "2026-11-29",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "A special church event listed in the 2026 programme.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "hour-of-praise-anointing-service-2026-12-01",
+        "title": "Hour of Praise / Anointing Service",
+        "startDate": "2026-12-01",
+        "endDate": "2026-12-01",
+        "startTime": "06:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Monthly Service",
+        "description": "DIVINE ADVOCACY - 1 John 2:1",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 Hour of Praise schedule"
+      },
+      {
+        "id": "christmas-2026-12-25",
+        "title": "Christmas",
+        "startDate": "2026-12-25",
+        "endDate": "2026-12-25",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Christian Calendar",
+        "description": "A celebration of the birth of Jesus Christ.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      },
+      {
+        "id": "cross-over-service-2026-12-31",
+        "title": "Cross Over Service",
+        "startDate": "2026-12-31",
+        "endDate": "2026-12-31",
+        "startTime": "09:00",
+        "endTime": "",
+        "allDay": false,
+        "category": "Special Observance",
+        "description": "The year-end service of worship, thanksgiving, prayer, and prophetic direction.",
+        "location": "Peculiar Cherubs, Kubwa",
+        "published": true,
+        "source": "2026 HQ Lectionary"
+      }
+    ],
+    "socialFeed": [],
+    "socialFeedEmpty": {
+      "title": "Social highlights will appear here.",
+      "text": "Add official Facebook, Instagram, YouTube, photo-gallery, or livestream links under events.socialFeed in site-content.json."
     }
   }
 }
