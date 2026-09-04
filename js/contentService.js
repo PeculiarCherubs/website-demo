@@ -93,6 +93,10 @@
       const uniqueKeys = [...new Set(sectionKeys)];
       const missingKeys = uniqueKeys.filter(k => !cache[k]);
 
+      var signal = AbortSignal;
+
+      signal.timeout(200);
+
       if (missingKeys.length > 0) {
         const keysFilter = missingKeys.map(k => encodeURIComponent(k)).join(',');
         const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=in.(${keysFilter})&select=key,data`;
@@ -104,7 +108,8 @@
             'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
             'Accept': 'application/json'
           },
-          cache: 'no-store'
+          cache: 'no-store',
+          signal: signal
         });
 
         if (!response.ok) {
