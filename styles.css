@@ -1451,6 +1451,8 @@ body[data-page="give"] .page-hero-brand-mark {
 
 .publication-issue-body {
   padding: 2rem;
+  align-items: flex-start;
+  height: 350px;
 }
 
 .publication-issue-body h3 {
@@ -3261,7 +3263,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 
 .lectionary-month-control label span,
 .calendar-filter span {
-  color: rgba(255,255,255,.72);
+  color: rgba(255, 255, 255, .72);
   font-size: .7rem;
   font-weight: 900;
   letter-spacing: .08em;
@@ -3272,7 +3274,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 .calendar-filter select {
   min-width: 170px;
   padding: .72rem .9rem;
-  border: 1px solid rgba(255,255,255,.22);
+  border: 1px solid rgba(255, 255, 255, .22);
   border-radius: 12px;
   background: var(--white);
   color: var(--navy);
@@ -3310,8 +3312,8 @@ body[data-page="chapels"] .page-hero-brand-mark {
   display: grid;
   gap: .45rem;
   padding: 1rem 0;
-  border-top: 1px solid rgba(22,34,73,.12);
-  border-bottom: 1px solid rgba(22,34,73,.12);
+  border-top: 1px solid rgba(22, 34, 73, .12);
+  border-bottom: 1px solid rgba(22, 34, 73, .12);
 }
 
 .lectionary-scripture span {
@@ -3358,7 +3360,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 
 .events-page-hero {
   background:
-    radial-gradient(circle at 80% 40%, rgba(255,255,0,.18), transparent 25%),
+    radial-gradient(circle at 80% 40%, rgba(255, 255, 0, .18), transparent 25%),
     linear-gradient(150deg, var(--navy), #263e88);
 }
 
@@ -3377,7 +3379,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
   overflow: hidden;
   position: relative;
   background:
-    radial-gradient(circle at 82% 50%, rgba(255,255,0,.22), transparent 25%),
+    radial-gradient(circle at 82% 50%, rgba(255, 255, 0, .22), transparent 25%),
     var(--navy);
   color: var(--white);
 }
@@ -3399,7 +3401,7 @@ body[data-page="chapels"] .page-hero-brand-mark {
 }
 
 .event-watch-card p {
-  color: rgba(255,255,255,.75);
+  color: rgba(255, 255, 255, .75);
   max-width: 700px;
 }
 

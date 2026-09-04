@@ -1603,6 +1603,7 @@ async function initialiseSite() {
 
     const content = await response.json();
     renderShared(content);
+    console.log(content);
 
     const page = document.body.dataset.page;
     const renderers = {

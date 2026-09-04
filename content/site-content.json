@@ -379,7 +379,7 @@
       "title": "Church news, devotion, and updates.",
       "text": "Read the latest issue and browse previous editions from the publication archive.",
       "button": "Read Latest Edition",
-      "href": "#"
+      "href": "publication-detail.html?issue=issue-01"
     },
     "archive": [
       {
@@ -388,7 +388,7 @@
         "status": "Latest edition",
         "title": "Walking in Purpose",
         "text": "Devotional insight, announcements, and ministry updates.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-01",
         "theme": "yellow"
       },
       {
@@ -397,7 +397,7 @@
         "status": "Archive",
         "title": "Growing Through Prayer",
         "text": "Encouragement, testimonies, and updates from the chapels.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-02",
         "theme": "navy"
       },
       {
@@ -406,10 +406,201 @@
         "status": "Archive",
         "title": "Prepared for Impact",
         "text": "Highlights from worship, teaching, and church programmes.",
-        "href": "#",
+        "href": "publication-detail.html?issue=issue-03",
+        "theme": "red"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 04",
+        "status": "Archive",
+        "title": "Faith and Service",
+        "text": "Serving our community and growing together.",
+        "href": "publication-detail.html?issue=issue-04",
+        "theme": "yellow"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 05",
+        "status": "Archive",
+        "title": "The Power of Praise",
+        "text": "Understanding worship as a lifestyle of power.",
+        "href": "publication-detail.html?issue=issue-05",
+        "theme": "navy"
+      },
+      {
+        "type": "Goodnews This Week",
+        "issue": "Issue 06",
+        "status": "Archive",
+        "title": "Walking in Love",
+        "text": "Building family and community through grace.",
+        "href": "publication-detail.html?issue=issue-06",
         "theme": "red"
       }
     ],
+    "details": {
+      "issue-01": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 01",
+        "date": "July 5, 2026",
+        "title": "Walking in Purpose",
+        "theme": "yellow",
+        "subtitle": "Discovering God's Plan for Your Life",
+        "content": [
+          "What does it mean to walk in purpose? It means matching our daily actions with God's design. In a world full of distractions, finding your calling can seem daunting. However, scripture assures us that God has pre-ordained good works for us to walk in.",
+          "Walking in purpose requires active listening and surrender. When we allow the Holy Spirit to direct our steps, even mundane tasks become opportunities for spiritual impact. This week, reflect on how your current roles can serve God's kingdom."
+        ],
+        "scriptures": [
+          {
+            "ref": "Proverbs 3:5-6",
+            "text": "Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight."
+          },
+          {
+            "ref": "Ephesians 2:10",
+            "text": "For we are God’s handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do."
+          }
+        ],
+        "announcements": [
+          "Join us for our Wednesday Shiloh Service at 6:00 PM as we continue our series on Purpose.",
+          "The Children's Ministry is recruiting teachers. Contact the parish office to register interest."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-02": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 02",
+        "date": "July 12, 2026",
+        "title": "Growing Through Prayer",
+        "theme": "navy",
+        "subtitle": "Strengthening Your Connection to the Father",
+        "content": [
+          "Prayer is not just a ritual; it is the lifeblood of the believer. It is the space where our weakness meets God's strength. Growing in prayer means moving beyond a checklist of needs to an intimate conversation of love.",
+          "Consistency is key to a robust prayer life. Just as physical exercise strengthens the body, setting daily moments aside to talk with and listen to God builds spiritual resilience. Let us cultivate a posture of constant communion."
+        ],
+        "scriptures": [
+          {
+            "ref": "1 Thessalonians 5:17",
+            "text": "Pray without ceasing."
+          },
+          {
+            "ref": "Philippians 4:6",
+            "text": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God."
+          }
+        ],
+        "announcements": [
+          "Monthly Hour of Praise and Deliverance will hold this Friday at 10:00 PM. Come ready for breakthroughs.",
+          "Publications team is accepting testimonies for the next monthly edition."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-03": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 03",
+        "date": "July 19, 2026",
+        "title": "Prepared for Impact",
+        "theme": "red",
+        "subtitle": "Equipping Believers to Change Their World",
+        "content": [
+          "God does not call the qualified; He qualifies the called. Being prepared for impact means being willing to step out of comfort zones and be used as instruments of His grace in our schools, workplaces, and families.",
+          "Preparation happens in the quiet, daily moments of study, prayer, and service. When the opportunity arises, a prepared heart is ready to give an answer for the hope that lies within. Step forward with bold faith."
+        ],
+        "scriptures": [
+          {
+            "ref": "2 Timothy 2:21",
+            "text": "Those who cleanse themselves from the latter will be instruments for special purposes, made holy, useful to the Master and prepared to do any good work."
+          },
+          {
+            "ref": "1 Peter 3:15",
+            "text": "But in your hearts revere Christ as Lord. Always be prepared to give an answer to everyone who asks you to give the reason for the hope that you have."
+          }
+        ],
+        "announcements": [
+          "Registration for Pesach International Academy's new term is now open. See student services for details.",
+          "Youth Fellowship will hold a special outreach seminar this Saturday at 12:00 PM."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-04": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 04",
+        "date": "July 26, 2026",
+        "title": "Faith and Service",
+        "theme": "yellow",
+        "subtitle": "Faith Without Works is Dead",
+        "content": [
+          "True faith is active, not passive. It expresses itself through service and love to those around us. When we serve, we reflect the heart of Jesus, who came not to be served, but to serve.",
+          "Every act of kindness, whether big or small, represents a seed of God's love sown into the community. Let us seek daily opportunities to be the hands and feet of Christ to those who are hurting."
+        ],
+        "scriptures": [
+          {
+            "ref": "James 2:26",
+            "text": "As the body without the spirit is dead, so faith without deeds is dead."
+          },
+          {
+            "ref": "Galatians 5:13",
+            "text": "You, my brothers and sisters, were called to be free. But do not use your freedom to indulge the flesh; rather, serve one another humbly in love."
+          }
+        ],
+        "announcements": [
+          "Feeding Ministry outreach will take place this Saturday morning. Volunteers should gather at 8:00 AM.",
+          "Weekly contributions for church development project can be submitted via the give portal."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-05": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 05",
+        "date": "August 2, 2026",
+        "title": "The Power of Praise",
+        "theme": "navy",
+        "subtitle": "Worship That Breaks Chains",
+        "content": [
+          "Praise is a powerful spiritual weapon. When we praise God in the midst of trials, we shift our focus from the size of our problems to the greatness of our God. Praise invites His manifest presence into our situations.",
+          "We see throughout scripture that praise often precedes victory. Let us make a habit of offering a sacrifice of praise, declaring God's goodness even when circumstances are challenging. Joy is found in His presence."
+        ],
+        "scriptures": [
+          {
+            "ref": "Psalm 150:6",
+            "text": "Let everything that has breath praise the Lord. Praise the Lord."
+          },
+          {
+            "ref": "Acts 16:25-26",
+            "text": "About midnight Paul and Silas were praying and singing hymns to God... Suddenly there was such a violent earthquake that the foundations of the prison were shaken."
+          }
+        ],
+        "announcements": [
+          "Praise Night rehearsals will hold on Thursday at 5:00 PM for all choir members.",
+          "New believers class starts next Sunday immediately after the first service."
+        ],
+        "pdfUrl": "#"
+      },
+      "issue-06": {
+        "type": "Goodnews This Week",
+        "issue": "Issue 06",
+        "date": "August 9, 2026",
+        "title": "Walking in Love",
+        "theme": "red",
+        "subtitle": "The Greatest Commandment",
+        "content": [
+          "Love is the defining mark of a disciple. Jesus told us that the world will know we are His by our love for one another. This love is patient, kind, and does not keep a record of wrongs.",
+          "To walk in love is to choose forgiveness and empathy over pride and resentment. It is a daily decision that heals families, builds community, and shines God's light into a broken world. Choose love today."
+        ],
+        "scriptures": [
+          {
+            "ref": "John 13:34-35",
+            "text": "A new command I give you: Love one another. As I have loved you, so you must love one another. By this everyone will know that you are my disciples, if you love one another."
+          },
+          {
+            "ref": "1 Corinthians 13:4-8",
+            "text": "Love is patient, love is kind. It does not envy, it does not boast, it is not proud... Love never fails."
+          }
+        ],
+        "announcements": [
+          "Couples Fellowship is hosting a dinner seminar on family relationships on August 15. Register today.",
+          "House Fellowship coordinators meeting will hold after the Wednesday service."
+        ],
+        "pdfUrl": "#"
+      }
+    },
     "sundaySchool": {
       "type": "Sunday School Outline",
       "title": "This Week’s Lesson",
@@ -995,541 +1186,6 @@
           "scripture": "",
           "objective": "Expound on the theme of Year 2027",
           "event": "CROSS OVER SERVICE"
-        }
-      ]
-    },
-    "blog": {
-      "eyebrow": "Publication Blog",
-      "title": "One archive for every publication.",
-      "description": "Every post uses one dependable reading experience, while each publication type retains the sections it needs.",
-      "categories": [
-        {
-          "id": "all",
-          "label": "All Publications"
-        },
-        {
-          "id": "devotion",
-          "label": "Daily Devotion"
-        },
-        {
-          "id": "goodnews",
-          "label": "Goodnews This Week"
-        },
-        {
-          "id": "sunday-school",
-          "label": "Sunday School Bible Study"
-        }
-      ],
-      "posts": [
-        {
-          "id": "goodnews-2026-week-28",
-          "slug": "building-a-godly-generation",
-          "type": "Goodnews This Week",
-          "category": "goodnews",
-          "template": "goodnews",
-          "date": "2026-07-12",
-          "title": "Building a Godly Generation",
-          "excerpt": "A Founder’s Day message on intentional Christian parenting, dependence on the Holy Spirit, and raising generations who know and honour God.",
-          "author": "Peculiar Cherubs Editorial Team",
-          "featured": true,
-          "tags": [
-            "Restored Identity",
-            "Family",
-            "Discipleship",
-            "Founder’s Day"
-          ],
-          "cover": {
-            "theme": "red",
-            "label": "Goodnews This Week",
-            "monogram": "32"
-          },
-          "details": {
-            "volume": "21",
-            "issue": "32",
-            "edition": "Week 28",
-            "monthlyTheme": "Restored Identity / My Month of Divine Restoration",
-            "occasion": "21st Founder’s Day Celebration",
-            "keyText": "Romans 8:30"
-          },
-          "blocks": [
-            {
-              "type": "lead",
-              "text": "Dearly beloved of our LORD JESUS CHRIST, I welcome you to the 21st Founders Day Celebration of the Church. Truly, JEHOVAH have been faithful in every sphere of our being these 21 years; in our individual lives, in our family, in the Church and the nation at large, GOD has been good. “Great is the LORD, and greatly to be praised; and HIS greatness is unsearchable. One generation shall praise YOUR Works to another, and shall declare YOUR mighty Acts” Ps 145: 3-4. We are blessed to be a part of this Peculiar Family called and anointed to deliver people from the devil’s bondage with the Word of GOD."
-            },
-            {
-              "type": "callout",
-              "label": "Sermon focus",
-              "title": "Building a Godly Generation",
-              "text": "Key text: Romans 8:30"
-            },
-            {
-              "type": "paragraph",
-              "text": "As we celebrate, our Sermon Topic today, in continuation of the theme Restored Identity, is Building a Godly Generation. The objective is to teach on the principle of building a godly generation. We will reference the HOLY SPIRIT as we teach on how to partner with HIM to create, develop and run a Godly home. We will highlight the need for intentional discipleship within the family unit and the drawbacks of not. May the HOLY SPIRIT teach and quicken our understanding in JESUS mighty name, amen!"
-            },
-            {
-              "type": "paragraph",
-              "text": "Building a godly generation is teaching and instilling GOD’s righteousness in to the consciousness of our children and wards that they may live righteously and pleasing unto GOD. This involves ensuring imbibing faith, godly and biblical teachings in our children; ensuring they grow to know and to honour GOD in all their ways. This endeavour requires faithfulness to GOD, absolute reliance on the HOLY SPIRIT, grace through JESUS and intentionality. It does not happen by accident; you must pray fervently, be rooted and obedient to GOD. The goal is for our children, children’s children and grandchildren to all our generations to know and reference GOD that they may show the glory of GOD."
-            },
-            {
-              "type": "paragraph",
-              "text": "Beloved, it is the HOLY SPIRIT that enables a Godly Generation, it is “not by works of righteousness… but …through the washing of regeneration and renewing of the HOLY SPIRIT, whom HE poured out on us abundantly through JESUS CHRIST…” Tit 3: 5-6. Prophet Isaiah says of JESUS CHRIST that “The SPIRIT of the LORD shall rest upon HIM, the SPIRIT of Wisdom and Understanding, the SPIRIT of Counsel and Might, the SPIRIT of Knowledge and of the fear of the LORD. HIS delight is in the fear of the LORD, and HE shall not judge by the sight of HIS eyes, nor decide by the hearing of HIS ears” Isa 11: 2-3. HOLY SPIRIT empowered JESUS for HIS mission on earth, JESUS gave us the HOLY SPIRIT to guild, to teach and to empower us to build a Godly Generation (Jhn 3:5–8 & Jhn 16:8)."
-            },
-            {
-              "type": "paragraph",
-              "text": "GOD ALMIGHTY is seeking a Godly Generation that HE will glorify and propagate HIMSELF, a family that will continually abide in HIM and do HIS will; one that have received JESUS as LORD (Jhn 1: 12) and accepted HOLY SPIRIT’s leadership (Rom 8:14) that they may conform to the image of JESUS CHRIST. This Apostle Paul explained that “we know that all things work together for good to those who love GOD, to those who are the called according to HIS purpose. For whom HE foreknew, HE also predestined to be conformed to the image of HIS SON, that HE might be the firstborn among many brethren… HE predestined, these HE also called; whom HE called, these HE also justified; and whom HE justified, these HE also glorified” Rom 8: 28-30."
-            },
-            {
-              "type": "paragraph",
-              "text": "Beloved Peculiar People of GOD, as I wish you a happy 21st year anniversary, I plead with you, give your life to JESUS and surrender to the leadership of the HOLY SPIRIT that HE may make your home and family a Godly Generation to GOD’s glory. May the blessings and joy of this day abide with you forever in JESUS name. Ayo Ni O!!!"
-            }
-          ],
-          "goodnews": {
-            "sundaySchool": {
-              "topic": "Bible Verses Memorization",
-              "text": "Lamentations 3:22–23"
-            },
-            "specialService": {
-              "label": "Monthly Vigil",
-              "topic": "Ashes to Glory",
-              "text": "Isaiah 61:1–7",
-              "revivalist": "Evangelist Tosin Ademola"
-            },
-            "nextWeekMinisters": [
-              {
-                "label": "Minister for the Week",
-                "value": "Evangelist Kehinde Oladimeji"
-              },
-              {
-                "label": "Worship Leader",
-                "value": "Ald Bro Richard Erebi"
-              },
-              {
-                "label": "Thanksgiving Prayer",
-                "value": "Prophetess Comfort Adebayo"
-              },
-              {
-                "label": "Sermon",
-                "value": "Pastor Seun Oshagbami"
-              },
-              {
-                "label": "Lay Reader",
-                "value": "Ald Sis Olayinka Osoba (2 Samuel 9:1–13)"
-              }
-            ],
-            "bibleMeditation": [
-              {
-                "day": "Monday",
-                "reading": "Isaiah 32–34"
-              },
-              {
-                "day": "Tuesday",
-                "reading": "Isaiah 35–37"
-              },
-              {
-                "day": "Wednesday",
-                "reading": "Isaiah 38–40"
-              },
-              {
-                "day": "Thursday",
-                "reading": "Isaiah 41–43"
-              },
-              {
-                "day": "Friday",
-                "reading": "Isaiah 44–46"
-              },
-              {
-                "day": "Saturday",
-                "reading": "Isaiah 47–48"
-              },
-              {
-                "day": "Sunday",
-                "reading": "Isaiah 49–52"
-              }
-            ]
-          }
-        },
-        {
-          "id": "goodnews-2026-week-27",
-          "slug": "restoration-of-identity",
-          "type": "Goodnews This Week",
-          "category": "goodnews",
-          "template": "goodnews",
-          "date": "2026-07-05",
-          "title": "Restoration of Identity",
-          "excerpt": "A teaching on humanity’s identity in God, restoration through Jesus Christ, and the transforming work of the Holy Spirit.",
-          "author": "Peculiar Cherubs Editorial Team",
-          "featured": false,
-          "tags": [
-            "Restored Identity",
-            "Holy Spirit",
-            "Restoration",
-            "Goodness Harvest"
-          ],
-          "cover": {
-            "theme": "yellow",
-            "label": "Goodnews This Week",
-            "monogram": "31"
-          },
-          "details": {
-            "volume": "21",
-            "issue": "31",
-            "edition": "Week 27",
-            "monthlyTheme": "Restored Identity / My Month of Divine Restoration",
-            "occasion": "Goodness Family Harvest Thanksgiving and Testimonies",
-            "keyText": "Titus 3:4–5"
-          },
-          "blocks": [
-            {
-              "type": "lead",
-              "text": "Dearly beloved of our LORD JESUS CHRIST, I welcome you to July, Our Month of Divine Restoration. This is the 2nd half of the year and the beginning of the 3rd quarter; truly JEHOVAH the ALMIGHTY GOD has been good to us. It is by HIS Grace, we thankful for life, the blessings, the joy and the victories we have received. “Praise the LORD! Praise GOD in HIS Sanctuary; Praise HIM in HIS mighty firmament! Praise HIM for HIS mighty acts; Praise HIM according to HIS excellent greatness!” Ps 150: 1-2, HE alone is worthy, for great things HE had done and is still doing."
-            },
-            {
-              "type": "callout",
-              "label": "Sermon focus",
-              "title": "Restoration of Identity",
-              "text": "Key text: Titus 3:4–5"
-            },
-            {
-              "type": "paragraph",
-              "text": "This month our central theme is Restored Identity, it shall be an exposition on redemption, renewal and purpose in CHRIST JESUS. We shall be learning that our true identity is in GOD; how HE sees us in HIS image and as CHRIST presents us before HIM (Mat 7:21-23)."
-            },
-            {
-              "type": "paragraph",
-              "text": "Today, as Goodness Family and their invitees come before the LORD with their Harvest Thanksgiving and Testimonies, our Sermon Topic is ‘Restoration of Identity’. We shall be explaining the concept of restored identity (Gen1:26), and using Apostle Peter as an illustrative example we shall teach on the working power of the HOLY SPIRIT restores. We shall also identify and speak on the dangers of resisting change. May the HOLY SPIRIT teach and quicken our understanding in JESUS mighty name, amen!"
-            },
-            {
-              "type": "paragraph",
-              "text": "GOD created Man in HIS own image (Gen 1:26 & Gen 3:7); in perfection, blessed and with dominion over all other creations (Gen 1:28), GOD endowed him with glory and honour (Ps 8: 5), placed in the Garden of Eden and fellowshipped with him in the cool of the day (Gen 2). Man, however disobeyed and lost the fellowship with GOD, and was banished from GOD’s presence (Gen 3: 22-24). Once perfect he became imperfect, vulnerable and a fugitive covered in shame (Rom 3: 23) without an identity. GOD’s entire plan for humanity and creation became altered, necessitating a need for restoration."
-            },
-            {
-              "type": "paragraph",
-              "text": "The Bible says, “But when the kindness and the love of GOD our Savior toward man appeared, not by works of righteousness which we have done, but according to HIS mercy HE saved us, through the washing of regeneration and renewing of the HOLY SPIRIT, whom HE poured out on us abundantly through JESUS CHRIST our Savior” Tit 3: 4-6. GOD in HIS benevolence made a way for our restoration, in that HE gave JESUS CHRIST, HIS Son as an unconditional sacrifice for our sin and disobedience, even when we were still in sin (Rom 5:8). “But as many as received HIM, to them HE gave the right to become Children of GOD …” Jhn 1:12, JESUS also gave us the HOLY SPIRIT to help us, convict us of sin, righteousness, of judgment and to teach us unto righteousness (Jhn 16: 5-15) that we may be justified before GOD and our identity restored; “that having been justified by HIS grace we should become heirs according to the hope of Eternal Life” Titus 3: 7."
-            },
-            {
-              "type": "paragraph",
-              "text": "Apostle Peter, on whose confession of JESUS as the SON of GOD, JESUS says HE will build HIS Church (Mat 16: 16-18), remained timid and fearful. This same Apostle denied JESUS 3 times (Luk 22: 54-62), but when the HOLY SPIRIT came upon him, he became transformed and embolden; his true identity as ‘Rock’ was established."
-            },
-            {
-              "type": "paragraph",
-              "text": "Beloved, GOD wants to restore you to the place of sonship, HE wants to put HIS SPIRIT in you that you may keep HIS statues and do HIS will (Ezk 11: 19-20), surrender therefore to the leadership of the HOLY SPIRIT and be restored to GOD. May this be accomplished in you. GOD bless you all in JESUS name. Happy Anniversary. Ayo Ni O!!!"
-            }
-          ],
-          "goodnews": {
-            "sundaySchool": {
-              "topic": "The Role of Prayer in the Christian Life",
-              "text": "Matthew 6:5–13"
-            },
-            "specialService": {
-              "label": "Covenant Service",
-              "topic": "Covenant of Goodness and Approval",
-              "text": "Genesis 1:31",
-              "revivalist": "Snr Apst Adedeji Ademefun"
-            },
-            "nextWeekMinisters": [
-              {
-                "label": "Minister for the Week",
-                "value": "Prophet Oluwole Ejalonibu"
-              },
-              {
-                "label": "Worship Leader",
-                "value": "Sp. Apst Stephen Babarinde"
-              },
-              {
-                "label": "Thanksgiving Prayer",
-                "value": "Prophetess Ibijoke Ogundipe"
-              },
-              {
-                "label": "Sermon",
-                "value": "Prophet Isaac Esan"
-              },
-              {
-                "label": "Lay Reader",
-                "value": "M/I/I Omolara Oyinbo (Isaiah 11:1–10)"
-              }
-            ],
-            "bibleMeditation": [
-              {
-                "day": "Monday",
-                "reading": "Isaiah 4–8"
-              },
-              {
-                "day": "Tuesday",
-                "reading": "Isaiah 9–11"
-              },
-              {
-                "day": "Wednesday",
-                "reading": "Isaiah 12–14"
-              },
-              {
-                "day": "Thursday",
-                "reading": "Isaiah 15–19"
-              },
-              {
-                "day": "Friday",
-                "reading": "Isaiah 20–24"
-              },
-              {
-                "day": "Saturday",
-                "reading": "Isaiah 25–28"
-              },
-              {
-                "day": "Sunday",
-                "reading": "Isaiah 29–31"
-              }
-            ]
-          }
-        },
-        {
-          "id": "devotion-2026-07-19",
-          "slug": "remembered-by-mercy",
-          "type": "Daily Morning Devotion",
-          "category": "devotion",
-          "template": "devotion",
-          "date": "2026-07-19",
-          "title": "Remembered by Mercy",
-          "excerpt": "God’s mercy gathers, restores, and gives us courage to begin again with renewed purpose.",
-          "author": "Peculiar Cherubs Devotional Team",
-          "featured": false,
-          "tags": [
-            "Great Mercies",
-            "Restoration",
-            "Morning Devotion"
-          ],
-          "cover": {
-            "theme": "navy",
-            "label": "Morning Devotion",
-            "monogram": "19"
-          },
-          "details": {
-            "readingTime": "4 minutes",
-            "series": "My Year of Great Mercies"
-          },
-          "blocks": [
-            {
-              "type": "scripture",
-              "reference": "Isaiah 54:7",
-              "text": "For a mere moment I have forsaken you, but with great mercies I will gather you."
-            },
-            {
-              "type": "heading",
-              "text": "Mercy does not abandon the story"
-            },
-            {
-              "type": "paragraph",
-              "text": "There are moments when delay, disappointment, or failure can make us feel forgotten. Yet God describes His response to His people as great mercy. His mercy is not passive sympathy; it is the power that gathers, restores, cleanses, and repositions."
-            },
-            {
-              "type": "paragraph",
-              "text": "Today, refuse to define yourself by the moment that hurt you. Let God’s Word define you. You are not outside His reach, and your present chapter is not the conclusion of your story."
-            },
-            {
-              "type": "callout",
-              "label": "Today’s truth",
-              "title": "Mercy gathers what pain scattered.",
-              "text": "Receive God’s restoring grace and take the next faithful step."
-            }
-          ],
-          "devotion": {
-            "keyVerse": "Isaiah 54:7",
-            "prayer": "Father, thank You for Your great mercies. Gather every scattered area of my life, restore my confidence in You, and guide me into renewed purpose in Jesus’ name. Amen.",
-            "declaration": "I am remembered, gathered, and restored by the great mercy of God.",
-            "actionPoint": "Reach out to one person today with a word or act of mercy."
-          }
-        },
-        {
-          "id": "devotion-2026-07-18",
-          "slug": "restored-to-purpose",
-          "type": "Daily Morning Devotion",
-          "category": "devotion",
-          "template": "devotion",
-          "date": "2026-07-18",
-          "title": "Restored to Purpose",
-          "excerpt": "The Holy Spirit renews us so that restoration becomes a return to God’s purpose, not merely relief from pain.",
-          "author": "Peculiar Cherubs Devotional Team",
-          "featured": false,
-          "tags": [
-            "Restored Identity",
-            "Purpose",
-            "Holy Spirit"
-          ],
-          "cover": {
-            "theme": "red",
-            "label": "Morning Devotion",
-            "monogram": "18"
-          },
-          "details": {
-            "readingTime": "4 minutes",
-            "series": "Restored Identity"
-          },
-          "blocks": [
-            {
-              "type": "scripture",
-              "reference": "Titus 3:5–7",
-              "text": "According to His mercy He saved us, through the washing of regeneration and renewing of the Holy Spirit."
-            },
-            {
-              "type": "heading",
-              "text": "Restoration returns us to God’s intention"
-            },
-            {
-              "type": "paragraph",
-              "text": "God does not restore us merely so that we feel better. He renews us so that we can live again as His children, carry His character, and fulfil the work He has entrusted to us."
-            },
-            {
-              "type": "paragraph",
-              "text": "Ask the Holy Spirit to show you one area where old fear, shame, or disappointment has interrupted obedience. Restoration becomes visible when renewed identity produces renewed action."
-            }
-          ],
-          "devotion": {
-            "keyVerse": "Titus 3:5–7",
-            "prayer": "Holy Spirit, renew my mind and restore me to the purpose of God. Help me to walk today as a child and heir of grace. Amen.",
-            "declaration": "My identity is restored in Christ, and I walk boldly in God’s purpose.",
-            "actionPoint": "Complete one action today that you have delayed because of fear."
-          }
-        },
-        {
-          "id": "sunday-school-2026-07-12",
-          "slug": "bible-verses-memorization",
-          "type": "Sunday School Bible Study",
-          "category": "sunday-school",
-          "template": "sundaySchool",
-          "date": "2026-07-12",
-          "title": "Bible Verses Memorization",
-          "excerpt": "A practical lesson on keeping God’s Word in the heart and allowing remembered Scripture to shape daily life.",
-          "author": "Peculiar Cherubs Sunday School",
-          "featured": false,
-          "tags": [
-            "Bible Study",
-            "Scripture",
-            "Spiritual Growth"
-          ],
-          "cover": {
-            "theme": "yellow",
-            "label": "Sunday School",
-            "monogram": "SS"
-          },
-          "details": {
-            "lessonText": "Lamentations 3:22–23",
-            "lessonSeries": "July 2026"
-          },
-          "blocks": [
-            {
-              "type": "scripture",
-              "reference": "Lamentations 3:22–23",
-              "text": "The steadfast love of the Lord never ceases; His mercies never come to an end; they are new every morning."
-            },
-            {
-              "type": "paragraph",
-              "text": "Memorizing Scripture allows the truth of God to remain available when a Bible is not physically open. The purpose is not merely recitation, but meditation, obedience, encouragement, and spiritual defence."
-            },
-            {
-              "type": "callout",
-              "label": "Lesson emphasis",
-              "title": "Store the Word. Live the Word.",
-              "text": "A verse becomes fruitful when it moves from memory into practice."
-            }
-          ],
-          "sundaySchool": {
-            "lessonText": "Lamentations 3:22–23",
-            "memoryVerse": "Lamentations 3:22–23",
-            "objectives": [
-              "Explain why Scripture memorization is important in Christian growth.",
-              "Identify practical methods for memorizing and reviewing Bible verses.",
-              "Demonstrate how remembered Scripture guides choices, prayer, and encouragement."
-            ],
-            "outline": [
-              {
-                "title": "Why we keep the Word",
-                "text": "God’s Word renews the mind, strengthens faith, and gives direction."
-              },
-              {
-                "title": "How to memorize effectively",
-                "text": "Read the verse in context, repeat it aloud, write it, review it, and apply it."
-              },
-              {
-                "title": "From memory to obedience",
-                "text": "Use the verse in prayer, decisions, conversations, and daily conduct."
-              }
-            ],
-            "questions": [
-              "Which Bible verse has helped you during a difficult season?",
-              "What habit can help you review Scripture consistently?",
-              "How can families and small groups practise memorization together?"
-            ],
-            "closingPrayer": "Lord, write Your Word upon our hearts and help us to remember, understand, and obey it in every season."
-          }
-        },
-        {
-          "id": "sunday-school-2026-07-05",
-          "slug": "the-role-of-prayer-in-the-christian-life",
-          "type": "Sunday School Bible Study",
-          "category": "sunday-school",
-          "template": "sundaySchool",
-          "date": "2026-07-05",
-          "title": "The Role of Prayer in the Christian Life",
-          "excerpt": "A study of Jesus’ teaching on sincere prayer and the place of communion with God in daily Christian living.",
-          "author": "Peculiar Cherubs Sunday School",
-          "featured": false,
-          "tags": [
-            "Prayer",
-            "Bible Study",
-            "Discipleship"
-          ],
-          "cover": {
-            "theme": "navy",
-            "label": "Sunday School",
-            "monogram": "SS"
-          },
-          "details": {
-            "lessonText": "Matthew 6:5–13",
-            "lessonSeries": "July 2026"
-          },
-          "blocks": [
-            {
-              "type": "scripture",
-              "reference": "Matthew 6:5–13",
-              "text": "When you pray, go into your room, close the door and pray to your Father, who is unseen."
-            },
-            {
-              "type": "paragraph",
-              "text": "Prayer is fellowship with God, not a performance before people. Jesus teaches believers to approach the Father sincerely, reverently, confidently, and with hearts ready to forgive."
-            },
-            {
-              "type": "callout",
-              "label": "Lesson emphasis",
-              "title": "Prayer forms the life that follows God.",
-              "text": "Consistent prayer aligns our desires, strengthens obedience, and deepens dependence on the Father."
-            }
-          ],
-          "sundaySchool": {
-            "lessonText": "Matthew 6:5–13",
-            "memoryVerse": "Matthew 6:6",
-            "objectives": [
-              "Define prayer as fellowship and communication with God.",
-              "Explain the principles Jesus teaches in Matthew 6:5–13.",
-              "Develop a consistent and sincere personal prayer life."
-            ],
-            "outline": [
-              {
-                "title": "Prayer is relationship",
-                "text": "Believers approach God as Father, not as distant strangers."
-              },
-              {
-                "title": "Prayer is sincere",
-                "text": "Jesus warns against prayer designed mainly to impress people."
-              },
-              {
-                "title": "Prayer shapes priorities",
-                "text": "The Lord’s Prayer places God’s name, kingdom, will, provision, forgiveness, and protection in proper order."
-              }
-            ],
-            "questions": [
-              "What usually distracts believers from consistent prayer?",
-              "What does the Lord’s Prayer teach about our priorities?",
-              "How does forgiveness affect our prayer life?"
-            ],
-            "closingPrayer": "Father, teach us to pray with sincerity, faith, forgiveness, and submission to Your will."
-          }
         }
       ]
     }
@@ -3225,6 +2881,10 @@
     "socialFeedNotice": {
       "title": "Generated placeholders",
       "text": "These cards are temporary visual placeholders. Replace them later with approved photos, videos, galleries, or social-media links."
+    "socialFeed": [],
+    "socialFeedEmpty": {
+      "title": "Social highlights will appear here.",
+      "text": "Add official Facebook, Instagram, YouTube, photo-gallery, or livestream links under events.socialFeed in site-content.json."
     }
   }
 }

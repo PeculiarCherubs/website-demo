@@ -85,58 +85,58 @@
     </div>
   </section>
 
-  <section class="section publication-type-section publication-goodnews-band" id="goodnews">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Goodnews This Week</span>
-          <h2>Teaching, church news and weekly guidance.</h2>
+        <div class="publication-card-grid" data-publication-archive></div>
+      </div>
+    </section>
+
+    <section class="section sunday-school-section">
+      <div class="container">
+        <div class="sunday-school-card">
+          <div class="sunday-school-symbol" aria-hidden="true">✦</div>
+          <div>
+            <div class="meta" data-sunday-school-type></div>
+            <h2 style="color: aliceblue;" data-sunday-school-title></h2>
+            <p data-sunday-school-text></p>
+            <a class="btn btn-primary" data-sunday-school-button></a>
+          </div>
         </div>
         <a class="text-link" href="#publication-archive" data-filter-publications="goodnews">Browse Goodnews ↗</a>
       </div>
-      <div data-latest-goodnews-blog></div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section publication-type-section" id="sunday-school">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Sunday School Bible Study</span>
-          <h2>Study notes built for learning and discussion.</h2>
+
+    <section class="section lectionary-section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow" data-lectionary-eyebrow>
+            </span>
+
+            <h2 data-lectionary-title></h2>
+          </div>
+
+          <p data-lectionary-description></p>
         </div>
-        <a class="text-link" href="#publication-archive" data-filter-publications="sunday-school">Browse lessons ↗</a>
-      </div>
-      <div data-latest-sunday-school></div>
-    </div>
-  </section>
 
-  <section class="section lectionary-section" id="lectionary">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow" data-lectionary-eyebrow></span>
-          <h2 data-lectionary-title></h2>
+        <div class="lectionary-toolbar">
+          <div class="lectionary-month-control">
+            <h3 data-lectionary-month></h3>
+            <label>
+              <span>Browse month</span>
+              <select data-lectionary-month-select></select>
+            </label>
+          </div>
+
+          <a class="btn btn-primary" data-lectionary-download>
+          </a>
         </div>
-        <p data-lectionary-description></p>
-      </div>
 
-      <div class="lectionary-toolbar">
-        <div class="lectionary-month-control">
-          <h3 data-lectionary-month></h3>
-          <label>
-            <span>Browse month</span>
-            <select data-lectionary-month-select></select>
-          </label>
+        <div class="lectionary-grid" data-lectionary-readings>
         </div>
-        <a class="btn btn-primary" data-lectionary-download></a>
       </div>
-      <div class="lectionary-grid" data-lectionary-readings></div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer">
+    </section>
+  </main>
+  <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div>
@@ -159,7 +159,7 @@
           <p><a href="publications.html">Publications</a></p>
           <p><a href="bible-college.html">Bible College</a></p>
           <p><a href="events.html">Events</a></p>
-        <p><a href="quick-links.html">Quick Links</a></p>
+          <p><a href="quick-links.html">Quick Links</a></p>
           <p><a href="give.html">Give</a></p>
         </div>
 
@@ -176,6 +176,10 @@
       </div>
     </div>
   </footer>
-<script src="script.js"></script>
+
+  <script src="script.js"></script>
+  <script>
+    console.log("Publications Data:", data);
+  </script>
 </body>
 </html>
