@@ -410,6 +410,23 @@
     },
 
     /**
+     * Helper to aggregate ALL leadership personnel from currentContent.about.leadership.team
+     */
+    getAllLeadershipItems() {
+      const about = currentContent.about || {};
+      const lead = about.leadership || {};
+      const team = Array.isArray(lead.team) ? lead.team : [];
+      return team.map((p, idx) => ({
+        id: p.id || `leader_${idx}`,
+        name: p.name || 'Leader Name',
+        position: p.position || 'Position / Title',
+        image: p.image || '',
+        _index: idx,
+        _raw: p
+      }));
+    },
+
+    /**
      * Renders all views and stats
      */
     renderAllViews() {
@@ -419,6 +436,8 @@
       this.renderEventsView();
       this.renderFellowshipsView();
       this.renderMinistriesView();
+      this.renderLeadershipView();
+      this.populateLeadershipHeaderForm();
       this.populateSiteSettingsForm();
     },
 
@@ -432,6 +451,7 @@
       const events = (currentContent.events && currentContent.events.items) || [];
       const fellowships = (currentContent.ministries && currentContent.ministries.houseFellowships) || [];
       const mins = this.getAllMinistryItems();
+      const leaders = this.getAllLeadershipItems();
 
       // Update Badge counts
       const bPubs = document.getElementById('badgePublications');
@@ -449,6 +469,9 @@
       const bMins = document.getElementById('badgeMinistries');
       if (bMins) bMins.textContent = mins.length;
 
+      const bLeaders = document.getElementById('badgeLeadership');
+      if (bLeaders) bLeaders.textContent = leaders.length;
+
       // Dashboard stats
       const statP = document.getElementById('statPublicationsCount');
       if (statP) statP.textContent = pubs.length;
@@ -461,6 +484,9 @@
 
       const statF = document.getElementById('statFellowshipsCount');
       if (statF) statF.textContent = fellowships.length;
+
+      const statL = document.getElementById('statLeadershipCount');
+      if (statL) statL.textContent = leaders.length;
     },
 
     /* ======================================================================
@@ -647,6 +673,91 @@
     },
 
     /* ======================================================================
+       Leadership Team View
+       ====================================================================== */
+    renderLeadershipView(filteredItems) {
+      if (typeof document === 'undefined') return;
+      const grid = document.getElementById('gridLeadership');
+      if (!grid) return;
+
+      const items = filteredItems || this.getAllLeadershipItems();
+
+      if (items.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--muted);">No leadership personnel found. Click "+ Add Leader / Personnel" to add one.</div>`;
+        return;
+      }
+
+      grid.innerHTML = items.map((item) => {
+        const hasPhoto = item.image && item.image.trim() !== '';
+        const initials = item.name
+          .split(/[\s,()]+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(w => w[0].toUpperCase())
+          .join('') || 'LP';
+
+        return `
+          <div class="admin-item-card">
+            <div style="background: linear-gradient(160deg, #162249 0%, #1c2c5c 100%); padding: 1.75rem 1.5rem 1.25rem; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative;">
+              <div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; margin-bottom: 0.85rem; border: 3px solid var(--yellow); box-shadow: 0 4px 12px rgba(0,0,0,0.25); background: #1c2c5c; display: grid; place-items: center; flex-shrink: 0;">
+                ${hasPhoto
+                  ? `<img src="../${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span style="display:none; color:var(--yellow); font-family:'Fraunces',serif; font-size:1.6rem; font-weight:700;">${initials}</span>`
+                  : `<span style="color: var(--yellow); font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700;">${initials}</span>`
+                }
+              </div>
+              <h3 style="font-family: 'Fraunces', serif; color: var(--white); font-size: 1.2rem; margin: 0 0 0.35rem; line-height: 1.2;">${item.name}</h3>
+              <span style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--yellow);">${item.position}</span>
+            </div>
+            <div class="admin-item-body" style="padding: 1.25rem;">
+              <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 0.85rem; word-break: break-all;">
+                <strong>Photo:</strong> ${hasPhoto ? item.image : '<em style="color:#94a3b8;">Monogram avatar (auto-generated)</em>'}
+              </div>
+              <div class="admin-item-actions">
+                <span class="admin-nav-badge">Leader #${item._index + 1}</span>
+                <div class="admin-action-btn-group">
+                  <button class="admin-icon-btn" title="Edit Leader" onclick="AdminPortal.openItemModal('leadership', '${item.id}')">✏️</button>
+                  <button class="admin-icon-btn danger" title="Delete Leader" onclick="AdminPortal.deleteItem('leadership', '${item.id}')">🗑️</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    },
+
+    /* ======================================================================
+       Leadership Section Header Form
+       ====================================================================== */
+    populateLeadershipHeaderForm() {
+      if (typeof document === 'undefined') return;
+      const lead = (currentContent.about && currentContent.about.leadership) || {};
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || '';
+      };
+      setVal('leadershipSettingEyebrow', lead.eyebrow || 'Our leadership');
+      setVal('leadershipSettingTitle', lead.title || 'Shepherds of the flock.');
+      setVal('leadershipSettingDescription', lead.description || "Trusted men and women called to serve with humility, faithfulness, and a love for God's people.");
+    },
+
+    async saveLeadershipHeaderSettings() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+      };
+
+      if (!currentContent.about) currentContent.about = {};
+      if (!currentContent.about.leadership) currentContent.about.leadership = { team: [] };
+
+      currentContent.about.leadership.eyebrow = getVal('leadershipSettingEyebrow') || 'Our leadership';
+      currentContent.about.leadership.title = getVal('leadershipSettingTitle') || 'Shepherds of the flock.';
+      currentContent.about.leadership.description = getVal('leadershipSettingDescription') || '';
+
+      await this.syncSectionToSupabase('about', currentContent.about);
+      this.showToast('Leadership section header updated live in Supabase DB!', 'success');
+    },
+
+    /* ======================================================================
        Populate Site Settings Form
        ====================================================================== */
     populateSiteSettingsForm() {
@@ -751,6 +862,14 @@
           (item.subtitle || item.description || '').toLowerCase().includes(q)
         );
         this.renderMinistriesView(filtered);
+      } else if (type === 'leadership') {
+        const q = (document.getElementById('searchLeadership')?.value || '').toLowerCase();
+        const all = this.getAllLeadershipItems();
+        const filtered = all.filter(item =>
+          (item.name || '').toLowerCase().includes(q) ||
+          (item.position || '').toLowerCase().includes(q)
+        );
+        this.renderLeadershipView(filtered);
       }
     },
 
@@ -773,6 +892,8 @@
           item = (currentContent.ministries.houseFellowships || []).find(i => i.id === itemId || String(i.id) === String(itemId));
         } else if (sectionKey === 'ministries') {
           item = this.getAllMinistryItems().find(i => i.id === itemId);
+        } else if (sectionKey === 'leadership') {
+          item = this.getAllLeadershipItems().find(i => i.id === itemId || `leader_${i._index}` === itemId);
         }
       }
 
@@ -784,6 +905,8 @@
       if (titleEl) {
         if (sectionKey === 'publications' && editingState.isSundaySchool) {
           titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Sunday School Reading (Immersive Outline)`;
+        } else if (sectionKey === 'leadership') {
+          titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Leader / Personnel`;
         } else {
           titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} ${sectionKey.slice(0, -1)}`;
         }
@@ -1230,6 +1353,30 @@
             <textarea id="modalField_overview" class="admin-textarea" placeholder="Detailed overview paragraph text...">${overviewStr}</textarea>
           </div>
         `;
+      } else if (sectionKey === 'leadership') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Personnel ID / Key</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'leader_' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Leadership Position / Title</label>
+              <input type="text" id="modalField_position" class="admin-input" value="${item.position || ''}" placeholder="e.g. Senior Pastor, Pastor, Deacon, Deaconess" required>
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Full Name</label>
+            <input type="text" id="modalField_name" class="admin-input" value="${item.name || ''}" placeholder="e.g. Pastor John Doe" required>
+          </div>
+          <div class="admin-input-group">
+            <label>Portrait Photo Path / URL (Optional)</label>
+            <input type="text" id="modalField_image" class="admin-input" value="${item.image || ''}" placeholder="e.g. assets/people/senior-pastor.jpg">
+            <small style="color: var(--muted); font-size: 0.8rem; display: block; margin-top: 0.35rem;">
+              💡 If left blank, the website will automatically generate an elegant monogram avatar badge with the leader's initials.
+            </small>
+          </div>
+        `;
       }
 
       container.innerHTML = html;
@@ -1353,6 +1500,29 @@
                 <span style="color: var(--red);">🔗 ${getF('href') || '#'}</span>
               </div>
             </div>
+          </div>
+        `;
+      } else if (sec === 'leadership') {
+        const name = getF('name') || 'Leader Name';
+        const position = getF('position') || 'Position / Title';
+        const img = getF('image');
+        const initials = name
+          .split(/[\s,()]+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(w => w[0].toUpperCase())
+          .join('') || 'LP';
+
+        box.innerHTML = `
+          <div style="background: linear-gradient(160deg, #0e1a3d 0%, #162249 55%, #1c2c5c 100%); border-radius: 20px; padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative;">
+            <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-bottom: 1rem; border: 3px solid var(--yellow); box-shadow: 0 6px 18px rgba(0,0,0,0.35); background: #1c2c5c; display: grid; place-items: center;">
+              ${img
+                ? `<img src="../${img}" alt="${name}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"><span style="display:none; color:var(--yellow); font-family:'Fraunces',serif; font-size:2rem; font-weight:700;">${initials}</span>`
+                : `<span style="color: var(--yellow); font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700;">${initials}</span>`
+              }
+            </div>
+            <strong style="font-family: 'Fraunces', Georgia, serif; font-size: 1.25rem; color: var(--white); margin-bottom: 0.35rem; line-height: 1.2;">${name}</strong>
+            <span style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--yellow);">${position}</span>
           </div>
         `;
       } else {
@@ -1619,6 +1789,34 @@
 
         await this.syncSectionToSupabase('ministries', currentContent.ministries);
         this.renderMinistriesView();
+      } else if (sec === 'leadership') {
+        if (!currentContent.about) currentContent.about = {};
+        if (!currentContent.about.leadership) currentContent.about.leadership = { team: [] };
+        if (!Array.isArray(currentContent.about.leadership.team)) currentContent.about.leadership.team = [];
+
+        const name = getF('name') || 'Leader Name';
+        const position = getF('position') || 'Position / Title';
+        const image = getF('image') || '';
+
+        const leaderObj = {
+          id: id,
+          name: name,
+          position: position,
+          image: image
+        };
+
+        const existingIdx = currentContent.about.leadership.team.findIndex(
+          (p, idx) => p.id === editingState.itemId || `leader_${idx}` === editingState.itemId || (editingState.itemId && p.id === id)
+        );
+
+        if (existingIdx >= 0) {
+          currentContent.about.leadership.team[existingIdx] = leaderObj;
+        } else {
+          currentContent.about.leadership.team.push(leaderObj);
+        }
+
+        await this.syncSectionToSupabase('about', currentContent.about);
+        this.renderLeadershipView();
       }
 
       this.renderStatsAndBadges();
@@ -1630,7 +1828,7 @@
      * Deletes item from section
      */
     async deleteItem(sectionKey, itemId) {
-      if (!confirm(`Are you sure you want to delete this ${sectionKey.slice(0, -1)}?`)) {
+      if (!confirm(`Are you sure you want to delete this ${sectionKey === 'leadership' ? 'leadership personnel' : sectionKey.slice(0, -1)}?`)) {
         return;
       }
 
@@ -1684,6 +1882,14 @@
           await this.syncSectionToSupabase('ministries', currentContent.ministries);
         }
         this.renderMinistriesView();
+      } else if (sectionKey === 'leadership') {
+        if (currentContent.about && currentContent.about.leadership && Array.isArray(currentContent.about.leadership.team)) {
+          currentContent.about.leadership.team = currentContent.about.leadership.team.filter(
+            (p, idx) => p.id !== itemId && `leader_${idx}` !== itemId
+          );
+          await this.syncSectionToSupabase('about', currentContent.about);
+          this.renderLeadershipView();
+        }
       }
 
       this.renderStatsAndBadges();

@@ -290,6 +290,44 @@ function renderAbout(content) {
       </article>
     `).join("");
   }
+
+  const leadership = content.about?.leadership;
+  if (leadership) {
+    setText("[data-about-leadership-eyebrow]", leadership.eyebrow || "Our leadership");
+    setText("[data-about-leadership-title]", leadership.title || "Shepherds of the flock.");
+    setText("[data-about-leadership-description]", leadership.description || "Trusted men and women called to serve with humility, faithfulness, and a love for God's people.");
+
+    const teamGrid = document.querySelector("[data-about-leadership-team]");
+    if (teamGrid) {
+      const team = Array.isArray(leadership.team) ? leadership.team : [];
+      if (team.length) {
+        teamGrid.innerHTML = team.map((person, i) => {
+          const hasPhoto = person.image && person.image.trim() !== "";
+          const initials = (person.name || "LP")
+            .split(/[\s,()]+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(w => w[0].toUpperCase())
+            .join("") || "LP";
+          const photoHtml = hasPhoto
+            ? `<img class="leader-photo" src="${escapeHtml(person.image)}" alt="Photo of ${escapeHtml(person.name || 'Leader')}" loading="lazy">`
+            : `<div class="leader-avatar" aria-hidden="true"><span>${escapeHtml(initials)}</span></div>`;
+          return `
+            <article class="leader-card" style="--i:${i}">
+              <div class="leader-photo-wrap">
+                ${photoHtml}
+                <div class="leader-photo-ring"></div>
+              </div>
+              <div class="leader-info">
+                <strong class="leader-name">${escapeHtml(person.name || 'Leader')}</strong>
+                <span class="leader-position">${escapeHtml(person.position || 'Leader')}</span>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+    }
+  }
 }
 
 function renderChapels(content) {
@@ -300,7 +338,7 @@ function renderChapels(content) {
     current.innerHTML = content.chapels.current.map(chapel => `
       <article class="card campus-card">
         <div class="campus-logo-wrap">
-          <img class="campus-logo" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} logo">
+          <img class="campus-logo" loading="lazy" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} logo">
         </div>
         <div class="campus-body">
           <div class="meta">${escapeHtml(chapel.status)}</div>
@@ -316,7 +354,7 @@ function renderChapels(content) {
     upcoming.innerHTML = content.chapels.upcoming.map(chapel => `
       <article class="card campus-card upcoming-card">
         <div class="campus-logo-wrap">
-          <img class="campus-logo" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} placeholder logo">
+          <img class="campus-logo" loading="lazy" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} placeholder logo">
         </div>
         <div class="campus-body">
           <div class="meta">Upcoming</div>
@@ -2069,6 +2107,43 @@ function setupNavigation() {
   });
 }
 
+/**
+ * IntersectionObserver utility for lazy-loading images and delayed content blocks on scroll.
+ */
+function setupLazyContentObservers() {
+  if (typeof IntersectionObserver === "undefined") return;
+
+  const lazyObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+
+        // Lazy load images with data-src
+        if (el.dataset.src) {
+          el.src = el.dataset.src;
+          el.removeAttribute("data-src");
+        }
+
+        // Lazy load background images with data-bg
+        if (el.dataset.bg) {
+          el.style.backgroundImage = `url('${el.dataset.bg}')`;
+          el.removeAttribute("data-bg");
+        }
+
+        el.classList.add("lazy-loaded");
+        observer.unobserve(el);
+      }
+    });
+  }, {
+    rootMargin: "200px 0px", // Trigger 200px before element enters viewport
+    threshold: 0.01
+  });
+
+  document.querySelectorAll("img[loading='lazy'], [data-src], [data-bg], .card").forEach(el => {
+    lazyObserver.observe(el);
+  });
+}
+
 async function initialiseSite() {
   try {
     const page = document.body.dataset.page;
@@ -2106,6 +2181,7 @@ async function initialiseSite() {
 
     renderers[page]?.(content);
     setupNavigation();
+    setupLazyContentObservers();
     document.body.dataset.contentLoading = "false";
   } catch (error) {
     console.error(error);

@@ -142,6 +142,15 @@
               <span id="badgeMinistries" class="admin-nav-badge">0</span>
             </button>
           </li>
+          <li class="admin-nav-item" data-tab="leadership">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">👥</span>
+                <span>Leadership Team</span>
+              </div>
+              <span id="badgeLeadership" class="admin-nav-badge">0</span>
+            </button>
+          </li>
           <li class="admin-nav-item" data-tab="siteSettings">
             <button type="button">
               <div class="admin-nav-label-group">
@@ -221,6 +230,13 @@
               <div class="admin-stat-label">Fellowships</div>
             </div>
           </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">👥</div>
+            <div class="admin-stat-info">
+              <div id="statLeadershipCount" class="admin-stat-number">0</div>
+              <div class="admin-stat-label">Leaders</div>
+            </div>
+          </div>
         </div>
 
         <!-- Quick Links / Recent Activity -->
@@ -238,6 +254,14 @@
                 readings, lesson outlines, teacher's corner & class discussions.</p>
               <button class="btn btn-primary admin-btn-sm"
                 onclick="AdminPortal.openItemModal('publications', null, true)">📖 Launch SS Immersive Editor →</button>
+            </div>
+            <div
+              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
+              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Leadership Team</h4>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage pastoral leadership personnels,
+                positions, titles, and portrait photos.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('leadership')">Manage Leadership
+                →</button>
             </div>
             <div
               style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
@@ -427,6 +451,62 @@
         </div>
 
         <div id="gridMinistries" class="admin-cards-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Leadership Team
+           ------------------------------------------------------------------ -->
+      <section id="panelLeadership" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Church Leadership Team</h2>
+            <p>Manage pastoral leadership personnels, positions, titles, and portrait photos on the About page.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('leadership')">
+              + Add Leader / Personnel
+            </button>
+          </div>
+        </div>
+
+        <!-- Section Header Settings Card -->
+        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="color: var(--navy); margin: 0 0 0.25rem;">About Page Section Header</h3>
+              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Customize the eyebrow, heading title, and description displayed above the leadership cards on the About page.</p>
+            </div>
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.saveLeadershipHeaderSettings()">
+              💾 Save Section Header
+            </button>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label for="leadershipSettingEyebrow">Eyebrow Text</label>
+              <input type="text" id="leadershipSettingEyebrow" class="admin-input" placeholder="Our leadership">
+            </div>
+            <div class="admin-input-group">
+              <label for="leadershipSettingTitle">Section Title</label>
+              <input type="text" id="leadershipSettingTitle" class="admin-input" placeholder="Shepherds of the flock.">
+            </div>
+          </div>
+          <div class="admin-input-group" style="margin-bottom: 0;">
+            <label for="leadershipSettingDescription">Section Subtitle / Description</label>
+            <input type="text" id="leadershipSettingDescription" class="admin-input" placeholder="Trusted men and women called to serve with humility, faithfulness, and a love for God's people.">
+          </div>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <span class="admin-search-icon">🔍</span>
+            <input type="text" id="searchLeadership" placeholder="Search leaders by name or position..."
+              oninput="AdminPortal.filterItems('leadership')">
+          </div>
+        </div>
+
+        <div id="gridLeadership" class="admin-cards-grid">
           <!-- Rendered dynamically -->
         </div>
       </section>

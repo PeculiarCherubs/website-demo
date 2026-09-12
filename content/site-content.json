@@ -231,7 +231,44 @@
         "title": "Purposeful Service",
         "text": "We use our gifts to strengthen the church and bless the world."
       }
-    ]
+    ],
+    "leadership": {
+      "eyebrow": "Our leadership",
+      "title": "Shepherds of the flock.",
+      "description": "Trusted men and women called to serve with humility, faithfulness, and a love for God's people.",
+      "team": [
+        {
+          "name": "Senior Pastor",
+          "position": "Senior Pastor",
+          "image": "assets/people/senior-pastor.jpg"
+        },
+        {
+          "name": "Pastor (Administration)",
+          "position": "Pastor, Administration",
+          "image": ""
+        },
+        {
+          "name": "Pastor (Youth & Discipleship)",
+          "position": "Pastor, Youth & Discipleship",
+          "image": ""
+        },
+        {
+          "name": "Deacon (Finance)",
+          "position": "Deacon, Finance",
+          "image": ""
+        },
+        {
+          "name": "Deaconess (Welfare)",
+          "position": "Deaconess, Welfare",
+          "image": ""
+        },
+        {
+          "name": "Evangelist (Outreach)",
+          "position": "Evangelist, Outreach",
+          "image": ""
+        }
+      ]
+    }
   },
   "chapels": {
     "hero": {
