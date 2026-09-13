@@ -16,6 +16,7 @@
   const DB_REROUTED_PAGES = new Set([
     'ministries',
     'ministryDetail',
+    'chapels',
     'houseFellowships',
     'bibleCollege',
     'publications',

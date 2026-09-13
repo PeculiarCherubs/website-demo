@@ -6160,3 +6160,28 @@ body.teacher-mode .ss-teacher-card {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+
+/* Separate Chapels landing page */
+.chapel-link-card {
+  display: block;
+  color: inherit;
+}
+
+.chapel-link-card .campus-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.chapel-card-link {
+  margin-top: .5rem;
+}
+
+.chapel-link-card:hover .chapel-card-link {
+  color: var(--red);
+}
+
+.chapel-card-grid {
+  align-items: stretch;
+}

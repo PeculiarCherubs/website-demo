@@ -333,25 +333,40 @@ function renderAbout(content) {
 function renderChapels(content) {
   renderStandardHero(content.chapels);
 
+  const inferredHref = chapel => {
+    if (chapel.href) return chapel.href;
+
+    const name = String(chapel.name || "").toLowerCase();
+    if (name.includes("gwarinpa")) return "pdcm-gwarinpa.html";
+    if (name.includes("english")) return "pdcm-english.html";
+    if (name.includes("byazhin")) return "pdcm-byazhin.html";
+    if (name.includes("mega youth")) return "pdcm-mega-youth.html";
+    return "#";
+  };
+
   const current = document.querySelector("[data-current-chapels]");
   if (current) {
-    current.innerHTML = content.chapels.current.map(chapel => `
-      <article class="card campus-card">
-        <div class="campus-logo-wrap">
-          <img class="campus-logo" loading="lazy" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} logo">
-        </div>
-        <div class="campus-body">
-          <div class="meta">${escapeHtml(chapel.status)}</div>
-          <h3>${escapeHtml(chapel.name)}</h3>
-          <p>${escapeHtml(chapel.subtitle)}</p>
-        </div>
-      </article>
-    `).join("");
+    current.innerHTML = (content.chapels.current || []).map(chapel => {
+      const href = inferredHref(chapel);
+      return `
+        <a class="card campus-card chapel-link-card" href="${escapeHtml(href)}">
+          <div class="campus-logo-wrap">
+            <img class="campus-logo" loading="lazy" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} logo">
+          </div>
+          <div class="campus-body">
+            <div class="meta">${escapeHtml(chapel.status || "Current Chapel")}</div>
+            <h3>${escapeHtml(chapel.name)}</h3>
+            <p>${escapeHtml(chapel.subtitle || "")}</p>
+            <span class="text-link chapel-card-link">Explore chapel ↗</span>
+          </div>
+        </a>
+      `;
+    }).join("");
   }
 
   const upcoming = document.querySelector("[data-upcoming-chapels]");
   if (upcoming) {
-    upcoming.innerHTML = content.chapels.upcoming.map(chapel => `
+    upcoming.innerHTML = (content.chapels.upcoming || []).map(chapel => `
       <article class="card campus-card upcoming-card">
         <div class="campus-logo-wrap">
           <img class="campus-logo" loading="lazy" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} placeholder logo">
