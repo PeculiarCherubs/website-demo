@@ -2221,18 +2221,85 @@ function setupNavigation() {
   });
 }
 
-async function initialiseSite() {
-  try {
-    const response = await fetch(CONTENT_PATH, { cache: "no-store" });
+function mergeSiteContent(base, override) {
+  if (Array.isArray(override)) return [...override];
+  if (!override || typeof override !== "object") {
+    return override === undefined ? base : override;
+  }
 
-    if (!response.ok) {
-      throw new Error(`Content request failed with status ${response.status}.`);
+  const result = {
+    ...(base && typeof base === "object" && !Array.isArray(base) ? base : {})
+  };
+
+  Object.entries(override).forEach(([key, value]) => {
+    if (key === "_source") {
+      result[key] = value;
+      return;
     }
 
-    const content = await response.json();
-    renderShared(content);
+    if (
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      result[key] &&
+      typeof result[key] === "object" &&
+      !Array.isArray(result[key])
+    ) {
+      result[key] = mergeSiteContent(result[key], value);
+    } else {
+      result[key] = Array.isArray(value) ? [...value] : value;
+    }
+  });
 
+  return result;
+}
+
+async function loadLocalContent() {
+  const response = await fetch(CONTENT_PATH, { cache: "no-store" });
+
+  if (!response.ok) {
+    throw new Error(`Content request failed with status ${response.status}.`);
+  }
+
+  return response.json();
+}
+
+async function loadMergedContent(page) {
+  const localContent = await loadLocalContent();
+
+  if (typeof ContentService === "undefined") {
+    return {
+      ...localContent,
+      _source: "local"
+    };
+  }
+
+  try {
+    const liveContent = await ContentService.getPageContent(page);
+
+    // The newer local JSON is the schema baseline. Supabase values override
+    // matching keys, while newer keys (for example publications.blog) survive
+    // when the database was populated from an older branch.
+    const merged = mergeSiteContent(localContent, liveContent || {});
+    merged._source = liveContent?._source || "supabase+local";
+    return merged;
+  } catch (serviceError) {
+    console.warn("[ContentService] Live content unavailable; using local fallback.", serviceError);
+    return {
+      ...localContent,
+      _source: "local-fallback"
+    };
+  }
+}
+
+async function initialiseSite() {
+  try {
     const page = document.body.dataset.page;
+    const content = await loadMergedContent(page);
+
+    renderShared(content);
+    console.log(`[SiteInit] Loaded page '${page}' content (source: ${content._source || "local"}).`);
+
     const renderers = {
       home: renderHome,
       about: renderAbout,
