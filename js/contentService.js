@@ -22,7 +22,9 @@
     'publicationDetail',
     'sermons',
     'about',
-    'sundaySchoolDetail'
+    'sundaySchoolDetail',
+    'publicationPost',
+    'events'
   ]);
 
   // Critical shared sections required for initial header/footer paint
@@ -40,6 +42,7 @@
     sermons: ['sermons'],
     publications: ['publications'],
     publicationDetail: ['publications'],
+    publicationPost: ['publications'],
     sundaySchoolDetail: ['publications'],
     quickLinks: ['quickLinks'],
     events: ['events'],

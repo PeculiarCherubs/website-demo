@@ -101,7 +101,7 @@
 
       const val = input ? input.value.trim() : '';
 
-      if (val === MASTER_PASSCODE || val === 'admin' || val.length >= 4) {
+      if (val === MASTER_PASSCODE) {
         sessionStorage.setItem(AUTH_KEY, 'true');
         if (errorMsg) errorMsg.style.display = 'none';
         if (authOverlay) authOverlay.classList.add('hidden');
@@ -301,7 +301,32 @@
         });
       }
 
-      // 3. General Items Array (if present)
+      // 3. New publication blog posts (publications.blog.posts)
+      if (pubs.blog && Array.isArray(pubs.blog.posts)) {
+        pubs.blog.posts.forEach(post => {
+          if (!post) return;
+          const postId = post.id || post.slug;
+          if (!postId || items.some(i => i.id === postId)) return;
+
+          items.push({
+            id: postId,
+            slug: post.slug || postId,
+            title: post.title || 'Publication',
+            category: post.category || 'publication',
+            type: post.type || 'Publication',
+            date: post.date || '2026',
+            description: post.excerpt || '',
+            author: post.author || 'Peculiar Cherubs Publications',
+            coverImage: post.cover?.image || 'assets/hero/mother-church-brand.jpg',
+            pdfUrl: post.pdfUrl || '',
+            template: post.template || '',
+            _raw: post,
+            _sourceGroup: 'blog'
+          });
+        });
+      }
+
+      // 4. General Items Array (if present)
       if (pubs.items && Array.isArray(pubs.items)) {
         pubs.items.forEach(gen => {
           if (!items.some(i => i.id === gen.id)) {
@@ -1140,8 +1165,11 @@
               <div class="admin-input-group">
                 <label>Category</label>
                 <select id="modalField_category" class="admin-select" style="width:100%;">
-                  <option value="Goodnews Weekly" ${item.category === 'Goodnews Weekly' ? 'selected' : ''}>Goodnews Weekly</option>
-                  <option value="Sunday School" ${item.category === 'Sunday School' ? 'selected' : ''}>Sunday School</option>
+                  <option value="devotion" ${item.category === 'devotion' ? 'selected' : ''}>Morning Devotion</option>
+                  <option value="goodnews" ${item.category === 'goodnews' ? 'selected' : ''}>Goodnews Blog Post</option>
+                  <option value="sunday-school" ${item.category === 'sunday-school' ? 'selected' : ''}>Sunday School Blog Post</option>
+                  <option value="Goodnews Weekly" ${item.category === 'Goodnews Weekly' ? 'selected' : ''}>Legacy Goodnews Issue</option>
+                  <option value="Sunday School" ${item.category === 'Sunday School' ? 'selected' : ''}>Interactive Sunday School</option>
                   <option value="Books" ${item.category === 'Books' ? 'selected' : ''}>Books</option>
                   <option value="Magazines" ${item.category === 'Magazines' ? 'selected' : ''}>Magazines</option>
                 </select>
@@ -1606,7 +1634,78 @@
         } else {
           // Save standard publication into items or archive/details
           const category = getF('category');
-          if (category === 'Goodnews Weekly' || id.startsWith('issue-')) {
+          if (
+            editingState.itemData?._sourceGroup === 'blog' ||
+            ['devotion', 'goodnews', 'sunday-school'].includes(category)
+          ) {
+            if (!currentContent.publications.blog) {
+              currentContent.publications.blog = { categories: [], posts: [] };
+            }
+            if (!Array.isArray(currentContent.publications.blog.posts)) {
+              currentContent.publications.blog.posts = [];
+            }
+
+            const existingIdx = currentContent.publications.blog.posts.findIndex(
+              p => p.id === editingState.itemId || p.id === id || p.slug === editingState.itemData?.slug
+            );
+            const existing = existingIdx >= 0
+              ? currentContent.publications.blog.posts[existingIdx]
+              : (editingState.itemData?._raw || {});
+
+            const makeSlug = value => String(value || '')
+              .toLowerCase()
+              .trim()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '');
+
+            const typeMap = {
+              devotion: 'Daily Morning Devotion',
+              goodnews: 'Goodnews This Week',
+              'sunday-school': 'Sunday School'
+            };
+            const templateMap = {
+              devotion: 'devotion',
+              goodnews: 'goodnews',
+              'sunday-school': 'sundaySchool'
+            };
+            const themeMap = {
+              devotion: 'navy',
+              goodnews: 'yellow',
+              'sunday-school': 'red'
+            };
+
+            const description = getF('description');
+            const blogItem = {
+              ...existing,
+              id: id,
+              slug: existing.slug || editingState.itemData?.slug || makeSlug(getF('title')) || id,
+              type: existing.type || typeMap[category] || 'Publication',
+              category: category,
+              template: existing.template || templateMap[category] || '',
+              date: getF('date') || existing.date || '2026',
+              title: getF('title'),
+              excerpt: description,
+              author: getF('author') || existing.author || 'Peculiar Cherubs Publications',
+              featured: Boolean(existing.featured),
+              tags: Array.isArray(existing.tags) ? existing.tags : [],
+              cover: {
+                ...(existing.cover || {}),
+                theme: existing.cover?.theme || themeMap[category] || 'navy',
+                label: existing.cover?.label || typeMap[category] || 'Publication',
+                monogram: existing.cover?.monogram || 'PC'
+              },
+              details: existing.details || {},
+              blocks: Array.isArray(existing.blocks) && existing.blocks.length
+                ? existing.blocks
+                : (description ? [{ type: 'paragraph', text: description }] : [])
+            };
+
+            if (existingIdx >= 0) {
+              currentContent.publications.blog.posts[existingIdx] = blogItem;
+            } else {
+              currentContent.publications.blog.posts.unshift(blogItem);
+            }
+          } else if (category === 'Goodnews Weekly' || id.startsWith('issue-')) {
             if (!currentContent.publications.details) currentContent.publications.details = {};
             if (!currentContent.publications.archive) currentContent.publications.archive = [];
 
@@ -1850,6 +1949,13 @@
         }
         if (pubs.details && pubs.details[itemId]) {
           delete pubs.details[itemId];
+        }
+
+        // Delete from new publication blog posts
+        if (pubs.blog && Array.isArray(pubs.blog.posts)) {
+          pubs.blog.posts = pubs.blog.posts.filter(
+            p => p.id !== itemId && p.slug !== itemId
+          );
         }
 
         // Delete from items array
