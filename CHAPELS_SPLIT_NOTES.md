@@ -30,3 +30,17 @@ PDCM Mission remains under Ministries because its content identifies it as the c
 
 ## Admin portal
 The Admin Portal still uses the combined label `Ministries & Chapels` for content management. This change separates the public website navigation only.
+
+
+## Navigation consistency fix
+
+The Supabase `navigation` section still contains the older menu structure.
+Previously, DB-rerouted pages loaded that old navigation, which is why CHAPELS
+appeared correctly on Home but disappeared on About, Ministries, Sermons, etc.
+
+`script.js` now always uses the current repository navigation from
+`content/site-content.json` while continuing to use Supabase for the rest of
+the page content.
+
+Once the Supabase `navigation` row is migrated to the same CHAPELS / MINISTRIES
+structure, this explicit local-navigation preference can be removed if desired.

@@ -2318,9 +2318,13 @@ async function loadLocalContent() {
 }
 
 async function loadMergedContent(page) {
+  const localContent = typeof ContentService !== "undefined"
+    ? await ContentService.fetchLocalFallback()
+    : await loadLocalContent();
+
   if (typeof ContentService === "undefined") {
     return {
-      ...(await loadLocalContent()),
+      ...localContent,
       _source: "local"
     };
   }
@@ -2328,29 +2332,26 @@ async function loadMergedContent(page) {
   try {
     const liveContent = await ContentService.getPageContent(page);
 
-    // These sections evolved beyond the older database branch.
-    // Merge their live DB values over the newer local schema so new keys
-    // such as publications.blog are never lost.
-    const schemaSensitivePages = new Set([
-      "publications",
-      "publicationPost",
-      "publicationDetail",
-      "sundaySchoolDetail",
-      "events"
-    ]);
+    // Always merge live data over the newer local schema.
+    // This protects newer structures that may not yet exist in Supabase.
+    const merged = mergeSiteContent(localContent, liveContent || {});
 
-    if (schemaSensitivePages.has(page) && String(liveContent?._source || "").startsWith("supabase")) {
-      const localContent = await ContentService.fetchLocalFallback();
-      const merged = mergeSiteContent(localContent, liveContent || {});
-      merged._source = `${liveContent._source}+local-schema`;
-      return merged;
-    }
+    // IMPORTANT:
+    // The Supabase `navigation` row is still based on the older navigation.
+    // Keep the repository's current navigation as the single shared menu
+    // until the DB navigation section is migrated to the new CHAPELS /
+    // MINISTRIES split.
+    merged.navigation = localContent.navigation;
 
-    return liveContent;
+    merged._source = String(liveContent?._source || "").startsWith("supabase")
+      ? `${liveContent._source}+local-navigation`
+      : (liveContent?._source || "local");
+
+    return merged;
   } catch (serviceError) {
     console.warn("[ContentService] Live content unavailable; using local fallback.", serviceError);
     return {
-      ...(await loadLocalContent()),
+      ...localContent,
       _source: "local-fallback"
     };
   }
