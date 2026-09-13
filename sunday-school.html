@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sunday School Outline | Peculiar Cherubs</title>
+  <meta name="description" content="Study Sunday School lesson outlines, memory verses, objectives, and discussion notes for Peculiar Cherubs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body data-page="sundaySchoolDetail" data-content-loading="true">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" data-site-logo alt="Peculiar Cherubs logo">
+        <span data-site-short-name></span>
+      </a>
+
+      <button class="menu-btn" type="button" aria-label="Open navigation" aria-expanded="false">
+        ☰
+      </button>
+
+      <nav class="nav-links" aria-label="Primary navigation" data-navigation></nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="page-hero branded-page-hero sunday-school-hero">
+      <div class="page-hero-brand-mark" aria-hidden="true"></div>
+      <div class="container">
+        <div class="hero-meta-badges">
+          <span class="eyebrow" data-ss-eyebrow>Publications · Sunday School</span>
+          <span class="ss-badge ss-badge-quarter" data-ss-quarter></span>
+          <span class="ss-badge ss-badge-lesson-num" data-ss-lesson-num></span>
+        </div>
+
+        <h1 data-ss-title>Loading Sunday School Outline...</h1>
+        <p data-ss-subtitle></p>
+
+        <div class="ss-hero-quick-meta">
+          <div class="ss-meta-item">
+            <span class="ss-meta-label">Date</span>
+            <strong data-ss-date></strong>
+          </div>
+          <div class="ss-meta-item">
+            <span class="ss-meta-label">Memory Verse</span>
+            <strong data-ss-verse-ref></strong>
+          </div>
+          <div class="ss-meta-item">
+            <span class="ss-meta-label">Target Class</span>
+            <strong data-ss-audience></strong>
+          </div>
+          <div class="ss-meta-item">
+            <span class="ss-meta-label">Duration</span>
+            <strong data-ss-duration></strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Sticky Control Toolbar -->
+    <div class="ss-toolbar-wrapper">
+      <div class="container ss-toolbar">
+        <div class="ss-toolbar-left">
+          <label class="ss-lesson-select-wrapper">
+            <span class="ss-toolbar-label">Lesson:</span>
+            <select class="ss-lesson-select" data-ss-lesson-select aria-label="Select Sunday School Lesson"></select>
+          </label>
+
+          <button type="button" class="ss-mode-btn" data-ss-toggle-teacher aria-pressed="false">
+            <span class="ss-mode-icon">🎓</span>
+            <span class="ss-mode-text">Teacher Mode</span>
+          </button>
+        </div>
+
+        <div class="ss-toolbar-center">
+          <div class="ss-audio-player" data-ss-audio-player>
+            <button type="button" class="ss-audio-play-btn" data-ss-audio-play aria-label="Listen to Lesson Audio">
+              <span class="ss-audio-icon">▶</span>
+              <span data-ss-audio-btn-text>Listen</span>
+            </button>
+            <div class="ss-audio-status" data-ss-audio-status>Ready to read aloud</div>
+          </div>
+        </div>
+
+        <div class="ss-toolbar-right">
+          <div class="ss-font-adjuster">
+            <button type="button" class="ss-font-btn" data-ss-font-decrease title="Decrease text size" aria-label="Decrease text size">A-</button>
+            <button type="button" class="ss-font-btn" data-ss-font-increase title="Increase text size" aria-label="Increase text size">A+</button>
+          </div>
+
+          <button type="button" class="ss-action-btn" data-ss-print title="Print Sunday School Outline">
+            🖨️ Print
+          </button>
+
+          <a class="ss-action-btn ss-btn-primary" data-ss-pdf-btn download>
+            📥 PDF
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Section -->
+    <section class="section ss-main-section">
+      <div class="container ss-grid">
+        <!-- Left Table of Contents -->
+        <aside class="ss-toc-col" aria-label="Outline Contents">
+          <div class="ss-toc-sticky">
+            <div class="ss-toc-card">
+              <h3>On This Page</h3>
+              <div class="ss-reading-progress">
+                <div class="ss-progress-bar" data-ss-progress-bar></div>
+              </div>
+              <nav class="ss-toc-nav" data-ss-toc-nav>
+                <a href="#ss-section-verse" class="ss-toc-link active">1. Memory Verse</a>
+                <a href="#ss-section-scriptures" class="ss-toc-link">2. Scripture Readings</a>
+                <a href="#ss-section-objectives" class="ss-toc-link">3. Objectives & Intro</a>
+                <a href="#ss-section-outlines" class="ss-toc-link">4. Lesson Outlines</a>
+                <a href="#ss-section-discussion" class="ss-toc-link">5. Class Discussion</a>
+                <a href="#ss-section-teacher" class="ss-toc-link ss-toc-teacher-only">6. Teacher's Corner</a>
+                <a href="#ss-section-application" class="ss-toc-link">7. Life Application</a>
+              </nav>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Center Main Study Reader -->
+        <div class="ss-reader-col" data-ss-reader>
+          <div data-ss-content>
+            <!-- Dynamic Content Injected Here -->
+          </div>
+        </div>
+
+        <!-- Right Side Rail -->
+        <aside class="ss-siderail-col">
+          <div class="ss-siderail-sticky">
+            <!-- Curriculum Series Card -->
+            <div class="ss-side-block ss-curriculum-block">
+              <span class="eyebrow" style="color:var(--yellow);margin-bottom:0.4rem;">Curriculum</span>
+              <h3 data-ss-volume-title>2026 Headquarters Series</h3>
+              <ul class="ss-lesson-list" data-ss-lesson-list></ul>
+            </div>
+
+            <!-- Class Schedule Timing Card -->
+            <div class="ss-side-block ss-schedule-block">
+              <span class="eyebrow" style="color:var(--red);margin-bottom:0.4rem;">Class Flow</span>
+              <h3>45-Minute Sunday Guide</h3>
+              <ul class="ss-schedule-list" data-ss-schedule-list></ul>
+            </div>
+
+            <!-- Personal Reflection Pad -->
+            <div class="ss-side-block ss-notes-block">
+              <span class="eyebrow" style="color:var(--sky);margin-bottom:0.4rem;">My Study Journal</span>
+              <h3>Personal Notes</h3>
+              <p class="ss-notes-help">Your notes save automatically in your browser.</p>
+              <textarea class="ss-quick-notes-input" data-ss-quick-notes placeholder="Type your personal insights, prayer requests, or thoughts here..."></textarea>
+              <div class="ss-notes-status" data-ss-notes-status>Saved locally</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Scripture Inline Modal Popover -->
+    <div class="ss-modal-backdrop" data-ss-scripture-modal aria-hidden="true">
+      <div class="ss-modal-card">
+        <button type="button" class="ss-modal-close" data-ss-modal-close aria-label="Close scripture popover">✕</button>
+        <span class="eyebrow" style="color:var(--yellow)" data-ss-modal-label">Scripture Passage</span>
+        <h3 class="ss-modal-title" data-ss-modal-title></h3>
+        <div class="ss-modal-body" data-ss-modal-body></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="brand" style="color:white;margin-bottom:1rem">
+            <img class="brand-logo footer-logo" data-site-logo alt="Peculiar Cherubs logo">
+            <span data-site-short-name></span>
+          </div>
+          <p data-site-full-name></p>
+        </div>
+
+        <div>
+          <h3>Explore</h3>
+          <p><a href="about.html">About Us</a></p>
+          <p><a href="pdcms.html">Our Chapels</a></p>
+        </div>
+
+        <div>
+          <h3>Connect</h3>
+          <p><a href="sermons.html">Sermons</a></p>
+          <p><a href="publications.html">Publications</a></p>
+          <p><a href="bible-college.html">Bible College</a></p>
+          <p><a href="events.html">Events</a></p>
+          <p><a href="quick-links.html">Quick Links</a></p>
+          <p><a href="give.html">Give</a></p>
+        </div>
+
+        <div>
+          <h3>Service Times</h3>
+          <p data-service-sunday></p>
+          <p data-service-midweek></p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span data-copyright-year></span> <span data-site-full-name></span>.</span>
+        <span data-site-tagline></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
