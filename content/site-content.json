@@ -257,7 +257,13 @@
         "title": "Purposeful Service",
         "text": "We use our gifts to strengthen the church and bless the world."
       }
-    ]
+    ],
+    "leadership": {
+      "eyebrow": "Our leadership",
+      "title": "Shepherds of the flock.",
+      "description": "Trusted men and women called to serve with humility, faithfulness, and a love for God's people.",
+      "team": []
+    }
   },
   "chapels": {
     "hero": {
