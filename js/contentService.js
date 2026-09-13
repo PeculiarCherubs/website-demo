@@ -20,7 +20,9 @@
     'publicationDetail',
     'sermons',
     'about',
-    'sundaySchoolDetail'
+    'sundaySchoolDetail',
+    'publicationPost',
+    'events'
   ]);
 
   // Section mappings required for specific pages (plus shared 'site', 'navigation', 'chapels')
@@ -35,6 +37,7 @@
     sermons: ['sermons'],
     publications: ['publications'],
     publicationDetail: ['publications'],
+    publicationPost: ['publications'],
     sundaySchoolDetail: ['publications'],
     quickLinks: ['quickLinks'],
     events: ['events'],
