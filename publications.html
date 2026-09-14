@@ -36,20 +36,59 @@
     </div>
   </section>
 
-  <section class="section publication-featured-section">
+  <section class="section publication-type-section publication-devotion-lead" id="daily-devotion">
     <div class="container">
       <div class="section-head">
         <div>
-          <span class="eyebrow">Featured publication</span>
-          <h2>Read the latest from Peculiar Cherubs.</h2>
+          <span class="eyebrow">Daily Morning Devotion</span>
+          <h2>Begin the day rooted in God’s Word.</h2>
         </div>
-        <p>Goodnews, devotionals and Bible-study lessons now share one structured publishing system.</p>
+        <a class="text-link" href="#publication-archive" data-filter-publications="devotion">Browse all devotions ↗</a>
       </div>
-      <div class="publication-featured" data-publication-featured></div>
+      <div data-latest-devotion></div>
     </div>
   </section>
 
-  <section class="section section-soft publication-blog-section">
+  <section class="section publication-highlights-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Read & study</span>
+          <h2>Weekly teaching and Bible study.</h2>
+        </div>
+        <p>Move between Goodnews This Week and Sunday School without losing the full publication archive below.</p>
+      </div>
+
+      <div class="publication-highlights-grid">
+        <article class="publication-highlight-panel publication-highlight-goodnews" id="goodnews">
+          <div class="publication-highlight-heading">
+            <div>
+              <span class="eyebrow">Goodnews This Week</span>
+              <h3>Teaching, church news and weekly guidance.</h3>
+            </div>
+            <a class="text-link" href="#publication-archive" data-filter-publications="goodnews">Browse Goodnews ↗</a>
+          </div>
+          <div data-latest-goodnews-blog></div>
+        </article>
+
+        <article class="publication-highlight-panel publication-highlight-school" id="sunday-school">
+          <div class="publication-highlight-heading">
+            <div>
+              <span class="eyebrow">Sunday School Bible Study</span>
+              <h3>Study notes built for learning and discussion.</h3>
+            </div>
+            <div class="publication-highlight-actions">
+              <a class="text-link" href="#publication-archive" data-filter-publications="sunday-school">Browse lessons ↗</a>
+              <a class="text-link" href="sunday-school.html">Interactive study ↗</a>
+            </div>
+          </div>
+          <div data-latest-sunday-school></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-soft publication-blog-section" id="publication-archive">
     <div class="container">
       <div class="section-head">
         <div>
@@ -69,48 +108,6 @@
 
       <div class="publication-post-grid" data-publication-posts></div>
       <div class="publication-empty-state" data-publication-empty hidden>No publications match the current search.</div>
-    </div>
-  </section>
-
-  <section class="section publication-type-section" id="daily-devotion">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Daily Morning Devotion</span>
-          <h2>Begin the day rooted in God’s Word.</h2>
-        </div>
-        <a class="text-link" href="#publication-archive" data-filter-publications="devotion">Browse devotions ↗</a>
-      </div>
-      <div data-latest-devotion></div>
-    </div>
-  </section>
-
-  <section class="section publication-type-section publication-goodnews-band" id="goodnews">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Goodnews This Week</span>
-          <h2>Teaching, church news and weekly guidance.</h2>
-        </div>
-        <a class="text-link" href="#publication-archive" data-filter-publications="goodnews">Browse Goodnews ↗</a>
-      </div>
-      <div data-latest-goodnews-blog></div>
-    </div>
-  </section>
-
-  <section class="section publication-type-section" id="sunday-school">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Sunday School Bible Study</span>
-          <h2>Study notes built for learning and discussion.</h2>
-        </div>
-        <div class="publication-section-actions">
-          <a class="text-link" href="#publication-archive" data-filter-publications="sunday-school">Browse lessons ↗</a>
-          <a class="text-link" href="sunday-school.html">Open interactive study ↗</a>
-        </div>
-      </div>
-      <div data-latest-sunday-school></div>
     </div>
   </section>
 

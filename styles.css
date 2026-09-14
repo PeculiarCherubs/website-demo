@@ -6185,3 +6185,126 @@ body.teacher-mode .ss-teacher-card {
 .chapel-card-grid {
   align-items: stretch;
 }
+
+
+/* ================================================================
+   Publications page hierarchy refinement
+   ================================================================ */
+
+.publication-devotion-lead {
+  background:
+    radial-gradient(circle at 86% 42%, rgba(255,255,0,.12), transparent 24%),
+    var(--navy);
+}
+
+.publication-devotion-lead .section-head h2 {
+  color: var(--white);
+}
+
+.publication-devotion-lead .section-head .text-link {
+  color: var(--yellow);
+  border-color: var(--yellow);
+}
+
+.publication-devotion-lead .publication-compact-feature {
+  box-shadow: 0 22px 60px rgba(0,0,0,.22);
+}
+
+.publication-highlights-section {
+  background: #f8fafc;
+}
+
+.publication-highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.publication-highlight-panel {
+  min-width: 0;
+  padding: 1.5rem;
+  border-radius: 30px;
+  background: var(--white);
+  border: 1px solid rgba(22,34,73,.09);
+  box-shadow: 0 12px 34px rgba(22,34,73,.07);
+  scroll-margin-top: 100px;
+}
+
+.publication-highlight-goodnews {
+  border-top: 4px solid var(--yellow);
+}
+
+.publication-highlight-school {
+  border-top: 4px solid var(--red);
+}
+
+.publication-highlight-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.publication-highlight-heading h3 {
+  max-width: 520px;
+  margin-bottom: 0;
+  font-size: clamp(1.65rem, 2.4vw, 2.25rem);
+}
+
+.publication-highlight-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .55rem;
+  flex: 0 0 auto;
+}
+
+.publication-highlight-panel .publication-compact-feature {
+  grid-template-columns: 1fr;
+  min-height: 0;
+  border-radius: 24px;
+  box-shadow: none;
+  border: 1px solid rgba(22,34,73,.08);
+}
+
+.publication-highlight-panel .publication-compact-cover {
+  min-height: 260px;
+}
+
+.publication-highlight-panel .publication-compact-feature > div:last-child {
+  padding: 1.5rem;
+}
+
+.publication-highlight-panel .publication-compact-feature h3 {
+  font-size: clamp(1.7rem, 2.5vw, 2.35rem);
+}
+
+#publication-archive {
+  scroll-margin-top: 96px;
+}
+
+@media(max-width: 900px) {
+  .publication-highlights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .publication-highlight-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .publication-highlight-actions {
+    align-items: flex-start;
+  }
+}
+
+@media(max-width: 600px) {
+  .publication-highlight-panel {
+    padding: 1rem;
+  }
+
+  .publication-devotion-lead .section-head {
+    gap: 1rem;
+  }
+}

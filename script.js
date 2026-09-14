@@ -470,23 +470,6 @@ function renderPublications(content) {
   setText("[data-publication-blog-title]", blog?.title);
   setText("[data-publication-blog-description]", blog?.description);
 
-  const featured = posts.find(post => post.featured) || posts[0];
-  const featuredContainer = document.querySelector("[data-publication-featured]");
-  if (featuredContainer && featured) {
-    featuredContainer.innerHTML = `
-      ${publicationCover(featured, "publication-featured-cover")}
-      <div class="publication-featured-copy">
-        <div class="meta">${escapeHtml(featured.type)} · ${escapeHtml(publicationDate(featured.date))}</div>
-        <h3>${escapeHtml(featured.title)}</h3>
-        <p>${escapeHtml(featured.excerpt)}</p>
-        <div class="publication-card-tags">
-          ${(featured.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("")}
-        </div>
-        <a class="btn btn-primary" href="${publicationPostUrl(featured)}">Read Featured Publication</a>
-      </div>
-    `;
-  }
-
   const categoriesContainer = document.querySelector("[data-publication-categories]");
   const postsContainer = document.querySelector("[data-publication-posts]");
   const searchInput = document.querySelector("[data-publication-search]");
