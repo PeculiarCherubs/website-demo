@@ -2109,24 +2109,116 @@
       "description": "We give in gratitude to God and in partnership with the work He is doing through Peculiar Cherubs. Every gift helps the ministry serve people, share the gospel, and strengthen communities.",
       "quote": "God loves a cheerful giver."
     },
-    "options": [
+    "defaultCurrency": "NGN",
+    "currencies": [
+      { "code": "NGN", "label": "₦ NGN", "name": "Nigerian Naira", "isPrimary": true },
+      { "code": "USD", "label": "$ USD", "name": "US Dollar", "isPrimary": false },
+      { "code": "GBP", "label": "£ GBP", "name": "British Pound", "isPrimary": false },
+      { "code": "EUR", "label": "€ EUR", "name": "Euro", "isPrimary": false }
+    ],
+    "bankAccounts": [
       {
-        "label": "Online Giving",
-        "href": "#"
+        "id": "acc-ngn-1",
+        "currency": "NGN",
+        "title": "Main Ministry Account (Tithes & Offerings)",
+        "bankName": "Zenith Bank",
+        "accountName": "Peculiar Cherubs Ministries",
+        "accountNumber": "1012345678",
+        "sortCode": "057150013",
+        "narrationGuide": "Include your Full Name and Purpose (e.g., 'Ezekiel Ade - Tithe')",
+        "isPrimary": true
       },
       {
-        "label": "Bank Transfer",
-        "href": "#"
+        "id": "acc-ngn-2",
+        "currency": "NGN",
+        "title": "Building & Expansion Fund",
+        "bankName": "Guaranty Trust Bank (GTBank)",
+        "accountName": "Peculiar Cherubs Ministries - Building Fund",
+        "accountNumber": "0123456789",
+        "sortCode": "058152062",
+        "narrationGuide": "Use narration: 'YourName - Building Fund'",
+        "isPrimary": false
       },
       {
-        "label": "Offering & Tithe",
-        "href": "#"
+        "id": "acc-usd",
+        "currency": "USD",
+        "title": "USD Domiciliary Account",
+        "bankName": "Zenith Bank Plc",
+        "accountName": "Peculiar Cherubs Ministries",
+        "accountNumber": "5070123456",
+        "swiftCode": "ZEBLNGLA",
+        "narrationGuide": "International wire transfers / diaspora giving. Include donor name.",
+        "isPrimary": false
       },
       {
-        "label": "Special Projects",
-        "href": "#"
+        "id": "acc-gbp",
+        "currency": "GBP",
+        "title": "GBP Domiciliary Account",
+        "bankName": "Zenith Bank Plc",
+        "accountName": "Peculiar Cherubs Ministries",
+        "accountNumber": "5080123456",
+        "swiftCode": "ZEBLNGLA",
+        "narrationGuide": "GBP wire transfers. Include donor name in reference.",
+        "isPrimary": false
+      },
+      {
+        "id": "acc-eur",
+        "currency": "EUR",
+        "title": "EUR Domiciliary Account",
+        "bankName": "Zenith Bank Plc",
+        "accountName": "Peculiar Cherubs Ministries",
+        "accountNumber": "5090123456",
+        "swiftCode": "ZEBLNGLA",
+        "narrationGuide": "Euro SEPA / international wire. Include donor name.",
+        "isPrimary": false
       }
-    ]
+    ],
+    "categories": [
+      "Tithe",
+      "Sunday Offering",
+      "Thanksgiving",
+      "First Fruit",
+      "Welfare & Benevolence",
+      "Special Project"
+    ],
+    "amountPresets": {
+      "NGN": [2000, 5000, 10000, 25000, 50000],
+      "USD": [20, 50, 100, 250, 500],
+      "GBP": [20, 50, 100, 200, 400],
+      "EUR": [20, 50, 100, 200, 400]
+    },
+    "projects": [
+      {
+        "id": "chapel-expansion",
+        "title": "Chapel Expansion & Building Project",
+        "category": "Building Fund",
+        "description": "Acquiring permanent facilities and expanding worship spaces for growing PDCM chapels in Abuja and beyond.",
+        "badge": "Priority Project"
+      },
+      {
+        "id": "feeding-ministry",
+        "title": "Feeding Ministry & Benevolence Outreach",
+        "category": "Charity & Welfare",
+        "description": "Providing nutritious food, emergency care, and loving outreach to underprivileged families and vulnerable communities.",
+        "badge": "Active Outreach"
+      },
+      {
+        "id": "pesach-youth",
+        "title": "Pesach Academy & Youth Development",
+        "category": "Education & Youth",
+        "description": "Equipping the next generation with educational scholarships, digital skills, and godly discipleship.",
+        "badge": "Education"
+      },
+      {
+        "id": "evangelism-media",
+        "title": "Global Evangelism & Media Missions",
+        "category": "Missions",
+        "description": "Broadcasting the Gospel, producing uplifting publications, Sunday school literature, and planting new gospel seeds.",
+        "badge": "Missions"
+      }
+    ],
+    "whatsappConfirmPhone": "2348000000000",
+    "whatsappConfirmText": "Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving/tithe. Here are the details:"
   },
   "bibleCollege": {
     "hero": {
