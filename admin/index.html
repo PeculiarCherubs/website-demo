@@ -151,6 +151,15 @@
               <span id="badgeLeadership" class="admin-nav-badge">0</span>
             </button>
           </li>
+          <li class="admin-nav-item" data-tab="quickLinks">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">⚡</span>
+                <span>Quick Links & Schedule</span>
+              </div>
+              <span id="badgeQuickLinks" class="admin-nav-badge">0</span>
+            </button>
+          </li>
           <li class="admin-nav-item" data-tab="siteSettings">
             <button type="button">
               <div class="admin-nav-label-group">
@@ -237,6 +246,13 @@
               <div class="admin-stat-label">Leaders</div>
             </div>
           </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon">⚡</div>
+            <div class="admin-stat-info">
+              <div id="statQuickLinksCount" class="admin-stat-number">0</div>
+              <div class="admin-stat-label">Quick Links & Rhythm</div>
+            </div>
+          </div>
         </div>
 
         <!-- Quick Links / Recent Activity -->
@@ -249,6 +265,14 @@
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
             <div
               style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
+              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Quick Links & Regular Services</h4>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage "Your next step starts
+                here" links, service frequencies, and church calendar rhythm.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('quickLinks')">Manage Quick
+                Links →</button>
+            </div>
+            <div
+              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
               <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Sunday School Immersive Editor</h4>
               <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage memory verses, scripture
                 readings, lesson outlines, teacher's corner & class discussions.</p>
@@ -258,9 +282,11 @@
             <div
               style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
               <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Leadership Team</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage pastoral leadership personnels,
+              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage pastoral leadership
+                personnels,
                 positions, titles, and portrait photos.</p>
-              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('leadership')">Manage Leadership
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('leadership')">Manage
+                Leadership
                 →</button>
             </div>
             <div
@@ -472,11 +498,14 @@
         </div>
 
         <!-- Section Header Settings Card -->
-        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div
+          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
               <h3 style="color: var(--navy); margin: 0 0 0.25rem;">About Page Section Header</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Customize the eyebrow, heading title, and description displayed above the leadership cards on the About page.</p>
+              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Customize the eyebrow, heading title, and
+                description displayed above the leadership cards on the About page.</p>
             </div>
             <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.saveLeadershipHeaderSettings()">
               💾 Save Section Header
@@ -494,7 +523,8 @@
           </div>
           <div class="admin-input-group" style="margin-bottom: 0;">
             <label for="leadershipSettingDescription">Section Subtitle / Description</label>
-            <input type="text" id="leadershipSettingDescription" class="admin-input" placeholder="Trusted men and women called to serve with humility, faithfulness, and a love for God's people.">
+            <input type="text" id="leadershipSettingDescription" class="admin-input"
+              placeholder="Trusted men and women called to serve with humility, faithfulness, and a love for God's people.">
           </div>
         </div>
 
@@ -508,6 +538,125 @@
 
         <div id="gridLeadership" class="admin-cards-grid">
           <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Quick Links & Schedule
+           ------------------------------------------------------------------ -->
+      <section id="panelQuickLinks" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Quick Links & Church Rhythm</h2>
+            <p>Manage "Your next step starts here" links, regular services, and major church events schedule.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('quickLinks')">
+              + Add Quick Link
+            </button>
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.openItemModal('quickEvents')">
+              + Add Service / Major Event
+            </button>
+          </div>
+        </div>
+
+        <!-- Section Header Settings Card -->
+        <div
+          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="color: var(--navy); margin: 0 0 0.25rem;">Quick Links Page Headers</h3>
+              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Customize the hero banner, useful links
+                section title, and church calendar section title.</p>
+            </div>
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.saveQuickLinksHeaderSettings()">
+              💾 Save Header Settings
+            </button>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label for="qlSettingHeroEyebrow">Hero Eyebrow Text</label>
+              <input type="text" id="qlSettingHeroEyebrow" class="admin-input" placeholder="Quick links">
+            </div>
+            <div class="admin-input-group">
+              <label for="qlSettingHeroTitle">Hero Title</label>
+              <input type="text" id="qlSettingHeroTitle" class="admin-input"
+                placeholder="Connect. Worship. Stay informed.">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label for="qlSettingHeroDesc">Hero Description</label>
+            <input type="text" id="qlSettingHeroDesc" class="admin-input"
+              placeholder="Access church information, weekly publications, services, events, prayer, and ways to connect with Peculiar Cherubs.">
+          </div>
+          <div class="admin-modal-grid-2" style="margin-bottom: 0;">
+            <div class="admin-input-group" style="margin-bottom: 0;">
+              <label for="qlSettingUsefulTitle">Useful Links Section Heading</label>
+              <input type="text" id="qlSettingUsefulTitle" class="admin-input"
+                placeholder="Your next step starts here.">
+            </div>
+            <div class="admin-input-group" style="margin-bottom: 0;">
+              <label for="qlSettingCalendarTitle">Church Calendar Section Heading</label>
+              <input type="text" id="qlSettingCalendarTitle" class="admin-input"
+                placeholder="Regular services and major events.">
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-section 1: Useful Links ("Your next step starts here") -->
+        <div style="margin-bottom: 3rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">Your Next Step Starts Here</h3>
+              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Manage the quick links displayed in the
+                "Useful links" section on the website and homepage preview.</p>
+            </div>
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('quickLinks')">
+              + Add Quick Link
+            </button>
+          </div>
+
+          <div class="admin-toolbar">
+            <div class="admin-search-box">
+              <span class="admin-search-icon">🔍</span>
+              <input type="text" id="searchQuickLinks" placeholder="Search quick links by title or description..."
+                oninput="AdminPortal.filterItems('quickLinks')">
+            </div>
+          </div>
+
+          <div id="gridQuickLinks" class="admin-cards-grid">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Sub-section 2: Regular Services and Major Events -->
+        <div style="margin-bottom: 2rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">Regular Services & Major Events
+              </h3>
+              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Manage the recurring worship services,
+                prayer clinic times, evangelical outreaches, and major church calendar rhythm.</p>
+            </div>
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('quickEvents')">
+              + Add Service / Major Event
+            </button>
+          </div>
+
+          <div class="admin-toolbar">
+            <div class="admin-search-box">
+              <span class="admin-search-icon">🔍</span>
+              <input type="text" id="searchQuickEvents" placeholder="Search regular services by title or frequency..."
+                oninput="AdminPortal.filterItems('quickEvents')">
+            </div>
+          </div>
+
+          <div id="gridQuickEvents" class="admin-cards-grid">
+            <!-- Rendered dynamically -->
+          </div>
         </div>
       </section>
 

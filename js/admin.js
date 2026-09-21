@@ -133,7 +133,7 @@
         this.updateStatusIndicator(true, 'Fetching live content...');
 
         // Fetch required sections concurrently
-        const sections = ['site', 'home', 'about', 'ministries', 'bibleCollege', 'chapels', 'sermons', 'publications', 'events'];
+        const sections = ['site', 'home', 'about', 'ministries', 'bibleCollege', 'chapels', 'sermons', 'publications', 'events', 'quickLinks'];
 
         let data = {};
         if (global.ContentService && typeof global.ContentService.fetchSectionsFromDB === 'function') {
@@ -452,6 +452,39 @@
     },
 
     /**
+     * Helper to aggregate ALL quick links ("Your next step starts here") from currentContent.quickLinks.links
+     */
+    getAllQuickLinkItems() {
+      const ql = currentContent.quickLinks || {};
+      const links = Array.isArray(ql.links) ? ql.links : [];
+      return links.map((link, idx) => ({
+        id: link.id || `ql_link_${idx}`,
+        icon: link.icon || '🔗',
+        title: link.title || 'Quick Link',
+        text: link.text || link.description || '',
+        href: link.href || '#',
+        _index: idx,
+        _raw: link
+      }));
+    },
+
+    /**
+     * Helper to aggregate ALL regular services & major events from currentContent.quickLinks.events
+     */
+    getAllQuickEventItems() {
+      const ql = currentContent.quickLinks || {};
+      const events = Array.isArray(ql.events) ? ql.events : [];
+      return events.map((ev, idx) => ({
+        id: ev.id || `ql_event_${idx}`,
+        frequency: ev.frequency || 'Weekly Rhythm',
+        title: ev.title || 'Service / Event',
+        text: ev.text || '',
+        _index: idx,
+        _raw: ev
+      }));
+    },
+
+    /**
      * Renders all views and stats
      */
     renderAllViews() {
@@ -462,6 +495,8 @@
       this.renderFellowshipsView();
       this.renderMinistriesView();
       this.renderLeadershipView();
+      this.renderQuickLinksView();
+      this.populateQuickLinksHeaderForm();
       this.populateLeadershipHeaderForm();
       this.populateSiteSettingsForm();
     },
@@ -477,6 +512,8 @@
       const fellowships = (currentContent.ministries && currentContent.ministries.houseFellowships) || [];
       const mins = this.getAllMinistryItems();
       const leaders = this.getAllLeadershipItems();
+      const qLinks = this.getAllQuickLinkItems();
+      const qEvents = this.getAllQuickEventItems();
 
       // Update Badge counts
       const bPubs = document.getElementById('badgePublications');
@@ -497,6 +534,9 @@
       const bLeaders = document.getElementById('badgeLeadership');
       if (bLeaders) bLeaders.textContent = leaders.length;
 
+      const bQuickLinks = document.getElementById('badgeQuickLinks');
+      if (bQuickLinks) bQuickLinks.textContent = qLinks.length + qEvents.length;
+
       // Dashboard stats
       const statP = document.getElementById('statPublicationsCount');
       if (statP) statP.textContent = pubs.length;
@@ -512,6 +552,9 @@
 
       const statL = document.getElementById('statLeadershipCount');
       if (statL) statL.textContent = leaders.length;
+
+      const statQL = document.getElementById('statQuickLinksCount');
+      if (statQL) statQL.textContent = `${qLinks.length + qEvents.length} (${qLinks.length}L / ${qEvents.length}S)`;
     },
 
     /* ======================================================================
@@ -783,6 +826,120 @@
     },
 
     /* ======================================================================
+       Quick Links & Church Rhythm View
+       ====================================================================== */
+    renderQuickLinksView(filteredLinks, filteredEvents) {
+      if (typeof document === 'undefined') return;
+
+      // 1. Useful Links Grid ("Your next step starts here")
+      const gridLinks = document.getElementById('gridQuickLinks');
+      if (gridLinks) {
+        const links = filteredLinks || this.getAllQuickLinkItems();
+        if (links.length === 0) {
+          gridLinks.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2.5rem; color: var(--muted);">No quick links found. Click "+ Add Quick Link" to create one.</div>`;
+        } else {
+          gridLinks.innerHTML = links.map(item => `
+            <div class="admin-item-card">
+              <div class="admin-item-body" style="padding: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                  <div class="admin-ql-icon-box">${item.icon || '🔗'}</div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;">Useful Link</div>
+                    <h3 class="admin-item-title" style="margin: 0; font-size: 1.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</h3>
+                  </div>
+                </div>
+                <p class="admin-item-desc" style="margin-bottom: 1rem; min-height: 2.6rem;">${item.text || 'No description provided.'}</p>
+                <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; word-break: break-all;">
+                  <strong>Destination:</strong> <span style="color: var(--navy); font-weight: 600;">${item.href}</span>
+                </div>
+                <div class="admin-item-actions">
+                  <span class="admin-nav-badge">Link #${item._index + 1}</span>
+                  <div class="admin-action-btn-group">
+                    <button class="admin-icon-btn" title="Edit Quick Link" onclick="AdminPortal.openItemModal('quickLinks', '${item.id}')">✏️</button>
+                    <button class="admin-icon-btn danger" title="Delete Quick Link" onclick="AdminPortal.deleteItem('quickLinks', '${item.id}')">🗑️</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // 2. Regular Services & Major Events Grid ("Regular services and major events")
+      const gridEvents = document.getElementById('gridQuickEvents');
+      if (gridEvents) {
+        const events = filteredEvents || this.getAllQuickEventItems();
+        if (events.length === 0) {
+          gridEvents.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2.5rem; color: var(--muted);">No regular services or events found. Click "+ Add Service / Major Event" to create one.</div>`;
+        } else {
+          gridEvents.innerHTML = events.map(item => `
+            <div class="admin-item-card">
+              <div class="admin-item-body" style="padding: 1.5rem;">
+                <div style="margin-bottom: 0.75rem;">
+                  <span class="admin-schedule-pill">🗓️ ${item.frequency}</span>
+                </div>
+                <h3 class="admin-item-title" style="margin: 0 0 0.5rem; font-size: 1.2rem;">${item.title}</h3>
+                <p class="admin-item-desc" style="margin-bottom: 1.25rem;">${item.text || 'Part of the church’s regular weekly rhythm.'}</p>
+                <div class="admin-item-actions">
+                  <span class="admin-nav-badge">Schedule #${item._index + 1}</span>
+                  <div class="admin-action-btn-group">
+                    <button class="admin-icon-btn" title="Edit Service" onclick="AdminPortal.openItemModal('quickEvents', '${item.id}')">✏️</button>
+                    <button class="admin-icon-btn danger" title="Delete Service" onclick="AdminPortal.deleteItem('quickEvents', '${item.id}')">🗑️</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    },
+
+    /* ======================================================================
+       Quick Links Page Header Form
+       ====================================================================== */
+    populateQuickLinksHeaderForm() {
+      if (typeof document === 'undefined') return;
+      const ql = currentContent.quickLinks || {};
+      const hero = ql.hero || {};
+      const useful = ql.usefulLinks || {};
+      const cal = ql.calendar || {};
+
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || '';
+      };
+
+      setVal('qlSettingHeroEyebrow', hero.eyebrow || 'Quick links');
+      setVal('qlSettingHeroTitle', hero.title || 'Connect. Worship.\nStay informed.');
+      setVal('qlSettingHeroDesc', hero.description || 'Access church information, weekly publications, services, events, prayer, and ways to connect with Peculiar Cherubs.');
+      setVal('qlSettingUsefulTitle', useful.title || 'Your next step starts here.');
+      setVal('qlSettingCalendarTitle', cal.title || 'Regular services and major events.');
+    },
+
+    async saveQuickLinksHeaderSettings() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+      };
+
+      if (!currentContent.quickLinks) currentContent.quickLinks = {};
+      if (!currentContent.quickLinks.hero) currentContent.quickLinks.hero = {};
+      if (!currentContent.quickLinks.usefulLinks) currentContent.quickLinks.usefulLinks = {};
+      if (!currentContent.quickLinks.calendar) currentContent.quickLinks.calendar = {};
+
+      currentContent.quickLinks.hero.eyebrow = getVal('qlSettingHeroEyebrow') || 'Quick links';
+      currentContent.quickLinks.hero.title = getVal('qlSettingHeroTitle') || 'Connect. Worship.\nStay informed.';
+      currentContent.quickLinks.hero.description = getVal('qlSettingHeroDesc') || '';
+      currentContent.quickLinks.usefulLinks.title = getVal('qlSettingUsefulTitle') || 'Your next step starts here.';
+      currentContent.quickLinks.usefulLinks.eyebrow = 'Useful links';
+      currentContent.quickLinks.calendar.title = getVal('qlSettingCalendarTitle') || 'Regular services and major events.';
+      currentContent.quickLinks.calendar.eyebrow = 'Church calendar';
+
+      await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+      this.showToast('Quick Links page headers updated live in Supabase DB!', 'success');
+    },
+
+    /* ======================================================================
        Populate Site Settings Form
        ====================================================================== */
     populateSiteSettingsForm() {
@@ -895,6 +1052,24 @@
           (item.position || '').toLowerCase().includes(q)
         );
         this.renderLeadershipView(filtered);
+      } else if (type === 'quickLinks') {
+        const q = (document.getElementById('searchQuickLinks')?.value || '').toLowerCase();
+        const all = this.getAllQuickLinkItems();
+        const filtered = all.filter(item =>
+          (item.title || '').toLowerCase().includes(q) ||
+          (item.text || '').toLowerCase().includes(q) ||
+          (item.href || '').toLowerCase().includes(q)
+        );
+        this.renderQuickLinksView(filtered, null);
+      } else if (type === 'quickEvents') {
+        const q = (document.getElementById('searchQuickEvents')?.value || '').toLowerCase();
+        const all = this.getAllQuickEventItems();
+        const filtered = all.filter(item =>
+          (item.title || '').toLowerCase().includes(q) ||
+          (item.frequency || '').toLowerCase().includes(q) ||
+          (item.text || '').toLowerCase().includes(q)
+        );
+        this.renderQuickLinksView(null, filtered);
       }
     },
 
@@ -919,6 +1094,10 @@
           item = this.getAllMinistryItems().find(i => i.id === itemId);
         } else if (sectionKey === 'leadership') {
           item = this.getAllLeadershipItems().find(i => i.id === itemId || `leader_${i._index}` === itemId);
+        } else if (sectionKey === 'quickLinks') {
+          item = this.getAllQuickLinkItems().find(i => i.id === itemId || String(i.id) === String(itemId));
+        } else if (sectionKey === 'quickEvents') {
+          item = this.getAllQuickEventItems().find(i => i.id === itemId || String(i.id) === String(itemId));
         }
       }
 
@@ -932,6 +1111,10 @@
           titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Sunday School Reading (Immersive Outline)`;
         } else if (sectionKey === 'leadership') {
           titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Leader / Personnel`;
+        } else if (sectionKey === 'quickLinks') {
+          titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Quick Link`;
+        } else if (sectionKey === 'quickEvents') {
+          titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Regular Service / Major Event`;
         } else {
           titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} ${sectionKey.slice(0, -1)}`;
         }
@@ -1405,6 +1588,81 @@
             </small>
           </div>
         `;
+      } else if (sectionKey === 'quickLinks') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Link ID</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'ql_link_' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Icon / Emoji Symbol</label>
+              <input type="text" id="modalField_icon" class="admin-input" value="${item.icon || '🔗'}" placeholder="e.g. 📰, ▶, ◉, ↗, ✦, ☏, ⌁" required>
+              <div class="admin-emoji-chips">
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='📰'; AdminPortal.updateModalLivePreview();">📰</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='▶'; AdminPortal.updateModalLivePreview();">▶</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='◉'; AdminPortal.updateModalLivePreview();">◉</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='↗'; AdminPortal.updateModalLivePreview();">↗</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='✦'; AdminPortal.updateModalLivePreview();">✦</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='☏'; AdminPortal.updateModalLivePreview();">☏</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='⌁'; AdminPortal.updateModalLivePreview();">⌁</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='📖'; AdminPortal.updateModalLivePreview();">📖</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='💬'; AdminPortal.updateModalLivePreview();">💬</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='🤝'; AdminPortal.updateModalLivePreview();">🤝</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='⛪'; AdminPortal.updateModalLivePreview();">⛪</span>
+                <span class="admin-emoji-chip" onclick="document.getElementById('modalField_icon').value='🕊️'; AdminPortal.updateModalLivePreview();">🕊️</span>
+              </div>
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Quick Link Title</label>
+            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Goodnews This Week, Watch Live, Plan a Visit" required>
+          </div>
+          <div class="admin-input-group">
+            <label>Target Page Link / Destination URL</label>
+            <input type="text" id="modalField_href" class="admin-input" value="${item.href || ''}" placeholder="e.g. publications.html, chapels.html, ministries.html, #" required>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.4rem;">
+              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='publications.html'; AdminPortal.updateModalLivePreview();">publications.html</button>
+              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='events.html'; AdminPortal.updateModalLivePreview();">events.html</button>
+              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='chapels.html'; AdminPortal.updateModalLivePreview();">chapels.html</button>
+              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='ministries.html'; AdminPortal.updateModalLivePreview();">ministries.html</button>
+              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='give.html'; AdminPortal.updateModalLivePreview();">give.html</button>
+              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='#'; AdminPortal.updateModalLivePreview();"># (Placeholder)</button>
+            </div>
+          </div>
+          <div class="admin-input-group" style="margin-bottom: 0;">
+            <label>Supporting Text / Description</label>
+            <textarea id="modalField_text" class="admin-textarea" placeholder="Brief description displayed on the card..." required>${item.text || ''}</textarea>
+          </div>
+        `;
+      } else if (sectionKey === 'quickEvents') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Service / Event ID</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'ql_event_' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Frequency & Schedule Timing</label>
+              <input type="text" id="modalField_frequency" class="admin-input" value="${item.frequency || ''}" placeholder="e.g. Sunday · 07:00–08:50 or Wednesday · 18:00–19:30" required>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+            <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_frequency').value='Sunday · 07:00–08:50'; AdminPortal.updateModalLivePreview();">Sunday Morning</button>
+            <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_frequency').value='Sunday · 10:00–12:00'; AdminPortal.updateModalLivePreview();">Sunday Traditional</button>
+            <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_frequency').value='Wednesday · 18:00–19:30'; AdminPortal.updateModalLivePreview();">Mid-Week Service</button>
+            <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_frequency').value='Tuesday · 18:00–19:00'; AdminPortal.updateModalLivePreview();">Prayer Clinic</button>
+            <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_frequency').value='Saturday · 06:00–07:00'; AdminPortal.updateModalLivePreview();">Monthly Anointing</button>
+          </div>
+          <div class="admin-input-group">
+            <label>Service / Event Title</label>
+            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Prayer Clinic, Mid-Week Service, Shiloh Prayer Service" required>
+          </div>
+          <div class="admin-input-group" style="margin-bottom: 0;">
+            <label>Descriptive Note / Context</label>
+            <textarea id="modalField_text" class="admin-textarea" placeholder="e.g. Part of the church’s regular weekly rhythm." required>${item.text || 'Part of the church’s regular weekly rhythm.'}</textarea>
+          </div>
+        `;
       }
 
       container.innerHTML = html;
@@ -1552,6 +1810,41 @@
             <strong style="font-family: 'Fraunces', Georgia, serif; font-size: 1.25rem; color: var(--white); margin-bottom: 0.35rem; line-height: 1.2;">${name}</strong>
             <span style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--yellow);">${position}</span>
           </div>
+        `;
+      } else if (sec === 'quickLinks') {
+        const icon = getF('icon') || '🔗';
+        const title = getF('title') || 'Quick Link Title';
+        const text = getF('text') || 'Quick link supporting description preview...';
+        const href = getF('href') || '#';
+
+        box.innerHTML = `
+          <div style="background: #ffffff; border: 2px solid var(--admin-border); border-radius: 18px; padding: 1.5rem; display: flex; gap: 1.25rem; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+            <div style="width: 54px; height: 54px; border-radius: 14px; background: var(--sky); color: var(--navy); display: grid; place-items: center; font-size: 1.6rem; flex-shrink: 0; border: 1px solid rgba(22, 34, 73, 0.08);">
+              ${icon}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 0.75rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem;">Useful Link Preview</div>
+              <h3 style="margin: 0 0 0.4rem; font-family: 'Fraunces', serif; font-size: 1.25rem; color: var(--navy);">${title}</h3>
+              <p style="margin: 0 0 0.65rem; font-size: 0.9rem; color: var(--muted); line-height: 1.45;">${text}</p>
+              <div style="font-size: 0.82rem; font-weight: 700; color: var(--red);">
+                Target URL: <span style="text-decoration: underline; color: var(--navy);">${href}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (sec === 'quickEvents') {
+        const freq = getF('frequency') || 'Sunday · 09:00–10:00';
+        const title = getF('title') || 'Regular Service / Event';
+        const text = getF('text') || 'Part of the church’s regular weekly rhythm.';
+
+        box.innerHTML = `
+          <article class="card" style="background: #ffffff; border: 1px solid var(--admin-border); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+            <div style="display: inline-block; background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.75rem;">
+              🗓️ ${freq}
+            </div>
+            <h3 style="margin: 0 0 0.5rem; font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--navy);">${title}</h3>
+            <p style="margin: 0; font-size: 0.92rem; color: var(--muted); line-height: 1.5;">${text}</p>
+          </article>
         `;
       } else {
         box.innerHTML = `<div style="font-size: 0.9rem; color: var(--muted); font-style: italic;">Preview updated automatically as you type.</div>`;
@@ -1916,6 +2209,53 @@
 
         await this.syncSectionToSupabase('about', currentContent.about);
         this.renderLeadershipView();
+      } else if (sec === 'quickLinks') {
+        if (!currentContent.quickLinks) currentContent.quickLinks = {};
+        if (!Array.isArray(currentContent.quickLinks.links)) currentContent.quickLinks.links = [];
+
+        const newLink = {
+          id: id,
+          icon: getF('icon') || '🔗',
+          title: getF('title'),
+          text: getF('text'),
+          href: getF('href') || '#'
+        };
+
+        const existingIdx = currentContent.quickLinks.links.findIndex(
+          (i, idx) => i.id === editingState.itemId || `ql_link_${idx}` === editingState.itemId || (editingState.itemId && i.id === id)
+        );
+
+        if (existingIdx >= 0) {
+          currentContent.quickLinks.links[existingIdx] = newLink;
+        } else {
+          currentContent.quickLinks.links.push(newLink);
+        }
+
+        await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+        this.renderQuickLinksView();
+      } else if (sec === 'quickEvents') {
+        if (!currentContent.quickLinks) currentContent.quickLinks = {};
+        if (!Array.isArray(currentContent.quickLinks.events)) currentContent.quickLinks.events = [];
+
+        const newEvent = {
+          id: id,
+          frequency: getF('frequency'),
+          title: getF('title'),
+          text: getF('text')
+        };
+
+        const existingIdx = currentContent.quickLinks.events.findIndex(
+          (i, idx) => i.id === editingState.itemId || `ql_event_${idx}` === editingState.itemId || (editingState.itemId && i.id === id)
+        );
+
+        if (existingIdx >= 0) {
+          currentContent.quickLinks.events[existingIdx] = newEvent;
+        } else {
+          currentContent.quickLinks.events.push(newEvent);
+        }
+
+        await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+        this.renderQuickLinksView();
       }
 
       this.renderStatsAndBadges();
@@ -1995,6 +2335,22 @@
           );
           await this.syncSectionToSupabase('about', currentContent.about);
           this.renderLeadershipView();
+        }
+      } else if (sectionKey === 'quickLinks') {
+        if (currentContent.quickLinks && Array.isArray(currentContent.quickLinks.links)) {
+          currentContent.quickLinks.links = currentContent.quickLinks.links.filter(
+            (l, idx) => l.id !== itemId && `ql_link_${idx}` !== itemId && String(idx) !== String(itemId)
+          );
+          await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+          this.renderQuickLinksView();
+        }
+      } else if (sectionKey === 'quickEvents') {
+        if (currentContent.quickLinks && Array.isArray(currentContent.quickLinks.events)) {
+          currentContent.quickLinks.events = currentContent.quickLinks.events.filter(
+            (e, idx) => e.id !== itemId && `ql_event_${idx}` !== itemId && String(idx) !== String(itemId)
+          );
+          await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+          this.renderQuickLinksView();
         }
       }
 

@@ -866,20 +866,31 @@ function renderPublicationDetail(content) {
 }
 
 function renderQuickLinks(content) {
+  if (!content?.quickLinks) return;
   renderStandardHero(content.quickLinks);
+
+  if (content.quickLinks.usefulLinks) {
+    if (content.quickLinks.usefulLinks.eyebrow) setText("[data-quick-links-eyebrow]", content.quickLinks.usefulLinks.eyebrow);
+    if (content.quickLinks.usefulLinks.title) setText("[data-quick-links-heading]", content.quickLinks.usefulLinks.title);
+  }
+
+  if (content.quickLinks.calendar) {
+    if (content.quickLinks.calendar.eyebrow) setText("[data-quick-events-eyebrow]", content.quickLinks.calendar.eyebrow);
+    if (content.quickLinks.calendar.title) setText("[data-quick-events-heading]", content.quickLinks.calendar.title);
+  }
 
   const links = document.querySelector("[data-quick-links]");
   if (links) {
-    links.innerHTML = content.quickLinks.links.map(link => quickLinkCard(link)).join("");
+    links.innerHTML = (content.quickLinks.links || []).map(link => quickLinkCard(link)).join("");
   }
 
   const events = document.querySelector("[data-events-list]");
   if (events) {
-    events.innerHTML = content.quickLinks.events.map(event => `
+    events.innerHTML = (content.quickLinks.events || []).map(event => `
       <article class="card">
-        <div class="meta">${escapeHtml(event.frequency)}</div>
-        <h3>${escapeHtml(event.title)}</h3>
-        <p>${escapeHtml(event.text)}</p>
+        <div class="meta">${escapeHtml(event.frequency || "")}</div>
+        <h3>${escapeHtml(event.title || "")}</h3>
+        <p>${escapeHtml(event.text || "")}</p>
       </article>
     `).join("");
   }
