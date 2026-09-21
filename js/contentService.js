@@ -26,7 +26,8 @@
     'sundaySchoolDetail',
     'publicationPost',
     'events',
-    'quickLinks'
+    'quickLinks',
+    'give'
   ]);
 
   // Critical shared sections required for initial header/footer paint

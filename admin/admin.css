@@ -1080,3 +1080,123 @@ body.admin-body {
   transform: scale(1.1);
 }
 
+/* --------------------------------------------------------------------------
+   Giving & Payment Gateway Admin Panel Styles
+   -------------------------------------------------------------------------- */
+.admin-gateway-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+  border: 1px solid transparent;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-gateway-banner.active {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.admin-gateway-banner.inactive {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.admin-gateway-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.admin-currency-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-currency-tab {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--admin-border);
+  background: var(--white);
+  color: var(--navy);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-currency-tab:hover {
+  background: var(--sky);
+}
+
+.admin-currency-tab.active {
+  background: var(--navy);
+  color: #ffffff;
+  border-color: var(--navy);
+}
+
+.admin-account-item-card {
+  background: var(--white);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.admin-account-item-card:hover {
+  border-color: var(--navy);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.admin-account-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.admin-account-number-display {
+  font-family: ui-monospace, monospace;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--navy);
+  background: var(--sky);
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  display: inline-block;
+  letter-spacing: 0.05em;
+}
+
+.admin-project-item-card {
+  background: var(--white);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: all 0.2s ease;
+}
+
+.admin-project-item-card:hover {
+  border-color: var(--navy);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+

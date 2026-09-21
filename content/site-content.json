@@ -2218,7 +2218,16 @@
       }
     ],
     "whatsappConfirmPhone": "2348000000000",
-    "whatsappConfirmText": "Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving/tithe. Here are the details:"
+    "whatsappConfirmText": "Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving/tithe. Here are the details:",
+    "paymentGateway": {
+      "enabled": false,
+      "provider": "custom",
+      "paymentUrl": "",
+      "buttonLabel": "Proceed to Secure Payment ↗",
+      "noticeMessage": "Online card processing integration for Peculiar Cherubs is currently being finalized. In the meantime, you can fulfill your giving instantly with zero transaction fees using our verified Direct Bank Transfer accounts.",
+      "appendDonorParams": true,
+      "customNote": "Supports debit/credit cards, USSD, Apple Pay, and instant bank transfer via payment gateway."
+    }
   },
   "bibleCollege": {
     "hero": {

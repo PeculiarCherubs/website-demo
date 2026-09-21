@@ -133,7 +133,7 @@
         this.updateStatusIndicator(true, 'Fetching live content...');
 
         // Fetch required sections concurrently
-        const sections = ['site', 'home', 'about', 'ministries', 'bibleCollege', 'chapels', 'sermons', 'publications', 'events', 'quickLinks'];
+        const sections = ['site', 'home', 'about', 'ministries', 'bibleCollege', 'chapels', 'sermons', 'publications', 'events', 'quickLinks', 'give'];
 
         let data = {};
         if (global.ContentService && typeof global.ContentService.fetchSectionsFromDB === 'function') {
@@ -485,6 +485,45 @@
     },
 
     /**
+     * Helper to get all giving bank accounts
+     */
+    getAllGivingAccounts() {
+      const give = currentContent.give || {};
+      const accs = Array.isArray(give.bankAccounts) ? give.bankAccounts : [];
+      return accs.map((a, idx) => ({
+        id: a.id || `acc_${idx}`,
+        currency: a.currency || 'NGN',
+        title: a.title || a.accountName || 'Bank Account',
+        bankName: a.bankName || 'Bank',
+        accountName: a.accountName || 'Peculiar Cherubs',
+        accountNumber: a.accountNumber || '',
+        sortCode: a.sortCode || '',
+        swiftCode: a.swiftCode || '',
+        isPrimary: Boolean(a.isPrimary),
+        narrationGuide: a.narrationGuide || '',
+        _index: idx,
+        _raw: a
+      }));
+    },
+
+    /**
+     * Helper to get all giving special projects
+     */
+    getAllGivingProjects() {
+      const give = currentContent.give || {};
+      const projs = Array.isArray(give.projects) ? give.projects : [];
+      return projs.map((p, idx) => ({
+        id: p.id || `proj_${idx}`,
+        title: p.title || 'Special Project',
+        category: p.category || 'Strategic Mission',
+        badge: p.badge || '',
+        description: p.description || '',
+        _index: idx,
+        _raw: p
+      }));
+    },
+
+    /**
      * Renders all views and stats
      */
     renderAllViews() {
@@ -496,8 +535,10 @@
       this.renderMinistriesView();
       this.renderLeadershipView();
       this.renderQuickLinksView();
+      this.renderGivingView();
       this.populateQuickLinksHeaderForm();
       this.populateLeadershipHeaderForm();
+      this.populateGivingForms();
       this.populateSiteSettingsForm();
     },
 
@@ -514,6 +555,8 @@
       const leaders = this.getAllLeadershipItems();
       const qLinks = this.getAllQuickLinkItems();
       const qEvents = this.getAllQuickEventItems();
+      const giveAccounts = this.getAllGivingAccounts();
+      const giveProjects = this.getAllGivingProjects();
 
       // Update Badge counts
       const bPubs = document.getElementById('badgePublications');
@@ -537,6 +580,9 @@
       const bQuickLinks = document.getElementById('badgeQuickLinks');
       if (bQuickLinks) bQuickLinks.textContent = qLinks.length + qEvents.length;
 
+      const bGiving = document.getElementById('badgeGivingAccounts');
+      if (bGiving) bGiving.textContent = giveAccounts.length;
+
       // Dashboard stats
       const statP = document.getElementById('statPublicationsCount');
       if (statP) statP.textContent = pubs.length;
@@ -555,6 +601,9 @@
 
       const statQL = document.getElementById('statQuickLinksCount');
       if (statQL) statQL.textContent = `${qLinks.length + qEvents.length} (${qLinks.length}L / ${qEvents.length}S)`;
+
+      const statG = document.getElementById('statGivingCount');
+      if (statG) statG.textContent = `${giveAccounts.length} Accs / ${giveProjects.length} Proj`;
     },
 
     /* ======================================================================
@@ -940,6 +989,239 @@
     },
 
     /* ======================================================================
+       Giving & Payment Gateway View
+       ====================================================================== */
+    renderGivingView(currencyFilter = 'ALL') {
+      if (typeof document === 'undefined') return;
+
+      // 1. Render Bank Accounts Grid
+      const gridAccounts = document.getElementById('gridGivingAccounts');
+      if (gridAccounts) {
+        let accounts = this.getAllGivingAccounts();
+        if (currencyFilter !== 'ALL') {
+          accounts = accounts.filter(a => (a.currency || 'NGN').toUpperCase() === currencyFilter.toUpperCase());
+        }
+
+        if (accounts.length === 0) {
+          gridAccounts.innerHTML = `
+            <div class="admin-empty-state" style="grid-column: 1 / -1; padding: 2.5rem; background: var(--white); border-radius: 16px; border: 1px dashed var(--admin-border); text-align: center;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏦</div>
+              <h4 style="margin: 0 0 0.25rem; color: var(--navy);">No Bank Accounts for ${currencyFilter}</h4>
+              <p style="color: var(--muted); font-size: 0.88rem; margin-bottom: 1rem;">Click below to register church account details for this currency.</p>
+              <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('giveAccounts')">
+                + Add Bank Account
+              </button>
+            </div>
+          `;
+        } else {
+          gridAccounts.innerHTML = accounts.map(a => `
+            <div class="admin-account-item-card">
+              <div class="admin-account-item-header">
+                <div>
+                  <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.25rem;">
+                    <span style="font-weight: 800; font-size: 0.72rem; text-transform: uppercase; background: var(--navy); color: #fff; padding: 0.15rem 0.5rem; border-radius: 999px;">
+                      ${a.currency}
+                    </span>
+                    ${a.isPrimary ? '<span style="font-weight: 800; font-size: 0.72rem; text-transform: uppercase; background: #fef3c7; color: #92400e; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid #fde68a;">Primary Account</span>' : ''}
+                  </div>
+                  <h4 style="margin: 0 0 0.2rem; font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--navy);">
+                    ${a.title}
+                  </h4>
+                  <div style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">
+                    ${a.bankName}
+                  </div>
+                </div>
+                <div class="admin-card-actions">
+                  <button class="admin-icon-btn" title="Edit Account" onclick="AdminPortal.openItemModal('giveAccounts', '${a.id}')">✏️</button>
+                  <button class="admin-icon-btn delete" title="Delete Account" onclick="AdminPortal.deleteItem('giveAccounts', '${a.id}')">🗑️</button>
+                </div>
+              </div>
+
+              <div class="admin-account-number-display">
+                ${a.accountNumber}
+              </div>
+
+              <div style="font-size: 0.84rem; color: var(--navy);">
+                <strong>Account Name:</strong> ${a.accountName}
+                ${a.sortCode ? `<br><strong>Sort Code:</strong> ${a.sortCode}` : ''}
+                ${a.swiftCode ? `<br><strong>SWIFT / BIC:</strong> ${a.swiftCode}` : ''}
+              </div>
+
+              ${a.narrationGuide ? `
+                <div style="font-size: 0.78rem; color: var(--muted); background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--admin-border);">
+                  ℹ️ <em>${a.narrationGuide}</em>
+                </div>
+              ` : ''}
+            </div>
+          `).join('');
+        }
+      }
+
+      // 2. Render Special Projects Grid
+      const gridProjects = document.getElementById('gridGivingProjects');
+      if (gridProjects) {
+        const projects = this.getAllGivingProjects();
+        if (projects.length === 0) {
+          gridProjects.innerHTML = `
+            <div class="admin-empty-state" style="grid-column: 1 / -1; padding: 2rem; background: var(--white); border-radius: 16px; border: 1px dashed var(--admin-border); text-align: center;">
+              <p style="color: var(--muted); margin: 0 0 1rem;">No special projects currently configured.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.openItemModal('giveProjects')">
+                + Add Special Project
+              </button>
+            </div>
+          `;
+        } else {
+          gridProjects.innerHTML = projects.map(p => `
+            <div class="admin-project-item-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+                <div>
+                  <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.35rem;">
+                    <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; background: var(--sky); color: var(--navy); padding: 0.15rem 0.5rem; border-radius: 999px;">
+                      ${p.category}
+                    </span>
+                    ${p.badge ? `<span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; background: #fef3c7; color: #92400e; padding: 0.15rem 0.5rem; border-radius: 999px;">${p.badge}</span>` : ''}
+                  </div>
+                  <h4 style="margin: 0; font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--navy);">
+                    ${p.title}
+                  </h4>
+                </div>
+                <div class="admin-card-actions">
+                  <button class="admin-icon-btn" title="Edit Project" onclick="AdminPortal.openItemModal('giveProjects', '${p.id}')">✏️</button>
+                  <button class="admin-icon-btn delete" title="Delete Project" onclick="AdminPortal.deleteItem('giveProjects', '${p.id}')">🗑️</button>
+                </div>
+              </div>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--muted); line-height: 1.45;">
+                ${p.description}
+              </p>
+            </div>
+          `).join('');
+        }
+      }
+    },
+
+    filterGivingAccounts(curr) {
+      document.querySelectorAll('#adminGivingCurrencyTabs .admin-currency-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-curr-filter') === curr);
+      });
+      this.renderGivingView(curr);
+    },
+
+    populateGivingForms() {
+      if (typeof document === 'undefined') return;
+      const give = currentContent.give || {};
+      const gateway = give.paymentGateway || {};
+
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || '';
+      };
+
+      // Payment Gateway Form
+      const chkEnabled = document.getElementById('gatewaySettingEnabled');
+      if (chkEnabled) chkEnabled.checked = Boolean(gateway.enabled);
+
+      setVal('gatewaySettingProvider', gateway.provider || 'custom');
+      setVal('gatewaySettingUrl', gateway.paymentUrl || '');
+      setVal('gatewaySettingBtnLabel', gateway.buttonLabel || 'Proceed to Secure Payment ↗');
+
+      const chkParams = document.getElementById('gatewaySettingAppendParams');
+      if (chkParams) chkParams.checked = gateway.appendDonorParams !== false;
+
+      setVal('gatewaySettingNotice', gateway.noticeMessage || 'Online card processing integration for Peculiar Cherubs is currently being finalized. In the meantime, you can fulfill your giving instantly with zero transaction fees using our verified Direct Bank Transfer accounts.');
+
+      // Update Banner UI
+      const banner = document.getElementById('adminGatewayStatusBanner');
+      const title = document.getElementById('adminGatewayStatusTitle');
+      const desc = document.getElementById('adminGatewayStatusDesc');
+      const badge = document.getElementById('adminGatewayStatusBadge');
+
+      if (banner && title && desc && badge) {
+        if (gateway.enabled && gateway.paymentUrl && gateway.paymentUrl.trim().length > 0) {
+          banner.className = 'admin-gateway-banner active';
+          title.textContent = `🟢 Live Gateway Active (${(gateway.provider || 'Custom').toUpperCase()})`;
+          desc.textContent = `Donors clicking "Proceed to Give Online" are forwarded to: ${gateway.paymentUrl}`;
+          badge.textContent = 'Active Live';
+        } else {
+          banner.className = 'admin-gateway-banner inactive';
+          title.textContent = '🔌 Gateway Offline / Setup Mode';
+          desc.textContent = 'The website displays a graceful notice directing givers to verified direct bank transfers.';
+          badge.textContent = 'Setup Mode';
+        }
+      }
+
+      // Giving Page Settings Form
+      setVal('givingSettingWhatsAppPhone', give.whatsappConfirmPhone || '2348000000000');
+      setVal('givingSettingWhatsAppText', give.whatsappConfirmText || 'Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving/tithe. Here are the details:');
+      setVal('givingSettingQuote', give.why?.quote || 'God loves a cheerful giver.');
+      setVal('givingSettingWhyTitle', give.why?.title || 'Giving is worship.');
+      setVal('givingSettingWhyDesc', give.why?.description || 'We give in gratitude to God and in partnership with the work He is doing through Peculiar Cherubs.');
+    },
+
+    onGatewayProviderChange() {
+      const select = document.getElementById('gatewaySettingProvider');
+      const urlInput = document.getElementById('gatewaySettingUrl');
+      if (!select || !urlInput) return;
+
+      const val = select.value;
+      if (!urlInput.value || urlInput.value.includes('paystack.com') || urlInput.value.includes('flutterwave.com') || urlInput.value.includes('stripe.com')) {
+        if (val === 'paystack') {
+          urlInput.placeholder = 'https://paystack.com/pay/peculiarcherubs';
+        } else if (val === 'flutterwave') {
+          urlInput.placeholder = 'https://flutterwave.com/pay/peculiarcherubs';
+        } else if (val === 'stripe') {
+          urlInput.placeholder = 'https://buy.stripe.com/...';
+        } else if (val === 'remita') {
+          urlInput.placeholder = 'https://login.remita.net/remita/onepage/OAG/payment.spa';
+        } else {
+          urlInput.placeholder = 'https://your-payment-gateway-link.com';
+        }
+      }
+    },
+
+    async savePaymentGatewaySettings() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+      };
+
+      if (!currentContent.give) currentContent.give = {};
+      if (!currentContent.give.paymentGateway) currentContent.give.paymentGateway = {};
+
+      const chkEnabled = document.getElementById('gatewaySettingEnabled');
+      const chkParams = document.getElementById('gatewaySettingAppendParams');
+
+      currentContent.give.paymentGateway.enabled = chkEnabled ? chkEnabled.checked : false;
+      currentContent.give.paymentGateway.provider = getVal('gatewaySettingProvider') || 'custom';
+      currentContent.give.paymentGateway.paymentUrl = getVal('gatewaySettingUrl');
+      currentContent.give.paymentGateway.buttonLabel = getVal('gatewaySettingBtnLabel') || 'Proceed to Secure Payment ↗';
+      currentContent.give.paymentGateway.appendDonorParams = chkParams ? chkParams.checked : true;
+      currentContent.give.paymentGateway.noticeMessage = getVal('gatewaySettingNotice');
+
+      await this.syncSectionToSupabase('give', currentContent.give);
+      this.populateGivingForms();
+      this.showToast('Payment Gateway plugin configuration synced live to Supabase DB!', 'success');
+    },
+
+    async saveGivingPageSettings() {
+      const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+      };
+
+      if (!currentContent.give) currentContent.give = {};
+      if (!currentContent.give.why) currentContent.give.why = {};
+
+      currentContent.give.whatsappConfirmPhone = getVal('givingSettingWhatsAppPhone');
+      currentContent.give.whatsappConfirmText = getVal('givingSettingWhatsAppText');
+      currentContent.give.why.quote = getVal('givingSettingQuote');
+      currentContent.give.why.title = getVal('givingSettingWhyTitle');
+      currentContent.give.why.description = getVal('givingSettingWhyDesc');
+
+      await this.syncSectionToSupabase('give', currentContent.give);
+      this.showToast('Giving page settings updated live in Supabase DB!', 'success');
+    },
+
+    /* ======================================================================
        Populate Site Settings Form
        ====================================================================== */
     populateSiteSettingsForm() {
@@ -1098,6 +1380,10 @@
           item = this.getAllQuickLinkItems().find(i => i.id === itemId || String(i.id) === String(itemId));
         } else if (sectionKey === 'quickEvents') {
           item = this.getAllQuickEventItems().find(i => i.id === itemId || String(i.id) === String(itemId));
+        } else if (sectionKey === 'giveAccounts') {
+          item = this.getAllGivingAccounts().find(i => i.id === itemId || String(i.id) === String(itemId));
+        } else if (sectionKey === 'giveProjects') {
+          item = this.getAllGivingProjects().find(i => i.id === itemId || String(i.id) === String(itemId));
         }
       }
 
@@ -1115,6 +1401,10 @@
           titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Quick Link`;
         } else if (sectionKey === 'quickEvents') {
           titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Regular Service / Major Event`;
+        } else if (sectionKey === 'giveAccounts') {
+          titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Church Bank Account`;
+        } else if (sectionKey === 'giveProjects') {
+          titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} Special Project Campaign`;
         } else {
           titleEl.textContent = `${itemId ? 'Edit' : 'Add New'} ${sectionKey.slice(0, -1)}`;
         }
@@ -1663,6 +1953,89 @@
             <textarea id="modalField_text" class="admin-textarea" placeholder="e.g. Part of the church’s regular weekly rhythm." required>${item.text || 'Part of the church’s regular weekly rhythm.'}</textarea>
           </div>
         `;
+      } else if (sectionKey === 'giveAccounts') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Account ID / Key</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'acc_' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Currency</label>
+              <select id="modalField_currency" class="admin-select" style="width: 100%;">
+                <option value="NGN" ${(item.currency || 'NGN') === 'NGN' ? 'selected' : ''}>₦ NGN (Nigerian Naira)</option>
+                <option value="USD" ${(item.currency || 'NGN') === 'USD' ? 'selected' : ''}>$ USD (US Dollar)</option>
+                <option value="GBP" ${(item.currency || 'NGN') === 'GBP' ? 'selected' : ''}>£ GBP (British Pound)</option>
+                <option value="EUR" ${(item.currency || 'NGN') === 'EUR' ? 'selected' : ''}>€ EUR (Euro)</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Account Title / Purpose</label>
+            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Main Ministry Account (Tithes & Offerings) or Building Fund" required>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Bank Name</label>
+              <input type="text" id="modalField_bankName" class="admin-input" value="${item.bankName || ''}" placeholder="e.g. Zenith Bank Plc" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Account Number (NUBAN / IBAN)</label>
+              <input type="text" id="modalField_accountNumber" class="admin-input" value="${item.accountNumber || ''}" placeholder="e.g. 1012345678" style="font-family: ui-monospace, monospace; font-weight: 700;" required>
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Account Name</label>
+            <input type="text" id="modalField_accountName" class="admin-input" value="${item.accountName || 'Peculiar Cherubs Ministries'}" placeholder="e.g. Peculiar Cherubs Ministries" required>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Sort Code (Optional)</label>
+              <input type="text" id="modalField_sortCode" class="admin-input" value="${item.sortCode || ''}" placeholder="e.g. 057150013">
+            </div>
+            <div class="admin-input-group">
+              <label>SWIFT / BIC Code (For FX Accounts)</label>
+              <input type="text" id="modalField_swiftCode" class="admin-input" value="${item.swiftCode || ''}" placeholder="e.g. ZEBLNGLA">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label for="modalField_isPrimary" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="modalField_isPrimary" ${item.isPrimary ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
+              <span style="font-weight: 700; color: var(--navy);">Set as Primary Account for this currency</span>
+            </label>
+          </div>
+          <div class="admin-input-group" style="margin-bottom: 0;">
+            <label>Narration Guidance for Givers</label>
+            <textarea id="modalField_narrationGuide" class="admin-textarea" placeholder="e.g. Include your Full Name and Purpose (e.g. 'Ezekiel Ade - Tithe')">${item.narrationGuide || ''}</textarea>
+          </div>
+        `;
+      } else if (sectionKey === 'giveProjects') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Project ID</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'project_' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Category / Sector Tag</label>
+              <input type="text" id="modalField_category" class="admin-input" value="${item.category || 'Building Fund'}" placeholder="e.g. Building Fund, Charity & Welfare, Education, Missions" required>
+            </div>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Project Campaign Title</label>
+              <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Chapel Expansion & Building Project" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Badge Label (Optional)</label>
+              <input type="text" id="modalField_badge" class="admin-input" value="${item.badge || ''}" placeholder="e.g. Priority Project, Active Outreach">
+            </div>
+          </div>
+          <div class="admin-input-group" style="margin-bottom: 0;">
+            <label>Project Mission & Goal Description</label>
+            <textarea id="modalField_description" class="admin-textarea" placeholder="Detailed summary of the initiative and how donations are utilized..." required>${item.description || ''}</textarea>
+          </div>
+        `;
       }
 
       container.innerHTML = html;
@@ -1845,6 +2218,58 @@
             <h3 style="margin: 0 0 0.5rem; font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--navy);">${title}</h3>
             <p style="margin: 0; font-size: 0.92rem; color: var(--muted); line-height: 1.5;">${text}</p>
           </article>
+        `;
+      } else if (sec === 'giveAccounts') {
+        const curr = getF('currency') || 'NGN';
+        const title = getF('title') || 'Main Ministry Account';
+        const bank = getF('bankName') || 'Zenith Bank Plc';
+        const accNum = getF('accountNumber') || '1012345678';
+        const accName = getF('accountName') || 'Peculiar Cherubs Ministries';
+        const isPrim = document.getElementById('modalField_isPrimary')?.checked;
+        const sort = getF('sortCode');
+        const swift = getF('swiftCode');
+        const guide = getF('narrationGuide');
+
+        box.innerHTML = `
+          <div style="background: var(--navy); color: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(11,27,61,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem;">
+              <h4 style="margin: 0; color: #fff; font-size: 1.05rem;">${title}</h4>
+              <div style="display: flex; gap: 0.35rem;">
+                <span style="font-size: 0.7rem; font-weight: 800; background: rgba(255,255,255,0.2); color: #fff; padding: 0.15rem 0.5rem; border-radius: 999px;">${curr}</span>
+                ${isPrim ? '<span style="font-size: 0.7rem; font-weight: 800; background: rgba(229,169,60,0.2); color: var(--yellow); padding: 0.15rem 0.5rem; border-radius: 999px;">Primary</span>' : ''}
+              </div>
+            </div>
+            <div style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 0.75rem;">${bank}</div>
+            <div style="background: rgba(0,0,0,0.25); border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-family: monospace; font-size: 1.25rem; font-weight: 800; color: var(--yellow); letter-spacing: 0.08em;">${accNum}</span>
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.15); color: #fff; padding: 0.25rem 0.6rem; border-radius: 4px;">📋 Copy</span>
+            </div>
+            <div style="font-size: 0.82rem; color: rgba(255,255,255,0.8); margin-bottom: 0.35rem;">
+              Account Name: <strong>${accName}</strong>
+              ${sort ? `<br>Sort Code: <strong>${sort}</strong>` : ''}
+              ${swift ? `<br>SWIFT: <strong>${swift}</strong>` : ''}
+            </div>
+            ${guide ? `<div style="font-size: 0.78rem; color: rgba(255,255,255,0.55); font-style: italic;">${guide}</div>` : ''}
+          </div>
+        `;
+      } else if (sec === 'giveProjects') {
+        const cat = getF('category') || 'Building Fund';
+        const title = getF('title') || 'Special Project Campaign';
+        const badge = getF('badge') || 'Active Project';
+        const desc = getF('description') || 'Project mission description preview...';
+
+        box.innerHTML = `
+          <div style="background: var(--navy); color: white; border-radius: 14px; padding: 1.25rem; border: 1px solid rgba(255,255,255,0.15);">
+            <div style="display: flex; gap: 0.4rem; margin-bottom: 0.4rem;">
+              <span style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; background: rgba(229,169,60,0.2); color: var(--yellow); padding: 0.15rem 0.5rem; border-radius: 999px;">${cat}</span>
+              ${badge ? `<span style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; background: rgba(255,255,255,0.15); color: #fff; padding: 0.15rem 0.5rem; border-radius: 999px;">${badge}</span>` : ''}
+            </div>
+            <h4 style="margin: 0 0 0.4rem; color: #fff; font-size: 1.1rem;">${title}</h4>
+            <p style="margin: 0 0 0.85rem; font-size: 0.85rem; color: rgba(255,255,255,0.72); line-height: 1.45;">${desc}</p>
+            <button type="button" style="background: var(--yellow); color: var(--navy); border: none; font-weight: 800; font-size: 0.78rem; padding: 0.4rem 0.85rem; border-radius: 999px;">
+              Give to this Project ↗
+            </button>
+          </div>
         `;
       } else {
         box.innerHTML = `<div style="font-size: 0.9rem; color: var(--muted); font-style: italic;">Preview updated automatically as you type.</div>`;
@@ -2256,6 +2681,68 @@
 
         await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
         this.renderQuickLinksView();
+      } else if (sec === 'giveAccounts') {
+        if (!currentContent.give) currentContent.give = {};
+        if (!Array.isArray(currentContent.give.bankAccounts)) currentContent.give.bankAccounts = [];
+
+        const isPrimary = document.getElementById('modalField_isPrimary')?.checked || false;
+        const newAccount = {
+          id: id,
+          currency: getF('currency') || 'NGN',
+          title: getF('title'),
+          bankName: getF('bankName'),
+          accountName: getF('accountName') || 'Peculiar Cherubs Ministries',
+          accountNumber: getF('accountNumber'),
+          sortCode: getF('sortCode'),
+          swiftCode: getF('swiftCode'),
+          isPrimary: isPrimary,
+          narrationGuide: getF('narrationGuide')
+        };
+
+        if (isPrimary) {
+          currentContent.give.bankAccounts.forEach(a => {
+            if ((a.currency || 'NGN').toUpperCase() === newAccount.currency.toUpperCase()) {
+              a.isPrimary = false;
+            }
+          });
+        }
+
+        const existingIdx = currentContent.give.bankAccounts.findIndex(
+          (a, idx) => a.id === editingState.itemId || `acc_${idx}` === editingState.itemId || (editingState.itemId && a.id === id)
+        );
+
+        if (existingIdx >= 0) {
+          currentContent.give.bankAccounts[existingIdx] = newAccount;
+        } else {
+          currentContent.give.bankAccounts.push(newAccount);
+        }
+
+        await this.syncSectionToSupabase('give', currentContent.give);
+        this.renderGivingView();
+      } else if (sec === 'giveProjects') {
+        if (!currentContent.give) currentContent.give = {};
+        if (!Array.isArray(currentContent.give.projects)) currentContent.give.projects = [];
+
+        const newProject = {
+          id: id,
+          title: getF('title'),
+          category: getF('category') || 'Building Fund',
+          badge: getF('badge'),
+          description: getF('description')
+        };
+
+        const existingIdx = currentContent.give.projects.findIndex(
+          (p, idx) => p.id === editingState.itemId || `proj_${idx}` === editingState.itemId || (editingState.itemId && p.id === id)
+        );
+
+        if (existingIdx >= 0) {
+          currentContent.give.projects[existingIdx] = newProject;
+        } else {
+          currentContent.give.projects.push(newProject);
+        }
+
+        await this.syncSectionToSupabase('give', currentContent.give);
+        this.renderGivingView();
       }
 
       this.renderStatsAndBadges();
@@ -2351,6 +2838,22 @@
           );
           await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
           this.renderQuickLinksView();
+        }
+      } else if (sectionKey === 'giveAccounts') {
+        if (currentContent.give && Array.isArray(currentContent.give.bankAccounts)) {
+          currentContent.give.bankAccounts = currentContent.give.bankAccounts.filter(
+            (a, idx) => a.id !== itemId && `acc_${idx}` !== itemId && String(idx) !== String(itemId)
+          );
+          await this.syncSectionToSupabase('give', currentContent.give);
+          this.renderGivingView();
+        }
+      } else if (sectionKey === 'giveProjects') {
+        if (currentContent.give && Array.isArray(currentContent.give.projects)) {
+          currentContent.give.projects = currentContent.give.projects.filter(
+            (p, idx) => p.id !== itemId && `proj_${idx}` !== itemId && String(idx) !== String(itemId)
+          );
+          await this.syncSectionToSupabase('give', currentContent.give);
+          this.renderGivingView();
         }
       }
 

@@ -315,8 +315,8 @@ function renderAbout(content) {
           return `
             <article class="leader-card" style="--i:${i}">
               <div class="leader-photo-wrap">
-                ${photoHtml}
                 <div class="leader-photo-ring"></div>
+                ${photoHtml}
               </div>
               <div class="leader-info">
                 <strong class="leader-name">${escapeHtml(person.name || 'Leader')}</strong>
@@ -1732,11 +1732,11 @@ function renderGive(content) {
   const currencies = Array.isArray(giveData.currencies) && giveData.currencies.length
     ? giveData.currencies
     : [
-        { code: "NGN", label: "₦ NGN", name: "Nigerian Naira", isPrimary: true },
-        { code: "USD", label: "$ USD", name: "US Dollar", isPrimary: false },
-        { code: "GBP", label: "£ GBP", name: "British Pound", isPrimary: false },
-        { code: "EUR", label: "€ EUR", name: "Euro", isPrimary: false }
-      ];
+      { code: "NGN", label: "₦ NGN", name: "Nigerian Naira", isPrimary: true },
+      { code: "USD", label: "$ USD", name: "US Dollar", isPrimary: false },
+      { code: "GBP", label: "£ GBP", name: "British Pound", isPrimary: false },
+      { code: "EUR", label: "€ EUR", name: "Euro", isPrimary: false }
+    ];
 
   const bankAccounts = Array.isArray(giveData.bankAccounts) ? giveData.bankAccounts : [];
   const categories = Array.isArray(giveData.categories) && giveData.categories.length
@@ -1978,8 +1978,21 @@ function renderGive(content) {
   const modalSwitchBtn = document.getElementById("btn-modal-switch-transfer");
   const modalCloseBtn = document.getElementById("btn-modal-close");
 
+  const gateway = giveData.paymentGateway || {};
+
+  const submitBtnSpan = onlineForm?.querySelector(".give-submit-btn span");
+  if (submitBtnSpan && gateway.buttonLabel) {
+    submitBtnSpan.textContent = gateway.buttonLabel;
+  }
+
   const openModal = () => {
     if (!modalOverlay) return;
+    if (gateway.noticeMessage) {
+      const modalBody = modalOverlay.querySelector(".give-modal-body");
+      if (modalBody) {
+        modalBody.innerHTML = `<p>${escapeStr(gateway.noticeMessage)}</p>`;
+      }
+    }
     modalOverlay.style.display = "flex";
     modalOverlay.setAttribute("aria-hidden", "false");
   };
@@ -1996,6 +2009,8 @@ function renderGive(content) {
       const amountVal = parseFloat(amountInput.value);
       const nameVal = (document.getElementById("give-name")?.value || "").trim();
       const emailVal = (document.getElementById("give-email")?.value || "").trim();
+      const phoneVal = (document.getElementById("give-phone")?.value || "").trim();
+      const purposeVal = purposeSelect?.value || "Giving";
 
       if (!amountVal || amountVal <= 0) {
         alert("Please enter a valid donation amount.");
@@ -2013,6 +2028,31 @@ function renderGive(content) {
         return;
       }
 
+      // Check if a payment gateway link is enabled and configured
+      if (gateway.enabled && gateway.paymentUrl && gateway.paymentUrl.trim().length > 0) {
+        let targetUrl = gateway.paymentUrl.trim();
+        if (gateway.appendDonorParams !== false) {
+          try {
+            const u = new URL(targetUrl, window.location.href);
+            u.searchParams.set("amount", String(amountVal));
+            u.searchParams.set("currency", onlineCurrencySelect?.value || activeCurrency || "NGN");
+            u.searchParams.set("email", emailVal);
+            u.searchParams.set("name", nameVal);
+            u.searchParams.set("purpose", purposeVal);
+            if (phoneVal) u.searchParams.set("phone", phoneVal);
+            targetUrl = u.toString();
+          } catch (err) {
+            const sep = targetUrl.includes("?") ? "&" : "?";
+            targetUrl = `${targetUrl}${sep}amount=${encodeURIComponent(amountVal)}&email=${encodeURIComponent(emailVal)}&name=${encodeURIComponent(nameVal)}&purpose=${encodeURIComponent(purposeVal)}`;
+          }
+        }
+
+        showToast("Redirecting to secure payment checkout...");
+        window.open(targetUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      // Gateway not enabled or URL not set: show graceful fallback modal
       openModal();
     });
   }
@@ -2168,7 +2208,7 @@ function renderSundaySchoolDetail(content) {
     if (lesson.memoryVerse) {
       const verseText = lesson.memoryVerse.text;
       const wordsToHide = lesson.memoryVerse.keywordsToHide || [];
-      
+
       let hiddenVerseText = verseText;
       wordsToHide.forEach(word => {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
@@ -2283,9 +2323,9 @@ function renderSundaySchoolDetail(content) {
 
                 <ul class="ss-outline-points">
                   ${ot.points.map(pt => {
-                    const formatted = escapeHtml(pt).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    return `<li>${formatted}</li>`;
-                  }).join("")}
+        const formatted = escapeHtml(pt).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return `<li>${formatted}</li>`;
+      }).join("")}
                 </ul>
 
                 ${ot.keyInsight ? `
@@ -2435,7 +2475,7 @@ function renderSundaySchoolDetail(content) {
       } else {
         window.speechSynthesis.cancel();
         const textToRead = `Sunday School Lesson ${lesson.lessonNumber}: ${lesson.topic}. Memory Verse: ${lesson.memoryVerse?.text || ''}. Introduction: ${lesson.introduction}`;
-        
+
         const utterance = new SpeechSynthesisUtterance(textToRead);
         utterance.rate = 0.95;
         utterance.pitch = 1.0;
@@ -2559,7 +2599,7 @@ function renderSundaySchoolDetail(content) {
     const scrollTop = window.scrollY;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
     const progress = Math.min(100, Math.max(0, (scrollTop / docHeight) * 100));
-    
+
     if (progressBar) {
       progressBar.style.width = `${progress}%`;
     }
