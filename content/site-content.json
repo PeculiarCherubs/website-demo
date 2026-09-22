@@ -16,16 +16,12 @@
       "href": "about.html"
     },
     {
-      "label": "MINISTRIES",
-      "href": "ministries.html",
+      "label": "CHAPELS",
+      "href": "chapels.html",
       "children": [
         {
-          "label": "All Ministries",
-          "href": "ministries.html"
-        },
-        {
-          "label": "PDCM Mission",
-          "href": "pdcm-mission.html"
+          "label": "All Chapels",
+          "href": "chapels.html"
         },
         {
           "label": "PDCM Gwarinpa",
@@ -42,6 +38,20 @@
         {
           "label": "PDCM Mega Youth",
           "href": "pdcm-mega-youth.html"
+        }
+      ]
+    },
+    {
+      "label": "MINISTRIES",
+      "href": "ministries.html",
+      "children": [
+        {
+          "label": "All Ministries",
+          "href": "ministries.html"
+        },
+        {
+          "label": "PDCM Mission",
+          "href": "pdcm-mission.html"
         },
         {
           "label": "Christian Heritage Bible School",
@@ -127,7 +137,7 @@
       "description": "Welcome to Cherubim and Seraphim Movement Church, Center for Deliverance through Evangelism. We are The Peculiar Cherubs. We are a growing family committed to worship, prayer, discipleship, evangelism, and transformed lives through Jesus Christ.",
       "primaryButton": {
         "label": "Find a Chapel",
-        "href": "pdcms.html"
+        "href": "chapels.html"
       },
       "secondaryButton": {
         "label": "Watch Sermons",
@@ -276,25 +286,29 @@
         "name": "PDCM English Chapel",
         "subtitle": "Governors Assembly",
         "status": "Current Chapel",
-        "logo": "assets/logos/pdcm-english.png"
+        "logo": "assets/logos/pdcm-english.png",
+        "href": "pdcm-english.html"
       },
       {
         "name": "PDCM Gwarinpa Chapel",
         "subtitle": "A local worship and discipleship community under Peculiar Cherubs.",
         "status": "Current Chapel",
-        "logo": "assets/logos/pdcm-generic.png"
+        "logo": "assets/logos/pdcm-generic.png",
+        "href": "pdcm-gwarinpa.html"
       },
       {
         "name": "PDCM Byazhin Chapel",
         "subtitle": "Serving believers and families through worship, prayer, and evangelism.",
         "status": "Current Chapel",
-        "logo": "assets/logos/pdcm-byazhin.png"
+        "logo": "assets/logos/pdcm-byazhin.png",
+        "href": "pdcm-byazhin.html"
       },
       {
         "name": "PDCM Mega Youth Chapel",
         "subtitle": "A youth-centred chapel raising disciples, worshippers, and kingdom leaders.",
         "status": "Current Chapel",
-        "logo": "assets/logos/pdcm-generic.png"
+        "logo": "assets/logos/pdcm-generic.png",
+        "href": "pdcm-mega-youth.html"
       }
     ],
     "upcoming": [
@@ -1989,8 +2003,8 @@
       {
         "icon": "↗",
         "title": "Plan a Visit",
-        "text": "Explore chapels and ministry locations.",
-        "href": "ministries.html#pdcm-chapels"
+        "text": "Explore current PDCM chapels and find a worshipping community.",
+        "href": "chapels.html"
       },
       {
         "icon": "✦",
@@ -2236,7 +2250,7 @@
     "hero": {
       "eyebrow": "Ministries",
       "title": "One mission.\nMany expressions.",
-      "description": "Explore the chapels, schools, age-grade ministries, fellowship centres, and outreach expressions through which Peculiar Cherubs disciples, mentors, intercedes, teaches, serves, and reaches people."
+      "description": "Explore the schools, age-grade ministries, mission, fellowship centres, and outreach expressions through which Peculiar Cherubs disciples, mentors, intercedes, teaches, serves, and reaches people."
     },
     "mission": {
       "eyebrow": "PDCM Mission",
@@ -2260,19 +2274,6 @@
     },
     "groups": [
       {
-        "id": "pdcm-chapels",
-        "eyebrow": "PDCM Chapels",
-        "title": "Standalone worshipping communities.",
-        "description": "Each chapel carries the shared mission of Peculiar Cherubs while serving its immediate community.",
-        "items": [
-          "pdcm-mission",
-          "pdcm-gwarinpa",
-          "pdcm-english",
-          "pdcm-byazhin",
-          "pdcm-mega-youth"
-        ]
-      },
-      {
         "id": "education",
         "eyebrow": "Education and formation",
         "title": "Learning for faith and life.",
@@ -2294,10 +2295,11 @@
       },
       {
         "id": "fellowship-outreach",
-        "eyebrow": "Fellowship and outreach",
+        "eyebrow": "Mission, fellowship and outreach",
         "title": "Church life beyond the auditorium.",
-        "description": "Community-based fellowship, compassionate service, prayer, and practical support.",
+        "description": "Mission, community-based fellowship, compassionate service, prayer, evangelism, and practical support.",
         "items": [
+          "pdcm-mission",
           "house-fellowships",
           "feeding-ministry"
         ]

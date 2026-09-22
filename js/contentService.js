@@ -28,6 +28,7 @@
     'home',
     'ministries',
     'ministryDetail',
+    'chapels',
     'houseFellowships',
     'bibleCollege',
     'publications',

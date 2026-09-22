@@ -333,25 +333,40 @@ function renderAbout(content) {
 function renderChapels(content) {
   renderStandardHero(content.chapels);
 
+  const inferredHref = chapel => {
+    if (chapel.href) return chapel.href;
+
+    const name = String(chapel.name || "").toLowerCase();
+    if (name.includes("gwarinpa")) return "pdcm-gwarinpa.html";
+    if (name.includes("english")) return "pdcm-english.html";
+    if (name.includes("byazhin")) return "pdcm-byazhin.html";
+    if (name.includes("mega youth")) return "pdcm-mega-youth.html";
+    return "#";
+  };
+
   const current = document.querySelector("[data-current-chapels]");
   if (current) {
-    current.innerHTML = content.chapels.current.map(chapel => `
-      <article class="card campus-card">
-        <div class="campus-logo-wrap">
-          <img class="campus-logo" loading="lazy" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} logo">
-        </div>
-        <div class="campus-body">
-          <div class="meta">${escapeHtml(chapel.status)}</div>
-          <h3>${escapeHtml(chapel.name)}</h3>
-          <p>${escapeHtml(chapel.subtitle)}</p>
-        </div>
-      </article>
-    `).join("");
+    current.innerHTML = (content.chapels.current || []).map(chapel => {
+      const href = inferredHref(chapel);
+      return `
+        <a class="card campus-card chapel-link-card" href="${escapeHtml(href)}">
+          <div class="campus-logo-wrap">
+            <img class="campus-logo" loading="lazy" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} logo">
+          </div>
+          <div class="campus-body">
+            <div class="meta">${escapeHtml(chapel.status || "Current Chapel")}</div>
+            <h3>${escapeHtml(chapel.name)}</h3>
+            <p>${escapeHtml(chapel.subtitle || "")}</p>
+            <span class="text-link chapel-card-link">Explore chapel ↗</span>
+          </div>
+        </a>
+      `;
+    }).join("");
   }
 
   const upcoming = document.querySelector("[data-upcoming-chapels]");
   if (upcoming) {
-    upcoming.innerHTML = content.chapels.upcoming.map(chapel => `
+    upcoming.innerHTML = (content.chapels.upcoming || []).map(chapel => `
       <article class="card campus-card upcoming-card">
         <div class="campus-logo-wrap">
           <img class="campus-logo" loading="lazy" src="${escapeHtml(chapel.logo)}" alt="${escapeHtml(chapel.name)} placeholder logo">
@@ -454,23 +469,6 @@ function renderPublications(content) {
   setText("[data-publication-blog-eyebrow]", blog?.eyebrow);
   setText("[data-publication-blog-title]", blog?.title);
   setText("[data-publication-blog-description]", blog?.description);
-
-  const featured = posts.find(post => post.featured) || posts[0];
-  const featuredContainer = document.querySelector("[data-publication-featured]");
-  if (featuredContainer && featured) {
-    featuredContainer.innerHTML = `
-      ${publicationCover(featured, "publication-featured-cover")}
-      <div class="publication-featured-copy">
-        <div class="meta">${escapeHtml(featured.type)} · ${escapeHtml(publicationDate(featured.date))}</div>
-        <h3>${escapeHtml(featured.title)}</h3>
-        <p>${escapeHtml(featured.excerpt)}</p>
-        <div class="publication-card-tags">
-          ${(featured.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("")}
-        </div>
-        <a class="btn btn-primary" href="${publicationPostUrl(featured)}">Read Featured Publication</a>
-      </div>
-    `;
-  }
 
   const categoriesContainer = document.querySelector("[data-publication-categories]");
   const postsContainer = document.querySelector("[data-publication-posts]");
@@ -2303,9 +2301,13 @@ async function loadLocalContent() {
 }
 
 async function loadMergedContent(page) {
+  const localContent = typeof ContentService !== "undefined"
+    ? await ContentService.fetchLocalFallback()
+    : await loadLocalContent();
+
   if (typeof ContentService === "undefined") {
     return {
-      ...(await loadLocalContent()),
+      ...localContent,
       _source: "local"
     };
   }
@@ -2313,25 +2315,10 @@ async function loadMergedContent(page) {
   try {
     const liveContent = await ContentService.getPageContent(page);
 
-    // These sections evolved beyond the older database branch.
-    // Merge their live DB values over the newer local schema so new keys
-    // such as publications.blog are never lost.
-    const schemaSensitivePages = new Set([
-      "publications",
-      "publicationPost",
-      "publicationDetail",
-      "sundaySchoolDetail",
-      "events"
-    ]);
+    // Always merge live data over the newer local schema.
+    // This protects newer structures that may not yet exist in Supabase.
+    const merged = mergeSiteContent(localContent, liveContent || {});
 
-<<<<<<< Updated upstream
-    if (schemaSensitivePages.has(page) && String(liveContent?._source || "").startsWith("supabase")) {
-      const localContent = await ContentService.fetchLocalFallback();
-      const merged = mergeSiteContent(localContent, liveContent || {});
-      merged._source = `${liveContent._source}+local-schema`;
-      return merged;
-    }
-=======
     // IMPORTANT:
     // The Supabase `navigation` row is still based on the older navigation.
     // Keep the repository's current navigation as the single shared menu
@@ -2344,13 +2331,16 @@ async function loadMergedContent(page) {
     merged.navigation = liveNavigationIsCurrent
       ? liveContent.navigation
       : localContent.navigation;
->>>>>>> Stashed changes
 
-    return liveContent;
+    merged._source = String(liveContent?._source || "").startsWith("supabase")
+      ? `${liveContent._source}+local-navigation`
+      : (liveContent?._source || "local");
+
+    return merged;
   } catch (serviceError) {
     console.warn("[ContentService] Live content unavailable; using local fallback.", serviceError);
     return {
-      ...(await loadLocalContent()),
+      ...localContent,
       _source: "local-fallback"
     };
   }

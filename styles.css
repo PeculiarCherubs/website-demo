@@ -6160,8 +6160,6 @@ body.teacher-mode .ss-teacher-card {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-<<<<<<< Updated upstream
-=======
 
 
 /* Separate Chapels landing page */
@@ -6366,4 +6364,3 @@ body.teacher-mode .ss-teacher-card {
     text-align-last: auto;
   }
 }
->>>>>>> Stashed changes
