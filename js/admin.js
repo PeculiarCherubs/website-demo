@@ -165,6 +165,7 @@
         }
 
         currentContent = data;
+        this.ensureStableContentIds();
         console.log('[AdminPortal] Loaded content model:', currentContent);
         this.renderAllViews();
         this.showToast('Site content loaded successfully.', 'success');
@@ -213,6 +214,41 @@
       const activePanel = document.getElementById(`panel${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
       if (activePanel) {
         activePanel.classList.add('active');
+      }
+    },
+
+    /**
+     * Creates deterministic IDs for older records that pre-date the CMS.
+     * IDs are added in-memory so existing Supabase content can be edited safely;
+     * once a record is saved the ID is persisted with that section.
+     */
+    slugifyStableId(value, prefix = 'item') {
+      const slug = String(value || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 80);
+      return `${prefix}-${slug || Date.now()}`;
+    },
+
+    ensureStableContentIds() {
+      const sermons = currentContent.sermons?.items;
+      if (Array.isArray(sermons)) {
+        sermons.forEach((item, index) => {
+          if (!item.id) {
+            item.id = this.slugifyStableId(item.title || `sermon-${index + 1}`, 'sermon');
+          }
+        });
+      }
+
+      const fellowships = currentContent.ministries?.houseFellowships;
+      if (Array.isArray(fellowships)) {
+        fellowships.forEach((item, index) => {
+          if (!item.id) {
+            item.id = this.slugifyStableId(item.name || `fellowship-${index + 1}`, 'fellowship');
+          }
+        });
       }
     },
 
@@ -271,7 +307,8 @@
             isSundaySchool: true,
             quarter: l.quarter || pubs.sundaySchoolDetails.quarter || 'Quarter 3, 2026',
             lessonNum: l.lessonNumber ? `Lesson ${l.lessonNumber}` : (l.lessonNum || 'Lesson'),
-            date: l.dateDisplay || l.date || '2026',
+            date: l.date || l.dateDisplay || '2026',
+            dateDisplay: l.dateDisplay || l.date || '2026',
             duration: l.duration || '45 Minutes',
             memoryVerse: verseText,
             verseRef: verseRef,
@@ -356,6 +393,21 @@
       return items;
     },
 
+    getMinistryPlacement(key, detail = {}) {
+      const groups = currentContent.ministries?.groups || [];
+      const group = groups.find(entry => Array.isArray(entry.items) && entry.items.includes(key));
+      if (group) return group.id;
+
+      const href = detail.href || `${key}.html`;
+      const isChapel = (currentContent.chapels?.current || []).some(chapel =>
+        chapel.href === href ||
+        String(chapel.name || '').toLowerCase() === String(detail.title || detail.shortTitle || '').toLowerCase()
+      );
+      if (isChapel || String(detail.category || '').toLowerCase().includes('chapel')) return 'chapels';
+
+      return 'detail-only';
+    },
+
     /**
      * Helper to aggregate ALL ministry items across items array and key-value entries in currentContent.ministries.
      */
@@ -384,6 +436,7 @@
               leaders: obj.leaders || [],
               functionsTitle: obj.functionsTitle || 'Ministry functions',
               functions: obj.functions || [],
+              _placement: this.getMinistryPlacement(key, obj),
               _raw: obj
             });
           }
@@ -411,6 +464,7 @@
                 leaders: it.leaders || [],
                 functionsTitle: it.functionsTitle || 'Ministry functions',
                 functions: it.functions || [],
+                _placement: this.getMinistryPlacement(id, it),
                 _raw: it
               });
             }
@@ -439,6 +493,7 @@
               leaders: obj.leaders || [],
               functionsTitle: obj.functionsTitle || 'Ministry functions',
               functions: obj.functions || [],
+              _placement: this.getMinistryPlacement(key, obj),
               _raw: obj
             });
           }
@@ -685,11 +740,11 @@
       grid.innerHTML = items.map(item => `
         <div class="admin-item-card">
           <div class="admin-item-body">
-            <div class="admin-item-meta">🎙️ ${item.speaker || 'Preacher'} · ${item.date || ''}</div>
+            <div class="admin-item-meta">🎙️ ${item.speaker || 'Preacher'} · ${item.duration || item.date || ''}</div>
             <h3 class="admin-item-title">${item.title}</h3>
-            <p class="admin-item-desc">${item.summary || item.series || 'Sermon message.'}</p>
+            <p class="admin-item-desc">${item.summary || item.category || item.series || 'Sermon message.'}</p>
             <div class="admin-item-actions">
-              <span style="font-size: 0.8rem; color: var(--navy); font-weight: 600;">Series: ${item.series || 'General'}</span>
+              <span style="font-size: 0.8rem; color: var(--navy); font-weight: 600;">${item.category || item.series || 'General'}</span>
               <div class="admin-action-btn-group">
                 <button class="admin-icon-btn" title="Edit" onclick="AdminPortal.openItemModal('sermons', '${item.id}')">✏️</button>
                 <button class="admin-icon-btn danger" title="Delete" onclick="AdminPortal.deleteItem('sermons', '${item.id}')">🗑️</button>
@@ -718,10 +773,10 @@
       grid.innerHTML = items.map(item => `
         <div class="admin-item-card">
           <div class="admin-item-body">
-            <div class="admin-item-meta">📅 ${item.date || 'Upcoming'} · ${item.time || ''}</div>
+            <div class="admin-item-meta">📅 ${item.startDate || item.date || 'Upcoming'} · ${item.startTime || item.time || ''}</div>
             <h3 class="admin-item-title">${item.title}</h3>
             <p class="admin-item-desc">${item.description || 'Church Event'}</p>
-            <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem;">📍 Venue: <strong>${item.venue || 'Main Auditorium'}</strong></div>
+            <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem;">📍 Venue: <strong>${item.location || item.venue || 'Main Auditorium'}</strong></div>
             <div class="admin-item-actions">
               <span class="admin-nav-badge">${item.category || 'Event'}</span>
               <div class="admin-action-btn-group">
@@ -1712,10 +1767,120 @@
         if (sectionKey === 'publications') {
           item = this.getAllPublicationItems().find(i => i.id === itemId);
         } else if (sectionKey === 'sermons') {
-          item = (currentContent.sermons.items || []).find(i => i.id === itemId);
-        } else if (sectionKey === 'events') {
-          item = (currentContent.events.items || []).find(i => i.id === itemId);
-        } else if (sectionKey === 'fellowships') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>ID</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'sermon-' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Category</label>
+              <input type="text" id="modalField_category" class="admin-input" value="${item.category || item.series || 'General'}" placeholder="Faith Series">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Sermon Title</label>
+            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" required>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Preacher / Speaker</label>
+              <input type="text" id="modalField_speaker" class="admin-input" value="${item.speaker || 'Pastor'}">
+            </div>
+            <div class="admin-input-group">
+              <label>Duration</label>
+              <input type="text" id="modalField_duration" class="admin-input" value="${item.duration || ''}" placeholder="42 min">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Thumbnail / Cover Image URL</label>
+            <input type="text" id="modalField_image" class="admin-input" value="${item.image || ''}" placeholder="assets/... or https://...">
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Series (Optional)</label>
+              <input type="text" id="modalField_series" class="admin-input" value="${item.series || ''}" placeholder="General Sermons">
+            </div>
+            <div class="admin-input-group">
+              <label>Date (Optional)</label>
+              <input type="text" id="modalField_date" class="admin-input" value="${item.date || ''}" placeholder="2026-09-03">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Summary / Key Verse (Optional)</label>
+            <textarea id="modalField_summary" class="admin-textarea">${item.summary || ''}</textarea>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Audio URL (.mp3)</label>
+              <input type="text" id="modalField_audioUrl" class="admin-input" value="${item.audioUrl || ''}">
+            </div>
+            <div class="admin-input-group">
+              <label>Video / YouTube URL</label>
+              <input type="text" id="modalField_videoUrl" class="admin-input" value="${item.videoUrl || ''}">
+            </div>
+          </div>
+        `;
+      } else if (sectionKey === 'events') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>ID</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'event-' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Category</label>
+              <input type="text" id="modalField_category" class="admin-input" value="${item.category || 'Church Event'}">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Event Title</label>
+            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" required>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Start Date</label>
+              <input type="date" id="modalField_startDate" class="admin-input" value="${item.startDate || item.date || ''}">
+            </div>
+            <div class="admin-input-group">
+              <label>End Date</label>
+              <input type="date" id="modalField_endDate" class="admin-input" value="${item.endDate || item.startDate || item.date || ''}">
+            </div>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Start Time</label>
+              <input type="time" id="modalField_startTime" class="admin-input" value="${item.startTime || item.time || ''}">
+            </div>
+            <div class="admin-input-group">
+              <label>End Time</label>
+              <input type="time" id="modalField_endTime" class="admin-input" value="${item.endTime || ''}">
+            </div>
+          </div>
+          <div class="admin-modal-grid-2">
+            <label class="admin-check-row">
+              <input type="checkbox" id="modalField_allDay" ${item.allDay ? 'checked' : ''}>
+              <span>All-day event</span>
+            </label>
+            <label class="admin-check-row">
+              <input type="checkbox" id="modalField_published" ${item.published !== false ? 'checked' : ''}>
+              <span>Published</span>
+            </label>
+          </div>
+          <div class="admin-input-group">
+            <label>Location / Venue</label>
+            <input type="text" id="modalField_location" class="admin-input" value="${item.location || item.venue || 'Peculiar Cherubs, Kubwa'}">
+          </div>
+          <div class="admin-input-group">
+            <label>Description</label>
+            <textarea id="modalField_description" class="admin-textarea">${item.description || ''}</textarea>
+          </div>
+          <div class="admin-input-group">
+            <label>Source / Internal Note (Optional)</label>
+            <input type="text" id="modalField_source" class="admin-input" value="${item.source || ''}">
+          </div>
+        `;
+      } else if (sectionKey === 'fellowships') {
           item = (currentContent.ministries.houseFellowships || []).find(i => i.id === itemId || String(i.id) === String(itemId));
         } else if (sectionKey === 'ministries') {
           item = this.getAllMinistryItems().find(i => i.id === itemId);
@@ -1884,12 +2049,16 @@
               <div class="admin-modal-grid-2">
                 <div class="admin-input-group">
                   <label>Sunday Date</label>
-                  <input type="date" id="modalField_date" class="admin-input" value="${item.date || 'August 30, 2026'}">
+                  <input type="text" id="modalField_date" class="admin-input" value="${item.date || 'August 30, 2026'}" placeholder="August 30, 2026">
                 </div>
                 <div class="admin-input-group">
-                  <label>Lesson Duration & Class</label>
+                  <label>Lesson Duration</label>
                   <input type="text" id="modalField_duration" class="admin-input" value="${item.duration || '45 Minutes'}">
                 </div>
+              </div>
+              <div class="admin-input-group">
+                <label>Target Audience / Class</label>
+                <input type="text" id="modalField_targetAudience" class="admin-input" value="${item._raw?.targetAudience || item.targetAudience || ''}" placeholder="Adults, Youth & Teachers">
               </div>
             </div>
 
@@ -2168,7 +2337,7 @@
 
               <div class="admin-input-group">
                 <label>Reflection Body <small>(separate paragraphs with a blank line)</small></label>
-                <textarea id="modalField_articleBody" class="admin-textarea admin-textarea-tall"
+                <textarea id="modalField_devotionArticleBody" class="admin-textarea admin-textarea-tall"
                   placeholder="Write the devotional reflection here...">${paragraphText}</textarea>
               </div>
 
@@ -2177,12 +2346,12 @@
                 <div class="admin-modal-grid-2">
                   <div class="admin-input-group">
                     <label>Truth / Callout Title</label>
-                    <input type="text" id="modalField_calloutTitle" class="admin-input"
+                    <input type="text" id="modalField_devotionCalloutTitle" class="admin-input"
                       value="${calloutBlock.title || ''}" placeholder="Mercy gathers what pain scattered.">
                   </div>
                   <div class="admin-input-group">
                     <label>Truth / Callout Text</label>
-                    <input type="text" id="modalField_calloutText" class="admin-input"
+                    <input type="text" id="modalField_devotionCalloutText" class="admin-input"
                       value="${calloutBlock.text || ''}" placeholder="Receive God’s restoring grace...">
                   </div>
                 </div>
@@ -2261,7 +2430,7 @@
 
               <div class="admin-input-group">
                 <label>Main Message <small>(separate paragraphs with a blank line)</small></label>
-                <textarea id="modalField_articleBody" class="admin-textarea admin-textarea-xl"
+                <textarea id="modalField_goodnewsArticleBody" class="admin-textarea admin-textarea-xl"
                   placeholder="Enter the full Goodnews sermon/message body...">${paragraphText}</textarea>
               </div>
 
@@ -2270,12 +2439,12 @@
                 <div class="admin-modal-grid-2">
                   <div class="admin-input-group">
                     <label>Focus Title</label>
-                    <input type="text" id="modalField_calloutTitle" class="admin-input"
+                    <input type="text" id="modalField_goodnewsCalloutTitle" class="admin-input"
                       value="${calloutBlock.title || raw.title || ''}">
                   </div>
                   <div class="admin-input-group">
                     <label>Focus Text / Key Text</label>
-                    <input type="text" id="modalField_calloutText" class="admin-input"
+                    <input type="text" id="modalField_goodnewsCalloutText" class="admin-input"
                       value="${calloutBlock.text || (details.keyText ? 'Key text: ' + details.keyText : '')}">
                   </div>
                 </div>
@@ -2496,7 +2665,13 @@
             <div class="admin-input-group">
               <label>Category / Type</label>
               <select id="modalField_category" class="admin-select" style="width:100%;">
+                <option value="PDCM Chapel" ${(item.category || item.tag) === 'PDCM Chapel' ? 'selected' : ''}>PDCM Chapel</option>
+                <option value="Standalone PDCM Chapel" ${(item.category || item.tag) === 'Standalone PDCM Chapel' ? 'selected' : ''}>Standalone PDCM Chapel</option>
+                <option value="Mission Arm" ${(item.category || item.tag) === 'Mission Arm' ? 'selected' : ''}>Mission Arm</option>
+                <option value="Education and Formation" ${(item.category || item.tag) === 'Education and Formation' ? 'selected' : ''}>Education and Formation</option>
+                <option value="Education" ${(item.category || item.tag) === 'Education' ? 'selected' : ''}>Education</option>
                 <option value="Age-Grade Ministry" ${(item.category || item.tag) === 'Age-Grade Ministry' ? 'selected' : ''}>Age-Grade Ministry</option>
+                <option value="Community Fellowship" ${(item.category || item.tag) === 'Community Fellowship' ? 'selected' : ''}>Community Fellowship</option>
                 <option value="Community Outreach" ${(item.category || item.tag) === 'Community Outreach' ? 'selected' : ''}>Community Outreach</option>
                 <option value="Worship & Liturgy" ${(item.category || item.tag) === 'Worship & Liturgy' ? 'selected' : ''}>Worship & Liturgy</option>
                 <option value="Fellowship & Community" ${(item.category || item.tag) === 'Fellowship & Community' ? 'selected' : ''}>Fellowship & Community</option>
@@ -2508,6 +2683,16 @@
           <div class="admin-input-group">
             <label>Ministry Title</label>
             <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Children's Ministry" required>
+          </div>
+          <div class="admin-input-group">
+            <label>Where should this appear?</label>
+            <select id="modalField_placement" class="admin-select" style="width:100%;">
+              <option value="chapels" ${item._placement === 'chapels' ? 'selected' : ''}>CHAPELS — Current Chapel</option>
+              <option value="education" ${item._placement === 'education' ? 'selected' : ''}>MINISTRIES — Education & Formation</option>
+              <option value="age-grade" ${item._placement === 'age-grade' ? 'selected' : ''}>MINISTRIES — Age-Grade Ministries</option>
+              <option value="fellowship-outreach" ${item._placement === 'fellowship-outreach' ? 'selected' : ''}>MINISTRIES — Mission, Fellowship & Outreach</option>
+              <option value="detail-only" ${(!item._placement || item._placement === 'detail-only') ? 'selected' : ''}>Detail page only / Hidden from landing grids</option>
+            </select>
           </div>
           <div class="admin-input-group">
             <label>Summary / Subtitle</label>
@@ -2837,19 +3022,19 @@
       } else if (sec === 'sermons') {
         box.innerHTML = `
           <div style="border: 1px solid var(--admin-border); border-radius: 16px; padding: 1.25rem; background: #fff;">
-            <span class="eyebrow">🎙️ ${getF('series') || 'Sermon'}</span>
+            <span class="eyebrow">🎙️ ${getF('category') || getF('series') || 'Sermon'}</span>
             <h4 style="font-family: Fraunces, serif; font-size: 1.2rem; color: var(--navy); margin: 0.4rem 0;">${getF('title') || 'Sermon Title'}</h4>
-            <div style="font-size: 0.85rem; color: var(--muted);">${getF('summary') || 'Sermon summary preview...'}</div>
+            <div style="font-size: 0.85rem; color: var(--muted);">${getF('summary') || getF('duration') || 'Sermon preview...'}</div>
             <div style="margin-top: 0.75rem; font-size: 0.8rem; font-weight: 700; color: var(--red);">Preacher: ${getF('speaker') || 'Pastor'}</div>
           </div>
         `;
       } else if (sec === 'events') {
         box.innerHTML = `
           <div style="border: 1px solid var(--admin-border); border-radius: 16px; padding: 1.25rem; background: #fff;">
-            <span class="eyebrow">📅 ${getF('date') || 'Date'}</span>
+            <span class="eyebrow">📅 ${getF('startDate') || 'Date'} ${getF('startTime') ? '· ' + getF('startTime') : ''}</span>
             <h4 style="font-family: Fraunces, serif; font-size: 1.2rem; color: var(--navy); margin: 0.4rem 0;">${getF('title') || 'Event Title'}</h4>
             <p style="font-size: 0.85rem; color: var(--muted);">${getF('description') || 'Event details preview...'}</p>
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">📍 ${getF('venue') || 'Cathedral'}</div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">📍 ${getF('location') || 'Peculiar Cherubs, Kubwa'}</div>
           </div>
         `;
       } else if (sec === 'ministries') {
@@ -2994,8 +3179,9 @@
       const isSS = editingState.isSundaySchool;
       const getF = (f) => {
         const el = document.getElementById(`modalField_${f}`);
-        return el ? el.value.trim() : '';
+        return el ? String(el.value ?? '').trim() : '';
       };
+      const getChecked = (f) => Boolean(document.getElementById(`modalField_${f}`)?.checked);
 
       const id = getF('id') || 'id_' + Date.now();
 
@@ -3003,7 +3189,7 @@
         if (!currentContent.publications) currentContent.publications = {};
 
         if (isSS) {
-          // Save into sundaySchoolDetails.lessons
+          // Save into sundaySchoolDetails.lessons while preserving rich fields
           if (!currentContent.publications.sundaySchoolDetails) {
             currentContent.publications.sundaySchoolDetails = { lessons: {} };
           }
@@ -3011,53 +3197,110 @@
             currentContent.publications.sundaySchoolDetails.lessons = {};
           }
 
-          const outlineRows = document.querySelectorAll('.admin-ss-outline-row');
-          const outlines = Array.from(outlineRows).map((row, idx) => ({
-            number: String(idx + 1).padStart(2, '0'),
-            title: row.querySelector('.ss-outline-title')?.value.trim() || `Point ${idx + 1}`,
-            summary: row.querySelector('.ss-outline-title')?.value.trim() || '',
-            text: row.querySelector('.ss-outline-text')?.value.trim() || '',
-            points: (row.querySelector('.ss-outline-text')?.value.trim() || '').split('\n').filter(Boolean)
-          })).filter(o => o.title || o.text);
+          const lessonsStore = currentContent.publications.sundaySchoolDetails.lessons;
+          let existingLesson = editingState.itemData?._raw || {};
+          if (Array.isArray(lessonsStore)) {
+            existingLesson = lessonsStore.find(l => l.id === editingState.itemId || l.id === id) || existingLesson;
+          } else if (editingState.itemId && lessonsStore[editingState.itemId]) {
+            existingLesson = lessonsStore[editingState.itemId];
+          } else if (lessonsStore[id]) {
+            existingLesson = lessonsStore[id];
+          }
 
-          const lessonNumClean = getF('lessonNum') ? parseInt(getF('lessonNum').replace(/\D/g, '')) || 35 : 35;
+          const existingOutlines = Array.isArray(existingLesson.outlines) ? existingLesson.outlines : [];
+          const outlineRows = document.querySelectorAll('.admin-ss-outline-row');
+          const outlines = Array.from(outlineRows).map((row, idx) => {
+            const previous = existingOutlines[idx] || {};
+            const title = row.querySelector('.ss-outline-title')?.value.trim() || previous.title || `Point ${idx + 1}`;
+            const text = row.querySelector('.ss-outline-text')?.value.trim() || '';
+            return {
+              ...previous,
+              number: previous.number || String(idx + 1).padStart(2, '0'),
+              title,
+              summary: previous.summary || title,
+              text,
+              points: text ? text.split('\n').map(line => line.trim()).filter(Boolean) : (previous.points || [])
+            };
+          }).filter(o => o.title || o.text || (o.points && o.points.length));
+
+          const lessonNumClean = getF('lessonNum')
+            ? parseInt(getF('lessonNum').replace(/\D/g, '')) || existingLesson.lessonNumber || 35
+            : existingLesson.lessonNumber || 35;
+
+          const references = getF('scriptures')
+            .split(';')
+            .map(value => value.trim())
+            .filter(Boolean);
+          const existingScriptures = Array.isArray(existingLesson.mainScriptures) ? existingLesson.mainScriptures : [];
+          const mainScriptures = references.length
+            ? references.map((reference, idx) => {
+                const previous = existingScriptures.find(s => s.reference === reference) || existingScriptures[idx] || {};
+                return {
+                  ...previous,
+                  reference,
+                  label: previous.label || `Scripture Reading ${idx + 1}`,
+                  text: previous.reference === reference ? (previous.text || '') : ''
+                };
+              })
+            : existingScriptures;
+
+          const discussionLines = getF('discussionQuestions').split('\n').map(q => q.trim()).filter(Boolean);
+          const existingQuestions = Array.isArray(existingLesson.discussionQuestions) ? existingLesson.discussionQuestions : [];
+          const discussionQuestions = discussionLines.map((question, idx) => ({
+            ...(existingQuestions[idx] || {}),
+            id: existingQuestions[idx]?.id || `q${idx + 1}`,
+            question
+          }));
+
+          const existingMemoryVerse = (existingLesson.memoryVerse && typeof existingLesson.memoryVerse === 'object')
+            ? existingLesson.memoryVerse
+            : {};
+          const existingTeacherNotes = (existingLesson.teacherNotes && typeof existingLesson.teacherNotes === 'object')
+            ? existingLesson.teacherNotes
+            : {};
 
           const lessonObj = {
-            id: id,
+            ...existingLesson,
+            id,
             lessonNumber: lessonNumClean,
-            date: getF('date') || '2026',
-            dateDisplay: getF('date') || '2026',
-            topic: getF('title'),
-            subtitle: getF('introduction') || getF('title'),
-            quarter: getF('quarter'),
+            date: getF('date') || existingLesson.date || '2026',
+            dateDisplay: getF('date') === existingLesson.date ? (existingLesson.dateDisplay || getF('date')) : (getF('date') || existingLesson.dateDisplay || existingLesson.date || '2026'),
+            topic: getF('title') || existingLesson.topic || '',
+            subtitle: existingLesson.subtitle || getF('introduction') || getF('title'),
+            quarter: getF('quarter') || existingLesson.quarter || currentContent.publications.sundaySchoolDetails.quarter || '',
             memoryVerse: {
+              ...existingMemoryVerse,
               text: getF('memoryVerse'),
               reference: getF('verseRef')
             },
-            mainScriptures: getF('scriptures') ? [{ reference: getF('scriptures'), label: "Main Scripture", text: getF('scriptures') }] : [],
-            targetAudience: getF('duration'),
-            duration: getF('duration'),
-            objectives: getF('objectives').split('\n').filter(Boolean),
+            mainScriptures,
+            targetAudience: getF('targetAudience') || existingLesson.targetAudience || 'General',
+            duration: getF('duration') || existingLesson.duration || '45 Minutes',
+            objectives: getF('objectives').split('\n').map(v => v.trim()).filter(Boolean),
             introduction: getF('introduction'),
-            outlines: outlines,
-            discussionQuestions: getF('discussionQuestions').split('\n').filter(Boolean).map((q, idx) => ({ id: `q${idx + 1}`, question: q })),
+            outlines,
+            discussionQuestions,
             teacherNotes: {
-              facilitatorTips: getF('teacherNotes').split('\n').filter(Boolean)
+              ...existingTeacherNotes,
+              facilitatorTips: getF('teacherNotes').split('\n').map(v => v.trim()).filter(Boolean)
             },
             lifeApplication: getF('lifeApplication'),
             audioUrl: getF('audioUrl'),
             pdfUrl: getF('pdfUrl')
           };
 
-          if (Array.isArray(currentContent.publications.sundaySchoolDetails.lessons)) {
-            const idx = currentContent.publications.sundaySchoolDetails.lessons.findIndex(l => l.id === id);
+          if (Array.isArray(lessonsStore)) {
+            const idx = lessonsStore.findIndex(l => l.id === editingState.itemId || l.id === id);
             if (idx >= 0) {
-              currentContent.publications.sundaySchoolDetails.lessons[idx] = lessonObj;
+              lessonsStore[idx] = lessonObj;
             } else {
-              currentContent.publications.sundaySchoolDetails.lessons.unshift(lessonObj);
+              lessonsStore.unshift(lessonObj);
             }
           } else {
-            currentContent.publications.sundaySchoolDetails.lessons[id] = lessonObj;
+            if (editingState.itemId && editingState.itemId !== id && lessonsStore[editingState.itemId]) {
+              delete lessonsStore[editingState.itemId];
+            }
+            lessonsStore[id] = lessonObj;
           }
         } else {
           // Save standard publication into items or archive/details
@@ -3146,7 +3389,9 @@
             const tags = getF('tags')
               ? getF('tags').split(',').map(tag => tag.trim()).filter(Boolean)
               : (Array.isArray(existing.tags) ? existing.tags : []);
-            const articleParagraphs = parseParagraphs(getF('articleBody'));
+            const articleParagraphs = parseParagraphs(
+              category === 'goodnews' ? getF('goodnewsArticleBody') : getF('devotionArticleBody')
+            );
 
             let blocks = Array.isArray(existing.blocks) ? [...existing.blocks] : [];
             let details = { ...(existing.details || {}) };
@@ -3157,8 +3402,8 @@
               const verseRef = getF('devotionVerseRef');
               const verseText = getF('devotionVerseText');
               const reflectionHeading = getF('reflectionHeading');
-              const calloutTitle = getF('calloutTitle');
-              const calloutText = getF('calloutText');
+              const calloutTitle = getF('devotionCalloutTitle');
+              const calloutText = getF('devotionCalloutText');
 
               blocks = [
                 ...(verseRef || verseText ? [{
@@ -3196,8 +3441,8 @@
 
             if (category === 'goodnews') {
               const lead = getF('goodnewsLead');
-              const calloutTitle = getF('calloutTitle') || title;
-              const calloutText = getF('calloutText') ||
+              const calloutTitle = getF('goodnewsCalloutTitle') || title;
+              const calloutText = getF('goodnewsCalloutText') ||
                 (getF('goodnewsKeyText') ? `Key text: ${getF('goodnewsKeyText')}` : '');
 
               blocks = [
@@ -3337,58 +3582,71 @@
           }
         }
 
-        await this.syncSectionToSupabase('publications', currentContent.publications);
+        if (!(await this.syncSectionToSupabase('publications', currentContent.publications))) return;
         this.renderAllViews();
       } else if (sec === 'sermons') {
         if (!currentContent.sermons) currentContent.sermons = { items: [] };
-        let items = currentContent.sermons.items || [];
+        const items = currentContent.sermons.items || [];
+        const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
+        const existing = existingIdx >= 0 ? items[existingIdx] : (editingState.itemData || {});
         const newItem = {
-          id: id,
+          ...existing,
+          id,
+          category: getF('category') || existing.category || getF('series') || 'General',
           title: getF('title'),
           speaker: getF('speaker'),
-          series: getF('series'),
-          date: getF('date'),
-          summary: getF('summary'),
-          audioUrl: getF('audioUrl'),
-          videoUrl: getF('videoUrl')
+          duration: getF('duration') || existing.duration || '',
+          image: getF('image') || existing.image || 'assets/hero/mother-church-brand.jpg',
+          series: getF('series') || existing.series || '',
+          date: getF('date') || existing.date || '',
+          summary: getF('summary') || existing.summary || '',
+          audioUrl: getF('audioUrl') || existing.audioUrl || '',
+          videoUrl: getF('videoUrl') || existing.videoUrl || ''
         };
 
-        const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
-        if (existingIdx >= 0) {
-          items[existingIdx] = newItem;
-        } else {
-          items.unshift(newItem);
-        }
+        if (existingIdx >= 0) items[existingIdx] = newItem;
+        else items.unshift(newItem);
         currentContent.sermons.items = items;
-        await this.syncSectionToSupabase('sermons', currentContent.sermons);
+        if (!(await this.syncSectionToSupabase('sermons', currentContent.sermons))) return;
         this.renderSermonsView();
       } else if (sec === 'events') {
         if (!currentContent.events) currentContent.events = { items: [] };
-        let items = currentContent.events.items || [];
-        const newItem = {
-          id: id,
-          title: getF('title'),
-          category: getF('category'),
-          date: getF('date'),
-          time: getF('time'),
-          venue: getF('venue'),
-          description: getF('description')
-        };
-
+        const items = currentContent.events.items || [];
         const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
-        if (existingIdx >= 0) {
-          items[existingIdx] = newItem;
-        } else {
-          items.unshift(newItem);
-        }
+        const existing = existingIdx >= 0 ? items[existingIdx] : (editingState.itemData || {});
+        const startDate = getF('startDate');
+        const newItem = {
+          ...existing,
+          id,
+          title: getF('title'),
+          category: getF('category') || existing.category || 'Church Event',
+          startDate,
+          endDate: getF('endDate') || startDate,
+          startTime: getF('startTime'),
+          endTime: getF('endTime'),
+          allDay: getChecked('allDay'),
+          location: getF('location'),
+          description: getF('description'),
+          published: getChecked('published'),
+          source: getF('source') || existing.source || ''
+        };
+        delete newItem.date;
+        delete newItem.time;
+        delete newItem.venue;
+
+        if (existingIdx >= 0) items[existingIdx] = newItem;
+        else items.unshift(newItem);
         currentContent.events.items = items;
-        await this.syncSectionToSupabase('events', currentContent.events);
+        if (!(await this.syncSectionToSupabase('events', currentContent.events))) return;
         this.renderEventsView();
       } else if (sec === 'fellowships') {
         if (!currentContent.ministries) currentContent.ministries = { houseFellowships: [] };
-        let items = currentContent.ministries.houseFellowships || [];
+        const items = currentContent.ministries.houseFellowships || [];
+        const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
+        const existing = existingIdx >= 0 ? items[existingIdx] : (editingState.itemData || {});
         const newItem = {
-          id: id,
+          ...existing,
+          id,
           name: getF('name'),
           area: getF('area'),
           host: getF('host'),
@@ -3396,77 +3654,105 @@
           schedule: getF('schedule')
         };
 
-        const existingIdx = items.findIndex(i => i.id === editingState.itemId || String(i.id) === String(editingState.itemId));
-        if (existingIdx >= 0) {
-          items[existingIdx] = newItem;
-        } else {
-          items.push(newItem);
-        }
+        if (existingIdx >= 0) items[existingIdx] = newItem;
+        else items.push(newItem);
         currentContent.ministries.houseFellowships = items;
-        await this.syncSectionToSupabase('ministries', currentContent.ministries);
+        if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
         this.renderFellowshipsView();
       } else if (sec === 'ministries') {
         if (!currentContent.ministries) currentContent.ministries = {};
+        if (!currentContent.ministries.details) currentContent.ministries.details = {};
+        if (!Array.isArray(currentContent.ministries.groups)) currentContent.ministries.groups = [];
+        if (!currentContent.chapels) currentContent.chapels = { current: [], upcoming: [] };
+        if (!Array.isArray(currentContent.chapels.current)) currentContent.chapels.current = [];
 
-        const id = getF('id') || 'ministry_' + Date.now();
+        const ministryId = getF('id') || 'ministry_' + Date.now();
+        const oldId = editingState.itemId;
         const category = getF('category') || 'Ministry';
         const title = getF('title') || 'Ministry Title';
         const subtitle = getF('subtitle') || '';
         const schedule = getF('schedule') || 'Regular Worship';
-        const href = getF('href') || '#';
+        const href = getF('href') || `${ministryId}.html`;
         const image = getF('image') || 'assets/hero/mother-church-brand.jpg';
+        const placement = getF('placement') || 'detail-only';
 
-        const leadersText = getF('leaders');
-        const leaders = leadersText.split('\n').filter(Boolean).map(line => {
+        const leaders = getF('leaders').split('\n').map(v => v.trim()).filter(Boolean).map(line => {
           const parts = line.split(':');
-          if (parts.length > 1) {
-            return { name: parts[0].trim(), role: parts.slice(1).join(':').trim() };
-          }
-          return { name: line.trim(), role: 'Leader' };
+          return parts.length > 1
+            ? { name: parts[0].trim(), role: parts.slice(1).join(':').trim() }
+            : { name: line.trim(), role: 'Leader' };
         });
-
-        const factsText = getF('facts');
-        const facts = factsText.split('\n').filter(Boolean).map(line => {
+        const facts = getF('facts').split('\n').map(v => v.trim()).filter(Boolean).map(line => {
           const parts = line.split(':');
-          if (parts.length > 1) {
-            return { label: parts[0].trim(), value: parts.slice(1).join(':').trim() };
-          }
-          return { label: 'Focus', value: line.trim() };
+          return parts.length > 1
+            ? { label: parts[0].trim(), value: parts.slice(1).join(':').trim() }
+            : { label: 'Focus', value: line.trim() };
         });
-
-        const functions = getF('functions').split('\n').filter(Boolean);
-        const overview = getF('overview').split('\n\n').filter(Boolean);
+        const functions = getF('functions').split('\n').map(v => v.trim()).filter(Boolean);
+        const overview = getF('overview').split(/\n\s*\n/).map(v => v.trim()).filter(Boolean);
+        const existing = currentContent.ministries.details[oldId] || currentContent.ministries.details[ministryId] || editingState.itemData?._raw || {};
 
         const ministryData = {
-          id: id,
-          href: href,
-          category: category,
+          ...existing,
+          id: ministryId,
+          href,
+          category,
           tag: category,
-          title: title,
-          shortTitle: title,
-          subtitle: subtitle,
+          title,
+          shortTitle: existing.shortTitle && existing.shortTitle !== existing.title ? existing.shortTitle : title,
+          subtitle,
           summary: subtitle,
           description: subtitle,
-          image: image,
-          schedule: schedule,
-          facts: facts,
-          overview: overview.length > 0 ? overview : [subtitle],
-          leaders: leaders,
-          functionsTitle: 'Ministry functions',
-          functions: functions
+          image,
+          schedule,
+          facts,
+          overview: overview.length ? overview : (existing.overview || [subtitle]),
+          leaders,
+          functionsTitle: existing.functionsTitle || 'Ministry functions',
+          functions
         };
 
-        currentContent.ministries[id] = ministryData;
+        if (oldId && oldId !== ministryId) {
+          delete currentContent.ministries.details[oldId];
+          currentContent.ministries.groups.forEach(group => {
+            if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== oldId);
+          });
+        }
+        currentContent.ministries.details[ministryId] = ministryData;
 
-        if (!currentContent.ministries.items) currentContent.ministries.items = [];
-        const existingIdx = currentContent.ministries.items.findIndex(i => i.id === id || i.id === editingState.itemId);
-        if (existingIdx >= 0) {
-          currentContent.ministries.items[existingIdx] = ministryData;
-        } else {
-          currentContent.ministries.items.push(ministryData);
+        currentContent.ministries.groups.forEach(group => {
+          if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== ministryId);
+        });
+        if (!['chapels', 'detail-only'].includes(placement)) {
+          const targetGroup = currentContent.ministries.groups.find(group => group.id === placement);
+          if (targetGroup) {
+            if (!Array.isArray(targetGroup.items)) targetGroup.items = [];
+            if (!targetGroup.items.includes(ministryId)) targetGroup.items.push(ministryId);
+          }
         }
 
-        await this.syncSectionToSupabase('ministries', currentContent.ministries);
+        const chapelIndex = currentContent.chapels.current.findIndex(chapel =>
+          chapel.href === existing.href || chapel.href === href ||
+          String(chapel.name || '').toLowerCase() === String(existing.title || '').toLowerCase()
+        );
+        if (placement === 'chapels') {
+          const previousChapel = chapelIndex >= 0 ? currentContent.chapels.current[chapelIndex] : {};
+          const chapelRecord = {
+            ...previousChapel,
+            name: title,
+            subtitle,
+            status: previousChapel.status || 'Current Chapel',
+            logo: previousChapel.logo || image,
+            href
+          };
+          if (chapelIndex >= 0) currentContent.chapels.current[chapelIndex] = chapelRecord;
+          else currentContent.chapels.current.push(chapelRecord);
+        } else if (chapelIndex >= 0) {
+          currentContent.chapels.current.splice(chapelIndex, 1);
+        }
+
+        if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
+        if (!(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
         this.renderMinistriesView();
       } else if (sec === 'leadership') {
         if (!currentContent.about) currentContent.about = {};
@@ -3494,7 +3780,7 @@
           currentContent.about.leadership.team.push(leaderObj);
         }
 
-        await this.syncSectionToSupabase('about', currentContent.about);
+        if (!(await this.syncSectionToSupabase('about', currentContent.about))) return;
         this.renderLeadershipView();
       } else if (sec === 'quickLinks') {
         if (!currentContent.quickLinks) currentContent.quickLinks = {};
@@ -3518,7 +3804,7 @@
           currentContent.quickLinks.links.push(newLink);
         }
 
-        await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+        if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
         this.renderQuickLinksView();
       } else if (sec === 'quickEvents') {
         if (!currentContent.quickLinks) currentContent.quickLinks = {};
@@ -3541,7 +3827,7 @@
           currentContent.quickLinks.events.push(newEvent);
         }
 
-        await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+        if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
         this.renderQuickLinksView();
       } else if (sec === 'giveAccounts') {
         if (!currentContent.give) currentContent.give = {};
@@ -3579,7 +3865,7 @@
           currentContent.give.bankAccounts.push(newAccount);
         }
 
-        await this.syncSectionToSupabase('give', currentContent.give);
+        if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
         this.renderGivingView();
       } else if (sec === 'giveProjects') {
         if (!currentContent.give) currentContent.give = {};
@@ -3603,7 +3889,7 @@
           currentContent.give.projects.push(newProject);
         }
 
-        await this.syncSectionToSupabase('give', currentContent.give);
+        if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
         this.renderGivingView();
       }
 
@@ -3652,29 +3938,44 @@
           pubs.items = pubs.items.filter(i => i.id !== itemId);
         }
 
-        await this.syncSectionToSupabase('publications', currentContent.publications);
+        if (!(await this.syncSectionToSupabase('publications', currentContent.publications))) return;
         this.renderAllViews();
       } else if (sectionKey === 'sermons') {
         currentContent.sermons.items = (currentContent.sermons.items || []).filter(i => i.id !== itemId);
-        await this.syncSectionToSupabase('sermons', currentContent.sermons);
+        if (!(await this.syncSectionToSupabase('sermons', currentContent.sermons))) return;
         this.renderSermonsView();
       } else if (sectionKey === 'events') {
         currentContent.events.items = (currentContent.events.items || []).filter(i => i.id !== itemId);
-        await this.syncSectionToSupabase('events', currentContent.events);
+        if (!(await this.syncSectionToSupabase('events', currentContent.events))) return;
         this.renderEventsView();
       } else if (sectionKey === 'fellowships') {
         currentContent.ministries.houseFellowships = (currentContent.ministries.houseFellowships || []).filter((i, idx) => i.id !== itemId && String(idx) !== String(itemId));
-        await this.syncSectionToSupabase('ministries', currentContent.ministries);
+        if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
         this.renderFellowshipsView();
       } else if (sectionKey === 'ministries') {
         if (currentContent.ministries) {
-          if (currentContent.ministries[itemId]) {
-            delete currentContent.ministries[itemId];
+          const detailHref = currentContent.ministries.details?.[itemId]?.href || `${itemId}.html`;
+          if (currentContent.ministries.details) {
+            delete currentContent.ministries.details[itemId];
+          }
+          if (Array.isArray(currentContent.ministries.groups)) {
+            currentContent.ministries.groups.forEach(group => {
+              if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== itemId);
+            });
           }
           if (Array.isArray(currentContent.ministries.items)) {
             currentContent.ministries.items = currentContent.ministries.items.filter(i => i.id !== itemId);
           }
-          await this.syncSectionToSupabase('ministries', currentContent.ministries);
+          if (currentContent.ministries[itemId]) delete currentContent.ministries[itemId];
+
+          if (Array.isArray(currentContent.chapels?.current)) {
+            currentContent.chapels.current = currentContent.chapels.current.filter(chapel =>
+              chapel.href !== detailHref && chapel.href !== `${itemId}.html`
+            );
+          }
+
+          if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
+          if (currentContent.chapels && !(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
         }
         this.renderMinistriesView();
       } else if (sectionKey === 'leadership') {
@@ -3682,7 +3983,7 @@
           currentContent.about.leadership.team = currentContent.about.leadership.team.filter(
             (p, idx) => p.id !== itemId && `leader_${idx}` !== itemId
           );
-          await this.syncSectionToSupabase('about', currentContent.about);
+          if (!(await this.syncSectionToSupabase('about', currentContent.about))) return;
           this.renderLeadershipView();
         }
       } else if (sectionKey === 'quickLinks') {
@@ -3690,7 +3991,7 @@
           currentContent.quickLinks.links = currentContent.quickLinks.links.filter(
             (l, idx) => l.id !== itemId && `ql_link_${idx}` !== itemId && String(idx) !== String(itemId)
           );
-          await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+          if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
           this.renderQuickLinksView();
         }
       } else if (sectionKey === 'quickEvents') {
@@ -3698,7 +3999,7 @@
           currentContent.quickLinks.events = currentContent.quickLinks.events.filter(
             (e, idx) => e.id !== itemId && `ql_event_${idx}` !== itemId && String(idx) !== String(itemId)
           );
-          await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+          if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
           this.renderQuickLinksView();
         }
       } else if (sectionKey === 'giveAccounts') {
@@ -3706,7 +4007,7 @@
           currentContent.give.bankAccounts = currentContent.give.bankAccounts.filter(
             (a, idx) => a.id !== itemId && `acc_${idx}` !== itemId && String(idx) !== String(itemId)
           );
-          await this.syncSectionToSupabase('give', currentContent.give);
+          if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
           this.renderGivingView();
         }
       } else if (sectionKey === 'giveProjects') {
@@ -3714,7 +4015,7 @@
           currentContent.give.projects = currentContent.give.projects.filter(
             (p, idx) => p.id !== itemId && `proj_${idx}` !== itemId && String(idx) !== String(itemId)
           );
-          await this.syncSectionToSupabase('give', currentContent.give);
+          if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
           this.renderGivingView();
         }
       }
