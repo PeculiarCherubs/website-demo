@@ -315,8 +315,8 @@ function renderAbout(content) {
           return `
             <article class="leader-card" style="--i:${i}">
               <div class="leader-photo-wrap">
-                ${photoHtml}
                 <div class="leader-photo-ring"></div>
+                ${photoHtml}
               </div>
               <div class="leader-info">
                 <strong class="leader-name">${escapeHtml(person.name || 'Leader')}</strong>
@@ -866,20 +866,31 @@ function renderPublicationDetail(content) {
 }
 
 function renderQuickLinks(content) {
+  if (!content?.quickLinks) return;
   renderStandardHero(content.quickLinks);
+
+  if (content.quickLinks.usefulLinks) {
+    if (content.quickLinks.usefulLinks.eyebrow) setText("[data-quick-links-eyebrow]", content.quickLinks.usefulLinks.eyebrow);
+    if (content.quickLinks.usefulLinks.title) setText("[data-quick-links-heading]", content.quickLinks.usefulLinks.title);
+  }
+
+  if (content.quickLinks.calendar) {
+    if (content.quickLinks.calendar.eyebrow) setText("[data-quick-events-eyebrow]", content.quickLinks.calendar.eyebrow);
+    if (content.quickLinks.calendar.title) setText("[data-quick-events-heading]", content.quickLinks.calendar.title);
+  }
 
   const links = document.querySelector("[data-quick-links]");
   if (links) {
-    links.innerHTML = content.quickLinks.links.map(link => quickLinkCard(link)).join("");
+    links.innerHTML = (content.quickLinks.links || []).map(link => quickLinkCard(link)).join("");
   }
 
   const events = document.querySelector("[data-events-list]");
   if (events) {
-    events.innerHTML = content.quickLinks.events.map(event => `
+    events.innerHTML = (content.quickLinks.events || []).map(event => `
       <article class="card">
-        <div class="meta">${escapeHtml(event.frequency)}</div>
-        <h3>${escapeHtml(event.title)}</h3>
-        <p>${escapeHtml(event.text)}</p>
+        <div class="meta">${escapeHtml(event.frequency || "")}</div>
+        <h3>${escapeHtml(event.title || "")}</h3>
+        <p>${escapeHtml(event.text || "")}</p>
       </article>
     `).join("");
   }
@@ -1684,20 +1695,426 @@ function renderEvents(content) {
 }
 
 function renderGive(content) {
-  renderStandardHero(content.give);
-  setText("[data-give-why-eyebrow]", content.give.why.eyebrow);
-  setText("[data-give-why-title]", content.give.why.title);
-  setText("[data-give-why-description]", content.give.why.description);
-  setText("[data-give-why-quote]", `“${content.give.why.quote}”`);
+  const giveData = content.give || {};
+  renderStandardHero(giveData);
+  setText("[data-give-why-eyebrow]", giveData.why?.eyebrow || "Why we give");
+  setText("[data-give-why-title]", giveData.why?.title || "Giving is worship.");
+  setText("[data-give-why-description]", giveData.why?.description || "");
+  setText("[data-give-why-quote]", giveData.why?.quote ? `“${giveData.why.quote}”` : "");
 
-  const options = document.querySelector("[data-give-options]");
-  if (options) {
-    options.innerHTML = content.give.options.map(option => `
-      <a class="give-option" href="${escapeHtml(option.href)}">
-        <span>${escapeHtml(option.label)}</span>
+  const escapeStr = (str) => {
+    if (typeof str !== "string") return str == null ? "" : String(str);
+    return str.replace(/[&<>"']/g, m => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[m]);
+  };
+
+  // Legacy fallback if data-give-options exists
+  const legacyOptions = document.querySelector("[data-give-options]");
+  if (legacyOptions && Array.isArray(giveData.options)) {
+    legacyOptions.innerHTML = giveData.options.map(option => `
+      <a class="give-option" href="${escapeStr(option.href)}">
+        <span>${escapeStr(option.label)}</span>
         <b>↗</b>
       </a>
     `).join("");
+  }
+
+  const hub = document.getElementById("giving-hub");
+  if (!hub) return;
+
+  // State
+  let activeCurrency = giveData.defaultCurrency || "NGN";
+  const currencies = Array.isArray(giveData.currencies) && giveData.currencies.length
+    ? giveData.currencies
+    : [
+      { code: "NGN", label: "₦ NGN", name: "Nigerian Naira", isPrimary: true },
+      { code: "USD", label: "$ USD", name: "US Dollar", isPrimary: false },
+      { code: "GBP", label: "£ GBP", name: "British Pound", isPrimary: false },
+      { code: "EUR", label: "€ EUR", name: "Euro", isPrimary: false }
+    ];
+
+  const bankAccounts = Array.isArray(giveData.bankAccounts) ? giveData.bankAccounts : [];
+  const categories = Array.isArray(giveData.categories) && giveData.categories.length
+    ? giveData.categories
+    : ["Tithe", "Sunday Offering", "Thanksgiving", "First Fruit", "Welfare & Benevolence", "Special Project"];
+  const presetsMap = giveData.amountPresets || {
+    NGN: [2000, 5000, 10000, 25000, 50000],
+    USD: [20, 50, 100, 250, 500],
+    GBP: [20, 50, 100, 200, 400],
+    EUR: [20, 50, 100, 200, 400]
+  };
+  const projects = Array.isArray(giveData.projects) ? giveData.projects : [];
+
+  const currencySymbols = {
+    NGN: "₦",
+    USD: "$",
+    GBP: "£",
+    EUR: "€"
+  };
+
+  // 1. Toast Notification Helper
+  let toastTimer = null;
+  const showToast = (message) => {
+    const toast = document.getElementById("give-toast");
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2800);
+  };
+
+  // 2. Tab Navigation
+  const tabs = hub.querySelectorAll(".give-tab");
+  const tabPanes = hub.querySelectorAll(".give-tab-pane");
+
+  const switchTab = (targetTabId) => {
+    tabs.forEach(tab => {
+      const isSelected = tab.getAttribute("data-give-tab") === targetTabId;
+      tab.classList.toggle("active", isSelected);
+      tab.setAttribute("aria-selected", isSelected ? "true" : "false");
+    });
+
+    tabPanes.forEach(pane => {
+      if (pane.id === `pane-${targetTabId}`) {
+        pane.style.display = "block";
+        pane.classList.add("active");
+      } else {
+        pane.style.display = "none";
+        pane.classList.remove("active");
+      }
+    });
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const tabId = tab.getAttribute("data-give-tab");
+      if (tabId) switchTab(tabId);
+    });
+  });
+
+  // 3. Bank Transfer Accounts & Currency Filter
+  const currencyPillsContainer = hub.querySelector("[data-give-currency-pills]");
+  const accountsContainer = hub.querySelector("[data-give-accounts-list]");
+
+  const renderCurrencyPills = () => {
+    if (!currencyPillsContainer) return;
+    currencyPillsContainer.innerHTML = currencies.map(c => `
+      <button type="button" class="give-currency-pill ${c.code === activeCurrency ? 'active' : ''}" data-currency="${escapeStr(c.code)}">
+        ${escapeStr(c.label || c.code)}
+      </button>
+    `).join("");
+
+    currencyPillsContainer.querySelectorAll(".give-currency-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        activeCurrency = pill.getAttribute("data-currency");
+        renderCurrencyPills();
+        renderBankAccounts();
+      });
+    });
+  };
+
+  const renderBankAccounts = () => {
+    if (!accountsContainer) return;
+    const filtered = bankAccounts.filter(a => (a.currency || "NGN").toUpperCase() === activeCurrency.toUpperCase());
+
+    if (!filtered.length) {
+      accountsContainer.innerHTML = `
+        <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:1.5rem; text-align:center;">
+          <p style="margin:0; color:rgba(255,255,255,0.7); font-size:0.9rem;">
+            No ${escapeStr(activeCurrency)} accounts currently listed. Please contact the church office for direct giving instructions.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    accountsContainer.innerHTML = filtered.map(a => `
+      <div class="give-account-card">
+        <div class="give-account-header">
+          <h4 class="give-account-title">${escapeStr(a.title || a.accountName)}</h4>
+          ${a.isPrimary ? '<span class="give-account-badge">Primary</span>' : ''}
+        </div>
+        <div class="give-bank-name">${escapeStr(a.bankName)}</div>
+        <div class="give-number-row">
+          <span class="give-account-number">${escapeStr(a.accountNumber)}</span>
+          <button type="button" class="give-copy-btn" data-copy-val="${escapeStr(a.accountNumber)}" aria-label="Copy account number">
+            <span>📋 Copy</span>
+          </button>
+        </div>
+        <div class="give-account-meta-row">
+          <span>Account Name: <strong>${escapeStr(a.accountName)}</strong></span>
+          ${a.sortCode ? `<span>Sort Code: <strong>${escapeStr(a.sortCode)}</strong></span>` : ''}
+          ${a.swiftCode ? `<span>SWIFT / BIC: <strong>${escapeStr(a.swiftCode)}</strong></span>` : ''}
+        </div>
+        ${a.narrationGuide ? `<p class="give-account-guide">${escapeStr(a.narrationGuide)}</p>` : ''}
+      </div>
+    `).join("");
+
+    // Wire up Copy Buttons
+    accountsContainer.querySelectorAll(".give-copy-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const val = btn.getAttribute("data-copy-val");
+        if (!val) return;
+
+        let success = false;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(val);
+            success = true;
+          } catch (e) {
+            // fallback below
+          }
+        }
+        if (!success) {
+          try {
+            const ta = document.createElement("textarea");
+            ta.value = val;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            success = true;
+          } catch (err) {
+            console.warn("Copy failed:", err);
+          }
+        }
+
+        if (success) {
+          const origHtml = btn.innerHTML;
+          btn.innerHTML = "<span>✓ Copied!</span>";
+          btn.classList.add("copied");
+          showToast(`Account number copied: ${val}`);
+          setTimeout(() => {
+            btn.innerHTML = origHtml;
+            btn.classList.remove("copied");
+          }, 2000);
+        }
+      });
+    });
+  };
+
+  renderCurrencyPills();
+  renderBankAccounts();
+
+  // WhatsApp Notification Button
+  const waBtn = hub.querySelector("[data-give-whatsapp-btn]");
+  if (waBtn) {
+    const waPhone = (giveData.whatsappConfirmPhone || "2348000000000").replace(/[^0-9]/g, "");
+    const waText = giveData.whatsappConfirmText || "Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving. Here are the details:";
+    waBtn.href = `https://wa.me/${waPhone}?text=${encodeURIComponent(waText)}`;
+  }
+
+  // 4. Online Giving Form & Amount Presets
+  const purposeSelect = document.getElementById("give-purpose");
+  if (purposeSelect) {
+    purposeSelect.innerHTML = categories.map(cat => `
+      <option value="${escapeStr(cat)}">${escapeStr(cat)}</option>
+    `).join("");
+  }
+
+  const onlineCurrencySelect = document.getElementById("give-online-currency");
+  const presetsContainer = hub.querySelector("[data-give-presets-container]");
+  const amountInput = document.getElementById("give-amount");
+  const currencyCodeLabel = hub.querySelector("[data-active-currency-code]");
+  const currencySymbolLabel = hub.querySelector("[data-active-currency-symbol]");
+
+  const renderPresets = (curr) => {
+    if (!presetsContainer) return;
+    const presetsList = presetsMap[curr] || presetsMap.NGN || [2000, 5000, 10000, 25000, 50000];
+    const sym = currencySymbols[curr] || "₦";
+
+    presetsContainer.innerHTML = presetsList.map(val => `
+      <button type="button" class="give-preset-chip" data-preset-val="${val}">
+        ${sym}${Number(val).toLocaleString()}
+      </button>
+    `).join("") + `
+      <button type="button" class="give-preset-chip" data-preset-custom="true">Custom</button>
+    `;
+
+    presetsContainer.querySelectorAll(".give-preset-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        presetsContainer.querySelectorAll(".give-preset-chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+
+        if (chip.getAttribute("data-preset-custom") === "true") {
+          amountInput.value = "";
+          amountInput.focus();
+        } else {
+          const val = chip.getAttribute("data-preset-val");
+          amountInput.value = val;
+        }
+      });
+    });
+  };
+
+  const updateOnlineCurrency = (curr) => {
+    if (currencyCodeLabel) currencyCodeLabel.textContent = curr;
+    const sym = currencySymbols[curr] || "₦";
+    if (currencySymbolLabel) currencySymbolLabel.textContent = sym;
+    renderPresets(curr);
+  };
+
+  if (onlineCurrencySelect) {
+    onlineCurrencySelect.addEventListener("change", (e) => {
+      updateOnlineCurrency(e.target.value);
+    });
+  }
+
+  // Initialize presets for default NGN
+  updateOnlineCurrency("NGN");
+
+  // Online form submission & graceful gateway notice modal
+  const onlineForm = document.getElementById("give-online-form");
+  const modalOverlay = document.getElementById("give-gateway-modal");
+  const modalSwitchBtn = document.getElementById("btn-modal-switch-transfer");
+  const modalCloseBtn = document.getElementById("btn-modal-close");
+
+  const gateway = giveData.paymentGateway || {};
+
+  const submitBtnSpan = onlineForm?.querySelector(".give-submit-btn span");
+  if (submitBtnSpan && gateway.buttonLabel) {
+    submitBtnSpan.textContent = gateway.buttonLabel;
+  }
+
+  const openModal = () => {
+    if (!modalOverlay) return;
+    if (gateway.noticeMessage) {
+      const modalBody = modalOverlay.querySelector(".give-modal-body");
+      if (modalBody) {
+        modalBody.innerHTML = `<p>${escapeStr(gateway.noticeMessage)}</p>`;
+      }
+    }
+    modalOverlay.style.display = "flex";
+    modalOverlay.setAttribute("aria-hidden", "false");
+  };
+
+  const closeModal = () => {
+    if (!modalOverlay) return;
+    modalOverlay.style.display = "none";
+    modalOverlay.setAttribute("aria-hidden", "true");
+  };
+
+  if (onlineForm) {
+    onlineForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const amountVal = parseFloat(amountInput.value);
+      const nameVal = (document.getElementById("give-name")?.value || "").trim();
+      const emailVal = (document.getElementById("give-email")?.value || "").trim();
+      const phoneVal = (document.getElementById("give-phone")?.value || "").trim();
+      const purposeVal = purposeSelect?.value || "Giving";
+
+      if (!amountVal || amountVal <= 0) {
+        alert("Please enter a valid donation amount.");
+        amountInput.focus();
+        return;
+      }
+      if (!nameVal) {
+        alert("Please enter your full name.");
+        document.getElementById("give-name")?.focus();
+        return;
+      }
+      if (!emailVal || !emailVal.includes("@")) {
+        alert("Please enter a valid email address.");
+        document.getElementById("give-email")?.focus();
+        return;
+      }
+
+      // Check if a payment gateway link is enabled and configured
+      if (gateway.enabled && gateway.paymentUrl && gateway.paymentUrl.trim().length > 0) {
+        let targetUrl = gateway.paymentUrl.trim();
+        if (gateway.appendDonorParams !== false) {
+          try {
+            const u = new URL(targetUrl, window.location.href);
+            u.searchParams.set("amount", String(amountVal));
+            u.searchParams.set("currency", onlineCurrencySelect?.value || activeCurrency || "NGN");
+            u.searchParams.set("email", emailVal);
+            u.searchParams.set("name", nameVal);
+            u.searchParams.set("purpose", purposeVal);
+            if (phoneVal) u.searchParams.set("phone", phoneVal);
+            targetUrl = u.toString();
+          } catch (err) {
+            const sep = targetUrl.includes("?") ? "&" : "?";
+            targetUrl = `${targetUrl}${sep}amount=${encodeURIComponent(amountVal)}&email=${encodeURIComponent(emailVal)}&name=${encodeURIComponent(nameVal)}&purpose=${encodeURIComponent(purposeVal)}`;
+          }
+        }
+
+        showToast("Redirecting to secure payment checkout...");
+        window.open(targetUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      // Gateway not enabled or URL not set: show graceful fallback modal
+      openModal();
+    });
+  }
+
+  if (modalSwitchBtn) {
+    modalSwitchBtn.addEventListener("click", () => {
+      closeModal();
+      switchTab("bank-transfer");
+      hub.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener("click", closeModal);
+  }
+
+  if (modalOverlay) {
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+  }
+
+  // 5. Special Projects Pane
+  const projectsContainer = hub.querySelector("[data-give-projects-list]");
+  if (projectsContainer && projects.length) {
+    projectsContainer.innerHTML = projects.map(p => `
+      <div class="give-project-card">
+        ${p.badge ? `<span class="give-project-badge">${escapeStr(p.badge)}</span>` : ''}
+        <h4>${escapeStr(p.title)}</h4>
+        <p>${escapeStr(p.description)}</p>
+        <button type="button" class="give-project-action-btn" data-project-title="${escapeStr(p.title)}">
+          Give to this Project ↗
+        </button>
+      </div>
+    `).join("");
+
+    projectsContainer.querySelectorAll(".give-project-action-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const title = btn.getAttribute("data-project-title");
+        switchTab("online-giving");
+
+        if (purposeSelect) {
+          let found = false;
+          for (let i = 0; i < purposeSelect.options.length; i++) {
+            if (purposeSelect.options[i].value === title) {
+              purposeSelect.selectedIndex = i;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            const opt = document.createElement("option");
+            opt.value = title;
+            opt.textContent = title;
+            opt.selected = true;
+            purposeSelect.appendChild(opt);
+          }
+        }
+        hub.scrollIntoView({ behavior: "smooth", block: "start" });
+        amountInput?.focus();
+      });
+    });
   }
 }
 
@@ -1791,7 +2208,7 @@ function renderSundaySchoolDetail(content) {
     if (lesson.memoryVerse) {
       const verseText = lesson.memoryVerse.text;
       const wordsToHide = lesson.memoryVerse.keywordsToHide || [];
-      
+
       let hiddenVerseText = verseText;
       wordsToHide.forEach(word => {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
@@ -1906,9 +2323,9 @@ function renderSundaySchoolDetail(content) {
 
                 <ul class="ss-outline-points">
                   ${ot.points.map(pt => {
-                    const formatted = escapeHtml(pt).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    return `<li>${formatted}</li>`;
-                  }).join("")}
+        const formatted = escapeHtml(pt).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return `<li>${formatted}</li>`;
+      }).join("")}
                 </ul>
 
                 ${ot.keyInsight ? `
@@ -2058,7 +2475,7 @@ function renderSundaySchoolDetail(content) {
       } else {
         window.speechSynthesis.cancel();
         const textToRead = `Sunday School Lesson ${lesson.lessonNumber}: ${lesson.topic}. Memory Verse: ${lesson.memoryVerse?.text || ''}. Introduction: ${lesson.introduction}`;
-        
+
         const utterance = new SpeechSynthesisUtterance(textToRead);
         utterance.rate = 0.95;
         utterance.pitch = 1.0;
@@ -2182,7 +2599,7 @@ function renderSundaySchoolDetail(content) {
     const scrollTop = window.scrollY;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
     const progress = Math.min(100, Math.max(0, (scrollTop / docHeight) * 100));
-    
+
     if (progressBar) {
       progressBar.style.width = `${progress}%`;
     }

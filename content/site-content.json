@@ -1981,44 +1981,59 @@
       "title": "Connect. Worship.\nStay informed.",
       "description": "Access church information, weekly publications, services, events, prayer, and ways to connect with Peculiar Cherubs."
     },
+    "usefulLinks": {
+      "eyebrow": "Useful links",
+      "title": "Your next step starts here."
+    },
+    "calendar": {
+      "eyebrow": "Church calendar",
+      "title": "Regular services and major events."
+    },
     "links": [
       {
+        "id": "ql_link_goodnews",
         "icon": "📰",
         "title": "Goodnews This Week",
         "text": "Read the church’s weekly publication.",
         "href": "publications.html"
       },
       {
+        "id": "ql_link_watch_live",
         "icon": "▶",
         "title": "Watch Live",
         "text": "Join the latest service online.",
         "href": "#"
       },
       {
+        "id": "ql_link_prayer_request",
         "icon": "◉",
         "title": "Prayer Request",
         "text": "Share your prayer needs with us.",
         "href": "#"
       },
       {
+        "id": "ql_link_plan_visit",
         "icon": "↗",
         "title": "Plan a Visit",
         "text": "Explore current PDCM chapels and find a worshipping community.",
         "href": "chapels.html"
       },
       {
+        "id": "ql_link_join_team",
         "icon": "✦",
         "title": "Join a Team",
         "text": "Discover ministries where you can serve.",
         "href": "ministries.html"
       },
       {
+        "id": "ql_link_contact_us",
         "icon": "☏",
         "title": "Contact Us",
         "text": "Reach the church office or a chapel.",
         "href": "#"
       },
       {
+        "id": "ql_link_events_calendar",
         "icon": "⌁",
         "title": "Events Calendar",
         "text": "See upcoming church programmes.",
@@ -2027,46 +2042,55 @@
     ],
     "events": [
       {
+        "id": "ql_event_prayer_clinic",
         "frequency": "Tuesday · 18:00–19:00",
         "title": "Prayer Clinic",
         "text": "Part of the church’s regular weekly rhythm."
       },
       {
+        "id": "ql_event_shiloh",
         "frequency": "Wednesday · 10:00–11:00",
         "title": "Shiloh Prayer Service",
         "text": "Part of the church’s regular weekly rhythm."
       },
       {
+        "id": "ql_event_midweek",
         "frequency": "Wednesday · 18:00–19:30",
         "title": "Mid-Week Service",
         "text": "Part of the church’s regular weekly rhythm."
       },
       {
+        "id": "ql_event_anointing",
         "frequency": "Saturday · 06:00–07:00",
         "title": "Anointing Service (first Saturday)",
         "text": "Part of the church’s regular weekly rhythm."
       },
       {
+        "id": "ql_event_evangelical",
         "frequency": "Saturday · 08:00–10:00",
         "title": "Evangelical Outreach",
         "text": "Part of the church’s regular weekly rhythm."
       },
       {
+        "id": "ql_event_deliverance",
         "frequency": "Saturday · 14:45–17:30",
         "title": "Deliverance Service",
         "text": "Part of the church’s regular weekly rhythm."
       },
       {
+        "id": "ql_event_first_service",
         "frequency": "Sunday · 07:00–08:50",
         "title": "First Service (English)",
         "text": "Part of the church’s regular weekly rhythm."
       },
       {
+        "id": "ql_event_bible_study",
         "frequency": "Sunday · 09:00–09:55",
         "title": "Bible Study",
         "text": "Part of the church’s regular weekly rhythm."
       },
       {
+        "id": "ql_event_second_service",
         "frequency": "Sunday · 10:00–12:00",
         "title": "Second Service (Traditional)",
         "text": "Part of the church’s regular weekly rhythm."
@@ -2085,24 +2109,125 @@
       "description": "We give in gratitude to God and in partnership with the work He is doing through Peculiar Cherubs. Every gift helps the ministry serve people, share the gospel, and strengthen communities.",
       "quote": "God loves a cheerful giver."
     },
-    "options": [
+    "defaultCurrency": "NGN",
+    "currencies": [
+      { "code": "NGN", "label": "₦ NGN", "name": "Nigerian Naira", "isPrimary": true },
+      { "code": "USD", "label": "$ USD", "name": "US Dollar", "isPrimary": false },
+      { "code": "GBP", "label": "£ GBP", "name": "British Pound", "isPrimary": false },
+      { "code": "EUR", "label": "€ EUR", "name": "Euro", "isPrimary": false }
+    ],
+    "bankAccounts": [
       {
-        "label": "Online Giving",
-        "href": "#"
+        "id": "acc-ngn-1",
+        "currency": "NGN",
+        "title": "Main Ministry Account (Tithes & Offerings)",
+        "bankName": "Zenith Bank",
+        "accountName": "Peculiar Cherubs Ministries",
+        "accountNumber": "1012345678",
+        "sortCode": "057150013",
+        "narrationGuide": "Include your Full Name and Purpose (e.g., 'Ezekiel Ade - Tithe')",
+        "isPrimary": true
       },
       {
-        "label": "Bank Transfer",
-        "href": "#"
+        "id": "acc-ngn-2",
+        "currency": "NGN",
+        "title": "Building & Expansion Fund",
+        "bankName": "Guaranty Trust Bank (GTBank)",
+        "accountName": "Peculiar Cherubs Ministries - Building Fund",
+        "accountNumber": "0123456789",
+        "sortCode": "058152062",
+        "narrationGuide": "Use narration: 'YourName - Building Fund'",
+        "isPrimary": false
       },
       {
-        "label": "Offering & Tithe",
-        "href": "#"
+        "id": "acc-usd",
+        "currency": "USD",
+        "title": "USD Domiciliary Account",
+        "bankName": "Zenith Bank Plc",
+        "accountName": "Peculiar Cherubs Ministries",
+        "accountNumber": "5070123456",
+        "swiftCode": "ZEBLNGLA",
+        "narrationGuide": "International wire transfers / diaspora giving. Include donor name.",
+        "isPrimary": false
       },
       {
-        "label": "Special Projects",
-        "href": "#"
+        "id": "acc-gbp",
+        "currency": "GBP",
+        "title": "GBP Domiciliary Account",
+        "bankName": "Zenith Bank Plc",
+        "accountName": "Peculiar Cherubs Ministries",
+        "accountNumber": "5080123456",
+        "swiftCode": "ZEBLNGLA",
+        "narrationGuide": "GBP wire transfers. Include donor name in reference.",
+        "isPrimary": false
+      },
+      {
+        "id": "acc-eur",
+        "currency": "EUR",
+        "title": "EUR Domiciliary Account",
+        "bankName": "Zenith Bank Plc",
+        "accountName": "Peculiar Cherubs Ministries",
+        "accountNumber": "5090123456",
+        "swiftCode": "ZEBLNGLA",
+        "narrationGuide": "Euro SEPA / international wire. Include donor name.",
+        "isPrimary": false
       }
-    ]
+    ],
+    "categories": [
+      "Tithe",
+      "Sunday Offering",
+      "Thanksgiving",
+      "First Fruit",
+      "Welfare & Benevolence",
+      "Special Project"
+    ],
+    "amountPresets": {
+      "NGN": [2000, 5000, 10000, 25000, 50000],
+      "USD": [20, 50, 100, 250, 500],
+      "GBP": [20, 50, 100, 200, 400],
+      "EUR": [20, 50, 100, 200, 400]
+    },
+    "projects": [
+      {
+        "id": "chapel-expansion",
+        "title": "Chapel Expansion & Building Project",
+        "category": "Building Fund",
+        "description": "Acquiring permanent facilities and expanding worship spaces for growing PDCM chapels in Abuja and beyond.",
+        "badge": "Priority Project"
+      },
+      {
+        "id": "feeding-ministry",
+        "title": "Feeding Ministry & Benevolence Outreach",
+        "category": "Charity & Welfare",
+        "description": "Providing nutritious food, emergency care, and loving outreach to underprivileged families and vulnerable communities.",
+        "badge": "Active Outreach"
+      },
+      {
+        "id": "pesach-youth",
+        "title": "Pesach Academy & Youth Development",
+        "category": "Education & Youth",
+        "description": "Equipping the next generation with educational scholarships, digital skills, and godly discipleship.",
+        "badge": "Education"
+      },
+      {
+        "id": "evangelism-media",
+        "title": "Global Evangelism & Media Missions",
+        "category": "Missions",
+        "description": "Broadcasting the Gospel, producing uplifting publications, Sunday school literature, and planting new gospel seeds.",
+        "badge": "Missions"
+      }
+    ],
+    "whatsappConfirmPhone": "2348000000000",
+    "whatsappConfirmText": "Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving/tithe. Here are the details:",
+    "paymentGateway": {
+      "enabled": false,
+      "provider": "custom",
+      "paymentUrl": "",
+      "buttonLabel": "Proceed to Secure Payment ↗",
+      "noticeMessage": "Online card processing integration for Peculiar Cherubs is currently being finalized. In the meantime, you can fulfill your giving instantly with zero transaction fees using our verified Direct Bank Transfer accounts.",
+      "appendDonorParams": true,
+      "customNote": "Supports debit/credit cards, USSD, Apple Pay, and instant bank transfer via payment gateway."
+    }
   },
   "bibleCollege": {
     "hero": {

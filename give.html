@@ -38,21 +38,180 @@
 
   <section class="section">
     <div class="container give-page-grid">
-      <div>
+      <div class="give-why-col">
         <span class="eyebrow" data-give-why-eyebrow></span>
         <h2 data-give-why-title></h2>
         <p data-give-why-description></p>
         <div class="quote" data-give-why-quote></div>
+
+        <div class="give-trust-badges">
+          <div class="give-trust-badge">
+            <span class="give-trust-icon">🛡️</span>
+            <div>
+              <strong>Secure &amp; Verified</strong>
+              <p>All contributions directly fund verified church operations and ministry projects.</p>
+            </div>
+          </div>
+          <div class="give-trust-badge">
+            <span class="give-trust-icon">🧾</span>
+            <div>
+              <strong>Audit &amp; Stewardship</strong>
+              <p>Transparent accounting and financial governance overseen by PDCM leadership.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="give-form-card">
-        <div class="meta">Secure giving</div>
-        <h3>Choose how you would like to give.</h3>
-        <div data-give-options></div>
-        <p class="give-note">Replace these placeholders with the church’s official and verified giving details.</p>
+      <div class="give-form-card" id="giving-hub">
+        <div class="give-card-header">
+          <div class="meta">Secure Giving Portal</div>
+          <h3>Choose how you would like to give</h3>
+          <p class="give-card-subtitle">Select a channel below for direct church bank transfers or online giving.</p>
+        </div>
+
+        <!-- Giving Channels Navigation Tabs -->
+        <div class="give-tabs" role="tablist" aria-label="Giving options">
+          <button type="button" class="give-tab active" role="tab" aria-selected="true" data-give-tab="bank-transfer">
+            <span class="give-tab-icon">🏦</span>
+            <span>Bank Transfer</span>
+          </button>
+          <button type="button" class="give-tab" role="tab" aria-selected="false" data-give-tab="online-giving">
+            <span class="give-tab-icon">💳</span>
+            <span>Card / Online</span>
+          </button>
+          <button type="button" class="give-tab" role="tab" aria-selected="false" data-give-tab="special-projects">
+            <span class="give-tab-icon">🌟</span>
+            <span>Special Projects</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Bank Transfer Content -->
+        <div class="give-tab-pane active" id="pane-bank-transfer" role="tabpanel">
+          <div class="give-pane-lead">
+            <p>Transfer directly to our official church bank accounts using your mobile banking app or online banking.</p>
+          </div>
+
+          <!-- Currency Selector Pills -->
+          <div class="give-currency-filter" aria-label="Currency selection">
+            <span class="give-currency-label">Select Currency:</span>
+            <div class="give-currency-pills" data-give-currency-pills></div>
+          </div>
+
+          <!-- Bank Account Cards Container -->
+          <div class="give-accounts-list" data-give-accounts-list></div>
+
+          <!-- Transfer Guidance / Narration Tips -->
+          <div class="give-narration-box">
+            <div class="give-narration-icon">ℹ️</div>
+            <div>
+              <strong>Transfer Reference Guidance:</strong>
+              <p>Please enter your <em>Full Name</em> and <em>Purpose</em> in the transfer narration/remarks (e.g. <code>Ezekiel Ade - Tithe</code> or <code>Grace Obi - Building Fund</code>) for accurate attribution.</p>
+            </div>
+          </div>
+
+          <!-- WhatsApp / Support Notification Confirmation Button -->
+          <div class="give-transfer-actions">
+            <a href="#" class="btn btn-secondary give-notify-btn" data-give-whatsapp-btn target="_blank" rel="noopener noreferrer">
+              <span>💬 Notify Finance via WhatsApp</span>
+            </a>
+            <span class="give-notify-hint">Optional: Send transfer details or receipt to receive immediate acknowledgment.</span>
+          </div>
+        </div>
+
+        <!-- Tab 2: Online / Card Giving Form Content -->
+        <div class="give-tab-pane" id="pane-online-giving" role="tabpanel" style="display:none;">
+          <form class="give-online-form" id="give-online-form" novalidate>
+            <div class="give-form-group">
+              <label for="give-purpose">Giving Category / Purpose *</label>
+              <select id="give-purpose" name="purpose" class="give-input" required>
+                <!-- Populated by JS -->
+              </select>
+            </div>
+
+            <div class="give-form-group">
+              <div class="give-amount-header">
+                <label for="give-amount">Amount (<span data-active-currency-code>NGN</span>) *</label>
+                <div class="give-currency-dropdown-wrap">
+                  <select id="give-online-currency" class="give-currency-select" aria-label="Currency">
+                    <option value="NGN" selected>₦ NGN</option>
+                    <option value="USD">$ USD</option>
+                    <option value="GBP">£ GBP</option>
+                    <option value="EUR">€ EUR</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Quick Presets -->
+              <div class="give-presets-grid" data-give-presets-container>
+                <!-- Populated by JS -->
+              </div>
+
+              <div class="give-amount-input-wrap">
+                <span class="give-currency-symbol" data-active-currency-symbol>₦</span>
+                <input type="number" id="give-amount" name="amount" class="give-input give-amount-input" placeholder="Enter amount" min="100" step="any" required>
+              </div>
+            </div>
+
+            <div class="give-form-row">
+              <div class="give-form-group">
+                <label for="give-name">Full Name *</label>
+                <input type="text" id="give-name" name="name" class="give-input" placeholder="e.g. John Doe" required>
+              </div>
+              <div class="give-form-group">
+                <label for="give-email">Email Address *</label>
+                <input type="email" id="give-email" name="email" class="give-input" placeholder="e.g. name@example.com" required>
+              </div>
+            </div>
+
+            <div class="give-form-group">
+              <label for="give-phone">Phone Number (Optional)</label>
+              <input type="tel" id="give-phone" name="phone" class="give-input" placeholder="e.g. +234 800 000 0000">
+            </div>
+
+            <button type="submit" class="btn btn-primary give-submit-btn">
+              <span>Proceed to Give Online ↗</span>
+            </button>
+            <p class="give-form-disclaimer">Transactions are encrypted and processed in compliance with PCI-DSS security standards.</p>
+          </form>
+        </div>
+
+        <!-- Tab 3: Special Projects Content -->
+        <div class="give-tab-pane" id="pane-special-projects" role="tabpanel" style="display:none;">
+          <div class="give-pane-lead">
+            <p>Direct your seed towards specific strategic missions, outreach expansions, and ministry initiatives.</p>
+          </div>
+          <div class="give-projects-grid" data-give-projects-list>
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Copy Feedback Toast Notification -->
+        <div class="give-toast" id="give-toast" aria-live="polite">Account number copied to clipboard!</div>
       </div>
     </div>
   </section>
+
+  <!-- Graceful Merchant Gateway Modal (For Online Giving when payment gateway is onboarding) -->
+  <div class="give-modal-overlay" id="give-gateway-modal" style="display:none;" aria-hidden="true">
+    <div class="give-modal-card">
+      <div class="give-modal-icon">💳</div>
+      <h3>Online Card Gateway Notice</h3>
+      <p class="give-modal-body">
+        Online card processing integration for <strong>Peculiar Cherubs</strong> is currently being finalized.
+      </p>
+      <div class="give-modal-highlight">
+        <p>In the meantime, you can fulfill your giving instantly with <strong>zero transaction fees</strong> using our verified <strong>Direct Bank Transfer</strong> accounts.</p>
+      </div>
+      <div class="give-modal-actions">
+        <button type="button" class="btn btn-primary" id="btn-modal-switch-transfer">
+          <span>Switch to Bank Transfer</span>
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-modal-close">
+          <span>Close</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <section class="section section-soft">
     <div class="container">
