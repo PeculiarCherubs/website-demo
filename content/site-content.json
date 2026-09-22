@@ -336,42 +336,48 @@
         "title": "Grace for the Journey",
         "speaker": "Pastor Name",
         "duration": "42 min",
-        "image": "https://images.unsplash.com/photo-1491396023581-4344e51fec5c?auto=format&fit=crop&w=900&q=80"
+        "image": "https://images.unsplash.com/photo-1491396023581-4344e51fec5c?auto=format&fit=crop&w=900&q=80",
+        "id": "sermon-grace-for-the-journey"
       },
       {
         "category": "Discipleship",
         "title": "Built on the Rock",
         "speaker": "Pastor Name",
         "duration": "51 min",
-        "image": "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=900&q=80"
+        "image": "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=900&q=80",
+        "id": "sermon-built-on-the-rock"
       },
       {
         "category": "Prayer",
         "title": "Mercy for Direction",
         "speaker": "Pastor Name",
         "duration": "37 min",
-        "image": "https://images.unsplash.com/photo-1548625361-58a9b86aa83b?auto=format&fit=crop&w=900&q=80"
+        "image": "https://images.unsplash.com/photo-1548625361-58a9b86aa83b?auto=format&fit=crop&w=900&q=80",
+        "id": "sermon-mercy-for-direction"
       },
       {
         "category": "Identity",
         "title": "A Peculiar People",
         "speaker": "Pastor Name",
         "duration": "45 min",
-        "image": "https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=900&q=80"
+        "image": "https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=900&q=80",
+        "id": "sermon-a-peculiar-people"
       },
       {
         "category": "Kingdom Living",
         "title": "Living as Light",
         "speaker": "Pastor Name",
         "duration": "39 min",
-        "image": "https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80"
+        "image": "https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80",
+        "id": "sermon-living-as-light"
       },
       {
         "category": "Worship",
         "title": "The Sound of Surrender",
         "speaker": "Pastor Name",
         "duration": "48 min",
-        "image": "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=900&q=80"
+        "image": "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=900&q=80",
+        "id": "sermon-the-sound-of-surrender"
       }
     ]
   },
@@ -2111,10 +2117,30 @@
     },
     "defaultCurrency": "NGN",
     "currencies": [
-      { "code": "NGN", "label": "₦ NGN", "name": "Nigerian Naira", "isPrimary": true },
-      { "code": "USD", "label": "$ USD", "name": "US Dollar", "isPrimary": false },
-      { "code": "GBP", "label": "£ GBP", "name": "British Pound", "isPrimary": false },
-      { "code": "EUR", "label": "€ EUR", "name": "Euro", "isPrimary": false }
+      {
+        "code": "NGN",
+        "label": "₦ NGN",
+        "name": "Nigerian Naira",
+        "isPrimary": true
+      },
+      {
+        "code": "USD",
+        "label": "$ USD",
+        "name": "US Dollar",
+        "isPrimary": false
+      },
+      {
+        "code": "GBP",
+        "label": "£ GBP",
+        "name": "British Pound",
+        "isPrimary": false
+      },
+      {
+        "code": "EUR",
+        "label": "€ EUR",
+        "name": "Euro",
+        "isPrimary": false
+      }
     ],
     "bankAccounts": [
       {
@@ -2182,10 +2208,34 @@
       "Special Project"
     ],
     "amountPresets": {
-      "NGN": [2000, 5000, 10000, 25000, 50000],
-      "USD": [20, 50, 100, 250, 500],
-      "GBP": [20, 50, 100, 200, 400],
-      "EUR": [20, 50, 100, 200, 400]
+      "NGN": [
+        2000,
+        5000,
+        10000,
+        25000,
+        50000
+      ],
+      "USD": [
+        20,
+        50,
+        100,
+        250,
+        500
+      ],
+      "GBP": [
+        20,
+        50,
+        100,
+        200,
+        400
+      ],
+      "EUR": [
+        20,
+        50,
+        100,
+        200,
+        400
+      ]
     },
     "projects": [
       {
@@ -2944,121 +2994,141 @@
         "name": "Believers HF",
         "area": "2/1, Post Army Scheme and environs",
         "host": "Pastor Gbenga R. Ayoola",
-        "coordinator": "Lady Leader Mayowa Ebun Adeigbe"
+        "coordinator": "Lady Leader Mayowa Ebun Adeigbe",
+        "id": "fellowship-believers-hf"
       },
       {
         "name": "Yahweh HF",
         "area": "Phase IV and environs",
         "host": "MII Opeyemi Catherine Ademola",
-        "coordinator": "Lady Leader Olubunmi Araba"
+        "coordinator": "Lady Leader Olubunmi Araba",
+        "id": "fellowship-yahweh-hf"
       },
       {
         "name": "Salvation HF",
         "area": "Gwarinpa and environs",
         "host": "Ogundipe Family",
-        "coordinator": "MII Toyin Yoosuf"
+        "coordinator": "MII Toyin Yoosuf",
+        "id": "fellowship-salvation-hf"
       },
       {
         "name": "Elohim HF",
         "area": "Dutse Alhaji and environs",
         "host": "MSA Kehinde Arowosegbe",
-        "coordinator": "Lady Leader Olaleye Oluwatoyin Thomas"
+        "coordinator": "Lady Leader Olaleye Oluwatoyin Thomas",
+        "id": "fellowship-elohim-hf"
       },
       {
         "name": "Mercy of God HF",
         "area": "Byazhin Across 1 and environs",
         "host": "Edgar Family",
-        "coordinator": "MII Lawson"
+        "coordinator": "MII Lawson",
+        "id": "fellowship-mercy-of-god-hf"
       },
       {
         "name": "Shekinah HF",
         "area": "Byazhin Across 2 and environs",
         "host": "Evangelist Isaac Dosumu",
-        "coordinator": "Prophet Olumide Okanlawon"
+        "coordinator": "Prophet Olumide Okanlawon",
+        "id": "fellowship-shekinah-hf"
       },
       {
         "name": "Rehoboth HF",
         "area": "Gbazango and environs",
         "host": "Ogunleye Family",
-        "coordinator": "Alderman Kolawole Albert"
+        "coordinator": "Alderman Kolawole Albert",
+        "id": "fellowship-rehoboth-hf"
       },
       {
         "name": "El-Shadai HF",
         "area": "Byazhin Main and environs",
         "host": "Arowolo Family",
-        "coordinator": "Apostle Benjamin Oluyomi Fayomi"
+        "coordinator": "Apostle Benjamin Oluyomi Fayomi",
+        "id": "fellowship-el-shadai-hf"
       },
       {
         "name": "Gethsemane HF",
         "area": "Millionaires Quarters and environs",
         "host": "Special MII Yemisi Olateju",
-        "coordinator": "Brother Biodun Ogundokun"
+        "coordinator": "Brother Biodun Ogundokun",
+        "id": "fellowship-gethsemane-hf"
       },
       {
         "name": "Paradise HF",
         "area": "Bwari and environs",
         "host": "Odupaye Family",
-        "coordinator": "Special Apostle Adeyemi Owookade"
+        "coordinator": "Special Apostle Adeyemi Owookade",
+        "id": "fellowship-paradise-hf"
       },
       {
         "name": "Pentecost HF",
         "area": "Dantata and environs",
         "host": "Pastor Samson Aliyu Family",
-        "coordinator": "Brother Seun Sodipe"
+        "coordinator": "Brother Seun Sodipe",
+        "id": "fellowship-pentecost-hf"
       },
       {
         "name": "His Praise HF",
         "area": "Suleja and environs",
         "host": "MSA Olabisi Lawrence",
-        "coordinator": "MSA Olabisi Lawrence"
+        "coordinator": "MSA Olabisi Lawrence",
+        "id": "fellowship-his-praise-hf"
       },
       {
         "name": "Abundant Grace HF",
         "area": "Gwagwalada and environs",
         "host": "Brother Abiodun Abel Tomi",
-        "coordinator": "Apostle Yinka Oguntade"
+        "coordinator": "Apostle Yinka Oguntade",
+        "id": "fellowship-abundant-grace-hf"
       },
       {
         "name": "Paniel HF",
         "area": "Dei-Dei Material and environs",
         "host": "Lady Leader Funmilola Adeniran",
-        "coordinator": "Teacher Yemi Awokoya"
+        "coordinator": "Teacher Yemi Awokoya",
+        "id": "fellowship-paniel-hf"
       },
       {
         "name": "Rock of Salvation HF",
         "area": "Arab Road and environs",
         "host": "MII Felicia Fadecke Jerry-Adesewo",
-        "coordinator": "Lady Leader Owolabi Olufunke"
+        "coordinator": "Lady Leader Owolabi Olufunke",
+        "id": "fellowship-rock-of-salvation-hf"
       },
       {
         "name": "Throne of Mercy HF",
         "area": "Dawaki and environs",
         "host": "Alderman Brother Yomi Ayanlola",
-        "coordinator": "Brother Kehinde Showunmi"
+        "coordinator": "Brother Kehinde Showunmi",
+        "id": "fellowship-throne-of-mercy-hf"
       },
       {
         "name": "Replenish HF",
         "area": "2/2, Church and environs",
         "host": "Special MII Bukola Gabriel",
-        "coordinator": "Evangelist Adeshina Ajimati"
+        "coordinator": "Evangelist Adeshina Ajimati",
+        "id": "fellowship-replenish-hf"
       },
       {
         "name": "Triumphant HF",
         "area": "Airport, Lugbe and environs",
         "host": "MII Adebola Ajayi",
-        "coordinator": "Alderman Sister Soyeye Veronica Oluwatoyin"
+        "coordinator": "Alderman Sister Soyeye Veronica Oluwatoyin",
+        "id": "fellowship-triumphant-hf"
       },
       {
         "name": "Overcomers HF",
         "area": "Peze and environs",
         "host": "Odumosu Family",
-        "coordinator": "Prophet Oyelade Emmanuel"
+        "coordinator": "Prophet Oyelade Emmanuel",
+        "id": "fellowship-overcomers-hf"
       },
       {
         "name": "Assurance HF",
         "area": "Byazhin 3 and environs",
         "host": "Afolayan Family",
-        "coordinator": "Brother Michael Lawal"
+        "coordinator": "Brother Michael Lawal",
+        "id": "fellowship-assurance-hf"
       }
     ]
   },
