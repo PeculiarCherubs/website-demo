@@ -202,6 +202,12 @@
 
     <!-- Main Workspace View Panels -->
     <main class="admin-main">
+      <div id="adminFallbackBanner" class="admin-fallback-banner" hidden>
+        <strong>Read-only fallback mode.</strong>
+        Supabase live content could not be loaded completely. The Admin Portal is showing
+        <code>content/site-content.json</code> only as an emergency fallback. Reconnect to
+        Supabase before making changes.
+      </div>
 
       <!-- ------------------------------------------------------------------
            Panel: Dashboard
@@ -952,12 +958,6 @@
             <p>Edit complete content sections that do not yet have dedicated visual forms.</p>
           </div>
           <div class="admin-panel-actions">
-            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.restoreAdvancedSectionFromLocal()">
-              ↩ Load Repository Fallback
-            </button>
-            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.standardizeCmsFromRepository()">
-              🔄 Standardize CMS from Repository
-            </button>
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveAdvancedSection()">
               💾 Save Section to Supabase
             </button>
@@ -965,12 +965,10 @@
         </div>
 
         <div class="admin-advanced-notice">
-          <strong>Full content coverage:</strong>
-          the visual editors remain the easiest way to handle common tasks, while this section exposes every
-          top-level <code>site-content.json</code> section so nothing is stranded outside the CMS.
-          <br><br>
-          <strong>Standardize CMS from Repository</strong> performs a migration-safe merge: existing Supabase
-          values are preserved, while missing fields and content from the repository JSON are added.
+          <strong>Live CMS content:</strong>
+          use the visual editors for routine publishing and Advanced Content for complete
+          live Supabase sections. The repository JSON is now fallback/backup only and is
+          not imported from this screen.
         </div>
 
         <div class="admin-advanced-grid">
@@ -998,11 +996,9 @@
 
             <textarea id="advancedJsonEditor" class="admin-json-editor" spellcheck="false"
               oninput="AdminPortal.validateAdvancedJson()"></textarea>
-
-            <div id="cmsMigrationStatus" class="admin-migration-status" hidden></div>
             <p class="admin-advanced-help">
-              Saving replaces only the selected Supabase <code>site_content</code> section.
-              The standardization action works across all sections and preserves existing live values wherever possible.
+              Saving updates only the selected live Supabase <code>site_content</code> section.
+              Repository JSON is not imported from this screen.
             </p>
           </div>
         </div>

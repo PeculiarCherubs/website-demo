@@ -12,6 +12,7 @@
   const MASTER_PASSCODE = 'pdcm2026';
 
   let currentContent = {};
+  let isFallbackMode = false;
   let activeTab = 'dashboard';
   let editingState = {
     sectionKey: null,
@@ -128,52 +129,96 @@
     /**
      * Loads site content from Supabase DB or local fallback
      */
-    async loadFullContent() {
+    async loadFullContent(options = {}) {
+      const { suppressToast = false, forceRefresh = false } = options;
+
       try {
         this.updateStatusIndicator(true, 'Fetching live content...');
 
-        // Fetch required sections concurrently
-        const sections = ['site', 'navigation', 'home', 'about', 'chapels', 'sermons', 'publications', 'quickLinks', 'give', 'bibleCollege', 'ministries', 'events'];
+        const sections = [
+          'site', 'navigation', 'home', 'about', 'chapels', 'sermons',
+          'publications', 'quickLinks', 'give', 'bibleCollege',
+          'ministries', 'events'
+        ];
 
-        let data = {};
-        const localFallback = global.ContentService
-          ? await global.ContentService.fetchLocalFallback()
-          : {};
-
-        if (global.ContentService && typeof global.ContentService.fetchSectionsFromDB === 'function') {
-          try {
-            const liveSections = await global.ContentService.fetchSectionsFromDB(sections);
-
-            // Repository JSON is the schema and safety baseline.
-            // Any section that exists in Supabase overrides its local counterpart.
-            data = { ...localFallback };
-            Object.entries(liveSections || {}).forEach(([key, value]) => {
-              if (value !== undefined && value !== null) {
-                data[key] = value;
-              }
-            });
-
-            this.updateStatusIndicator(true, 'Live Supabase DB + repository fallback');
-          } catch (dbErr) {
-            console.warn('[AdminPortal] Supabase DB fetch failed, using local fallback:', dbErr);
-            data = localFallback;
-            this.updateStatusIndicator(false, 'Local JSON Fallback');
-          }
-        } else {
-          data = localFallback;
-          this.updateStatusIndicator(false, 'Local JSON Fallback');
+        if (
+          forceRefresh &&
+          global.ContentService &&
+          typeof global.ContentService.clearCache === 'function'
+        ) {
+          global.ContentService.clearCache();
         }
 
-        currentContent = data;
+        if (
+          global.ContentService &&
+          typeof global.ContentService.fetchSectionsFromDB === 'function'
+        ) {
+          try {
+            // Successful live load: use Supabase only. The repository JSON is
+            // NOT merged into live content.
+            const liveSections = await global.ContentService.fetchSectionsFromDB(sections);
+            currentContent = {
+              ...liveSections,
+              _source: 'supabase_db'
+            };
+
+            isFallbackMode = false;
+            this.setFallbackMode(false);
+            this.updateStatusIndicator(true, 'Live Supabase DB');
+          } catch (dbErr) {
+            console.warn(
+              '[AdminPortal] Live Supabase content is incomplete/unavailable. ' +
+              'Opening repository fallback in read-only mode.',
+              dbErr
+            );
+
+            const fallback = await global.ContentService.fetchLocalFallback();
+            currentContent = {
+              ...fallback,
+              _source: 'local_json_fallback'
+            };
+
+            isFallbackMode = true;
+            this.setFallbackMode(true);
+            this.updateStatusIndicator(false, 'Local fallback — read only');
+          }
+        } else {
+          throw new Error('ContentService is unavailable.');
+        }
+
         this.ensureStableContentIds();
         console.log('[AdminPortal] Loaded content model:', currentContent);
         this.renderAllViews();
-        this.showToast('Site content loaded successfully.', 'success');
+
+        if (!suppressToast) {
+          this.showToast(
+            isFallbackMode
+              ? 'Supabase is unavailable. Showing repository fallback in read-only mode.'
+              : 'Live Supabase content loaded successfully.',
+            isFallbackMode ? 'error' : 'success'
+          );
+        }
+
+        return !isFallbackMode;
       } catch (err) {
         console.error('[AdminPortal] Error loading content:', err);
+        isFallbackMode = true;
+        this.setFallbackMode(true);
         this.updateStatusIndicator(false, 'Fetch Error');
-        this.showToast('Failed to load site content.', 'error');
+        if (!suppressToast) {
+          this.showToast('Failed to load live site content.', 'error');
+        }
+        return false;
       }
+    },
+
+    /**
+     * Makes fallback mode explicit in the Admin interface.
+     */
+    setFallbackMode(enabled) {
+      const banner = document.getElementById('adminFallbackBanner');
+      if (banner) banner.hidden = !enabled;
+      document.body.classList.toggle('admin-fallback-mode', Boolean(enabled));
     },
 
     /**
@@ -940,7 +985,7 @@
       currentContent.about.leadership.title = getVal('leadershipSettingTitle') || 'Shepherds of the flock.';
       currentContent.about.leadership.description = getVal('leadershipSettingDescription') || '';
 
-      await this.syncSectionToSupabase('about', currentContent.about);
+      if (!(await this.syncSectionToSupabase('about', currentContent.about))) return;
       this.showToast('Leadership section header updated live in Supabase DB!', 'success');
     },
 
@@ -1054,7 +1099,7 @@
       currentContent.quickLinks.calendar.title = getVal('qlSettingCalendarTitle') || 'Regular services and major events.';
       currentContent.quickLinks.calendar.eyebrow = 'Church calendar';
 
-      await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+      if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
       this.showToast('Quick Links page headers updated live in Supabase DB!', 'success');
     },
 
@@ -1267,7 +1312,7 @@
       currentContent.give.paymentGateway.appendDonorParams = chkParams ? chkParams.checked : true;
       currentContent.give.paymentGateway.noticeMessage = getVal('gatewaySettingNotice');
 
-      await this.syncSectionToSupabase('give', currentContent.give);
+      if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
       this.populateGivingForms();
       this.showToast('Payment Gateway plugin configuration synced live to Supabase DB!', 'success');
     },
@@ -1287,7 +1332,7 @@
       currentContent.give.why.title = getVal('givingSettingWhyTitle');
       currentContent.give.why.description = getVal('givingSettingWhyDesc');
 
-      await this.syncSectionToSupabase('give', currentContent.give);
+      if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
       this.showToast('Giving page settings updated live in Supabase DB!', 'success');
     },
 
@@ -1340,220 +1385,10 @@
       currentContent.home.hero.title = getVal('settingHeroTitle');
       currentContent.home.hero.highlight = getVal('settingHeroHighlight');
 
-      await this.syncSectionToSupabase('site', currentContent.site);
-      await this.syncSectionToSupabase('home', currentContent.home);
+      if (!(await this.syncSectionToSupabase('site', currentContent.site))) return;
+      if (!(await this.syncSectionToSupabase('home', currentContent.home))) return;
 
       this.showToast('Site settings updated live on Supabase DB!', 'success');
-    },
-
-    /* ======================================================================
-       Repository → CMS Standardization
-       ====================================================================== */
-
-    getStableItemKey(item) {
-      if (!item || typeof item !== 'object' || Array.isArray(item)) return null;
-
-      const candidateKeys = [
-        'id', 'slug', 'key', 'href', 'issue', 'name', 'title',
-        'date', 'label', 'reference'
-      ];
-
-      for (const key of candidateKeys) {
-        const value = item[key];
-        if (value !== undefined && value !== null && String(value).trim() !== '') {
-          return `${key}:${String(value).trim()}`;
-        }
-      }
-
-      return null;
-    },
-
-    standardizeContentValue(repositoryValue, liveValue) {
-      // Existing live scalar values win. Repository values fill gaps.
-      if (liveValue === undefined || liveValue === null) {
-        return typeof structuredClone === 'function'
-          ? structuredClone(repositoryValue)
-          : JSON.parse(JSON.stringify(repositoryValue));
-      }
-
-      if (
-        repositoryValue &&
-        liveValue &&
-        typeof repositoryValue === 'object' &&
-        typeof liveValue === 'object' &&
-        !Array.isArray(repositoryValue) &&
-        !Array.isArray(liveValue)
-      ) {
-        const result = {};
-
-        Object.keys(repositoryValue).forEach(key => {
-          result[key] = this.standardizeContentValue(
-            repositoryValue[key],
-            liveValue[key]
-          );
-        });
-
-        Object.keys(liveValue).forEach(key => {
-          if (!Object.prototype.hasOwnProperty.call(result, key)) {
-            result[key] = liveValue[key];
-          }
-        });
-
-        return result;
-      }
-
-      if (Array.isArray(repositoryValue) && Array.isArray(liveValue)) {
-        const repositoryObjects = repositoryValue.every(
-          item => item && typeof item === 'object' && !Array.isArray(item)
-        );
-        const liveObjects = liveValue.every(
-          item => item && typeof item === 'object' && !Array.isArray(item)
-        );
-
-        // Object arrays: merge matching items while preserving repository items
-        // that may be missing from an older CMS dataset.
-        if (repositoryObjects && liveObjects) {
-          const liveByKey = new Map();
-          liveValue.forEach(item => {
-            const stableKey = this.getStableItemKey(item);
-            if (stableKey) liveByKey.set(stableKey, item);
-          });
-
-          const usedLiveKeys = new Set();
-          const merged = repositoryValue.map(repoItem => {
-            const stableKey = this.getStableItemKey(repoItem);
-            const liveItem = stableKey ? liveByKey.get(stableKey) : undefined;
-
-            if (liveItem && stableKey) {
-              usedLiveKeys.add(stableKey);
-              return this.standardizeContentValue(repoItem, liveItem);
-            }
-
-            return repoItem;
-          });
-
-          // Keep CMS-only objects too.
-          liveValue.forEach(liveItem => {
-            const stableKey = this.getStableItemKey(liveItem);
-            if (!stableKey || !usedLiveKeys.has(stableKey)) {
-              const duplicate = stableKey && merged.some(
-                item => this.getStableItemKey(item) === stableKey
-              );
-              if (!duplicate) merged.push(liveItem);
-            }
-          });
-
-          return merged;
-        }
-
-        // Primitive / mixed arrays: union them so repository values are not lost,
-        // while still retaining live CMS additions.
-        const result = [...repositoryValue];
-        liveValue.forEach(item => {
-          const serialized = JSON.stringify(item);
-          if (!result.some(existing => JSON.stringify(existing) === serialized)) {
-            result.push(item);
-          }
-        });
-        return result;
-      }
-
-      return liveValue;
-    },
-
-    async standardizeCmsFromRepository() {
-      if (!global.ContentService) {
-        this.showToast('ContentService is unavailable.', 'error');
-        return;
-      }
-
-      const proceed = window.confirm(
-        'This will standardize every CMS section using the repository site-content.json as the baseline. ' +
-        'Existing live Supabase values will be preserved where they already exist, while missing fields and items will be added. Continue?'
-      );
-      if (!proceed) return;
-
-      const status = document.getElementById('cmsMigrationStatus');
-      if (status) {
-        status.hidden = false;
-        status.className = 'admin-migration-status running';
-        status.textContent = 'Preparing CMS standardization…';
-      }
-
-      try {
-        const repositoryContent = await global.ContentService.fetchLocalFallback();
-        const sectionKeys = Object.keys(repositoryContent).filter(key => key !== '_source');
-
-        let liveSections = {};
-        try {
-          liveSections = await global.ContentService.fetchSectionsFromDB(sectionKeys);
-        } catch (err) {
-          console.warn('[AdminPortal] Could not fetch all live sections before standardization. Missing sections will be created.', err);
-        }
-
-        const standardizedContent = {};
-        const results = [];
-
-        for (let index = 0; index < sectionKeys.length; index++) {
-          const sectionKey = sectionKeys[index];
-          const repositorySection = repositoryContent[sectionKey];
-          const liveSection = liveSections?.[sectionKey];
-
-          const standardizedSection = this.standardizeContentValue(
-            repositorySection,
-            liveSection
-          );
-
-          if (status) {
-            status.textContent = `Standardizing ${sectionKey} (${index + 1}/${sectionKeys.length})…`;
-          }
-
-          const ok = await this.syncSectionToSupabase(
-            sectionKey,
-            standardizedSection
-          );
-
-          results.push({ sectionKey, ok });
-          if (ok) standardizedContent[sectionKey] = standardizedSection;
-        }
-
-        // Keep the admin's in-memory model aligned with the successful migration.
-        currentContent = {
-          ...repositoryContent,
-          ...currentContent,
-          ...standardizedContent
-        };
-
-        this.renderAllViews();
-
-        const succeeded = results.filter(item => item.ok).length;
-        const failed = results.filter(item => !item.ok).map(item => item.sectionKey);
-
-        if (status) {
-          status.className = failed.length
-            ? 'admin-migration-status warning'
-            : 'admin-migration-status success';
-          status.innerHTML = failed.length
-            ? `<strong>Standardization partially completed.</strong> ${succeeded}/${results.length} sections saved. Failed: ${failed.join(', ')}.`
-            : `<strong>CMS standardized successfully.</strong> ${succeeded}/${results.length} sections were merged and saved.`;
-        }
-
-        if (failed.length) {
-          this.showToast(`CMS standardization completed with ${failed.length} failed section(s).`, 'error');
-        } else {
-          this.showToast('CMS standardization completed successfully.', 'success');
-        }
-      } catch (err) {
-        console.error('[AdminPortal] CMS standardization failed:', err);
-
-        if (status) {
-          status.hidden = false;
-          status.className = 'admin-migration-status error';
-          status.textContent = `Standardization failed: ${err.message}`;
-        }
-
-        this.showToast('CMS standardization failed. Check the browser console.', 'error');
-      }
     },
 
     /* ======================================================================
@@ -1626,30 +1461,15 @@
       }
     },
 
-    async restoreAdvancedSectionFromLocal() {
-      const select = document.getElementById('advancedSectionSelect');
-      const editor = document.getElementById('advancedJsonEditor');
-      if (!select || !editor || !global.ContentService) return;
-
-      try {
-        const local = await global.ContentService.fetchLocalFallback();
-        const sectionKey = select.value;
-
-        if (!Object.prototype.hasOwnProperty.call(local, sectionKey)) {
-          this.showToast(`No local fallback exists for '${sectionKey}'.`, 'error');
-          return;
-        }
-
-        editor.value = JSON.stringify(local[sectionKey], null, 2);
-        this.validateAdvancedJson();
-        this.showToast(`Loaded repository fallback for '${sectionKey}'. Review it before saving.`, 'info');
-      } catch (err) {
-        console.error(err);
-        this.showToast('Could not load the repository fallback.', 'error');
-      }
-    },
-
     async saveAdvancedSection() {
+      if (isFallbackMode) {
+        this.showToast(
+          'Read-only fallback mode: reconnect to Supabase before saving.',
+          'error'
+        );
+        return;
+      }
+
       const select = document.getElementById('advancedSectionSelect');
       const editor = document.getElementById('advancedJsonEditor');
       if (!select || !editor) return;
@@ -4028,13 +3848,20 @@
      * Persists updated section to Supabase DB
      */
     async syncSectionToSupabase(sectionKey, sectionData) {
+      if (isFallbackMode) {
+        this.showToast(
+          'Read-only fallback mode: no CMS writes are allowed until Supabase is available.',
+          'error'
+        );
+        return false;
+      }
+
       const cfg = global.ContentService ? global.ContentService.config : null;
       if (!cfg) {
         this.showToast('ContentService configuration is unavailable.', 'error');
         return false;
       }
 
-      // UPSERT: update an existing section or create it if it does not exist.
       const endpoint = `${cfg.url}/rest/v1/${cfg.tableName}?on_conflict=key`;
 
       try {
@@ -4054,16 +3881,35 @@
 
         if (!resp.ok) {
           const detail = await resp.text().catch(() => '');
-          console.warn(`[AdminPortal] Supabase upsert for '${sectionKey}' returned status ${resp.status}`, detail);
+          console.warn(
+            `[AdminPortal] Supabase upsert for '${sectionKey}' returned status ${resp.status}`,
+            detail
+          );
           this.showToast(`Supabase save failed for '${sectionKey}' (${resp.status}).`, 'error');
+
+          // Re-sync Admin state with the authoritative live DB. If the DB is
+          // now unavailable, loadFullContent will enter read-only fallback.
+          await this.loadFullContent({ suppressToast: true, forceRefresh: true });
           return false;
         }
+
+        if (
+          global.ContentService &&
+          typeof global.ContentService.setCachedSection === 'function'
+        ) {
+          global.ContentService.setCachedSection(sectionKey, sectionData);
+        }
+
+        currentContent[sectionKey] = sectionData;
+        currentContent._source = 'supabase_db';
 
         console.log(`[AdminPortal] Successfully upserted '${sectionKey}' in Supabase DB.`);
         return true;
       } catch (err) {
         console.error(`[AdminPortal] Error syncing section '${sectionKey}' to Supabase:`, err);
         this.showToast(`Could not save '${sectionKey}' to Supabase.`, 'error');
+
+        await this.loadFullContent({ suppressToast: true, forceRefresh: true });
         return false;
       }
     },

@@ -134,11 +134,11 @@
           cache[sectionKey] = data;
           return data;
         } catch (err) {
-          console.warn(`[ContentService] On-demand load failed for '${sectionKey}', using local fallback.`, err);
+          console.warn(`[ContentService] On-demand live load failed for '${sectionKey}', using local fallback.`, err);
           const fallback = await this.fetchLocalFallback();
-          const data = fallback[sectionKey] || {};
-          cache[sectionKey] = data;
-          return data;
+          // IMPORTANT: fallback data is deliberately NOT written into the
+          // Supabase cache. The cache represents live CMS data only.
+          return fallback[sectionKey] || {};
         } finally {
           delete pendingRequests[sectionKey];
         }
@@ -183,12 +183,43 @@
         });
       }
 
+      const unresolvedKeys = uniqueKeys.filter(
+        key => !Object.prototype.hasOwnProperty.call(cache, key)
+      );
+
+      if (unresolvedKeys.length > 0) {
+        throw new Error(
+          `Supabase is missing required site_content section(s): ${unresolvedKeys.join(', ')}`
+        );
+      }
+
       const result = {};
-      uniqueKeys.forEach(k => {
-        result[k] = cache[k];
+      uniqueKeys.forEach(key => {
+        result[key] = cache[key];
       });
 
       return result;
+    },
+
+    /**
+     * Keeps the live section cache coherent after a successful CMS write.
+     */
+    setCachedSection(sectionKey, sectionData) {
+      cache[sectionKey] = sectionData;
+    },
+
+    /**
+     * Clears live Supabase cache so the next read is forced back to the DB.
+     */
+    clearCache(sectionKey = null) {
+      if (sectionKey) {
+        delete cache[sectionKey];
+        delete pendingRequests[sectionKey];
+        return;
+      }
+
+      Object.keys(cache).forEach(key => delete cache[key]);
+      Object.keys(pendingRequests).forEach(key => delete pendingRequests[key]);
     },
 
     /**
@@ -232,14 +263,18 @@
         } catch (dbError) {
           console.warn(`[ContentService] Supabase DB fetch failed for '${pageName}'. Falling back to local site-content.json.`, dbError);
           const fallbackContent = await this.fetchLocalFallback();
-          fallbackContent._source = 'local_json_fallback';
-          return fallbackContent;
+          return {
+            ...fallbackContent,
+            _source: 'local_json_fallback'
+          };
         }
       } else {
         console.log(`[ContentService] Loading content for page '${pageName}' from local site-content.json...`);
         const localContent = await this.fetchLocalFallback();
-        localContent._source = 'local_json';
-        return localContent;
+        return {
+          ...localContent,
+          _source: 'local_json'
+        };
       }
     },
 

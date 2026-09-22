@@ -2674,39 +2674,6 @@ function setupNavigation() {
   });
 }
 
-function mergeSiteContent(base, override) {
-  if (Array.isArray(override)) return [...override];
-  if (!override || typeof override !== "object") {
-    return override === undefined ? base : override;
-  }
-
-  const result = {
-    ...(base && typeof base === "object" && !Array.isArray(base) ? base : {})
-  };
-
-  Object.entries(override).forEach(([key, value]) => {
-    if (key === "_source") {
-      result[key] = value;
-      return;
-    }
-
-    if (
-      value &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      result[key] &&
-      typeof result[key] === "object" &&
-      !Array.isArray(result[key])
-    ) {
-      result[key] = mergeSiteContent(result[key], value);
-    } else {
-      result[key] = Array.isArray(value) ? [...value] : value;
-    }
-  });
-
-  return result;
-}
-
 async function loadLocalContent() {
   const response = await fetch(CONTENT_PATH, { cache: "no-store" });
 
@@ -2718,49 +2685,19 @@ async function loadLocalContent() {
 }
 
 async function loadMergedContent(page) {
-  const localContent = typeof ContentService !== "undefined"
-    ? await ContentService.fetchLocalFallback()
-    : await loadLocalContent();
-
-  if (typeof ContentService === "undefined") {
-    return {
-      ...localContent,
-      _source: "local"
-    };
+  // Supabase is the live source of truth.
+  // ContentService itself falls back to site-content.json only when the live
+  // page sections cannot be loaded.
+  if (typeof ContentService !== "undefined") {
+    return ContentService.getPageContent(page);
   }
 
-  try {
-    const liveContent = await ContentService.getPageContent(page);
-
-    // Always merge live data over the newer local schema.
-    // This protects newer structures that may not yet exist in Supabase.
-    const merged = mergeSiteContent(localContent, liveContent || {});
-
-    // IMPORTANT:
-    // The Supabase `navigation` row is still based on the older navigation.
-    // Keep the repository's current navigation as the single shared menu
-    // until the DB navigation section is migrated to the new CHAPELS /
-    // MINISTRIES split.
-    const liveNavigationIsCurrent =
-      Array.isArray(liveContent?.navigation) &&
-      liveContent.navigation.some(item => String(item?.label || "").toUpperCase() === "CHAPELS");
-
-    merged.navigation = liveNavigationIsCurrent
-      ? liveContent.navigation
-      : localContent.navigation;
-
-    merged._source = String(liveContent?._source || "").startsWith("supabase")
-      ? `${liveContent._source}+local-navigation`
-      : (liveContent?._source || "local");
-
-    return merged;
-  } catch (serviceError) {
-    console.warn("[ContentService] Live content unavailable; using local fallback.", serviceError);
-    return {
-      ...localContent,
-      _source: "local-fallback"
-    };
-  }
+  // If ContentService itself is unavailable, use the repository JSON as the
+  // emergency fallback so the public site can still render.
+  return {
+    ...(await loadLocalContent()),
+    _source: "local_json_fallback"
+  };
 }
 
 function setupLazyContentObservers() {

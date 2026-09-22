@@ -1149,37 +1149,6 @@ body.admin-body {
 }
 
 
-/* --------------------------------------------------------------------------
-   CMS Migration / Standardization Status
-   -------------------------------------------------------------------------- */
-.admin-migration-status {
-  margin: 0;
-  padding: .9rem 1.25rem;
-  border-top: 1px solid var(--admin-border);
-  font-size: .84rem;
-  line-height: 1.5;
-}
-
-.admin-migration-status.running {
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
-.admin-migration-status.success {
-  background: #ecfdf5;
-  color: #047857;
-}
-
-.admin-migration-status.warning {
-  background: #fffbeb;
-  color: #b45309;
-}
-
-.admin-migration-status.error {
-  background: #fef2f2;
-  color: var(--red);
-}
-
 
 /* --------------------------------------------------------------------------
    Admin secondary button contrast fix
@@ -1336,4 +1305,33 @@ body.admin-body {
     align-items: flex-start;
     flex-direction: column;
   }
+}
+
+
+/* --------------------------------------------------------------------------
+   Supabase source-of-truth fallback state
+   -------------------------------------------------------------------------- */
+.admin-fallback-banner {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid #f59e0b;
+  border-left-width: 5px;
+  border-radius: 14px;
+  background: #fffbeb;
+  color: #78350f;
+  font-size: .9rem;
+  line-height: 1.55;
+}
+
+.admin-fallback-banner strong {
+  color: #92400e;
+}
+
+.admin-fallback-banner code {
+  font-weight: 700;
+}
+
+.admin-body.admin-fallback-mode .admin-status-dot {
+  background: var(--admin-warning);
+  box-shadow: 0 0 8px var(--admin-warning);
 }
