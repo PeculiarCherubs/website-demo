@@ -7072,7 +7072,7 @@ body.teacher-mode .ss-teacher-card {
 
 .publication-devotion-lead {
   background:
-    radial-gradient(circle at 86% 42%, rgba(255, 255, 0, .12), transparent 24%),
+    radial-gradient(circle at 86% 42%, rgba(255,255,0,.12), transparent 24%),
     var(--navy);
 }
 
@@ -7086,7 +7086,7 @@ body.teacher-mode .ss-teacher-card {
 }
 
 .publication-devotion-lead .publication-compact-feature {
-  box-shadow: 0 22px 60px rgba(0, 0, 0, .22);
+  box-shadow: 0 22px 60px rgba(0,0,0,.22);
 }
 
 .publication-highlights-section {
@@ -7104,8 +7104,8 @@ body.teacher-mode .ss-teacher-card {
   padding: 1.5rem;
   border-radius: 30px;
   background: var(--white);
-  border: 1px solid rgba(22, 34, 73, .09);
-  box-shadow: 0 12px 34px rgba(22, 34, 73, .07);
+  border: 1px solid rgba(22,34,73,.09);
+  box-shadow: 0 12px 34px rgba(22,34,73,.07);
   scroll-margin-top: 100px;
 }
 
@@ -7144,14 +7144,14 @@ body.teacher-mode .ss-teacher-card {
   min-height: 0;
   border-radius: 24px;
   box-shadow: none;
-  border: 1px solid rgba(22, 34, 73, .08);
+  border: 1px solid rgba(22,34,73,.08);
 }
 
 .publication-highlight-panel .publication-compact-cover {
   min-height: 260px;
 }
 
-.publication-highlight-panel .publication-compact-feature>div:last-child {
+.publication-highlight-panel .publication-compact-feature > div:last-child {
   padding: 1.5rem;
 }
 
@@ -7185,5 +7185,61 @@ body.teacher-mode .ss-teacher-card {
 
   .publication-devotion-lead .section-head {
     gap: 1rem;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   Publication long-form reading alignment
+   -------------------------------------------------------------------------- */
+/*
+   Justify only long-form reading content. Headings, metadata, buttons,
+   publication cards and short UI copy keep their natural alignment.
+*/
+.publication-article-content > p,
+.publication-lead,
+.pub-main-read p,
+.ss-intro-text p,
+.ss-scripture-snippet,
+.ss-outline-summary,
+.ss-outline-points li,
+.ss-question-hint,
+.ss-teacher-box li,
+.ss-app-content p {
+  text-align: justify;
+  text-justify: inter-word;
+  text-align-last: left;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+/* Keep intentionally styled quotation/callout elements readable rather than
+   forcing short lines into full justification. */
+.publication-scripture-block p,
+.publication-callout p,
+.devotion-response-card p,
+.ss-verse-quote p,
+.ss-golden-text p,
+.ss-insight-box {
+  text-align: left;
+  text-align-last: auto;
+}
+
+/* Very narrow screens can develop excessive word spacing with justified copy.
+   Use normal reading alignment there while retaining justification on larger
+   phones, tablets and desktops. */
+@media (max-width: 480px) {
+  .publication-article-content > p,
+  .publication-lead,
+  .pub-main-read p,
+  .ss-intro-text p,
+  .ss-scripture-snippet,
+  .ss-outline-summary,
+  .ss-outline-points li,
+  .ss-question-hint,
+  .ss-teacher-box li,
+  .ss-app-content p {
+    text-align: left;
+    text-align-last: auto;
   }
 }
