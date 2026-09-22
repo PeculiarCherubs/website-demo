@@ -2324,12 +2324,27 @@ async function loadMergedContent(page) {
       "events"
     ]);
 
+<<<<<<< Updated upstream
     if (schemaSensitivePages.has(page) && String(liveContent?._source || "").startsWith("supabase")) {
       const localContent = await ContentService.fetchLocalFallback();
       const merged = mergeSiteContent(localContent, liveContent || {});
       merged._source = `${liveContent._source}+local-schema`;
       return merged;
     }
+=======
+    // IMPORTANT:
+    // The Supabase `navigation` row is still based on the older navigation.
+    // Keep the repository's current navigation as the single shared menu
+    // until the DB navigation section is migrated to the new CHAPELS /
+    // MINISTRIES split.
+    const liveNavigationIsCurrent =
+      Array.isArray(liveContent?.navigation) &&
+      liveContent.navigation.some(item => String(item?.label || "").toUpperCase() === "CHAPELS");
+
+    merged.navigation = liveNavigationIsCurrent
+      ? liveContent.navigation
+      : localContent.navigation;
+>>>>>>> Stashed changes
 
     return liveContent;
   } catch (serviceError) {

@@ -159,6 +159,14 @@
               </div>
             </button>
           </li>
+          <li class="admin-nav-item" data-tab="advancedContent">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">🧩</span>
+                <span>Advanced Content</span>
+              </div>
+            </button>
+          </li>
         </ul>
       </div>
 
@@ -575,6 +583,73 @@
             </div>
           </div>
         </form>
+      </section>
+
+
+      <!-- ------------------------------------------------------------------
+           Panel: Advanced Content
+           ------------------------------------------------------------------ -->
+      <section id="panelAdvancedContent" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Advanced Content</h2>
+            <p>Edit complete content sections that do not yet have dedicated visual forms.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.restoreAdvancedSectionFromLocal()">
+              ↩ Load Repository Fallback
+            </button>
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.standardizeCmsFromRepository()">
+              🔄 Standardize CMS from Repository
+            </button>
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveAdvancedSection()">
+              💾 Save Section to Supabase
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-advanced-notice">
+          <strong>Full content coverage:</strong>
+          the visual editors remain the easiest way to handle common tasks, while this section exposes every
+          top-level <code>site-content.json</code> section so nothing is stranded outside the CMS.
+          <br><br>
+          <strong>Standardize CMS from Repository</strong> performs a migration-safe merge: existing Supabase
+          values are preserved, while missing fields and content from the repository JSON are added.
+        </div>
+
+        <div class="admin-advanced-grid">
+          <aside class="admin-advanced-sections">
+            <label for="advancedSectionSelect">Content section</label>
+            <select id="advancedSectionSelect" class="admin-select"
+              onchange="AdminPortal.loadAdvancedSection(this.value)"></select>
+
+            <div class="admin-coverage-box">
+              <h3>When to use this</h3>
+              <p><strong>Visual editors:</strong> Publications, sermons, events, fellowships, ministries, leadership and key site settings.</p>
+              <p><strong>Advanced editor:</strong> Navigation, chapels, homepage sections, Quick Links, Give, Bible College, lectionary, recurring events, social feeds and every other field.</p>
+            </div>
+          </aside>
+
+          <div class="admin-advanced-editor">
+            <div class="admin-advanced-editor-head">
+              <div>
+                <span class="admin-advanced-section-name" id="advancedSectionName">Select a section</span>
+                <span class="admin-advanced-validation valid" id="advancedValidationStatus">Valid JSON</span>
+              </div>
+              <button class="btn btn-secondary admin-btn-sm"
+                onclick="AdminPortal.formatAdvancedJson()">Format JSON</button>
+            </div>
+
+            <textarea id="advancedJsonEditor" class="admin-json-editor" spellcheck="false"
+              oninput="AdminPortal.validateAdvancedJson()"></textarea>
+
+            <div id="cmsMigrationStatus" class="admin-migration-status" hidden></div>
+            <p class="admin-advanced-help">
+              Saving replaces only the selected Supabase <code>site_content</code> section.
+              The standardization action works across all sections and preserves existing live values wherever possible.
+            </p>
+          </div>
+        </div>
       </section>
 
     </main>

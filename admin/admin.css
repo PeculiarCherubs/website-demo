@@ -1024,3 +1024,316 @@ body.admin-body {
     display: none;
   }
 }
+
+
+/* --------------------------------------------------------------------------
+   Advanced Content / Full Schema Editor
+   -------------------------------------------------------------------------- */
+.admin-advanced-notice {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 4px solid var(--yellow);
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+  color: var(--ink);
+  font-size: .9rem;
+}
+
+.admin-advanced-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.admin-advanced-sections,
+.admin-advanced-editor {
+  background: var(--white);
+  border: 1px solid var(--admin-border);
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.03);
+}
+
+.admin-advanced-sections {
+  padding: 1.25rem;
+  position: sticky;
+  top: calc(var(--admin-header-height) + 1.25rem);
+}
+
+.admin-advanced-sections > label {
+  display: block;
+  margin-bottom: .5rem;
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--navy);
+}
+
+.admin-advanced-sections .admin-select { width: 100%; }
+
+.admin-coverage-box {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--admin-border);
+}
+
+.admin-coverage-box h3 {
+  font-size: 1.05rem;
+  margin-bottom: .65rem;
+}
+
+.admin-coverage-box p {
+  font-size: .82rem;
+  line-height: 1.55;
+  margin-bottom: .75rem;
+}
+
+.admin-advanced-editor { overflow: hidden; }
+
+.admin-advanced-editor-head {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-advanced-editor-head > div {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
+.admin-advanced-section-name {
+  font-weight: 800;
+  color: var(--navy);
+  font-size: 1rem;
+}
+
+.admin-advanced-validation {
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.admin-advanced-validation.valid { color: var(--admin-success); }
+.admin-advanced-validation.invalid { color: var(--admin-danger); }
+
+.admin-json-editor {
+  width: 100%;
+  min-height: 580px;
+  resize: vertical;
+  border: 0;
+  outline: 0;
+  padding: 1.25rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  tab-size: 2;
+}
+
+.admin-advanced-help {
+  margin: 0;
+  padding: .85rem 1.25rem;
+  border-top: 1px solid var(--admin-border);
+  background: #fafbfc;
+  font-size: .8rem;
+}
+
+@media (max-width: 900px) {
+  .admin-advanced-grid { grid-template-columns: 1fr; }
+  .admin-advanced-sections { position: static; }
+  .admin-json-editor { min-height: 420px; }
+}
+
+
+/* --------------------------------------------------------------------------
+   CMS Migration / Standardization Status
+   -------------------------------------------------------------------------- */
+.admin-migration-status {
+  margin: 0;
+  padding: .9rem 1.25rem;
+  border-top: 1px solid var(--admin-border);
+  font-size: .84rem;
+  line-height: 1.5;
+}
+
+.admin-migration-status.running {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.admin-migration-status.success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.admin-migration-status.warning {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.admin-migration-status.error {
+  background: #fef2f2;
+  color: var(--red);
+}
+
+
+/* --------------------------------------------------------------------------
+   Admin secondary button contrast fix
+   -------------------------------------------------------------------------- */
+/*
+   The public website's .btn-secondary style is intended for dark hero areas
+   and uses transparent background + white text. Inside the light Admin
+   workspace that made secondary actions look disabled until hover.
+*/
+.admin-main .btn-secondary,
+.admin-modal .btn-secondary {
+  background: var(--white);
+  color: var(--navy);
+  border-color: rgba(22, 34, 73, 0.28);
+  box-shadow: 0 1px 2px rgba(22, 34, 73, 0.04);
+  opacity: 1;
+}
+
+.admin-main .btn-secondary:hover,
+.admin-modal .btn-secondary:hover {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+  box-shadow: 0 8px 20px rgba(22, 34, 73, 0.16);
+  transform: translateY(-2px);
+}
+
+.admin-main .btn-secondary:focus-visible,
+.admin-modal .btn-secondary:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.admin-main .btn-secondary:disabled,
+.admin-modal .btn-secondary:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   Standardized Publication Entry Forms
+   -------------------------------------------------------------------------- */
+.admin-publication-entry-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.25rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f8fafc, #eef4fb);
+  border: 1px solid var(--admin-border);
+}
+
+.admin-publication-entry-banner > div {
+  display: flex;
+  flex-direction: column;
+  gap: .18rem;
+}
+
+.admin-publication-entry-kicker {
+  color: var(--red);
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.admin-publication-entry-banner strong {
+  color: var(--navy);
+  font-family: 'Fraunces', serif;
+  font-size: 1.25rem;
+}
+
+.admin-publication-entry-banner small,
+.admin-publication-entry-heading small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.admin-publication-entry-section {
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 18px;
+  border: 1px solid var(--admin-border);
+  background: var(--white);
+}
+
+.admin-publication-entry-section[hidden] {
+  display: none !important;
+}
+
+.admin-publication-entry-heading {
+  display: flex;
+  gap: .8rem;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-publication-entry-heading > span {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--yellow);
+  display: grid;
+  place-items: center;
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.admin-publication-entry-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+
+.admin-publication-entry-heading strong {
+  color: var(--navy);
+  font-size: 1rem;
+}
+
+.admin-publication-subsection {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+}
+
+.admin-publication-subsection > strong {
+  display: block;
+  color: var(--navy);
+  margin-bottom: .85rem;
+  font-size: .9rem;
+}
+
+.admin-textarea-tall {
+  min-height: 150px;
+}
+
+.admin-textarea-xl {
+  min-height: 260px;
+}
+
+@media (max-width: 767px) {
+  .admin-publication-entry-banner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

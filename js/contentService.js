@@ -4,16 +4,28 @@
  * Implements section-level lazy loading, in-memory caching, deduplicated requests, and on-demand section fetching.
  */
 (function (global) {
+  // Resolve the fallback JSON relative to this script so it works from both
+  // root pages and nested pages such as /admin/index.html.
+  const CONTENT_SERVICE_SCRIPT_URL =
+    typeof document !== 'undefined' && document.currentScript?.src
+      ? document.currentScript.src
+      : null;
+
+  const LOCAL_FALLBACK_URL = CONTENT_SERVICE_SCRIPT_URL
+    ? new URL('../content/site-content.json', CONTENT_SERVICE_SCRIPT_URL).href
+    : 'content/site-content.json';
+
   const SUPABASE_CONFIG = {
     url: 'https://iyihwxtkgawphsnrxvop.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aWh3eHRrZ2F3cGhzbnJ4dm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MjA3NjIsImV4cCI6MjEwMzk5Njc2Mn0.61qJQ8ev9LFap1bu4A1Lr7Wy8JVvczZVb_KmhlalSQ8',
     tableName: 'site_content',
-    localFallbackPath: 'content/site-content.json',
+    localFallbackPath: LOCAL_FALLBACK_URL,
     fetchTimeoutMs: 5000
   };
 
   // Pages currently configured to fetch live data from Supabase DB
   const DB_REROUTED_PAGES = new Set([
+    'home',
     'ministries',
     'ministryDetail',
     'houseFellowships',
@@ -24,7 +36,9 @@
     'about',
     'sundaySchoolDetail',
     'publicationPost',
-    'events'
+    'events',
+    'quickLinks',
+    'give'
   ]);
 
   // Critical shared sections required for initial header/footer paint
@@ -183,6 +197,9 @@
       if (localFallbackCache) {
         return localFallbackCache;
       }
+
+      console.log(`[ContentService] Loading local fallback from ${SUPABASE_CONFIG.localFallbackPath}`);
+
       const response = await fetch(SUPABASE_CONFIG.localFallbackPath, { cache: 'no-store' });
       if (!response.ok) {
         throw new Error(`Local content fallback failed with status ${response.status}.`);
