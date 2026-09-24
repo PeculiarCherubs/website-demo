@@ -2957,7 +2957,13 @@ async function loadMergedContent(page) {
     // Keep the repository's current navigation as the single shared menu
     // until the DB navigation section is migrated to the new CHAPELS /
     // MINISTRIES split.
-    merged.navigation = localContent.navigation;
+    const liveNavigationIsCurrent =
+      Array.isArray(liveContent?.navigation) &&
+      liveContent.navigation.some(item => String(item?.label || "").toUpperCase() === "CHAPELS");
+
+    merged.navigation = liveNavigationIsCurrent
+      ? liveContent.navigation
+      : localContent.navigation;
 
     merged._source = String(liveContent?._source || "").startsWith("supabase")
       ? `${liveContent._source}+local-navigation`

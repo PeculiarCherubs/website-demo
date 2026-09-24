@@ -133,24 +133,39 @@
         this.updateStatusIndicator(true, 'Fetching live content...');
 
         // Fetch required sections concurrently
-        const sections = ['site', 'home', 'about', 'ministries', 'bibleCollege', 'chapels', 'sermons', 'publications', 'events', 'quickLinks', 'give'];
+        const sections = ['site', 'navigation', 'home', 'about', 'chapels', 'sermons', 'publications', 'quickLinks', 'give', 'bibleCollege', 'ministries', 'events'];
 
         let data = {};
+        const localFallback = global.ContentService
+          ? await global.ContentService.fetchLocalFallback()
+          : {};
+
         if (global.ContentService && typeof global.ContentService.fetchSectionsFromDB === 'function') {
           try {
-            data = await global.ContentService.fetchSectionsFromDB(sections);
-            this.updateStatusIndicator(true, 'Live Supabase DB');
+            const liveSections = await global.ContentService.fetchSectionsFromDB(sections);
+
+            // Repository JSON is the schema and safety baseline.
+            // Any section that exists in Supabase overrides its local counterpart.
+            data = { ...localFallback };
+            Object.entries(liveSections || {}).forEach(([key, value]) => {
+              if (value !== undefined && value !== null) {
+                data[key] = value;
+              }
+            });
+
+            this.updateStatusIndicator(true, 'Live Supabase DB + repository fallback');
           } catch (dbErr) {
             console.warn('[AdminPortal] Supabase DB fetch failed, using local fallback:', dbErr);
-            data = await global.ContentService.fetchLocalFallback();
+            data = localFallback;
             this.updateStatusIndicator(false, 'Local JSON Fallback');
           }
         } else {
-          data = await global.ContentService.fetchLocalFallback();
+          data = localFallback;
           this.updateStatusIndicator(false, 'Local JSON Fallback');
         }
 
         currentContent = data;
+        this.ensureStableContentIds();
         console.log('[AdminPortal] Loaded content model:', currentContent);
         this.renderAllViews();
         this.showToast('Site content loaded successfully.', 'success');
@@ -199,6 +214,41 @@
       const activePanel = document.getElementById(`panel${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
       if (activePanel) {
         activePanel.classList.add('active');
+      }
+    },
+
+    /**
+     * Creates deterministic IDs for older records that pre-date the CMS.
+     * IDs are added in-memory so existing Supabase content can be edited safely;
+     * once a record is saved the ID is persisted with that section.
+     */
+    slugifyStableId(value, prefix = 'item') {
+      const slug = String(value || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 80);
+      return `${prefix}-${slug || Date.now()}`;
+    },
+
+    ensureStableContentIds() {
+      const sermons = currentContent.sermons?.items;
+      if (Array.isArray(sermons)) {
+        sermons.forEach((item, index) => {
+          if (!item.id) {
+            item.id = this.slugifyStableId(item.title || `sermon-${index + 1}`, 'sermon');
+          }
+        });
+      }
+
+      const fellowships = currentContent.ministries?.houseFellowships;
+      if (Array.isArray(fellowships)) {
+        fellowships.forEach((item, index) => {
+          if (!item.id) {
+            item.id = this.slugifyStableId(item.name || `fellowship-${index + 1}`, 'fellowship');
+          }
+        });
       }
     },
 
@@ -257,7 +307,8 @@
             isSundaySchool: true,
             quarter: l.quarter || pubs.sundaySchoolDetails.quarter || 'Quarter 3, 2026',
             lessonNum: l.lessonNumber ? `Lesson ${l.lessonNumber}` : (l.lessonNum || 'Lesson'),
-            date: l.dateDisplay || l.date || '2026',
+            date: l.date || l.dateDisplay || '2026',
+            dateDisplay: l.dateDisplay || l.date || '2026',
             duration: l.duration || '45 Minutes',
             memoryVerse: verseText,
             verseRef: verseRef,
@@ -342,6 +393,21 @@
       return items;
     },
 
+    getMinistryPlacement(key, detail = {}) {
+      const groups = currentContent.ministries?.groups || [];
+      const group = groups.find(entry => Array.isArray(entry.items) && entry.items.includes(key));
+      if (group) return group.id;
+
+      const href = detail.href || `${key}.html`;
+      const isChapel = (currentContent.chapels?.current || []).some(chapel =>
+        chapel.href === href ||
+        String(chapel.name || '').toLowerCase() === String(detail.title || detail.shortTitle || '').toLowerCase()
+      );
+      if (isChapel || String(detail.category || '').toLowerCase().includes('chapel')) return 'chapels';
+
+      return 'detail-only';
+    },
+
     /**
      * Helper to aggregate ALL ministry items across items array and key-value entries in currentContent.ministries.
      */
@@ -370,6 +436,7 @@
               leaders: obj.leaders || [],
               functionsTitle: obj.functionsTitle || 'Ministry functions',
               functions: obj.functions || [],
+              _placement: this.getMinistryPlacement(key, obj),
               _raw: obj
             });
           }
@@ -397,6 +464,7 @@
                 leaders: it.leaders || [],
                 functionsTitle: it.functionsTitle || 'Ministry functions',
                 functions: it.functions || [],
+                _placement: this.getMinistryPlacement(id, it),
                 _raw: it
               });
             }
@@ -425,6 +493,7 @@
               leaders: obj.leaders || [],
               functionsTitle: obj.functionsTitle || 'Ministry functions',
               functions: obj.functions || [],
+              _placement: this.getMinistryPlacement(key, obj),
               _raw: obj
             });
           }
@@ -543,6 +612,7 @@
       this.populateLeadershipHeaderForm();
       this.populateGivingForms();
       this.populateSiteSettingsForm();
+      this.populateAdvancedContentSections();
     },
 
     /**
@@ -673,11 +743,11 @@
       grid.innerHTML = items.map(item => `
         <div class="admin-item-card">
           <div class="admin-item-body">
-            <div class="admin-item-meta">🎙️ ${item.speaker || 'Preacher'} · ${item.date || ''}</div>
+            <div class="admin-item-meta">🎙️ ${item.speaker || 'Preacher'} · ${item.duration || item.date || ''}</div>
             <h3 class="admin-item-title">${item.title}</h3>
-            <p class="admin-item-desc">${item.summary || item.series || 'Sermon message.'}</p>
+            <p class="admin-item-desc">${item.summary || item.category || item.series || 'Sermon message.'}</p>
             <div class="admin-item-actions">
-              <span style="font-size: 0.8rem; color: var(--navy); font-weight: 600;">Series: ${item.series || 'General'}</span>
+              <span style="font-size: 0.8rem; color: var(--navy); font-weight: 600;">${item.category || item.series || 'General'}</span>
               <div class="admin-action-btn-group">
                 <button class="admin-icon-btn" title="Edit" onclick="AdminPortal.openItemModal('sermons', '${item.id}')">✏️</button>
                 <button class="admin-icon-btn danger" title="Delete" onclick="AdminPortal.deleteItem('sermons', '${item.id}')">🗑️</button>
@@ -706,10 +776,10 @@
       grid.innerHTML = items.map(item => `
         <div class="admin-item-card">
           <div class="admin-item-body">
-            <div class="admin-item-meta">📅 ${item.date || 'Upcoming'} · ${item.time || ''}</div>
+            <div class="admin-item-meta">📅 ${item.startDate || item.date || 'Upcoming'} · ${item.startTime || item.time || ''}</div>
             <h3 class="admin-item-title">${item.title}</h3>
             <p class="admin-item-desc">${item.description || 'Church Event'}</p>
-            <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem;">📍 Venue: <strong>${item.venue || 'Main Auditorium'}</strong></div>
+            <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem;">📍 Venue: <strong>${item.location || item.venue || 'Main Auditorium'}</strong></div>
             <div class="admin-item-actions">
               <span class="admin-nav-badge">${item.category || 'Event'}</span>
               <div class="admin-action-btn-group">
@@ -1395,6 +1465,336 @@
     },
 
     /* ======================================================================
+       Repository → CMS Standardization
+       ====================================================================== */
+
+    getStableItemKey(item) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) return null;
+
+      const candidateKeys = [
+        'id', 'slug', 'key', 'href', 'issue', 'name', 'title',
+        'date', 'label', 'reference'
+      ];
+
+      for (const key of candidateKeys) {
+        const value = item[key];
+        if (value !== undefined && value !== null && String(value).trim() !== '') {
+          return `${key}:${String(value).trim()}`;
+        }
+      }
+
+      return null;
+    },
+
+    standardizeContentValue(repositoryValue, liveValue) {
+      // Existing live scalar values win. Repository values fill gaps.
+      if (liveValue === undefined || liveValue === null) {
+        return typeof structuredClone === 'function'
+          ? structuredClone(repositoryValue)
+          : JSON.parse(JSON.stringify(repositoryValue));
+      }
+
+      if (
+        repositoryValue &&
+        liveValue &&
+        typeof repositoryValue === 'object' &&
+        typeof liveValue === 'object' &&
+        !Array.isArray(repositoryValue) &&
+        !Array.isArray(liveValue)
+      ) {
+        const result = {};
+
+        Object.keys(repositoryValue).forEach(key => {
+          result[key] = this.standardizeContentValue(
+            repositoryValue[key],
+            liveValue[key]
+          );
+        });
+
+        Object.keys(liveValue).forEach(key => {
+          if (!Object.prototype.hasOwnProperty.call(result, key)) {
+            result[key] = liveValue[key];
+          }
+        });
+
+        return result;
+      }
+
+      if (Array.isArray(repositoryValue) && Array.isArray(liveValue)) {
+        const repositoryObjects = repositoryValue.every(
+          item => item && typeof item === 'object' && !Array.isArray(item)
+        );
+        const liveObjects = liveValue.every(
+          item => item && typeof item === 'object' && !Array.isArray(item)
+        );
+
+        // Object arrays: merge matching items while preserving repository items
+        // that may be missing from an older CMS dataset.
+        if (repositoryObjects && liveObjects) {
+          const liveByKey = new Map();
+          liveValue.forEach(item => {
+            const stableKey = this.getStableItemKey(item);
+            if (stableKey) liveByKey.set(stableKey, item);
+          });
+
+          const usedLiveKeys = new Set();
+          const merged = repositoryValue.map(repoItem => {
+            const stableKey = this.getStableItemKey(repoItem);
+            const liveItem = stableKey ? liveByKey.get(stableKey) : undefined;
+
+            if (liveItem && stableKey) {
+              usedLiveKeys.add(stableKey);
+              return this.standardizeContentValue(repoItem, liveItem);
+            }
+
+            return repoItem;
+          });
+
+          // Keep CMS-only objects too.
+          liveValue.forEach(liveItem => {
+            const stableKey = this.getStableItemKey(liveItem);
+            if (!stableKey || !usedLiveKeys.has(stableKey)) {
+              const duplicate = stableKey && merged.some(
+                item => this.getStableItemKey(item) === stableKey
+              );
+              if (!duplicate) merged.push(liveItem);
+            }
+          });
+
+          return merged;
+        }
+
+        // Primitive / mixed arrays: union them so repository values are not lost,
+        // while still retaining live CMS additions.
+        const result = [...repositoryValue];
+        liveValue.forEach(item => {
+          const serialized = JSON.stringify(item);
+          if (!result.some(existing => JSON.stringify(existing) === serialized)) {
+            result.push(item);
+          }
+        });
+        return result;
+      }
+
+      return liveValue;
+    },
+
+    async standardizeCmsFromRepository() {
+      if (!global.ContentService) {
+        this.showToast('ContentService is unavailable.', 'error');
+        return;
+      }
+
+      const proceed = window.confirm(
+        'This will standardize every CMS section using the repository site-content.json as the baseline. ' +
+        'Existing live Supabase values will be preserved where they already exist, while missing fields and items will be added. Continue?'
+      );
+      if (!proceed) return;
+
+      const status = document.getElementById('cmsMigrationStatus');
+      if (status) {
+        status.hidden = false;
+        status.className = 'admin-migration-status running';
+        status.textContent = 'Preparing CMS standardization…';
+      }
+
+      try {
+        const repositoryContent = await global.ContentService.fetchLocalFallback();
+        const sectionKeys = Object.keys(repositoryContent).filter(key => key !== '_source');
+
+        let liveSections = {};
+        try {
+          liveSections = await global.ContentService.fetchSectionsFromDB(sectionKeys);
+        } catch (err) {
+          console.warn('[AdminPortal] Could not fetch all live sections before standardization. Missing sections will be created.', err);
+        }
+
+        const standardizedContent = {};
+        const results = [];
+
+        for (let index = 0; index < sectionKeys.length; index++) {
+          const sectionKey = sectionKeys[index];
+          const repositorySection = repositoryContent[sectionKey];
+          const liveSection = liveSections?.[sectionKey];
+
+          const standardizedSection = this.standardizeContentValue(
+            repositorySection,
+            liveSection
+          );
+
+          if (status) {
+            status.textContent = `Standardizing ${sectionKey} (${index + 1}/${sectionKeys.length})…`;
+          }
+
+          const ok = await this.syncSectionToSupabase(
+            sectionKey,
+            standardizedSection
+          );
+
+          results.push({ sectionKey, ok });
+          if (ok) standardizedContent[sectionKey] = standardizedSection;
+        }
+
+        // Keep the admin's in-memory model aligned with the successful migration.
+        currentContent = {
+          ...repositoryContent,
+          ...currentContent,
+          ...standardizedContent
+        };
+
+        this.renderAllViews();
+
+        const succeeded = results.filter(item => item.ok).length;
+        const failed = results.filter(item => !item.ok).map(item => item.sectionKey);
+
+        if (status) {
+          status.className = failed.length
+            ? 'admin-migration-status warning'
+            : 'admin-migration-status success';
+          status.innerHTML = failed.length
+            ? `<strong>Standardization partially completed.</strong> ${succeeded}/${results.length} sections saved. Failed: ${failed.join(', ')}.`
+            : `<strong>CMS standardized successfully.</strong> ${succeeded}/${results.length} sections were merged and saved.`;
+        }
+
+        if (failed.length) {
+          this.showToast(`CMS standardization completed with ${failed.length} failed section(s).`, 'error');
+        } else {
+          this.showToast('CMS standardization completed successfully.', 'success');
+        }
+      } catch (err) {
+        console.error('[AdminPortal] CMS standardization failed:', err);
+
+        if (status) {
+          status.hidden = false;
+          status.className = 'admin-migration-status error';
+          status.textContent = `Standardization failed: ${err.message}`;
+        }
+
+        this.showToast('CMS standardization failed. Check the browser console.', 'error');
+      }
+    },
+
+    /* ======================================================================
+       Advanced Content Editor
+       ====================================================================== */
+    populateAdvancedContentSections() {
+      if (typeof document === 'undefined') return;
+      const select = document.getElementById('advancedSectionSelect');
+      if (!select) return;
+
+      const preferredOrder = [
+        'site', 'navigation', 'home', 'about', 'chapels', 'sermons',
+        'publications', 'quickLinks', 'give', 'bibleCollege', 'ministries', 'events'
+      ];
+
+      const keys = [
+        ...preferredOrder.filter(key => Object.prototype.hasOwnProperty.call(currentContent, key)),
+        ...Object.keys(currentContent)
+          .filter(key => key !== '_source' && !preferredOrder.includes(key))
+          .sort()
+      ];
+
+      const previous = select.value;
+      select.innerHTML = keys.map(key => `<option value="${key}">${key}</option>`).join('');
+
+      const target = keys.includes(previous) ? previous : keys[0];
+      if (target) {
+        select.value = target;
+        this.loadAdvancedSection(target);
+      }
+    },
+
+    loadAdvancedSection(sectionKey) {
+      if (!sectionKey) return;
+      const editor = document.getElementById('advancedJsonEditor');
+      const name = document.getElementById('advancedSectionName');
+      if (!editor) return;
+
+      editor.value = JSON.stringify(currentContent[sectionKey] ?? {}, null, 2);
+      if (name) name.textContent = sectionKey;
+      this.validateAdvancedJson();
+    },
+
+    validateAdvancedJson() {
+      const editor = document.getElementById('advancedJsonEditor');
+      const status = document.getElementById('advancedValidationStatus');
+      if (!editor || !status) return false;
+
+      try {
+        JSON.parse(editor.value || '{}');
+        status.textContent = 'Valid JSON';
+        status.className = 'admin-advanced-validation valid';
+        return true;
+      } catch (err) {
+        status.textContent = `Invalid JSON: ${err.message}`;
+        status.className = 'admin-advanced-validation invalid';
+        return false;
+      }
+    },
+
+    formatAdvancedJson() {
+      const editor = document.getElementById('advancedJsonEditor');
+      if (!editor) return;
+
+      try {
+        editor.value = JSON.stringify(JSON.parse(editor.value || '{}'), null, 2);
+        this.validateAdvancedJson();
+      } catch (err) {
+        this.showToast('Fix the JSON syntax before formatting.', 'error');
+      }
+    },
+
+    async restoreAdvancedSectionFromLocal() {
+      const select = document.getElementById('advancedSectionSelect');
+      const editor = document.getElementById('advancedJsonEditor');
+      if (!select || !editor || !global.ContentService) return;
+
+      try {
+        const local = await global.ContentService.fetchLocalFallback();
+        const sectionKey = select.value;
+
+        if (!Object.prototype.hasOwnProperty.call(local, sectionKey)) {
+          this.showToast(`No local fallback exists for '${sectionKey}'.`, 'error');
+          return;
+        }
+
+        editor.value = JSON.stringify(local[sectionKey], null, 2);
+        this.validateAdvancedJson();
+        this.showToast(`Loaded repository fallback for '${sectionKey}'. Review it before saving.`, 'info');
+      } catch (err) {
+        console.error(err);
+        this.showToast('Could not load the repository fallback.', 'error');
+      }
+    },
+
+    async saveAdvancedSection() {
+      const select = document.getElementById('advancedSectionSelect');
+      const editor = document.getElementById('advancedJsonEditor');
+      if (!select || !editor) return;
+
+      const sectionKey = select.value;
+      let parsed;
+
+      try {
+        parsed = JSON.parse(editor.value || '{}');
+      } catch (err) {
+        this.validateAdvancedJson();
+        this.showToast('Cannot save: the JSON is invalid.', 'error');
+        return;
+      }
+
+      currentContent[sectionKey] = parsed;
+      const ok = await this.syncSectionToSupabase(sectionKey, parsed);
+      if (!ok) return;
+
+      this.renderAllViews();
+      const refreshed = document.getElementById('advancedSectionSelect');
+      if (refreshed) refreshed.value = sectionKey;
+      this.loadAdvancedSection(sectionKey);
+      this.showToast(`'${sectionKey}' saved to Supabase.`, 'success');
+    },
+
+    /* ======================================================================
        Search & Filter Handler
        ====================================================================== */
     filterItems(type) {
@@ -1485,10 +1885,120 @@
         if (sectionKey === 'publications') {
           item = this.getAllPublicationItems().find(i => i.id === itemId);
         } else if (sectionKey === 'sermons') {
-          item = (currentContent.sermons.items || []).find(i => i.id === itemId);
-        } else if (sectionKey === 'events') {
-          item = (currentContent.events.items || []).find(i => i.id === itemId);
-        } else if (sectionKey === 'fellowships') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>ID</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'sermon-' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Category</label>
+              <input type="text" id="modalField_category" class="admin-input" value="${item.category || item.series || 'General'}" placeholder="Faith Series">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Sermon Title</label>
+            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" required>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Preacher / Speaker</label>
+              <input type="text" id="modalField_speaker" class="admin-input" value="${item.speaker || 'Pastor'}">
+            </div>
+            <div class="admin-input-group">
+              <label>Duration</label>
+              <input type="text" id="modalField_duration" class="admin-input" value="${item.duration || ''}" placeholder="42 min">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Thumbnail / Cover Image URL</label>
+            <input type="text" id="modalField_image" class="admin-input" value="${item.image || ''}" placeholder="assets/... or https://...">
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Series (Optional)</label>
+              <input type="text" id="modalField_series" class="admin-input" value="${item.series || ''}" placeholder="General Sermons">
+            </div>
+            <div class="admin-input-group">
+              <label>Date (Optional)</label>
+              <input type="text" id="modalField_date" class="admin-input" value="${item.date || ''}" placeholder="2026-09-03">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Summary / Key Verse (Optional)</label>
+            <textarea id="modalField_summary" class="admin-textarea">${item.summary || ''}</textarea>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Audio URL (.mp3)</label>
+              <input type="text" id="modalField_audioUrl" class="admin-input" value="${item.audioUrl || ''}">
+            </div>
+            <div class="admin-input-group">
+              <label>Video / YouTube URL</label>
+              <input type="text" id="modalField_videoUrl" class="admin-input" value="${item.videoUrl || ''}">
+            </div>
+          </div>
+        `;
+      } else if (sectionKey === 'events') {
+        html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>ID</label>
+              <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'event-' + Date.now()}" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Category</label>
+              <input type="text" id="modalField_category" class="admin-input" value="${item.category || 'Church Event'}">
+            </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Event Title</label>
+            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" required>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Start Date</label>
+              <input type="date" id="modalField_startDate" class="admin-input" value="${item.startDate || item.date || ''}">
+            </div>
+            <div class="admin-input-group">
+              <label>End Date</label>
+              <input type="date" id="modalField_endDate" class="admin-input" value="${item.endDate || item.startDate || item.date || ''}">
+            </div>
+          </div>
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Start Time</label>
+              <input type="time" id="modalField_startTime" class="admin-input" value="${item.startTime || item.time || ''}">
+            </div>
+            <div class="admin-input-group">
+              <label>End Time</label>
+              <input type="time" id="modalField_endTime" class="admin-input" value="${item.endTime || ''}">
+            </div>
+          </div>
+          <div class="admin-modal-grid-2">
+            <label class="admin-check-row">
+              <input type="checkbox" id="modalField_allDay" ${item.allDay ? 'checked' : ''}>
+              <span>All-day event</span>
+            </label>
+            <label class="admin-check-row">
+              <input type="checkbox" id="modalField_published" ${item.published !== false ? 'checked' : ''}>
+              <span>Published</span>
+            </label>
+          </div>
+          <div class="admin-input-group">
+            <label>Location / Venue</label>
+            <input type="text" id="modalField_location" class="admin-input" value="${item.location || item.venue || 'Peculiar Cherubs, Kubwa'}">
+          </div>
+          <div class="admin-input-group">
+            <label>Description</label>
+            <textarea id="modalField_description" class="admin-textarea">${item.description || ''}</textarea>
+          </div>
+          <div class="admin-input-group">
+            <label>Source / Internal Note (Optional)</label>
+            <input type="text" id="modalField_source" class="admin-input" value="${item.source || ''}">
+          </div>
+        `;
+      } else if (sectionKey === 'fellowships') {
           item = (currentContent.ministries.houseFellowships || []).find(i => i.id === itemId || String(i.id) === String(itemId));
         } else if (sectionKey === 'ministries') {
           item = this.getAllMinistryItems().find(i => i.id === itemId);
@@ -1566,6 +2076,36 @@
     },
 
     /**
+     * Shows only the structured fields relevant to the selected publication type.
+     */
+    updatePublicationEntryFields() {
+      const category = document.getElementById('modalField_category')?.value || 'devotion';
+
+      document.querySelectorAll('[data-publication-entry-type]').forEach(section => {
+        const allowed = String(section.dataset.publicationEntryType || '')
+          .split(',')
+          .map(value => value.trim());
+
+        section.hidden = !allowed.includes(category);
+      });
+
+      const typeLabel = document.getElementById('publicationEntryTypeLabel');
+      if (typeLabel) {
+        const labels = {
+          devotion: 'Morning Devotion',
+          goodnews: 'Goodnews This Week',
+          'sunday-school': 'Sunday School Blog Post',
+          'Goodnews Weekly': 'Legacy Goodnews Issue',
+          Books: 'Book / General Publication',
+          Magazines: 'Magazine / General Publication'
+        };
+        typeLabel.textContent = labels[category] || 'Publication';
+      }
+
+      this.updateModalLivePreview();
+    },
+
+    /**
      * Dynamic form field generator based on content section schema
      */
     buildModalFormFields(sectionKey, item) {
@@ -1627,12 +2167,16 @@
               <div class="admin-modal-grid-2">
                 <div class="admin-input-group">
                   <label>Sunday Date</label>
-                  <input type="date" id="modalField_date" class="admin-input" value="${item.date || 'August 30, 2026'}">
+                  <input type="text" id="modalField_date" class="admin-input" value="${item.date || 'August 30, 2026'}" placeholder="August 30, 2026">
                 </div>
                 <div class="admin-input-group">
-                  <label>Lesson Duration & Class</label>
+                  <label>Lesson Duration</label>
                   <input type="text" id="modalField_duration" class="admin-input" value="${item.duration || '45 Minutes'}">
                 </div>
+              </div>
+              <div class="admin-input-group">
+                <label>Target Audience / Class</label>
+                <input type="text" id="modalField_targetAudience" class="admin-input" value="${item._raw?.targetAudience || item.targetAudience || ''}" placeholder="Adults, Youth & Teachers">
               </div>
             </div>
 
@@ -1737,61 +2281,376 @@
             </div>
           `;
         } else {
-          // Standard Publication Form
+          // Standardized Publication Entry Form
+          const raw = item._raw || item || {};
+          const category = raw.category || item.category || 'devotion';
+          const blocks = Array.isArray(raw.blocks) ? raw.blocks : [];
+          const details = raw.details || {};
+          const devotion = raw.devotion || {};
+          const goodnews = raw.goodnews || {};
+
+          const scriptureBlock = blocks.find(block => block.type === 'scripture') || {};
+          const headingBlock = blocks.find(block => block.type === 'heading') || {};
+          const leadBlock = blocks.find(block => block.type === 'lead') || {};
+          const calloutBlock = blocks.find(block => block.type === 'callout') || {};
+          const paragraphText = blocks
+            .filter(block => block.type === 'paragraph')
+            .map(block => block.text || '')
+            .filter(Boolean)
+            .join('\n\n');
+
+          const tagsText = Array.isArray(raw.tags) ? raw.tags.join(', ') : '';
+          const ministersText = Array.isArray(goodnews.nextWeekMinisters)
+            ? goodnews.nextWeekMinisters
+                .map(entry => `${entry.label || ''}: ${entry.value || ''}`)
+                .join('\n')
+            : '';
+          const meditationText = Array.isArray(goodnews.bibleMeditation)
+            ? goodnews.bibleMeditation
+                .map(entry => `${entry.day || ''}: ${entry.reading || ''}`)
+                .join('\n')
+            : '';
+
           html = `
-            <div style="background: #fafbfc; border: 1px solid var(--admin-border); padding: 0.85rem 1.25rem; border-radius: 14px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
-              <div style="font-weight: 700; color: var(--muted); font-size: 0.9rem;">
-                📄 Standard Publication Format
+            <div class="admin-publication-entry-banner">
+              <div>
+                <span class="admin-publication-entry-kicker">Structured Publication Entry</span>
+                <strong id="publicationEntryTypeLabel">Publication</strong>
+                <small>Shared publishing details first, then fields specific to the selected publication type.</small>
               </div>
               <button type="button" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.togglePublicationEditorFormat(true)">
-                📖 Switch to Sunday School Immersive Outline Editor
+                📖 Sunday School Immersive Editor
               </button>
             </div>
 
-            <div class="admin-modal-grid-2">
-              <div class="admin-input-group">
-                <label>ID</label>
-                <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'issue-' + Date.now()}" required>
+            <div class="admin-publication-entry-section">
+              <div class="admin-publication-entry-heading">
+                <span>1</span>
+                <div>
+                  <strong>Publishing details</strong>
+                  <small>These fields are standardized across Morning Devotion and Goodnews This Week.</small>
+                </div>
               </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Publication Type</label>
+                  <select id="modalField_category" class="admin-select" style="width:100%;"
+                    onchange="AdminPortal.updatePublicationEntryFields()">
+                    <option value="devotion" ${category === 'devotion' ? 'selected' : ''}>Morning Devotion</option>
+                    <option value="goodnews" ${category === 'goodnews' ? 'selected' : ''}>Goodnews This Week</option>
+                    <option value="sunday-school" ${category === 'sunday-school' ? 'selected' : ''}>Sunday School Blog Post</option>
+                    <option value="Goodnews Weekly" ${category === 'Goodnews Weekly' ? 'selected' : ''}>Legacy Goodnews Issue</option>
+                    <option value="Books" ${category === 'Books' ? 'selected' : ''}>Book / General Publication</option>
+                    <option value="Magazines" ${category === 'Magazines' ? 'selected' : ''}>Magazine / General Publication</option>
+                  </select>
+                </div>
+                <div class="admin-input-group">
+                  <label>Publish Date</label>
+                  <input type="date" id="modalField_date" class="admin-input"
+                    value="${raw.date || item.date || ''}">
+                </div>
+              </div>
+
               <div class="admin-input-group">
-                <label>Category</label>
-                <select id="modalField_category" class="admin-select" style="width:100%;">
-                  <option value="devotion" ${item.category === 'devotion' ? 'selected' : ''}>Morning Devotion</option>
-                  <option value="goodnews" ${item.category === 'goodnews' ? 'selected' : ''}>Goodnews Blog Post</option>
-                  <option value="sunday-school" ${item.category === 'sunday-school' ? 'selected' : ''}>Sunday School Blog Post</option>
-                  <option value="Goodnews Weekly" ${item.category === 'Goodnews Weekly' ? 'selected' : ''}>Legacy Goodnews Issue</option>
-                  <option value="Sunday School" ${item.category === 'Sunday School' ? 'selected' : ''}>Interactive Sunday School</option>
-                  <option value="Books" ${item.category === 'Books' ? 'selected' : ''}>Books</option>
-                  <option value="Magazines" ${item.category === 'Magazines' ? 'selected' : ''}>Magazines</option>
-                </select>
+                <label>Title</label>
+                <input type="text" id="modalField_title" class="admin-input"
+                  value="${raw.title || item.title || ''}" required
+                  placeholder="Publication title">
+              </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Publication ID</label>
+                  <input type="text" id="modalField_id" class="admin-input"
+                    value="${raw.id || item.id || 'publication-' + Date.now()}" required>
+                </div>
+                <div class="admin-input-group">
+                  <label>Slug / URL Name</label>
+                  <input type="text" id="modalField_slug" class="admin-input"
+                    value="${raw.slug || item.slug || ''}"
+                    placeholder="auto-generated-from-title">
+                </div>
+              </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Author / Publishing Team</label>
+                  <input type="text" id="modalField_author" class="admin-input"
+                    value="${raw.author || item.author || 'Peculiar Cherubs Publications'}">
+                </div>
+                <div class="admin-input-group">
+                  <label>Tags <small>(comma separated)</small></label>
+                  <input type="text" id="modalField_tags" class="admin-input"
+                    value="${tagsText}" placeholder="Mercy, Restoration, Prayer">
+                </div>
+              </div>
+
+              <div class="admin-input-group">
+                <label>Excerpt / Short Summary</label>
+                <textarea id="modalField_description" class="admin-textarea"
+                  placeholder="Short summary shown on publication cards.">${raw.excerpt || item.description || ''}</textarea>
+              </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Cover Theme</label>
+                  <select id="modalField_coverTheme" class="admin-select" style="width:100%;">
+                    <option value="navy" ${(raw.cover?.theme || '') === 'navy' ? 'selected' : ''}>Navy</option>
+                    <option value="yellow" ${(raw.cover?.theme || '') === 'yellow' ? 'selected' : ''}>Yellow</option>
+                    <option value="red" ${(raw.cover?.theme || '') === 'red' ? 'selected' : ''}>Red</option>
+                    <option value="sky" ${(raw.cover?.theme || '') === 'sky' ? 'selected' : ''}>Sky</option>
+                  </select>
+                </div>
+                <div class="admin-input-group">
+                  <label>Cover Monogram / Issue Number</label>
+                  <input type="text" id="modalField_coverMonogram" class="admin-input"
+                    value="${raw.cover?.monogram || ''}" placeholder="e.g. 19 or 32">
+                </div>
               </div>
             </div>
-            <div class="admin-input-group">
-              <label>Title</label>
-              <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" required>
-            </div>
-            <div class="admin-modal-grid-2">
-              <div class="admin-input-group">
-                <label>Author / Publisher</label>
-                <input type="text" id="modalField_author" class="admin-input" value="${item.author || 'Peculiar Cherubs Publications'}">
+
+            <!-- Morning Devotion -->
+            <div class="admin-publication-entry-section" data-publication-entry-type="devotion">
+              <div class="admin-publication-entry-heading">
+                <span>2</span>
+                <div>
+                  <strong>Scripture & reflection</strong>
+                  <small>The devotional body follows one consistent reading flow.</small>
+                </div>
               </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Key Verse Reference</label>
+                  <input type="text" id="modalField_devotionVerseRef" class="admin-input"
+                    value="${scriptureBlock.reference || devotion.keyVerse || ''}"
+                    placeholder="Isaiah 54:7">
+                </div>
+                <div class="admin-input-group">
+                  <label>Reading Time</label>
+                  <input type="text" id="modalField_readingTime" class="admin-input"
+                    value="${details.readingTime || '4 minutes'}">
+                </div>
+              </div>
+
               <div class="admin-input-group">
-                <label>Date / Year</label>
-                <input type="text" id="modalField_date" class="admin-input" value="${item.date || '2026'}">
+                <label>Key Verse Text</label>
+                <textarea id="modalField_devotionVerseText" class="admin-textarea"
+                  placeholder="Enter the scripture text.">${scriptureBlock.text || ''}</textarea>
+              </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Devotional Series</label>
+                  <input type="text" id="modalField_devotionSeries" class="admin-input"
+                    value="${details.series || ''}" placeholder="My Year of Great Mercies">
+                </div>
+                <div class="admin-input-group">
+                  <label>Reflection Heading</label>
+                  <input type="text" id="modalField_reflectionHeading" class="admin-input"
+                    value="${headingBlock.text || ''}" placeholder="Mercy does not abandon the story">
+                </div>
+              </div>
+
+              <div class="admin-input-group">
+                <label>Reflection Body <small>(separate paragraphs with a blank line)</small></label>
+                <textarea id="modalField_devotionArticleBody" class="admin-textarea admin-textarea-tall"
+                  placeholder="Write the devotional reflection here...">${paragraphText}</textarea>
+              </div>
+
+              <div class="admin-publication-subsection">
+                <strong>Today’s truth</strong>
+                <div class="admin-modal-grid-2">
+                  <div class="admin-input-group">
+                    <label>Truth / Callout Title</label>
+                    <input type="text" id="modalField_devotionCalloutTitle" class="admin-input"
+                      value="${calloutBlock.title || ''}" placeholder="Mercy gathers what pain scattered.">
+                  </div>
+                  <div class="admin-input-group">
+                    <label>Truth / Callout Text</label>
+                    <input type="text" id="modalField_devotionCalloutText" class="admin-input"
+                      value="${calloutBlock.text || ''}" placeholder="Receive God’s restoring grace...">
+                  </div>
+                </div>
+              </div>
+
+              <div class="admin-publication-subsection">
+                <strong>Response to the Word</strong>
+                <div class="admin-input-group">
+                  <label>Prayer</label>
+                  <textarea id="modalField_devotionPrayer" class="admin-textarea">${devotion.prayer || ''}</textarea>
+                </div>
+                <div class="admin-input-group">
+                  <label>Declaration</label>
+                  <textarea id="modalField_devotionDeclaration" class="admin-textarea">${devotion.declaration || ''}</textarea>
+                </div>
+                <div class="admin-input-group">
+                  <label>Action Point</label>
+                  <textarea id="modalField_devotionAction" class="admin-textarea">${devotion.actionPoint || ''}</textarea>
+                </div>
               </div>
             </div>
-            <div class="admin-input-group">
-              <label>Description / Subtitle</label>
-              <textarea id="modalField_description" class="admin-textarea">${item.description || ''}</textarea>
-            </div>
-            <div class="admin-modal-grid-2">
-              <div class="admin-input-group">
-                <label>Cover Image Path</label>
-                <input type="text" id="modalField_coverImage" class="admin-input" value="${item.coverImage || 'assets/hero/mother-church-brand.jpg'}">
+
+            <!-- Goodnews This Week -->
+            <div class="admin-publication-entry-section" data-publication-entry-type="goodnews">
+              <div class="admin-publication-entry-heading">
+                <span>2</span>
+                <div>
+                  <strong>Edition details & main message</strong>
+                  <small>Goodnews follows a consistent weekly-edition structure.</small>
+                </div>
               </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Volume</label>
+                  <input type="text" id="modalField_goodnewsVolume" class="admin-input"
+                    value="${details.volume || ''}" placeholder="21">
+                </div>
+                <div class="admin-input-group">
+                  <label>Issue</label>
+                  <input type="text" id="modalField_goodnewsIssue" class="admin-input"
+                    value="${details.issue || ''}" placeholder="32">
+                </div>
+              </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Edition / Week</label>
+                  <input type="text" id="modalField_goodnewsEdition" class="admin-input"
+                    value="${details.edition || ''}" placeholder="Week 28">
+                </div>
+                <div class="admin-input-group">
+                  <label>Key Text</label>
+                  <input type="text" id="modalField_goodnewsKeyText" class="admin-input"
+                    value="${details.keyText || ''}" placeholder="Romans 8:30">
+                </div>
+              </div>
+
               <div class="admin-input-group">
-                <label>PDF Download Path / URL</label>
-                <input type="text" id="modalField_pdfUrl" class="admin-input" value="${item.pdfUrl || ''}">
+                <label>Monthly Theme</label>
+                <input type="text" id="modalField_goodnewsMonthlyTheme" class="admin-input"
+                  value="${details.monthlyTheme || ''}">
+              </div>
+
+              <div class="admin-input-group">
+                <label>Occasion / Service Context</label>
+                <input type="text" id="modalField_goodnewsOccasion" class="admin-input"
+                  value="${details.occasion || ''}">
+              </div>
+
+              <div class="admin-input-group">
+                <label>Opening / Lead Paragraph</label>
+                <textarea id="modalField_goodnewsLead" class="admin-textarea admin-textarea-tall"
+                  placeholder="Opening greeting and introduction...">${leadBlock.text || ''}</textarea>
+              </div>
+
+              <div class="admin-input-group">
+                <label>Main Message <small>(separate paragraphs with a blank line)</small></label>
+                <textarea id="modalField_goodnewsArticleBody" class="admin-textarea admin-textarea-xl"
+                  placeholder="Enter the full Goodnews sermon/message body...">${paragraphText}</textarea>
+              </div>
+
+              <div class="admin-publication-subsection">
+                <strong>Sermon focus</strong>
+                <div class="admin-modal-grid-2">
+                  <div class="admin-input-group">
+                    <label>Focus Title</label>
+                    <input type="text" id="modalField_goodnewsCalloutTitle" class="admin-input"
+                      value="${calloutBlock.title || raw.title || ''}">
+                  </div>
+                  <div class="admin-input-group">
+                    <label>Focus Text / Key Text</label>
+                    <input type="text" id="modalField_goodnewsCalloutText" class="admin-input"
+                      value="${calloutBlock.text || (details.keyText ? 'Key text: ' + details.keyText : '')}">
+                  </div>
+                </div>
+              </div>
+
+              <div class="admin-publication-subsection">
+                <strong>Inside this edition</strong>
+                <div class="admin-modal-grid-2">
+                  <div class="admin-input-group">
+                    <label>Sunday School Topic</label>
+                    <input type="text" id="modalField_goodnewsSundayTopic" class="admin-input"
+                      value="${goodnews.sundaySchool?.topic || ''}">
+                  </div>
+                  <div class="admin-input-group">
+                    <label>Sunday School Text</label>
+                    <input type="text" id="modalField_goodnewsSundayText" class="admin-input"
+                      value="${goodnews.sundaySchool?.text || ''}">
+                  </div>
+                </div>
+
+                <div class="admin-modal-grid-2">
+                  <div class="admin-input-group">
+                    <label>Special Service Label</label>
+                    <input type="text" id="modalField_goodnewsServiceLabel" class="admin-input"
+                      value="${goodnews.specialService?.label || ''}" placeholder="Monthly Vigil">
+                  </div>
+                  <div class="admin-input-group">
+                    <label>Special Service Topic</label>
+                    <input type="text" id="modalField_goodnewsServiceTopic" class="admin-input"
+                      value="${goodnews.specialService?.topic || ''}">
+                  </div>
+                </div>
+
+                <div class="admin-modal-grid-2">
+                  <div class="admin-input-group">
+                    <label>Special Service Scripture</label>
+                    <input type="text" id="modalField_goodnewsServiceText" class="admin-input"
+                      value="${goodnews.specialService?.text || ''}">
+                  </div>
+                  <div class="admin-input-group">
+                    <label>Revivalist / Minister</label>
+                    <input type="text" id="modalField_goodnewsRevivalist" class="admin-input"
+                      value="${goodnews.specialService?.revivalist || ''}">
+                  </div>
+                </div>
+              </div>
+
+              <div class="admin-publication-subsection">
+                <strong>Next week’s ministers</strong>
+                <div class="admin-input-group">
+                  <label>One entry per line <small>Label: Name / Value</small></label>
+                  <textarea id="modalField_goodnewsMinisters" class="admin-textarea"
+                    placeholder="Minister for the Week: Evangelist...\nWorship Leader: ...">${ministersText}</textarea>
+                </div>
+              </div>
+
+              <div class="admin-publication-subsection">
+                <strong>Bible meditation</strong>
+                <div class="admin-input-group">
+                  <label>One entry per line <small>Day: Reading</small></label>
+                  <textarea id="modalField_goodnewsMeditation" class="admin-textarea"
+                    placeholder="Monday: Isaiah 32–34\nTuesday: Isaiah 35–37">${meditationText}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Other / legacy publication types -->
+            <div class="admin-publication-entry-section"
+              data-publication-entry-type="sunday-school,Goodnews Weekly,Books,Magazines">
+              <div class="admin-publication-entry-heading">
+                <span>2</span>
+                <div>
+                  <strong>General publication details</strong>
+                  <small>Used for legacy or non-standard publication formats.</small>
+                </div>
+              </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Cover Image Path</label>
+                  <input type="text" id="modalField_coverImage" class="admin-input"
+                    value="${item.coverImage || 'assets/hero/mother-church-brand.jpg'}">
+                </div>
+                <div class="admin-input-group">
+                  <label>PDF Download Path / URL</label>
+                  <input type="text" id="modalField_pdfUrl" class="admin-input"
+                    value="${item.pdfUrl || ''}">
+                </div>
               </div>
             </div>
           `;
@@ -1924,7 +2783,13 @@
             <div class="admin-input-group">
               <label>Category / Type</label>
               <select id="modalField_category" class="admin-select" style="width:100%;">
+                <option value="PDCM Chapel" ${(item.category || item.tag) === 'PDCM Chapel' ? 'selected' : ''}>PDCM Chapel</option>
+                <option value="Standalone PDCM Chapel" ${(item.category || item.tag) === 'Standalone PDCM Chapel' ? 'selected' : ''}>Standalone PDCM Chapel</option>
+                <option value="Mission Arm" ${(item.category || item.tag) === 'Mission Arm' ? 'selected' : ''}>Mission Arm</option>
+                <option value="Education and Formation" ${(item.category || item.tag) === 'Education and Formation' ? 'selected' : ''}>Education and Formation</option>
+                <option value="Education" ${(item.category || item.tag) === 'Education' ? 'selected' : ''}>Education</option>
                 <option value="Age-Grade Ministry" ${(item.category || item.tag) === 'Age-Grade Ministry' ? 'selected' : ''}>Age-Grade Ministry</option>
+                <option value="Community Fellowship" ${(item.category || item.tag) === 'Community Fellowship' ? 'selected' : ''}>Community Fellowship</option>
                 <option value="Community Outreach" ${(item.category || item.tag) === 'Community Outreach' ? 'selected' : ''}>Community Outreach</option>
                 <option value="Worship & Liturgy" ${(item.category || item.tag) === 'Worship & Liturgy' ? 'selected' : ''}>Worship & Liturgy</option>
                 <option value="Fellowship & Community" ${(item.category || item.tag) === 'Fellowship & Community' ? 'selected' : ''}>Fellowship & Community</option>
@@ -1936,6 +2801,16 @@
           <div class="admin-input-group">
             <label>Ministry Title</label>
             <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Children's Ministry" required>
+          </div>
+          <div class="admin-input-group">
+            <label>Where should this appear?</label>
+            <select id="modalField_placement" class="admin-select" style="width:100%;">
+              <option value="chapels" ${item._placement === 'chapels' ? 'selected' : ''}>CHAPELS — Current Chapel</option>
+              <option value="education" ${item._placement === 'education' ? 'selected' : ''}>MINISTRIES — Education & Formation</option>
+              <option value="age-grade" ${item._placement === 'age-grade' ? 'selected' : ''}>MINISTRIES — Age-Grade Ministries</option>
+              <option value="fellowship-outreach" ${item._placement === 'fellowship-outreach' ? 'selected' : ''}>MINISTRIES — Mission, Fellowship & Outreach</option>
+              <option value="detail-only" ${(!item._placement || item._placement === 'detail-only') ? 'selected' : ''}>Detail page only / Hidden from landing grids</option>
+            </select>
           </div>
           <div class="admin-input-group">
             <label>Summary / Subtitle</label>
@@ -2219,6 +3094,10 @@
       }
 
       container.innerHTML = html;
+
+      if (sectionKey === 'publications' && !editingState.isSundaySchool) {
+        this.updatePublicationEntryFields();
+      }
     },
 
     /**
@@ -2292,13 +3171,29 @@
             </div>
           `;
         } else {
-          // Standard Publication Preview
+          const category = getF('category') || 'devotion';
+          const labelMap = {
+            devotion: 'Morning Devotion',
+            goodnews: 'Goodnews This Week',
+            'sunday-school': 'Sunday School',
+            'Goodnews Weekly': 'Legacy Goodnews Issue',
+            Books: 'Book',
+            Magazines: 'Magazine'
+          };
+
+          const detailLine = category === 'devotion'
+            ? `${getF('devotionVerseRef') || 'Key verse'} · ${getF('readingTime') || 'Reading time'}`
+            : category === 'goodnews'
+              ? `${getF('goodnewsEdition') || 'Weekly edition'} · ${getF('goodnewsKeyText') || 'Key text'}`
+              : (getF('date') || 'Publication');
+
           box.innerHTML = `
             <div class="card publication-card" style="border: 1px solid var(--admin-border); border-radius: 16px; overflow: hidden; background: #fff;">
               <div style="padding: 1.25rem;">
-                <span class="eyebrow">${getF('category') || 'Goodnews Weekly'}</span>
-                <h4 style="font-family: Fraunces, serif; font-size: 1.2rem; color: var(--navy); margin: 0.4rem 0;">${getF('title') || 'Sample Title'}</h4>
-                <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem;">${getF('description') || 'Publication description preview...'}</p>
+                <span class="eyebrow">${labelMap[category] || category}</span>
+                <h4 style="font-family: Fraunces, serif; font-size: 1.2rem; color: var(--navy); margin: 0.4rem 0;">${getF('title') || 'Publication Title'}</h4>
+                <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem;">${getF('description') || 'Publication excerpt preview...'}</p>
+                <div style="font-size: 0.78rem; color: var(--red); font-weight: 700; margin-bottom: .4rem;">${detailLine}</div>
                 <div style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">Author: ${getF('author') || 'Peculiar Cherubs Publications'}</div>
               </div>
             </div>
@@ -2307,19 +3202,19 @@
       } else if (sec === 'sermons') {
         box.innerHTML = `
           <div style="border: 1px solid var(--admin-border); border-radius: 16px; padding: 1.25rem; background: #fff;">
-            <span class="eyebrow">🎙️ ${getF('series') || 'Sermon'}</span>
+            <span class="eyebrow">🎙️ ${getF('category') || getF('series') || 'Sermon'}</span>
             <h4 style="font-family: Fraunces, serif; font-size: 1.2rem; color: var(--navy); margin: 0.4rem 0;">${getF('title') || 'Sermon Title'}</h4>
-            <div style="font-size: 0.85rem; color: var(--muted);">${getF('summary') || 'Sermon summary preview...'}</div>
+            <div style="font-size: 0.85rem; color: var(--muted);">${getF('summary') || getF('duration') || 'Sermon preview...'}</div>
             <div style="margin-top: 0.75rem; font-size: 0.8rem; font-weight: 700; color: var(--red);">Preacher: ${getF('speaker') || 'Pastor'}</div>
           </div>
         `;
       } else if (sec === 'events') {
         box.innerHTML = `
           <div style="border: 1px solid var(--admin-border); border-radius: 16px; padding: 1.25rem; background: #fff;">
-            <span class="eyebrow">📅 ${getF('date') || 'Date'}</span>
+            <span class="eyebrow">📅 ${getF('startDate') || 'Date'} ${getF('startTime') ? '· ' + getF('startTime') : ''}</span>
             <h4 style="font-family: Fraunces, serif; font-size: 1.2rem; color: var(--navy); margin: 0.4rem 0;">${getF('title') || 'Event Title'}</h4>
             <p style="font-size: 0.85rem; color: var(--muted);">${getF('description') || 'Event details preview...'}</p>
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">📍 ${getF('venue') || 'Cathedral'}</div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">📍 ${getF('location') || 'Peculiar Cherubs, Kubwa'}</div>
           </div>
         `;
       } else if (sec === 'ministries') {
@@ -2468,8 +3363,9 @@
       const isSS = editingState.isSundaySchool;
       const getF = (f) => {
         const el = document.getElementById(`modalField_${f}`);
-        return el ? el.value.trim() : '';
+        return el ? String(el.value ?? '').trim() : '';
       };
+      const getChecked = (f) => Boolean(document.getElementById(`modalField_${f}`)?.checked);
 
       const id = getF('id') || 'id_' + Date.now();
 
@@ -2477,7 +3373,7 @@
         if (!currentContent.publications) currentContent.publications = {};
 
         if (isSS) {
-          // Save into sundaySchoolDetails.lessons
+          // Save into sundaySchoolDetails.lessons while preserving rich fields
           if (!currentContent.publications.sundaySchoolDetails) {
             currentContent.publications.sundaySchoolDetails = { lessons: {} };
           }
@@ -2485,53 +3381,110 @@
             currentContent.publications.sundaySchoolDetails.lessons = {};
           }
 
-          const outlineRows = document.querySelectorAll('.admin-ss-outline-row');
-          const outlines = Array.from(outlineRows).map((row, idx) => ({
-            number: String(idx + 1).padStart(2, '0'),
-            title: row.querySelector('.ss-outline-title')?.value.trim() || `Point ${idx + 1}`,
-            summary: row.querySelector('.ss-outline-title')?.value.trim() || '',
-            text: row.querySelector('.ss-outline-text')?.value.trim() || '',
-            points: (row.querySelector('.ss-outline-text')?.value.trim() || '').split('\n').filter(Boolean)
-          })).filter(o => o.title || o.text);
+          const lessonsStore = currentContent.publications.sundaySchoolDetails.lessons;
+          let existingLesson = editingState.itemData?._raw || {};
+          if (Array.isArray(lessonsStore)) {
+            existingLesson = lessonsStore.find(l => l.id === editingState.itemId || l.id === id) || existingLesson;
+          } else if (editingState.itemId && lessonsStore[editingState.itemId]) {
+            existingLesson = lessonsStore[editingState.itemId];
+          } else if (lessonsStore[id]) {
+            existingLesson = lessonsStore[id];
+          }
 
-          const lessonNumClean = getF('lessonNum') ? parseInt(getF('lessonNum').replace(/\D/g, '')) || 35 : 35;
+          const existingOutlines = Array.isArray(existingLesson.outlines) ? existingLesson.outlines : [];
+          const outlineRows = document.querySelectorAll('.admin-ss-outline-row');
+          const outlines = Array.from(outlineRows).map((row, idx) => {
+            const previous = existingOutlines[idx] || {};
+            const title = row.querySelector('.ss-outline-title')?.value.trim() || previous.title || `Point ${idx + 1}`;
+            const text = row.querySelector('.ss-outline-text')?.value.trim() || '';
+            return {
+              ...previous,
+              number: previous.number || String(idx + 1).padStart(2, '0'),
+              title,
+              summary: previous.summary || title,
+              text,
+              points: text ? text.split('\n').map(line => line.trim()).filter(Boolean) : (previous.points || [])
+            };
+          }).filter(o => o.title || o.text || (o.points && o.points.length));
+
+          const lessonNumClean = getF('lessonNum')
+            ? parseInt(getF('lessonNum').replace(/\D/g, '')) || existingLesson.lessonNumber || 35
+            : existingLesson.lessonNumber || 35;
+
+          const references = getF('scriptures')
+            .split(';')
+            .map(value => value.trim())
+            .filter(Boolean);
+          const existingScriptures = Array.isArray(existingLesson.mainScriptures) ? existingLesson.mainScriptures : [];
+          const mainScriptures = references.length
+            ? references.map((reference, idx) => {
+                const previous = existingScriptures.find(s => s.reference === reference) || existingScriptures[idx] || {};
+                return {
+                  ...previous,
+                  reference,
+                  label: previous.label || `Scripture Reading ${idx + 1}`,
+                  text: previous.reference === reference ? (previous.text || '') : ''
+                };
+              })
+            : existingScriptures;
+
+          const discussionLines = getF('discussionQuestions').split('\n').map(q => q.trim()).filter(Boolean);
+          const existingQuestions = Array.isArray(existingLesson.discussionQuestions) ? existingLesson.discussionQuestions : [];
+          const discussionQuestions = discussionLines.map((question, idx) => ({
+            ...(existingQuestions[idx] || {}),
+            id: existingQuestions[idx]?.id || `q${idx + 1}`,
+            question
+          }));
+
+          const existingMemoryVerse = (existingLesson.memoryVerse && typeof existingLesson.memoryVerse === 'object')
+            ? existingLesson.memoryVerse
+            : {};
+          const existingTeacherNotes = (existingLesson.teacherNotes && typeof existingLesson.teacherNotes === 'object')
+            ? existingLesson.teacherNotes
+            : {};
 
           const lessonObj = {
-            id: id,
+            ...existingLesson,
+            id,
             lessonNumber: lessonNumClean,
-            date: getF('date') || '2026',
-            dateDisplay: getF('date') || '2026',
-            topic: getF('title'),
-            subtitle: getF('introduction') || getF('title'),
-            quarter: getF('quarter'),
+            date: getF('date') || existingLesson.date || '2026',
+            dateDisplay: getF('date') === existingLesson.date ? (existingLesson.dateDisplay || getF('date')) : (getF('date') || existingLesson.dateDisplay || existingLesson.date || '2026'),
+            topic: getF('title') || existingLesson.topic || '',
+            subtitle: existingLesson.subtitle || getF('introduction') || getF('title'),
+            quarter: getF('quarter') || existingLesson.quarter || currentContent.publications.sundaySchoolDetails.quarter || '',
             memoryVerse: {
+              ...existingMemoryVerse,
               text: getF('memoryVerse'),
               reference: getF('verseRef')
             },
-            mainScriptures: getF('scriptures') ? [{ reference: getF('scriptures'), label: "Main Scripture", text: getF('scriptures') }] : [],
-            targetAudience: getF('duration'),
-            duration: getF('duration'),
-            objectives: getF('objectives').split('\n').filter(Boolean),
+            mainScriptures,
+            targetAudience: getF('targetAudience') || existingLesson.targetAudience || 'General',
+            duration: getF('duration') || existingLesson.duration || '45 Minutes',
+            objectives: getF('objectives').split('\n').map(v => v.trim()).filter(Boolean),
             introduction: getF('introduction'),
-            outlines: outlines,
-            discussionQuestions: getF('discussionQuestions').split('\n').filter(Boolean).map((q, idx) => ({ id: `q${idx + 1}`, question: q })),
+            outlines,
+            discussionQuestions,
             teacherNotes: {
-              facilitatorTips: getF('teacherNotes').split('\n').filter(Boolean)
+              ...existingTeacherNotes,
+              facilitatorTips: getF('teacherNotes').split('\n').map(v => v.trim()).filter(Boolean)
             },
             lifeApplication: getF('lifeApplication'),
             audioUrl: getF('audioUrl'),
             pdfUrl: getF('pdfUrl')
           };
 
-          if (Array.isArray(currentContent.publications.sundaySchoolDetails.lessons)) {
-            const idx = currentContent.publications.sundaySchoolDetails.lessons.findIndex(l => l.id === id);
+          if (Array.isArray(lessonsStore)) {
+            const idx = lessonsStore.findIndex(l => l.id === editingState.itemId || l.id === id);
             if (idx >= 0) {
-              currentContent.publications.sundaySchoolDetails.lessons[idx] = lessonObj;
+              lessonsStore[idx] = lessonObj;
             } else {
-              currentContent.publications.sundaySchoolDetails.lessons.unshift(lessonObj);
+              lessonsStore.unshift(lessonObj);
             }
           } else {
-            currentContent.publications.sundaySchoolDetails.lessons[id] = lessonObj;
+            if (editingState.itemId && editingState.itemId !== id && lessonsStore[editingState.itemId]) {
+              delete lessonsStore[editingState.itemId];
+            }
+            lessonsStore[id] = lessonObj;
           }
         } else {
           // Save standard publication into items or archive/details
@@ -2560,6 +3513,39 @@
               .replace(/[^a-z0-9]+/g, '-')
               .replace(/^-+|-+$/g, '');
 
+            const parseParagraphs = value => String(value || '')
+              .split(/\n\s*\n/)
+              .map(text => text.trim())
+              .filter(Boolean);
+
+            const parseLabelValueLines = value => String(value || '')
+              .split('\n')
+              .map(line => line.trim())
+              .filter(Boolean)
+              .map(line => {
+                const separator = line.indexOf(':');
+                return separator >= 0
+                  ? {
+                      label: line.slice(0, separator).trim(),
+                      value: line.slice(separator + 1).trim()
+                    }
+                  : { label: line, value: '' };
+              });
+
+            const parseDayReadingLines = value => String(value || '')
+              .split('\n')
+              .map(line => line.trim())
+              .filter(Boolean)
+              .map(line => {
+                const separator = line.indexOf(':');
+                return separator >= 0
+                  ? {
+                      day: line.slice(0, separator).trim(),
+                      reading: line.slice(separator + 1).trim()
+                    }
+                  : { day: line, reading: '' };
+              });
+
             const typeMap = {
               devotion: 'Daily Morning Devotion',
               goodnews: 'Goodnews This Week',
@@ -2570,37 +3556,158 @@
               goodnews: 'goodnews',
               'sunday-school': 'sundaySchool'
             };
-            const themeMap = {
+            const defaultThemeMap = {
               devotion: 'navy',
               goodnews: 'yellow',
               'sunday-school': 'red'
             };
+            const defaultLabelMap = {
+              devotion: 'Morning Devotion',
+              goodnews: 'Goodnews This Week',
+              'sunday-school': 'Sunday School'
+            };
 
+            const title = getF('title');
             const description = getF('description');
+            const slug = getF('slug') || existing.slug || makeSlug(title) || id;
+            const tags = getF('tags')
+              ? getF('tags').split(',').map(tag => tag.trim()).filter(Boolean)
+              : (Array.isArray(existing.tags) ? existing.tags : []);
+            const articleParagraphs = parseParagraphs(
+              category === 'goodnews' ? getF('goodnewsArticleBody') : getF('devotionArticleBody')
+            );
+
+            let blocks = Array.isArray(existing.blocks) ? [...existing.blocks] : [];
+            let details = { ...(existing.details || {}) };
+            let devotionData = existing.devotion ? { ...existing.devotion } : undefined;
+            let goodnewsData = existing.goodnews ? { ...existing.goodnews } : undefined;
+
+            if (category === 'devotion') {
+              const verseRef = getF('devotionVerseRef');
+              const verseText = getF('devotionVerseText');
+              const reflectionHeading = getF('reflectionHeading');
+              const calloutTitle = getF('devotionCalloutTitle');
+              const calloutText = getF('devotionCalloutText');
+
+              blocks = [
+                ...(verseRef || verseText ? [{
+                  type: 'scripture',
+                  reference: verseRef,
+                  text: verseText
+                }] : []),
+                ...(reflectionHeading ? [{
+                  type: 'heading',
+                  text: reflectionHeading
+                }] : []),
+                ...articleParagraphs.map(text => ({ type: 'paragraph', text })),
+                ...(calloutTitle || calloutText ? [{
+                  type: 'callout',
+                  label: "Today's truth",
+                  title: calloutTitle,
+                  text: calloutText
+                }] : [])
+              ];
+
+              details = {
+                readingTime: getF('readingTime') || existing.details?.readingTime || '4 minutes',
+                series: getF('devotionSeries') || existing.details?.series || ''
+              };
+
+              devotionData = {
+                keyVerse: verseRef,
+                prayer: getF('devotionPrayer'),
+                declaration: getF('devotionDeclaration'),
+                actionPoint: getF('devotionAction')
+              };
+
+              goodnewsData = undefined;
+            }
+
+            if (category === 'goodnews') {
+              const lead = getF('goodnewsLead');
+              const calloutTitle = getF('goodnewsCalloutTitle') || title;
+              const calloutText = getF('goodnewsCalloutText') ||
+                (getF('goodnewsKeyText') ? `Key text: ${getF('goodnewsKeyText')}` : '');
+
+              blocks = [
+                ...(lead ? [{ type: 'lead', text: lead }] : []),
+                ...(calloutTitle || calloutText ? [{
+                  type: 'callout',
+                  label: 'Sermon focus',
+                  title: calloutTitle,
+                  text: calloutText
+                }] : []),
+                ...articleParagraphs.map(text => ({ type: 'paragraph', text }))
+              ];
+
+              details = {
+                volume: getF('goodnewsVolume'),
+                issue: getF('goodnewsIssue'),
+                edition: getF('goodnewsEdition'),
+                monthlyTheme: getF('goodnewsMonthlyTheme'),
+                occasion: getF('goodnewsOccasion'),
+                keyText: getF('goodnewsKeyText')
+              };
+
+              const sundayTopic = getF('goodnewsSundayTopic');
+              const sundayText = getF('goodnewsSundayText');
+              const serviceLabel = getF('goodnewsServiceLabel');
+              const serviceTopic = getF('goodnewsServiceTopic');
+              const serviceText = getF('goodnewsServiceText');
+              const revivalist = getF('goodnewsRevivalist');
+
+              goodnewsData = {
+                ...(sundayTopic || sundayText ? {
+                  sundaySchool: {
+                    topic: sundayTopic,
+                    text: sundayText
+                  }
+                } : {}),
+                ...(serviceLabel || serviceTopic || serviceText || revivalist ? {
+                  specialService: {
+                    label: serviceLabel,
+                    topic: serviceTopic,
+                    text: serviceText,
+                    revivalist: revivalist
+                  }
+                } : {}),
+                nextWeekMinisters: parseLabelValueLines(getF('goodnewsMinisters')),
+                bibleMeditation: parseDayReadingLines(getF('goodnewsMeditation'))
+              };
+
+              devotionData = undefined;
+            }
+
             const blogItem = {
               ...existing,
               id: id,
-              slug: existing.slug || editingState.itemData?.slug || makeSlug(getF('title')) || id,
-              type: existing.type || typeMap[category] || 'Publication',
+              slug: slug,
+              type: typeMap[category] || existing.type || 'Publication',
               category: category,
-              template: existing.template || templateMap[category] || '',
-              date: getF('date') || existing.date || '2026',
-              title: getF('title'),
+              template: templateMap[category] || existing.template || '',
+              date: getF('date') || existing.date || new Date().toISOString().slice(0, 10),
+              title: title,
               excerpt: description,
               author: getF('author') || existing.author || 'Peculiar Cherubs Publications',
               featured: Boolean(existing.featured),
-              tags: Array.isArray(existing.tags) ? existing.tags : [],
+              tags: tags,
               cover: {
                 ...(existing.cover || {}),
-                theme: existing.cover?.theme || themeMap[category] || 'navy',
-                label: existing.cover?.label || typeMap[category] || 'Publication',
-                monogram: existing.cover?.monogram || 'PC'
+                theme: getF('coverTheme') || existing.cover?.theme || defaultThemeMap[category] || 'navy',
+                label: defaultLabelMap[category] || existing.cover?.label || 'Publication',
+                monogram: getF('coverMonogram') || existing.cover?.monogram || 'PC'
               },
-              details: existing.details || {},
-              blocks: Array.isArray(existing.blocks) && existing.blocks.length
-                ? existing.blocks
-                : (description ? [{ type: 'paragraph', text: description }] : [])
+              details: details,
+              blocks: blocks
             };
+
+            if (category === 'devotion') {
+              blogItem.devotion = devotionData;
+              delete blogItem.goodnews;
+            } else if (category === 'goodnews') {
+              blogItem.goodnews = goodnewsData;
+              delete blogItem.devotion;
+            }
 
             if (existingIdx >= 0) {
               currentContent.publications.blog.posts[existingIdx] = blogItem;
@@ -2659,58 +3766,71 @@
           }
         }
 
-        await this.syncSectionToSupabase('publications', currentContent.publications);
+        if (!(await this.syncSectionToSupabase('publications', currentContent.publications))) return;
         this.renderAllViews();
       } else if (sec === 'sermons') {
         if (!currentContent.sermons) currentContent.sermons = { items: [] };
-        let items = currentContent.sermons.items || [];
+        const items = currentContent.sermons.items || [];
+        const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
+        const existing = existingIdx >= 0 ? items[existingIdx] : (editingState.itemData || {});
         const newItem = {
-          id: id,
+          ...existing,
+          id,
+          category: getF('category') || existing.category || getF('series') || 'General',
           title: getF('title'),
           speaker: getF('speaker'),
-          series: getF('series'),
-          date: getF('date'),
-          summary: getF('summary'),
-          audioUrl: getF('audioUrl'),
-          videoUrl: getF('videoUrl')
+          duration: getF('duration') || existing.duration || '',
+          image: getF('image') || existing.image || 'assets/hero/mother-church-brand.jpg',
+          series: getF('series') || existing.series || '',
+          date: getF('date') || existing.date || '',
+          summary: getF('summary') || existing.summary || '',
+          audioUrl: getF('audioUrl') || existing.audioUrl || '',
+          videoUrl: getF('videoUrl') || existing.videoUrl || ''
         };
 
-        const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
-        if (existingIdx >= 0) {
-          items[existingIdx] = newItem;
-        } else {
-          items.unshift(newItem);
-        }
+        if (existingIdx >= 0) items[existingIdx] = newItem;
+        else items.unshift(newItem);
         currentContent.sermons.items = items;
-        await this.syncSectionToSupabase('sermons', currentContent.sermons);
+        if (!(await this.syncSectionToSupabase('sermons', currentContent.sermons))) return;
         this.renderSermonsView();
       } else if (sec === 'events') {
         if (!currentContent.events) currentContent.events = { items: [] };
-        let items = currentContent.events.items || [];
-        const newItem = {
-          id: id,
-          title: getF('title'),
-          category: getF('category'),
-          date: getF('date'),
-          time: getF('time'),
-          venue: getF('venue'),
-          description: getF('description')
-        };
-
+        const items = currentContent.events.items || [];
         const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
-        if (existingIdx >= 0) {
-          items[existingIdx] = newItem;
-        } else {
-          items.unshift(newItem);
-        }
+        const existing = existingIdx >= 0 ? items[existingIdx] : (editingState.itemData || {});
+        const startDate = getF('startDate');
+        const newItem = {
+          ...existing,
+          id,
+          title: getF('title'),
+          category: getF('category') || existing.category || 'Church Event',
+          startDate,
+          endDate: getF('endDate') || startDate,
+          startTime: getF('startTime'),
+          endTime: getF('endTime'),
+          allDay: getChecked('allDay'),
+          location: getF('location'),
+          description: getF('description'),
+          published: getChecked('published'),
+          source: getF('source') || existing.source || ''
+        };
+        delete newItem.date;
+        delete newItem.time;
+        delete newItem.venue;
+
+        if (existingIdx >= 0) items[existingIdx] = newItem;
+        else items.unshift(newItem);
         currentContent.events.items = items;
-        await this.syncSectionToSupabase('events', currentContent.events);
+        if (!(await this.syncSectionToSupabase('events', currentContent.events))) return;
         this.renderEventsView();
       } else if (sec === 'fellowships') {
         if (!currentContent.ministries) currentContent.ministries = { houseFellowships: [] };
-        let items = currentContent.ministries.houseFellowships || [];
+        const items = currentContent.ministries.houseFellowships || [];
+        const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
+        const existing = existingIdx >= 0 ? items[existingIdx] : (editingState.itemData || {});
         const newItem = {
-          id: id,
+          ...existing,
+          id,
           name: getF('name'),
           area: getF('area'),
           host: getF('host'),
@@ -2718,77 +3838,105 @@
           schedule: getF('schedule')
         };
 
-        const existingIdx = items.findIndex(i => i.id === editingState.itemId || String(i.id) === String(editingState.itemId));
-        if (existingIdx >= 0) {
-          items[existingIdx] = newItem;
-        } else {
-          items.push(newItem);
-        }
+        if (existingIdx >= 0) items[existingIdx] = newItem;
+        else items.push(newItem);
         currentContent.ministries.houseFellowships = items;
-        await this.syncSectionToSupabase('ministries', currentContent.ministries);
+        if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
         this.renderFellowshipsView();
       } else if (sec === 'ministries') {
         if (!currentContent.ministries) currentContent.ministries = {};
+        if (!currentContent.ministries.details) currentContent.ministries.details = {};
+        if (!Array.isArray(currentContent.ministries.groups)) currentContent.ministries.groups = [];
+        if (!currentContent.chapels) currentContent.chapels = { current: [], upcoming: [] };
+        if (!Array.isArray(currentContent.chapels.current)) currentContent.chapels.current = [];
 
-        const id = getF('id') || 'ministry_' + Date.now();
+        const ministryId = getF('id') || 'ministry_' + Date.now();
+        const oldId = editingState.itemId;
         const category = getF('category') || 'Ministry';
         const title = getF('title') || 'Ministry Title';
         const subtitle = getF('subtitle') || '';
         const schedule = getF('schedule') || 'Regular Worship';
-        const href = getF('href') || '#';
+        const href = getF('href') || `${ministryId}.html`;
         const image = getF('image') || 'assets/hero/mother-church-brand.jpg';
+        const placement = getF('placement') || 'detail-only';
 
-        const leadersText = getF('leaders');
-        const leaders = leadersText.split('\n').filter(Boolean).map(line => {
+        const leaders = getF('leaders').split('\n').map(v => v.trim()).filter(Boolean).map(line => {
           const parts = line.split(':');
-          if (parts.length > 1) {
-            return { name: parts[0].trim(), role: parts.slice(1).join(':').trim() };
-          }
-          return { name: line.trim(), role: 'Leader' };
+          return parts.length > 1
+            ? { name: parts[0].trim(), role: parts.slice(1).join(':').trim() }
+            : { name: line.trim(), role: 'Leader' };
         });
-
-        const factsText = getF('facts');
-        const facts = factsText.split('\n').filter(Boolean).map(line => {
+        const facts = getF('facts').split('\n').map(v => v.trim()).filter(Boolean).map(line => {
           const parts = line.split(':');
-          if (parts.length > 1) {
-            return { label: parts[0].trim(), value: parts.slice(1).join(':').trim() };
-          }
-          return { label: 'Focus', value: line.trim() };
+          return parts.length > 1
+            ? { label: parts[0].trim(), value: parts.slice(1).join(':').trim() }
+            : { label: 'Focus', value: line.trim() };
         });
-
-        const functions = getF('functions').split('\n').filter(Boolean);
-        const overview = getF('overview').split('\n\n').filter(Boolean);
+        const functions = getF('functions').split('\n').map(v => v.trim()).filter(Boolean);
+        const overview = getF('overview').split(/\n\s*\n/).map(v => v.trim()).filter(Boolean);
+        const existing = currentContent.ministries.details[oldId] || currentContent.ministries.details[ministryId] || editingState.itemData?._raw || {};
 
         const ministryData = {
-          id: id,
-          href: href,
-          category: category,
+          ...existing,
+          id: ministryId,
+          href,
+          category,
           tag: category,
-          title: title,
-          shortTitle: title,
-          subtitle: subtitle,
+          title,
+          shortTitle: existing.shortTitle && existing.shortTitle !== existing.title ? existing.shortTitle : title,
+          subtitle,
           summary: subtitle,
           description: subtitle,
-          image: image,
-          schedule: schedule,
-          facts: facts,
-          overview: overview.length > 0 ? overview : [subtitle],
-          leaders: leaders,
-          functionsTitle: 'Ministry functions',
-          functions: functions
+          image,
+          schedule,
+          facts,
+          overview: overview.length ? overview : (existing.overview || [subtitle]),
+          leaders,
+          functionsTitle: existing.functionsTitle || 'Ministry functions',
+          functions
         };
 
-        currentContent.ministries[id] = ministryData;
+        if (oldId && oldId !== ministryId) {
+          delete currentContent.ministries.details[oldId];
+          currentContent.ministries.groups.forEach(group => {
+            if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== oldId);
+          });
+        }
+        currentContent.ministries.details[ministryId] = ministryData;
 
-        if (!currentContent.ministries.items) currentContent.ministries.items = [];
-        const existingIdx = currentContent.ministries.items.findIndex(i => i.id === id || i.id === editingState.itemId);
-        if (existingIdx >= 0) {
-          currentContent.ministries.items[existingIdx] = ministryData;
-        } else {
-          currentContent.ministries.items.push(ministryData);
+        currentContent.ministries.groups.forEach(group => {
+          if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== ministryId);
+        });
+        if (!['chapels', 'detail-only'].includes(placement)) {
+          const targetGroup = currentContent.ministries.groups.find(group => group.id === placement);
+          if (targetGroup) {
+            if (!Array.isArray(targetGroup.items)) targetGroup.items = [];
+            if (!targetGroup.items.includes(ministryId)) targetGroup.items.push(ministryId);
+          }
         }
 
-        await this.syncSectionToSupabase('ministries', currentContent.ministries);
+        const chapelIndex = currentContent.chapels.current.findIndex(chapel =>
+          chapel.href === existing.href || chapel.href === href ||
+          String(chapel.name || '').toLowerCase() === String(existing.title || '').toLowerCase()
+        );
+        if (placement === 'chapels') {
+          const previousChapel = chapelIndex >= 0 ? currentContent.chapels.current[chapelIndex] : {};
+          const chapelRecord = {
+            ...previousChapel,
+            name: title,
+            subtitle,
+            status: previousChapel.status || 'Current Chapel',
+            logo: previousChapel.logo || image,
+            href
+          };
+          if (chapelIndex >= 0) currentContent.chapels.current[chapelIndex] = chapelRecord;
+          else currentContent.chapels.current.push(chapelRecord);
+        } else if (chapelIndex >= 0) {
+          currentContent.chapels.current.splice(chapelIndex, 1);
+        }
+
+        if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
+        if (!(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
         this.renderMinistriesView();
       } else if (sec === 'leadership') {
         if (!currentContent.about) currentContent.about = {};
@@ -2816,7 +3964,7 @@
           currentContent.about.leadership.team.push(leaderObj);
         }
 
-        await this.syncSectionToSupabase('about', currentContent.about);
+        if (!(await this.syncSectionToSupabase('about', currentContent.about))) return;
         this.renderLeadershipView();
       } else if (sec === 'quickLinks') {
         if (!currentContent.quickLinks) currentContent.quickLinks = {};
@@ -2840,7 +3988,7 @@
           currentContent.quickLinks.links.push(newLink);
         }
 
-        await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+        if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
         this.renderQuickLinksView();
       } else if (sec === 'quickEvents') {
         if (!currentContent.quickLinks) currentContent.quickLinks = {};
@@ -2863,7 +4011,7 @@
           currentContent.quickLinks.events.push(newEvent);
         }
 
-        await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+        if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
         this.renderQuickLinksView();
       } else if (sec === 'giveAccounts') {
         if (!currentContent.give) currentContent.give = {};
@@ -2915,7 +4063,7 @@
           currentContent.give.bankAccounts.push(newAccount);
         }
 
-        await this.syncSectionToSupabase('give', currentContent.give);
+        if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
         this.renderGivingView();
       } else if (sec === 'giveProjects') {
         if (!currentContent.give) currentContent.give = {};
@@ -2939,7 +4087,7 @@
           currentContent.give.projects.push(newProject);
         }
 
-        await this.syncSectionToSupabase('give', currentContent.give);
+        if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
         this.renderGivingView();
       }
 
@@ -2988,29 +4136,44 @@
           pubs.items = pubs.items.filter(i => i.id !== itemId);
         }
 
-        await this.syncSectionToSupabase('publications', currentContent.publications);
+        if (!(await this.syncSectionToSupabase('publications', currentContent.publications))) return;
         this.renderAllViews();
       } else if (sectionKey === 'sermons') {
         currentContent.sermons.items = (currentContent.sermons.items || []).filter(i => i.id !== itemId);
-        await this.syncSectionToSupabase('sermons', currentContent.sermons);
+        if (!(await this.syncSectionToSupabase('sermons', currentContent.sermons))) return;
         this.renderSermonsView();
       } else if (sectionKey === 'events') {
         currentContent.events.items = (currentContent.events.items || []).filter(i => i.id !== itemId);
-        await this.syncSectionToSupabase('events', currentContent.events);
+        if (!(await this.syncSectionToSupabase('events', currentContent.events))) return;
         this.renderEventsView();
       } else if (sectionKey === 'fellowships') {
         currentContent.ministries.houseFellowships = (currentContent.ministries.houseFellowships || []).filter((i, idx) => i.id !== itemId && String(idx) !== String(itemId));
-        await this.syncSectionToSupabase('ministries', currentContent.ministries);
+        if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
         this.renderFellowshipsView();
       } else if (sectionKey === 'ministries') {
         if (currentContent.ministries) {
-          if (currentContent.ministries[itemId]) {
-            delete currentContent.ministries[itemId];
+          const detailHref = currentContent.ministries.details?.[itemId]?.href || `${itemId}.html`;
+          if (currentContent.ministries.details) {
+            delete currentContent.ministries.details[itemId];
+          }
+          if (Array.isArray(currentContent.ministries.groups)) {
+            currentContent.ministries.groups.forEach(group => {
+              if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== itemId);
+            });
           }
           if (Array.isArray(currentContent.ministries.items)) {
             currentContent.ministries.items = currentContent.ministries.items.filter(i => i.id !== itemId);
           }
-          await this.syncSectionToSupabase('ministries', currentContent.ministries);
+          if (currentContent.ministries[itemId]) delete currentContent.ministries[itemId];
+
+          if (Array.isArray(currentContent.chapels?.current)) {
+            currentContent.chapels.current = currentContent.chapels.current.filter(chapel =>
+              chapel.href !== detailHref && chapel.href !== `${itemId}.html`
+            );
+          }
+
+          if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
+          if (currentContent.chapels && !(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
         }
         this.renderMinistriesView();
       } else if (sectionKey === 'leadership') {
@@ -3018,7 +4181,7 @@
           currentContent.about.leadership.team = currentContent.about.leadership.team.filter(
             (p, idx) => p.id !== itemId && `leader_${idx}` !== itemId
           );
-          await this.syncSectionToSupabase('about', currentContent.about);
+          if (!(await this.syncSectionToSupabase('about', currentContent.about))) return;
           this.renderLeadershipView();
         }
       } else if (sectionKey === 'quickLinks') {
@@ -3026,7 +4189,7 @@
           currentContent.quickLinks.links = currentContent.quickLinks.links.filter(
             (l, idx) => l.id !== itemId && `ql_link_${idx}` !== itemId && String(idx) !== String(itemId)
           );
-          await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+          if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
           this.renderQuickLinksView();
         }
       } else if (sectionKey === 'quickEvents') {
@@ -3034,7 +4197,7 @@
           currentContent.quickLinks.events = currentContent.quickLinks.events.filter(
             (e, idx) => e.id !== itemId && `ql_event_${idx}` !== itemId && String(idx) !== String(itemId)
           );
-          await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+          if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
           this.renderQuickLinksView();
         }
       } else if (sectionKey === 'giveAccounts') {
@@ -3042,7 +4205,7 @@
           currentContent.give.bankAccounts = currentContent.give.bankAccounts.filter(
             (a, idx) => a.id !== itemId && `acc_${idx}` !== itemId && String(idx) !== String(itemId)
           );
-          await this.syncSectionToSupabase('give', currentContent.give);
+          if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
           this.renderGivingView();
         }
       } else if (sectionKey === 'giveProjects') {
@@ -3050,7 +4213,7 @@
           currentContent.give.projects = currentContent.give.projects.filter(
             (p, idx) => p.id !== itemId && `proj_${idx}` !== itemId && String(idx) !== String(itemId)
           );
-          await this.syncSectionToSupabase('give', currentContent.give);
+          if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
           this.renderGivingView();
         }
       }
@@ -3064,31 +4227,42 @@
      */
     async syncSectionToSupabase(sectionKey, sectionData) {
       const cfg = global.ContentService ? global.ContentService.config : null;
-      if (!cfg) return;
+      if (!cfg) {
+        this.showToast('ContentService configuration is unavailable.', 'error');
+        return false;
+      }
 
-      const endpoint = `${cfg.url}/rest/v1/${cfg.tableName}?key=eq.${encodeURIComponent(sectionKey)}`;
+      // UPSERT: update an existing section or create it if it does not exist.
+      const endpoint = `${cfg.url}/rest/v1/${cfg.tableName}?on_conflict=key`;
 
       try {
         const resp = await fetch(endpoint, {
-          method: 'PATCH',
+          method: 'POST',
           headers: {
             'apikey': cfg.anonKey,
             'Authorization': `Bearer ${cfg.anonKey}`,
             'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            'Prefer': 'resolution=merge-duplicates,return=minimal'
           },
           body: JSON.stringify({
+            key: sectionKey,
             data: sectionData
           })
         });
 
         if (!resp.ok) {
-          console.warn(`[AdminPortal] Supabase sync for '${sectionKey}' returned status ${resp.status}`);
-        } else {
-          console.log(`[AdminPortal] Successfully updated '${sectionKey}' in Supabase DB.`);
+          const detail = await resp.text().catch(() => '');
+          console.warn(`[AdminPortal] Supabase upsert for '${sectionKey}' returned status ${resp.status}`, detail);
+          this.showToast(`Supabase save failed for '${sectionKey}' (${resp.status}).`, 'error');
+          return false;
         }
+
+        console.log(`[AdminPortal] Successfully upserted '${sectionKey}' in Supabase DB.`);
+        return true;
       } catch (err) {
         console.error(`[AdminPortal] Error syncing section '${sectionKey}' to Supabase:`, err);
+        this.showToast(`Could not save '${sectionKey}' to Supabase.`, 'error');
+        return false;
       }
     },
 

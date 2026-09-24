@@ -1,0 +1,54 @@
+{
+  "patch_name": "Peculiar Cherubs CMS Standardization & Migration",
+  "purpose": "Standardize Supabase CMS against current site-content.json without blindly overwriting live values.",
+  "source_of_truth_after_migration": "Supabase site_content table",
+  "fallback_after_migration": "content/site-content.json",
+  "standardization_behavior": {
+    "scalars": "existing live Supabase value wins; repository fills missing values",
+    "objects": "recursive key merge",
+    "object_arrays": "merge by stable identifiers and retain repository-only and CMS-only items",
+    "primitive_arrays": "union repository and live values",
+    "missing_rows": "created by Supabase UPSERT"
+  },
+  "publication_entry_standardization": {
+    "shared_fields": [
+      "category",
+      "date",
+      "title",
+      "id",
+      "slug",
+      "author",
+      "tags",
+      "excerpt",
+      "cover.theme",
+      "cover.monogram"
+    ],
+    "devotion_template": [
+      "keyVerse",
+      "scriptureText",
+      "readingTime",
+      "series",
+      "reflectionHeading",
+      "reflectionBody",
+      "callout",
+      "prayer",
+      "declaration",
+      "actionPoint"
+    ],
+    "goodnews_template": [
+      "volume",
+      "issue",
+      "edition",
+      "keyText",
+      "monthlyTheme",
+      "occasion",
+      "lead",
+      "messageBody",
+      "sermonFocus",
+      "sundaySchool",
+      "specialService",
+      "nextWeekMinisters",
+      "bibleMeditation"
+    ]
+  }
+}
