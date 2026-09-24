@@ -2111,10 +2111,30 @@
     },
     "defaultCurrency": "NGN",
     "currencies": [
-      { "code": "NGN", "label": "₦ NGN", "name": "Nigerian Naira", "isPrimary": true },
-      { "code": "USD", "label": "$ USD", "name": "US Dollar", "isPrimary": false },
-      { "code": "GBP", "label": "£ GBP", "name": "British Pound", "isPrimary": false },
-      { "code": "EUR", "label": "€ EUR", "name": "Euro", "isPrimary": false }
+      {
+        "code": "NGN",
+        "label": "₦ NGN",
+        "name": "Nigerian Naira",
+        "isPrimary": true
+      },
+      {
+        "code": "USD",
+        "label": "$ USD",
+        "name": "US Dollar",
+        "isPrimary": false
+      },
+      {
+        "code": "GBP",
+        "label": "£ GBP",
+        "name": "British Pound",
+        "isPrimary": false
+      },
+      {
+        "code": "EUR",
+        "label": "€ EUR",
+        "name": "Euro",
+        "isPrimary": false
+      }
     ],
     "bankAccounts": [
       {
@@ -2126,7 +2146,10 @@
         "accountNumber": "1012345678",
         "sortCode": "057150013",
         "narrationGuide": "Include your Full Name and Purpose (e.g., 'Ezekiel Ade - Tithe')",
-        "isPrimary": true
+        "isPrimary": true,
+        "entityType": "general",
+        "entityId": "general",
+        "entityName": "Mother Church / General"
       },
       {
         "id": "acc-ngn-2",
@@ -2137,7 +2160,10 @@
         "accountNumber": "0123456789",
         "sortCode": "058152062",
         "narrationGuide": "Use narration: 'YourName - Building Fund'",
-        "isPrimary": false
+        "isPrimary": false,
+        "entityType": "general",
+        "entityId": "general",
+        "entityName": "Mother Church / General"
       },
       {
         "id": "acc-usd",
@@ -2148,7 +2174,10 @@
         "accountNumber": "5070123456",
         "swiftCode": "ZEBLNGLA",
         "narrationGuide": "International wire transfers / diaspora giving. Include donor name.",
-        "isPrimary": false
+        "isPrimary": false,
+        "entityType": "general",
+        "entityId": "general",
+        "entityName": "Mother Church / General"
       },
       {
         "id": "acc-gbp",
@@ -2159,7 +2188,10 @@
         "accountNumber": "5080123456",
         "swiftCode": "ZEBLNGLA",
         "narrationGuide": "GBP wire transfers. Include donor name in reference.",
-        "isPrimary": false
+        "isPrimary": false,
+        "entityType": "general",
+        "entityId": "general",
+        "entityName": "Mother Church / General"
       },
       {
         "id": "acc-eur",
@@ -2170,6 +2202,93 @@
         "accountNumber": "5090123456",
         "swiftCode": "ZEBLNGLA",
         "narrationGuide": "Euro SEPA / international wire. Include donor name.",
+        "isPrimary": false,
+        "entityType": "general",
+        "entityId": "general",
+        "entityName": "Mother Church / General"
+      },
+      {
+        "id": "acc-gwarinpa",
+        "currency": "NGN",
+        "entityType": "chapel",
+        "entityId": "pdcm-gwarinpa",
+        "entityName": "PDCM Gwarinpa Chapel",
+        "title": "PDCM Gwarinpa Chapel Account",
+        "bankName": "Zenith Bank Plc",
+        "accountName": "Peculiar Cherubs Ministries - Gwarinpa",
+        "accountNumber": "1014567890",
+        "sortCode": "057150013",
+        "narrationGuide": "Include your Full Name and Purpose (e.g. Jane Doe - Gwarinpa Tithe)",
+        "isPrimary": false
+      },
+      {
+        "id": "acc-english",
+        "currency": "NGN",
+        "entityType": "chapel",
+        "entityId": "pdcm-english",
+        "entityName": "PDCM English Chapel",
+        "title": "PDCM English Chapel Account",
+        "bankName": "Guaranty Trust Bank (GTBank)",
+        "accountName": "Peculiar Cherubs Ministries - English Chapel",
+        "accountNumber": "0234567891",
+        "sortCode": "058152062",
+        "narrationGuide": "Use reference: YourName - English Chapel Offering",
+        "isPrimary": false
+      },
+      {
+        "id": "acc-byazhin",
+        "currency": "NGN",
+        "entityType": "chapel",
+        "entityId": "pdcm-byazhin",
+        "entityName": "PDCM Byazhin Chapel",
+        "title": "PDCM Byazhin Chapel Account",
+        "bankName": "First Bank of Nigeria",
+        "accountName": "Peculiar Cherubs Ministries - Byazhin",
+        "accountNumber": "2034567892",
+        "sortCode": "011151003",
+        "narrationGuide": "Use reference: YourName - Byazhin Giving",
+        "isPrimary": false
+      },
+      {
+        "id": "acc-mega-youth",
+        "currency": "NGN",
+        "entityType": "chapel",
+        "entityId": "pdcm-mega-youth",
+        "entityName": "PDCM Mega Youth Chapel",
+        "title": "PDCM Mega Youth Chapel Account",
+        "bankName": "Access Bank Plc",
+        "accountName": "Peculiar Cherubs Ministries - Mega Youth",
+        "accountNumber": "0104567893",
+        "sortCode": "044150149",
+        "narrationGuide": "Use reference: YourName - Mega Youth Tithe/Offering",
+        "isPrimary": false
+      },
+      {
+        "id": "acc-feeding",
+        "currency": "NGN",
+        "entityType": "ministry",
+        "entityId": "feeding-ministry",
+        "entityName": "Jesus Loves You Feeding Ministry",
+        "title": "Jesus Loves You Feeding Ministry Account",
+        "bankName": "Zenith Bank Plc",
+        "accountName": "Peculiar Cherubs - Feeding Ministry",
+        "accountNumber": "1018901234",
+        "sortCode": "057150013",
+        "narrationGuide": "Designated for community food outreaches and emergency relief. Narration: Feeding Ministry - Donor Name",
+        "isPrimary": false
+      },
+      {
+        "id": "acc-children-teen",
+        "currency": "NGN",
+        "entityType": "ministry",
+        "entityId": "children-ministry",
+        "entityName": "Children & Teenage Ministry",
+        "title": "Children & Teenage Ministry Account",
+        "bankName": "United Bank for Africa (UBA)",
+        "accountName": "Peculiar Cherubs - Youth & Children",
+        "accountNumber": "1023456789",
+        "sortCode": "033153513",
+        "narrationGuide": "Supports children Sunday school materials, camps, and teenage discipleship. Narration: Kids/Teens - Donor",
         "isPrimary": false
       }
     ],
@@ -2182,10 +2301,34 @@
       "Special Project"
     ],
     "amountPresets": {
-      "NGN": [2000, 5000, 10000, 25000, 50000],
-      "USD": [20, 50, 100, 250, 500],
-      "GBP": [20, 50, 100, 200, 400],
-      "EUR": [20, 50, 100, 200, 400]
+      "NGN": [
+        2000,
+        5000,
+        10000,
+        25000,
+        50000
+      ],
+      "USD": [
+        20,
+        50,
+        100,
+        250,
+        500
+      ],
+      "GBP": [
+        20,
+        50,
+        100,
+        200,
+        400
+      ],
+      "EUR": [
+        20,
+        50,
+        100,
+        200,
+        400
+      ]
     },
     "projects": [
       {

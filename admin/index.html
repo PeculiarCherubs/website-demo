@@ -791,13 +791,28 @@
             </button>
           </div>
 
-          <!-- Currency Filter Tabs -->
-          <div class="admin-currency-tabs" id="adminGivingCurrencyTabs">
-            <button type="button" class="admin-currency-tab active" data-curr-filter="ALL" onclick="AdminPortal.filterGivingAccounts('ALL')">All Accounts</button>
-            <button type="button" class="admin-currency-tab" data-curr-filter="NGN" onclick="AdminPortal.filterGivingAccounts('NGN')">₦ NGN</button>
-            <button type="button" class="admin-currency-tab" data-curr-filter="USD" onclick="AdminPortal.filterGivingAccounts('USD')">$ USD</button>
-            <button type="button" class="admin-currency-tab" data-curr-filter="GBP" onclick="AdminPortal.filterGivingAccounts('GBP')">£ GBP</button>
-            <button type="button" class="admin-currency-tab" data-curr-filter="EUR" onclick="AdminPortal.filterGivingAccounts('EUR')">€ EUR</button>
+          <!-- Filter Controls: Currency & Entity Scope -->
+          <div class="admin-filter-group" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: flex-end;">
+            <div>
+              <span class="admin-filter-group-label" style="display:block; margin-bottom: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Currency Filter:</span>
+              <div class="admin-currency-tabs" id="adminGivingCurrencyTabs" style="margin-bottom: 0;">
+                <button type="button" class="admin-currency-tab active" data-curr-filter="ALL" onclick="AdminPortal.filterGivingAccountsByCurrency('ALL')">All Currencies</button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="NGN" onclick="AdminPortal.filterGivingAccountsByCurrency('NGN')">₦ NGN</button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="USD" onclick="AdminPortal.filterGivingAccountsByCurrency('USD')">$ USD</button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="GBP" onclick="AdminPortal.filterGivingAccountsByCurrency('GBP')">£ GBP</button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="EUR" onclick="AdminPortal.filterGivingAccountsByCurrency('EUR')">€ EUR</button>
+              </div>
+            </div>
+
+            <div>
+              <span class="admin-filter-group-label" style="display:block; margin-bottom: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Expression Scope:</span>
+              <div class="admin-currency-tabs" id="adminGivingScopeTabs" style="margin-bottom: 0;">
+                <button type="button" class="admin-currency-tab active" data-scope-filter="ALL" onclick="AdminPortal.filterGivingAccountsByScope('ALL')">All Expressions</button>
+                <button type="button" class="admin-currency-tab" data-scope-filter="general" onclick="AdminPortal.filterGivingAccountsByScope('general')">🏛️ Mother Church</button>
+                <button type="button" class="admin-currency-tab" data-scope-filter="chapel" onclick="AdminPortal.filterGivingAccountsByScope('chapel')">📍 Branch Chapels</button>
+                <button type="button" class="admin-currency-tab" data-scope-filter="ministry" onclick="AdminPortal.filterGivingAccountsByScope('ministry')">🤝 Ministries &amp; Arms</button>
+              </div>
+            </div>
           </div>
 
           <div id="gridGivingAccounts" class="admin-cards-grid">

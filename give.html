@@ -91,6 +91,31 @@
             <p>Transfer directly to our official church bank accounts using your mobile banking app or online banking.</p>
           </div>
 
+          <!-- Entity Scope Filter Bar -->
+          <div class="give-scope-filter" aria-label="Expression scope selection">
+            <span class="give-filter-label">Target Expression:</span>
+            <div class="give-scope-pills" data-give-scope-pills>
+              <button type="button" class="give-scope-pill active" data-scope="ALL">All Accounts</button>
+              <button type="button" class="give-scope-pill" data-scope="general">Mother Church</button>
+              <button type="button" class="give-scope-pill" data-scope="chapel">Branch Chapels</button>
+              <button type="button" class="give-scope-pill" data-scope="ministry">Ministries &amp; Arms</button>
+            </div>
+          </div>
+
+          <!-- Specific Entity Dropdown Selector (Active when Chapel or Ministry is chosen) -->
+          <div class="give-sub-filter-row" id="give-sub-filter-row" style="display: none;">
+            <label for="give-sub-entity-select" class="give-filter-sublabel">Select Specific Location / Arm:</label>
+            <select id="give-sub-entity-select" class="give-sub-select">
+              <option value="ALL">Show All in this category</option>
+            </select>
+          </div>
+
+          <!-- Active Filter Announcement / Banner for Deep Links -->
+          <div class="give-filter-banner" id="give-filter-banner" style="display: none;">
+            <span class="give-filter-banner-text" id="give-filter-banner-text"></span>
+            <button type="button" class="give-banner-clear-btn" id="btn-clear-entity-filter">Show All Accounts ✕</button>
+          </div>
+
           <!-- Currency Selector Pills -->
           <div class="give-currency-filter" aria-label="Currency selection">
             <span class="give-currency-label">Select Currency:</span>

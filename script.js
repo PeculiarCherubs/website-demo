@@ -1799,9 +1799,105 @@ function renderGive(content) {
     });
   });
 
-  // 3. Bank Transfer Accounts & Currency Filter
+  // 3. Bank Transfer Accounts & Expression Scope Filtering
+  const scopePillsContainer = hub.querySelector("[data-give-scope-pills]");
+  const subFilterRow = document.getElementById("give-sub-filter-row");
+  const subEntitySelect = document.getElementById("give-sub-entity-select");
+  const filterBanner = document.getElementById("give-filter-banner");
+  const filterBannerText = document.getElementById("give-filter-banner-text");
+  const btnClearFilter = document.getElementById("btn-clear-entity-filter");
+
   const currencyPillsContainer = hub.querySelector("[data-give-currency-pills]");
   const accountsContainer = hub.querySelector("[data-give-accounts-list]");
+
+  // State
+  let activeScope = "ALL"; // 'ALL' | 'general' | 'chapel' | 'ministry'
+  let activeSubEntity = "ALL";
+  let highlightedAccountId = null;
+
+  // Derive unique Chapels & Ministries from data
+  const chapelMap = new Map();
+  const ministryMap = new Map();
+
+  // Known chapel references from chapels section
+  if (content.chapels && Array.isArray(content.chapels.current)) {
+    content.chapels.current.forEach(c => {
+      if (c.name) {
+        const slug = c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        chapelMap.set(slug, { id: slug, name: c.name });
+      }
+    });
+  }
+
+  // Register accounts into maps
+  bankAccounts.forEach(a => {
+    const scope = (a.entityType || "general").toLowerCase();
+    const entId = a.entityId || "general";
+    const entName = a.entityName || a.title;
+    if (scope === "chapel") {
+      chapelMap.set(entId, { id: entId, name: entName });
+    } else if (scope === "ministry") {
+      ministryMap.set(entId, { id: entId, name: entName });
+    }
+  });
+
+  const uniqueChapels = Array.from(chapelMap.values());
+  const uniqueMinistries = Array.from(ministryMap.values());
+
+  const renderScopeFilter = () => {
+    if (!scopePillsContainer) return;
+    scopePillsContainer.querySelectorAll(".give-scope-pill").forEach(pill => {
+      const scope = pill.getAttribute("data-scope");
+      pill.classList.toggle("active", scope === activeScope);
+    });
+
+    // Sub-filter dropdown
+    if (subFilterRow && subEntitySelect) {
+      if (activeScope === "chapel") {
+        subFilterRow.style.display = "flex";
+        subEntitySelect.innerHTML = `<option value="ALL">Show All Chapels</option>` +
+          uniqueChapels.map(c => `<option value="${escapeStr(c.id)}" ${activeSubEntity === c.id ? "selected" : ""}>${escapeStr(c.name)}</option>`).join("");
+      } else if (activeScope === "ministry") {
+        subFilterRow.style.display = "flex";
+        subEntitySelect.innerHTML = `<option value="ALL">Show All Ministries &amp; Arms</option>` +
+          uniqueMinistries.map(m => `<option value="${escapeStr(m.id)}" ${activeSubEntity === m.id ? "selected" : ""}>${escapeStr(m.name)}</option>`).join("");
+      } else {
+        subFilterRow.style.display = "none";
+      }
+    }
+  };
+
+  if (scopePillsContainer) {
+    scopePillsContainer.querySelectorAll(".give-scope-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        activeScope = pill.getAttribute("data-scope") || "ALL";
+        activeSubEntity = "ALL";
+        highlightedAccountId = null;
+        if (filterBanner) filterBanner.style.display = "none";
+        renderScopeFilter();
+        renderBankAccounts();
+      });
+    });
+  }
+
+  if (subEntitySelect) {
+    subEntitySelect.addEventListener("change", (e) => {
+      activeSubEntity = e.target.value;
+      highlightedAccountId = null;
+      renderBankAccounts();
+    });
+  }
+
+  if (btnClearFilter) {
+    btnClearFilter.addEventListener("click", () => {
+      activeScope = "ALL";
+      activeSubEntity = "ALL";
+      highlightedAccountId = null;
+      if (filterBanner) filterBanner.style.display = "none";
+      renderScopeFilter();
+      renderBankAccounts();
+    });
+  }
 
   const renderCurrencyPills = () => {
     if (!currencyPillsContainer) return;
@@ -1822,40 +1918,91 @@ function renderGive(content) {
 
   const renderBankAccounts = () => {
     if (!accountsContainer) return;
-    const filtered = bankAccounts.filter(a => (a.currency || "NGN").toUpperCase() === activeCurrency.toUpperCase());
+
+    const filtered = bankAccounts.filter(a => {
+      // 1. Currency filter
+      const currMatch = (a.currency || "NGN").toUpperCase() === activeCurrency.toUpperCase();
+      if (!currMatch) return false;
+
+      // 2. Scope filter
+      const scope = (a.entityType || "general").toLowerCase();
+      if (activeScope !== "ALL" && scope !== activeScope) {
+        return false;
+      }
+
+      // 3. Sub-entity filter
+      if (activeSubEntity !== "ALL") {
+        const entId = (a.entityId || "general").toLowerCase();
+        if (entId !== activeSubEntity.toLowerCase()) {
+          return false;
+        }
+      }
+
+      return true;
+    });
 
     if (!filtered.length) {
+      let emptyMsg = `No ${escapeStr(activeCurrency)} accounts found under this selection.`;
+      if (activeScope !== "ALL") {
+        emptyMsg += ` Switch to 'All Accounts' or select another currency to view available accounts.`;
+      }
       accountsContainer.innerHTML = `
         <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:1.5rem; text-align:center;">
           <p style="margin:0; color:rgba(255,255,255,0.7); font-size:0.9rem;">
-            No ${escapeStr(activeCurrency)} accounts currently listed. Please contact the church office for direct giving instructions.
+            ${emptyMsg}
           </p>
         </div>
       `;
       return;
     }
 
-    accountsContainer.innerHTML = filtered.map(a => `
-      <div class="give-account-card">
-        <div class="give-account-header">
-          <h4 class="give-account-title">${escapeStr(a.title || a.accountName)}</h4>
-          ${a.isPrimary ? '<span class="give-account-badge">Primary</span>' : ''}
+    accountsContainer.innerHTML = filtered.map(a => {
+      const scope = (a.entityType || "general").toLowerCase();
+      let badgeClass = "give-badge-general";
+      let badgeIcon = "🏛️";
+      let entityName = a.entityName || "Mother Church / General";
+
+      if (scope === "chapel") {
+        badgeClass = "give-badge-chapel";
+        badgeIcon = "📍";
+        entityName = a.entityName || "Branch Chapel";
+      } else if (scope === "ministry") {
+        badgeClass = "give-badge-ministry";
+        badgeIcon = "🤝";
+        entityName = a.entityName || "Ministry Arm";
+      }
+
+      const isHighlighted = highlightedAccountId && (a.id === highlightedAccountId || a.entityId === highlightedAccountId);
+
+      return `
+        <div class="give-account-card ${isHighlighted ? 'give-card-highlighted' : ''}" id="give-account-${escapeStr(a.id)}">
+          <div class="give-account-header">
+            <div>
+              <div class="give-account-badges">
+                <span class="give-entity-badge ${badgeClass}">
+                  ${badgeIcon} ${escapeStr(entityName)}
+                </span>
+                ${a.isPrimary ? '<span class="give-account-badge">Primary</span>' : ''}
+              </div>
+              <h4 class="give-account-title">${escapeStr(a.title || a.accountName)}</h4>
+            </div>
+          </div>
+          <div class="give-bank-name">${escapeStr(a.bankName)}</div>
+          <div class="give-number-row">
+            <span class="give-account-number">${escapeStr(a.accountNumber)}</span>
+            <button type="button" class="give-copy-btn" data-copy-val="${escapeStr(a.accountNumber)}" aria-label="Copy account number">
+              <span>📋 Copy</span>
+            </button>
+          </div>
+          <div class="give-account-meta-row">
+            <span>Account Name: <strong>${escapeStr(a.accountName)}</strong></span>
+            ${a.sortCode ? `<span>Sort Code: <strong>${escapeStr(a.sortCode)}</strong></span>` : ''}
+            ${a.swiftCode ? `<span>SWIFT / BIC: <strong>${escapeStr(a.swiftCode)}</strong></span>` : ''}
+          </div>
+          ${a.narrationGuide ? `<p class="give-account-guide">${escapeStr(a.narrationGuide)}</p>` : ''}
         </div>
-        <div class="give-bank-name">${escapeStr(a.bankName)}</div>
-        <div class="give-number-row">
-          <span class="give-account-number">${escapeStr(a.accountNumber)}</span>
-          <button type="button" class="give-copy-btn" data-copy-val="${escapeStr(a.accountNumber)}" aria-label="Copy account number">
-            <span>📋 Copy</span>
-          </button>
-        </div>
-        <div class="give-account-meta-row">
-          <span>Account Name: <strong>${escapeStr(a.accountName)}</strong></span>
-          ${a.sortCode ? `<span>Sort Code: <strong>${escapeStr(a.sortCode)}</strong></span>` : ''}
-          ${a.swiftCode ? `<span>SWIFT / BIC: <strong>${escapeStr(a.swiftCode)}</strong></span>` : ''}
-        </div>
-        ${a.narrationGuide ? `<p class="give-account-guide">${escapeStr(a.narrationGuide)}</p>` : ''}
-      </div>
-    `).join("");
+      `;
+    }).join("");
 
     // Wire up Copy Buttons
     accountsContainer.querySelectorAll(".give-copy-btn").forEach(btn => {
@@ -1902,6 +2049,53 @@ function renderGive(content) {
     });
   };
 
+  // URL Deep-Linking: check ?entity=, ?chapel=, ?ministry=, ?scope=
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetEntity = (urlParams.get("entity") || urlParams.get("chapel") || urlParams.get("ministry") || "").toLowerCase().trim();
+  const targetScope = (urlParams.get("scope") || "").toLowerCase().trim();
+
+  if (targetScope && ["general", "chapel", "ministry"].includes(targetScope)) {
+    activeScope = targetScope;
+  }
+
+  if (targetEntity) {
+    // Find matching account
+    const matchedAccount = bankAccounts.find(a => {
+      const eid = (a.entityId || "").toLowerCase();
+      const ename = (a.entityName || "").toLowerCase();
+      const aid = (a.id || "").toLowerCase();
+      return eid.includes(targetEntity) || ename.includes(targetEntity) || aid.includes(targetEntity);
+    });
+
+    if (matchedAccount) {
+      activeScope = (matchedAccount.entityType || "general").toLowerCase();
+      activeSubEntity = matchedAccount.entityId || "ALL";
+      if (matchedAccount.currency) {
+        activeCurrency = matchedAccount.currency.toUpperCase();
+      }
+      highlightedAccountId = matchedAccount.id;
+
+      if (filterBanner && filterBannerText) {
+        filterBannerText.innerHTML = `Showing direct giving details for <strong>${escapeStr(matchedAccount.entityName || matchedAccount.title)}</strong>`;
+        filterBanner.style.display = "flex";
+      }
+
+      // Automatically switch to bank-transfer tab
+      switchTab("bank-transfer");
+
+      // Smooth scroll to hub after layout paint
+      setTimeout(() => {
+        const cardElem = document.getElementById(`give-account-${matchedAccount.id}`);
+        if (cardElem) {
+          cardElem.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          hub.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 250);
+    }
+  }
+
+  renderScopeFilter();
   renderCurrencyPills();
   renderBankAccounts();
 
@@ -1916,9 +2110,31 @@ function renderGive(content) {
   // 4. Online Giving Form & Amount Presets
   const purposeSelect = document.getElementById("give-purpose");
   if (purposeSelect) {
-    purposeSelect.innerHTML = categories.map(cat => `
+    const generalOptions = categories.map(cat => `
       <option value="${escapeStr(cat)}">${escapeStr(cat)}</option>
     `).join("");
+
+    const chapelOptions = uniqueChapels.map(c => `
+      <option value="${escapeStr(c.name)}">${escapeStr(c.name)}</option>
+    `).join("");
+
+    const ministryOptions = uniqueMinistries.map(m => `
+      <option value="${escapeStr(m.name)}">${escapeStr(m.name)}</option>
+    `).join("");
+
+    purposeSelect.innerHTML = `
+      <optgroup label="General / Church-Wide Giving">
+        ${generalOptions}
+      </optgroup>
+      ${uniqueChapels.length ? `
+      <optgroup label="Branch Chapels">
+        ${chapelOptions}
+      </optgroup>` : ''}
+      ${uniqueMinistries.length ? `
+      <optgroup label="Ministries &amp; Outreach Arms">
+        ${ministryOptions}
+      </optgroup>` : ''}
+    `;
   }
 
   const onlineCurrencySelect = document.getElementById("give-online-currency");

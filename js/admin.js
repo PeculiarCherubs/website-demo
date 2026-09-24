@@ -493,6 +493,9 @@
       return accs.map((a, idx) => ({
         id: a.id || `acc_${idx}`,
         currency: a.currency || 'NGN',
+        entityType: a.entityType || 'general',
+        entityId: a.entityId || 'general',
+        entityName: a.entityName || (a.entityType === 'chapel' ? 'Branch Chapel' : (a.entityType === 'ministry' ? 'Ministry Arm' : 'Mother Church / General')),
         title: a.title || a.accountName || 'Bank Account',
         bankName: a.bankName || 'Bank',
         accountName: a.accountName || 'Peculiar Cherubs',
@@ -991,8 +994,11 @@
     /* ======================================================================
        Giving & Payment Gateway View
        ====================================================================== */
-    renderGivingView(currencyFilter = 'ALL') {
+    renderGivingView() {
       if (typeof document === 'undefined') return;
+
+      const currencyFilter = this.adminGivingCurrencyFilter || 'ALL';
+      const scopeFilter = this.adminGivingScopeFilter || 'ALL';
 
       // 1. Render Bank Accounts Grid
       const gridAccounts = document.getElementById('gridGivingAccounts');
@@ -1001,59 +1007,82 @@
         if (currencyFilter !== 'ALL') {
           accounts = accounts.filter(a => (a.currency || 'NGN').toUpperCase() === currencyFilter.toUpperCase());
         }
+        if (scopeFilter !== 'ALL') {
+          accounts = accounts.filter(a => (a.entityType || 'general').toLowerCase() === scopeFilter.toLowerCase());
+        }
 
         if (accounts.length === 0) {
           gridAccounts.innerHTML = `
             <div class="admin-empty-state" style="grid-column: 1 / -1; padding: 2.5rem; background: var(--white); border-radius: 16px; border: 1px dashed var(--admin-border); text-align: center;">
               <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏦</div>
-              <h4 style="margin: 0 0 0.25rem; color: var(--navy);">No Bank Accounts for ${currencyFilter}</h4>
-              <p style="color: var(--muted); font-size: 0.88rem; margin-bottom: 1rem;">Click below to register church account details for this currency.</p>
+              <h4 style="margin: 0 0 0.25rem; color: var(--navy);">No Bank Accounts Found</h4>
+              <p style="color: var(--muted); font-size: 0.88rem; margin-bottom: 1rem;">No accounts matching Currency: <strong>${currencyFilter}</strong> and Scope: <strong>${scopeFilter}</strong>.</p>
               <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('giveAccounts')">
                 + Add Bank Account
               </button>
             </div>
           `;
         } else {
-          gridAccounts.innerHTML = accounts.map(a => `
-            <div class="admin-account-item-card">
-              <div class="admin-account-item-header">
-                <div>
-                  <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.25rem;">
-                    <span style="font-weight: 800; font-size: 0.72rem; text-transform: uppercase; background: var(--navy); color: #fff; padding: 0.15rem 0.5rem; border-radius: 999px;">
-                      ${a.currency}
-                    </span>
-                    ${a.isPrimary ? '<span style="font-weight: 800; font-size: 0.72rem; text-transform: uppercase; background: #fef3c7; color: #92400e; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid #fde68a;">Primary Account</span>' : ''}
+          gridAccounts.innerHTML = accounts.map(a => {
+            const scope = (a.entityType || 'general').toLowerCase();
+            let badgeClass = 'admin-badge-general';
+            let badgeIcon = '🏛️';
+            let entName = a.entityName || 'Mother Church / General';
+
+            if (scope === 'chapel') {
+              badgeClass = 'admin-badge-chapel';
+              badgeIcon = '📍';
+              entName = a.entityName || 'Branch Chapel';
+            } else if (scope === 'ministry') {
+              badgeClass = 'admin-badge-ministry';
+              badgeIcon = '🤝';
+              entName = a.entityName || 'Ministry Arm';
+            }
+
+            return `
+              <div class="admin-account-item-card">
+                <div class="admin-account-item-header">
+                  <div>
+                    <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap;">
+                      <span style="font-weight: 800; font-size: 0.72rem; text-transform: uppercase; background: var(--navy); color: #fff; padding: 0.15rem 0.5rem; border-radius: 999px;">
+                        ${a.currency}
+                      </span>
+                      <span class="${badgeClass}">
+                        ${badgeIcon} ${entName}
+                      </span>
+                      ${a.isPrimary ? '<span style="font-weight: 800; font-size: 0.72rem; text-transform: uppercase; background: #fef3c7; color: #92400e; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid #fde68a;">Primary Account</span>' : ''}
+                    </div>
+                    <h4 style="margin: 0 0 0.2rem; font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--navy);">
+                      ${a.title}
+                    </h4>
+                    <div style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">
+                      ${a.bankName}
+                    </div>
                   </div>
-                  <h4 style="margin: 0 0 0.2rem; font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--navy);">
-                    ${a.title}
-                  </h4>
-                  <div style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">
-                    ${a.bankName}
+                  <div class="admin-card-actions">
+                    <button class="admin-icon-btn" title="Edit Account" onclick="AdminPortal.openItemModal('giveAccounts', '${a.id}')">✏️</button>
+                    <button class="admin-icon-btn delete" title="Delete Account" onclick="AdminPortal.deleteItem('giveAccounts', '${a.id}')">🗑️</button>
                   </div>
                 </div>
-                <div class="admin-card-actions">
-                  <button class="admin-icon-btn" title="Edit Account" onclick="AdminPortal.openItemModal('giveAccounts', '${a.id}')">✏️</button>
-                  <button class="admin-icon-btn delete" title="Delete Account" onclick="AdminPortal.deleteItem('giveAccounts', '${a.id}')">🗑️</button>
+
+                <div class="admin-account-number-display">
+                  ${a.accountNumber}
                 </div>
-              </div>
 
-              <div class="admin-account-number-display">
-                ${a.accountNumber}
-              </div>
-
-              <div style="font-size: 0.84rem; color: var(--navy);">
-                <strong>Account Name:</strong> ${a.accountName}
-                ${a.sortCode ? `<br><strong>Sort Code:</strong> ${a.sortCode}` : ''}
-                ${a.swiftCode ? `<br><strong>SWIFT / BIC:</strong> ${a.swiftCode}` : ''}
-              </div>
-
-              ${a.narrationGuide ? `
-                <div style="font-size: 0.78rem; color: var(--muted); background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--admin-border);">
-                  ℹ️ <em>${a.narrationGuide}</em>
+                <div style="font-size: 0.84rem; color: var(--navy);">
+                  <strong>Account Name:</strong> ${a.accountName}
+                  ${a.sortCode ? `<br><strong>Sort Code:</strong> ${a.sortCode}` : ''}
+                  ${a.swiftCode ? `<br><strong>SWIFT / BIC:</strong> ${a.swiftCode}` : ''}
                 </div>
-              ` : ''}
-            </div>
-          `).join('');
+
+                ${a.narrationGuide ? `
+                  <div style="font-size: 0.78rem; color: var(--muted); background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--admin-border);">
+                    ℹ️ <em>${a.narrationGuide}</em>
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('');
         }
       }
 
@@ -1099,11 +1128,100 @@
       }
     },
 
-    filterGivingAccounts(curr) {
+    filterGivingAccountsByCurrency(curr) {
+      this.adminGivingCurrencyFilter = curr;
       document.querySelectorAll('#adminGivingCurrencyTabs .admin-currency-tab').forEach(tab => {
         tab.classList.toggle('active', tab.getAttribute('data-curr-filter') === curr);
       });
-      this.renderGivingView(curr);
+      this.renderGivingView();
+    },
+
+    filterGivingAccountsByScope(scope) {
+      this.adminGivingScopeFilter = scope;
+      document.querySelectorAll('#adminGivingScopeTabs .admin-currency-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-scope-filter') === scope);
+      });
+      this.renderGivingView();
+    },
+
+    filterGivingAccounts(curr) {
+      this.filterGivingAccountsByCurrency(curr);
+    },
+
+    handleEntityScopeChange() {
+      const typeSelect = document.getElementById('modalField_entityType');
+      const presetGroup = document.getElementById('modalGroup_entityPreset');
+      const presetSelect = document.getElementById('modalField_entityPreset');
+      const customGroup = document.getElementById('modalGroup_entityCustomName');
+      const customInput = document.getElementById('modalField_entityCustomName');
+      const nameHidden = document.getElementById('modalField_entityName');
+      const idHidden = document.getElementById('modalField_entityId');
+
+      if (!typeSelect) return;
+
+      const scope = typeSelect.value;
+      if (scope === 'general') {
+        if (presetGroup) presetGroup.style.display = 'none';
+        if (customGroup) customGroup.style.display = 'none';
+        if (nameHidden) nameHidden.value = 'Mother Church / General';
+        if (idHidden) idHidden.value = 'general';
+      } else if (scope === 'chapel') {
+        if (presetGroup) presetGroup.style.display = 'block';
+        const chapels = [
+          { id: 'pdcm-english', name: 'PDCM English Chapel' },
+          { id: 'pdcm-gwarinpa', name: 'PDCM Gwarinpa Chapel' },
+          { id: 'pdcm-byazhin', name: 'PDCM Byazhin Chapel' },
+          { id: 'pdcm-mega-youth', name: 'PDCM Mega Youth Chapel' },
+          { id: 'pdcm-mission', name: 'PDCM Mission Chapel' },
+          { id: '__custom__', name: 'Other / Custom Chapel...' }
+        ];
+        if (presetSelect) {
+          presetSelect.innerHTML = chapels.map(c => `<option value="${c.id}" data-name="${c.name}">${c.name}</option>`).join('');
+        }
+        this.handleEntityPresetChange();
+      } else if (scope === 'ministry') {
+        if (presetGroup) presetGroup.style.display = 'block';
+        const ministries = [
+          { id: 'feeding-ministry', name: 'Jesus Loves You Feeding Ministry' },
+          { id: 'children-ministry', name: 'Children Ministry' },
+          { id: 'teenage-ministry', name: 'Teenage Ministry' },
+          { id: 'pesach-academy', name: 'PESACH International Academy' },
+          { id: 'bible-college', name: 'Christian Heritage Bible School' },
+          { id: 'house-fellowships', name: 'House Fellowship Centres' },
+          { id: '__custom__', name: 'Other / Custom Ministry...' }
+        ];
+        if (presetSelect) {
+          presetSelect.innerHTML = ministries.map(m => `<option value="${m.id}" data-name="${m.name}">${m.name}</option>`).join('');
+        }
+        this.handleEntityPresetChange();
+      }
+
+      this.updateModalLivePreview();
+    },
+
+    handleEntityPresetChange() {
+      const presetSelect = document.getElementById('modalField_entityPreset');
+      const customGroup = document.getElementById('modalGroup_entityCustomName');
+      const customInput = document.getElementById('modalField_entityCustomName');
+      const nameHidden = document.getElementById('modalField_entityName');
+      const idHidden = document.getElementById('modalField_entityId');
+
+      if (!presetSelect) return;
+
+      const selOpt = presetSelect.options[presetSelect.selectedIndex];
+      if (presetSelect.value === '__custom__') {
+        if (customGroup) customGroup.style.display = 'block';
+        const customVal = (customInput ? customInput.value : '').trim();
+        if (nameHidden) nameHidden.value = customVal || 'Custom Expression';
+        if (idHidden) idHidden.value = (customVal || 'custom').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      } else {
+        if (customGroup) customGroup.style.display = 'none';
+        const name = selOpt ? selOpt.getAttribute('data-name') : presetSelect.value;
+        if (nameHidden) nameHidden.value = name;
+        if (idHidden) idHidden.value = presetSelect.value;
+      }
+
+      this.updateModalLivePreview();
     },
 
     populateGivingForms() {
@@ -1954,7 +2072,69 @@
           </div>
         `;
       } else if (sectionKey === 'giveAccounts') {
+        const entType = item.entityType || 'general';
+        const entName = item.entityName || (entType === 'general' ? 'Mother Church / General' : '');
+        const entId = item.entityId || 'general';
+
+        const chapels = [
+          { id: 'pdcm-english', name: 'PDCM English Chapel' },
+          { id: 'pdcm-gwarinpa', name: 'PDCM Gwarinpa Chapel' },
+          { id: 'pdcm-byazhin', name: 'PDCM Byazhin Chapel' },
+          { id: 'pdcm-mega-youth', name: 'PDCM Mega Youth Chapel' },
+          { id: 'pdcm-mission', name: 'PDCM Mission Chapel' },
+          { id: '__custom__', name: 'Other / Custom Chapel...' }
+        ];
+
+        const ministries = [
+          { id: 'feeding-ministry', name: 'Jesus Loves You Feeding Ministry' },
+          { id: 'children-ministry', name: 'Children Ministry' },
+          { id: 'teenage-ministry', name: 'Teenage Ministry' },
+          { id: 'pesach-academy', name: 'PESACH International Academy' },
+          { id: 'bible-college', name: 'Christian Heritage Bible School' },
+          { id: 'house-fellowships', name: 'House Fellowship Centres' },
+          { id: '__custom__', name: 'Other / Custom Ministry...' }
+        ];
+
+        let presetOptions = '';
+        let isCustom = false;
+        if (entType === 'chapel') {
+          const matched = chapels.some(c => c.id === entId);
+          isCustom = !matched && entId !== 'general';
+          presetOptions = chapels.map(c => `
+            <option value="${c.id}" data-name="${c.name}" ${((!isCustom && entId === c.id) || (isCustom && c.id === '__custom__')) ? 'selected' : ''}>${c.name}</option>
+          `).join('');
+        } else if (entType === 'ministry') {
+          const matched = ministries.some(m => m.id === entId);
+          isCustom = !matched && entId !== 'general';
+          presetOptions = ministries.map(m => `
+            <option value="${m.id}" data-name="${m.name}" ${((!isCustom && entId === m.id) || (isCustom && c.id === '__custom__')) ? 'selected' : ''}>${m.name}</option>
+          `).join('');
+        }
+
         html = `
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Expression Scope</label>
+              <select id="modalField_entityType" class="admin-select" style="width: 100%;" onchange="AdminPortal.handleEntityScopeChange()">
+                <option value="general" ${entType === 'general' ? 'selected' : ''}>🏛️ General / Mother Church</option>
+                <option value="chapel" ${entType === 'chapel' ? 'selected' : ''}>📍 Branch Chapel</option>
+                <option value="ministry" ${entType === 'ministry' ? 'selected' : ''}>🤝 Ministry / Outreach Arm</option>
+              </select>
+            </div>
+            <div class="admin-input-group" id="modalGroup_entityPreset" style="${entType === 'general' ? 'display: none;' : ''}">
+              <label id="modalLabel_entityPreset">Specific Branch / Arm</label>
+              <select id="modalField_entityPreset" class="admin-select" style="width: 100%;" onchange="AdminPortal.handleEntityPresetChange()">
+                ${presetOptions}
+              </select>
+            </div>
+          </div>
+          <div class="admin-input-group" id="modalGroup_entityCustomName" style="${isCustom ? '' : 'display: none;'}">
+            <label>Custom Branch / Department Name</label>
+            <input type="text" id="modalField_entityCustomName" class="admin-input" value="${isCustom ? entName : ''}" placeholder="e.g. PDCM Kubwa Chapel" oninput="AdminPortal.handleEntityPresetChange()">
+          </div>
+          <input type="hidden" id="modalField_entityName" value="${entName || 'Mother Church / General'}">
+          <input type="hidden" id="modalField_entityId" value="${entId || 'general'}">
+
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
               <label>Account ID / Key</label>
@@ -1972,7 +2152,7 @@
           </div>
           <div class="admin-input-group">
             <label>Account Title / Purpose</label>
-            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Main Ministry Account (Tithes & Offerings) or Building Fund" required>
+            <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. PDCM Gwarinpa Chapel Account or Main Ministry Account" required>
           </div>
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
@@ -2006,7 +2186,7 @@
           </div>
           <div class="admin-input-group" style="margin-bottom: 0;">
             <label>Narration Guidance for Givers</label>
-            <textarea id="modalField_narrationGuide" class="admin-textarea" placeholder="e.g. Include your Full Name and Purpose (e.g. 'Ezekiel Ade - Tithe')">${item.narrationGuide || ''}</textarea>
+            <textarea id="modalField_narrationGuide" class="admin-textarea" placeholder="e.g. Include your Full Name and Purpose (e.g. 'Jane Doe - Gwarinpa Tithe')">${item.narrationGuide || ''}</textarea>
           </div>
         `;
       } else if (sectionKey === 'giveProjects') {
@@ -2229,13 +2409,17 @@
         const sort = getF('sortCode');
         const swift = getF('swiftCode');
         const guide = getF('narrationGuide');
+        const entType = getF('entityType') || 'general';
+        const entName = getF('entityName') || 'Mother Church / General';
+        const entIcon = entType === 'chapel' ? '📍' : (entType === 'ministry' ? '🤝' : '🏛️');
 
         box.innerHTML = `
           <div style="background: var(--navy); color: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(11,27,61,0.2);">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem;">
               <h4 style="margin: 0; color: #fff; font-size: 1.05rem;">${title}</h4>
-              <div style="display: flex; gap: 0.35rem;">
+              <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
                 <span style="font-size: 0.7rem; font-weight: 800; background: rgba(255,255,255,0.2); color: #fff; padding: 0.15rem 0.5rem; border-radius: 999px;">${curr}</span>
+                <span style="font-size: 0.7rem; font-weight: 800; background: rgba(229,169,60,0.2); color: var(--yellow); padding: 0.15rem 0.5rem; border-radius: 999px;">${entIcon} ${entName}</span>
                 ${isPrim ? '<span style="font-size: 0.7rem; font-weight: 800; background: rgba(229,169,60,0.2); color: var(--yellow); padding: 0.15rem 0.5rem; border-radius: 999px;">Primary</span>' : ''}
               </div>
             </div>
@@ -2686,9 +2870,23 @@
         if (!Array.isArray(currentContent.give.bankAccounts)) currentContent.give.bankAccounts = [];
 
         const isPrimary = document.getElementById('modalField_isPrimary')?.checked || false;
+        const entType = getF('entityType') || 'general';
+        let entName = getF('entityName');
+        let entId = getF('entityId');
+        if (entType === 'general') {
+          entName = 'Mother Church / General';
+          entId = 'general';
+        } else if (!entName) {
+          entName = entType === 'chapel' ? 'Branch Chapel' : 'Ministry Arm';
+          entId = entName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+
         const newAccount = {
           id: id,
           currency: getF('currency') || 'NGN',
+          entityType: entType,
+          entityId: entId,
+          entityName: entName,
           title: getF('title'),
           bankName: getF('bankName'),
           accountName: getF('accountName') || 'Peculiar Cherubs Ministries',
