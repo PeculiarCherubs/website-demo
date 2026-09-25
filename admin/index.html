@@ -704,12 +704,16 @@
         </div>
 
         <!-- 1. Online Payment Gateway Integration Card -->
-        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2.25rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+        <div
+          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2.25rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">💳 Online Payment Gateway Plugin</h3>
+              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">💳 Online Payment Gateway Plugin
+              </h3>
               <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
-                Connect any payment provider (Paystack, Flutterwave, Stripe, Remita, or Custom link). When enabled, donors proceed directly to your hosted checkout page.
+                Connect any payment provider (Paystack, Flutterwave, Stripe, Remita, or Custom link). When enabled,
+                donors proceed directly to your hosted checkout page.
               </p>
             </div>
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.savePaymentGatewaySettings()">
@@ -732,7 +736,8 @@
 
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
-              <label for="gatewaySettingEnabled" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <label for="gatewaySettingEnabled"
+                style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                 <input type="checkbox" id="gatewaySettingEnabled" style="width: 18px; height: 18px; cursor: pointer;">
                 <span style="font-weight: 800; color: var(--navy);">Enable Online Payment Gateway</span>
               </label>
@@ -742,7 +747,8 @@
             </div>
             <div class="admin-input-group">
               <label for="gatewaySettingProvider">Payment Provider Preset</label>
-              <select id="gatewaySettingProvider" class="admin-select" style="width: 100%;" onchange="AdminPortal.onGatewayProviderChange()">
+              <select id="gatewaySettingProvider" class="admin-select" style="width: 100%;"
+                onchange="AdminPortal.onGatewayProviderChange()">
                 <option value="custom">Custom Payment Page / Link</option>
                 <option value="paystack">Paystack (Payment Page / Link)</option>
                 <option value="flutterwave">Flutterwave (Payment Link)</option>
@@ -754,7 +760,9 @@
 
           <div class="admin-input-group">
             <label for="gatewaySettingUrl">Hosted Checkout URL / Payment Link *</label>
-            <input type="url" id="gatewaySettingUrl" class="admin-input" placeholder="e.g. https://paystack.com/pay/peculiarcherubs or https://flutterwave.com/pay/..." style="font-family: ui-monospace, monospace;">
+            <input type="url" id="gatewaySettingUrl" class="admin-input"
+              placeholder="e.g. https://paystack.com/pay/peculiarcherubs or https://flutterwave.com/pay/..."
+              style="font-family: ui-monospace, monospace;">
             <small style="color: var(--muted); font-size: 0.8rem; display: block; margin-top: 0.35rem;">
               Paste the official hosted payment page link from your Paystack, Flutterwave, or Stripe dashboard.
             </small>
@@ -763,22 +771,27 @@
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
               <label for="gatewaySettingBtnLabel">Payment Button Text</label>
-              <input type="text" id="gatewaySettingBtnLabel" class="admin-input" placeholder="Proceed to Secure Payment ↗">
+              <input type="text" id="gatewaySettingBtnLabel" class="admin-input"
+                placeholder="Proceed to Secure Payment ↗">
             </div>
             <div class="admin-input-group">
-              <label for="gatewaySettingAppendParams" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="gatewaySettingAppendParams" checked style="width: 18px; height: 18px; cursor: pointer;">
+              <label for="gatewaySettingAppendParams"
+                style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="gatewaySettingAppendParams" checked
+                  style="width: 18px; height: 18px; cursor: pointer;">
                 <span style="font-weight: 700;">Pass Donor Parameters in URL</span>
               </label>
               <small style="color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
-                Appends <code>?amount=...&amp;email=...&amp;name=...&amp;purpose=...</code> so the amount automatically prefills at the gateway.
+                Appends <code>?amount=...&amp;email=...&amp;name=...&amp;purpose=...</code> so the amount automatically
+                prefills at the gateway.
               </small>
             </div>
           </div>
 
           <div class="admin-input-group" style="margin-bottom: 0;">
             <label for="gatewaySettingNotice">Offline / Setup Notice Message</label>
-            <textarea id="gatewaySettingNotice" class="admin-textarea" placeholder="Message shown to givers when the online card gateway is in setup mode..."></textarea>
+            <textarea id="gatewaySettingNotice" class="admin-textarea"
+              placeholder="Message shown to givers when the online card gateway is in setup mode..."></textarea>
             <small style="color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
               Displayed in the modal when a giver clicks "Proceed to Give" while the gateway is disabled.
             </small>
@@ -787,9 +800,11 @@
 
         <!-- 2. Verified Church Bank Accounts Sub-Section -->
         <div style="margin-bottom: 3rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">🏦 Verified Church Bank Accounts</h3>
+              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">🏦 Verified Church Bank Accounts
+              </h3>
               <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
                 Direct bank accounts for local Naira transfers and foreign currency (USD, GBP, EUR) wire transfers.
               </p>
@@ -800,25 +815,39 @@
           </div>
 
           <!-- Filter Controls: Currency & Entity Scope -->
-          <div class="admin-filter-group" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: flex-end;">
+          <div class="admin-filter-group"
+            style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: flex-end;">
             <div>
-              <span class="admin-filter-group-label" style="display:block; margin-bottom: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Currency Filter:</span>
+              <span class="admin-filter-group-label"
+                style="display:block; margin-bottom: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Currency
+                Filter:</span>
               <div class="admin-currency-tabs" id="adminGivingCurrencyTabs" style="margin-bottom: 0;">
-                <button type="button" class="admin-currency-tab active" data-curr-filter="ALL" onclick="AdminPortal.filterGivingAccountsByCurrency('ALL')">All Currencies</button>
-                <button type="button" class="admin-currency-tab" data-curr-filter="NGN" onclick="AdminPortal.filterGivingAccountsByCurrency('NGN')">₦ NGN</button>
-                <button type="button" class="admin-currency-tab" data-curr-filter="USD" onclick="AdminPortal.filterGivingAccountsByCurrency('USD')">$ USD</button>
-                <button type="button" class="admin-currency-tab" data-curr-filter="GBP" onclick="AdminPortal.filterGivingAccountsByCurrency('GBP')">£ GBP</button>
-                <button type="button" class="admin-currency-tab" data-curr-filter="EUR" onclick="AdminPortal.filterGivingAccountsByCurrency('EUR')">€ EUR</button>
+                <button type="button" class="admin-currency-tab active" data-curr-filter="ALL"
+                  onclick="AdminPortal.filterGivingAccountsByCurrency('ALL')">All Currencies</button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="NGN"
+                  onclick="AdminPortal.filterGivingAccountsByCurrency('NGN')">₦ NGN</button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="USD"
+                  onclick="AdminPortal.filterGivingAccountsByCurrency('USD')">$ USD</button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="GBP"
+                  onclick="AdminPortal.filterGivingAccountsByCurrency('GBP')">£ GBP</button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="EUR"
+                  onclick="AdminPortal.filterGivingAccountsByCurrency('EUR')">€ EUR</button>
               </div>
             </div>
 
             <div>
-              <span class="admin-filter-group-label" style="display:block; margin-bottom: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Expression Scope:</span>
+              <span class="admin-filter-group-label"
+                style="display:block; margin-bottom: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Expression
+                Scope:</span>
               <div class="admin-currency-tabs" id="adminGivingScopeTabs" style="margin-bottom: 0;">
-                <button type="button" class="admin-currency-tab active" data-scope-filter="ALL" onclick="AdminPortal.filterGivingAccountsByScope('ALL')">All Expressions</button>
-                <button type="button" class="admin-currency-tab" data-scope-filter="general" onclick="AdminPortal.filterGivingAccountsByScope('general')">🏛️ Mother Church</button>
-                <button type="button" class="admin-currency-tab" data-scope-filter="chapel" onclick="AdminPortal.filterGivingAccountsByScope('chapel')">📍 Branch Chapels</button>
-                <button type="button" class="admin-currency-tab" data-scope-filter="ministry" onclick="AdminPortal.filterGivingAccountsByScope('ministry')">🤝 Ministries &amp; Arms</button>
+                <button type="button" class="admin-currency-tab active" data-scope-filter="ALL"
+                  onclick="AdminPortal.filterGivingAccountsByScope('ALL')">All Expressions</button>
+                <button type="button" class="admin-currency-tab" data-scope-filter="general"
+                  onclick="AdminPortal.filterGivingAccountsByScope('general')">🏛️ Mother Church</button>
+                <button type="button" class="admin-currency-tab" data-scope-filter="chapel"
+                  onclick="AdminPortal.filterGivingAccountsByScope('chapel')">📍 Branch Chapels</button>
+                <button type="button" class="admin-currency-tab" data-scope-filter="ministry"
+                  onclick="AdminPortal.filterGivingAccountsByScope('ministry')">🤝 Ministries &amp; Arms</button>
               </div>
             </div>
           </div>
@@ -830,9 +859,11 @@
 
         <!-- 3. Strategic Special Projects Sub-Section -->
         <div style="margin-bottom: 3rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">🌟 Special Projects &amp; Targeted Missions</h3>
+              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">🌟 Special Projects &amp; Targeted
+                Missions</h3>
               <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
                 Manage active fundraising campaigns such as Chapel Expansion, Feeding Ministry, and Pesach Academy.
               </p>
@@ -848,10 +879,13 @@
         </div>
 
         <!-- 4. Giving Page Headers & WhatsApp Notification Settings -->
-        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div
+          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.2rem;">Giving Page Content &amp; WhatsApp Confirmation</h3>
+              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.2rem;">Giving Page Content &amp; WhatsApp
+                Confirmation</h3>
               <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
                 Customize the transfer acknowledgment WhatsApp hotline and "Why we give" mission texts.
               </p>
@@ -874,7 +908,8 @@
 
           <div class="admin-input-group">
             <label for="givingSettingWhatsAppText">Default WhatsApp Prefilled Confirmation Message</label>
-            <textarea id="givingSettingWhatsAppText" class="admin-textarea" placeholder="Message givers will send on WhatsApp to confirm their transfer..."></textarea>
+            <textarea id="givingSettingWhatsAppText" class="admin-textarea"
+              placeholder="Message givers will send on WhatsApp to confirm their transfer..."></textarea>
           </div>
 
           <div class="admin-modal-grid-2" style="margin-bottom: 0;">
@@ -884,7 +919,8 @@
             </div>
             <div class="admin-input-group" style="margin-bottom: 0;">
               <label for="givingSettingWhyDesc">Why We Give Description</label>
-              <textarea id="givingSettingWhyDesc" class="admin-textarea" placeholder="Description explaining the spiritual mission of giving..."></textarea>
+              <textarea id="givingSettingWhyDesc" class="admin-textarea"
+                placeholder="Description explaining the spiritual mission of giving..."></textarea>
             </div>
           </div>
         </div>
@@ -996,8 +1032,10 @@
 
             <div class="admin-coverage-box">
               <h3>When to use this</h3>
-              <p><strong>Visual editors:</strong> Publications, sermons, events, fellowships, ministries, leadership and key site settings.</p>
-              <p><strong>Advanced editor:</strong> Navigation, chapels, homepage sections, Quick Links, Give, Bible College, lectionary, recurring events, social feeds and every other field.</p>
+              <p><strong>Visual editors:</strong> Publications, sermons, events, fellowships, ministries, leadership and
+                key site settings.</p>
+              <p><strong>Advanced editor:</strong> Navigation, chapels, homepage sections, Quick Links, Give, Bible
+                College, lectionary, recurring events, social feeds and every other field.</p>
             </div>
           </aside>
 
@@ -1007,8 +1045,8 @@
                 <span class="admin-advanced-section-name" id="advancedSectionName">Select a section</span>
                 <span class="admin-advanced-validation valid" id="advancedValidationStatus">Valid JSON</span>
               </div>
-              <button class="btn btn-secondary admin-btn-sm"
-                onclick="AdminPortal.formatAdvancedJson()">Format JSON</button>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.formatAdvancedJson()">Format
+                JSON</button>
             </div>
 
             <textarea id="advancedJsonEditor" class="admin-json-editor" spellcheck="false"
