@@ -5047,6 +5047,13 @@ body.teacher-mode .ss-mode-btn {
 }
 
 /* Left Table of Contents */
+.ss-toc-col {
+  position: sticky;
+  top: 5.5rem;
+  align-self: start;
+  z-index: 20;
+}
+
 .ss-toc-sticky {
   position: sticky;
   top: 5.5rem;
@@ -5058,6 +5065,8 @@ body.teacher-mode .ss-mode-btn {
   padding: 1.4rem;
   border: 1px solid rgba(22, 34, 73, 0.08);
   box-shadow: var(--shadow);
+  max-height: calc(100vh - 6.5rem);
+  overflow-y: auto;
 }
 
 .ss-toc-card h3 {
