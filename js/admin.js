@@ -438,112 +438,111 @@
       return items;
     },
 
-    getMinistryPlacement(key, detail = {}) {
+    getMinistryPlacement(key) {
+      if (currentContent.chapels?.details?.[key]) return 'chapels';
+
       const groups = currentContent.ministries?.groups || [];
-      const group = groups.find(entry => Array.isArray(entry.items) && entry.items.includes(key));
-      if (group) return group.id;
-
-      const href = detail.href || `${key}.html`;
-      const isChapel = (currentContent.chapels?.current || []).some(chapel =>
-        chapel.href === href ||
-        String(chapel.name || '').toLowerCase() === String(detail.title || detail.shortTitle || '').toLowerCase()
+      const group = groups.find(entry =>
+        Array.isArray(entry.items) && entry.items.includes(key)
       );
-      if (isChapel || String(detail.category || '').toLowerCase().includes('chapel')) return 'chapels';
 
-      return 'detail-only';
+      return group ? group.id : 'detail-only';
     },
 
     /**
-     * Helper to aggregate ALL ministry items across items array and key-value entries in currentContent.ministries.
+     * Aggregates Ministries and Chapels for the shared Admin management view,
+     * while preserving separate canonical content stores.
      */
     getAllMinistryItems() {
-      if (!currentContent.ministries) return [];
-      const mins = currentContent.ministries;
       const itemsMap = new Map();
+      const mins = currentContent.ministries || {};
+      const chapels = currentContent.chapels || {};
 
-      // 1. Process items from currentContent.ministries.details if present
+      // Canonical ministry details.
       if (mins.details && typeof mins.details === 'object') {
         Object.keys(mins.details).forEach(key => {
           const obj = mins.details[key];
-          if (obj && typeof obj === 'object') {
-            itemsMap.set(key, {
-              id: key,
-              title: obj.title || obj.shortTitle || key,
-              tag: obj.category || 'Ministry',
-              category: obj.category || 'Ministry',
-              subtitle: obj.summary || obj.subtitle || '',
-              description: obj.summary || obj.subtitle || '',
-              href: obj.href || `${key}.html`,
-              image: obj.image || 'assets/hero/mother-church-brand.jpg',
-              schedule: obj.schedule || 'Regular Worship',
-              facts: obj.facts || [],
-              overview: obj.overview || [],
-              leaders: obj.leaders || [],
-              functionsTitle: obj.functionsTitle || 'Ministry functions',
-              functions: obj.functions || [],
-              _placement: this.getMinistryPlacement(key, obj),
-              _raw: obj
-            });
-          }
+          if (!obj || typeof obj !== 'object') return;
+
+          itemsMap.set(key, {
+            id: key,
+            title: obj.title || obj.shortTitle || key,
+            tag: obj.category || 'Ministry',
+            category: obj.category || 'Ministry',
+            subtitle: obj.summary || obj.subtitle || '',
+            description: obj.summary || obj.subtitle || '',
+            href: obj.href || `${key}.html`,
+            image: obj.image || 'assets/hero/mother-church-brand.jpg',
+            schedule: obj.schedule || 'Regular Worship',
+            facts: obj.facts || [],
+            overview: obj.overview || [],
+            leaders: obj.leaders || [],
+            functionsTitle: obj.functionsTitle || 'Ministry functions',
+            functions: obj.functions || [],
+            _placement: this.getMinistryPlacement(key),
+            _sourceType: 'ministry',
+            _raw: obj
+          });
         });
       }
 
-      // 2. Process items from currentContent.ministries.items array if present
+      // Canonical chapel details.
+      if (chapels.details && typeof chapels.details === 'object') {
+        Object.keys(chapels.details).forEach(key => {
+          const obj = chapels.details[key];
+          if (!obj || typeof obj !== 'object') return;
+
+          itemsMap.set(key, {
+            id: key,
+            title: obj.title || obj.shortTitle || key,
+            tag: obj.category || 'PDCM Chapel',
+            category: obj.category || 'PDCM Chapel',
+            subtitle: obj.summary || obj.subtitle || '',
+            description: obj.summary || obj.subtitle || '',
+            href: obj.href || `${key}.html`,
+            image: obj.image || 'assets/hero/mother-church-brand.jpg',
+            schedule: obj.schedule || 'Regular Worship',
+            facts: obj.facts || [],
+            overview: obj.overview || [],
+            leaders: obj.leaders || [],
+            functionsTitle: obj.functionsTitle || 'Chapel focus',
+            functions: obj.functions || [],
+            _placement: 'chapels',
+            _sourceType: 'chapel',
+            _raw: obj
+          });
+        });
+      }
+
+      // Legacy ministry items remain readable for compatibility until
+      // repository cleanup, but do not override canonical detail records.
       if (Array.isArray(mins.items)) {
         mins.items.forEach(it => {
-          if (it && (it.id || it.title)) {
-            const id = it.id || `ministry_${Date.now()}`;
-            if (!itemsMap.has(id)) {
-              itemsMap.set(id, {
-                id: id,
-                title: it.title || it.name || 'Ministry Title',
-                tag: it.category || it.tag || 'Ministry',
-                category: it.category || it.tag || 'Ministry',
-                subtitle: it.summary || it.subtitle || it.description || '',
-                description: it.description || it.summary || it.subtitle || '',
-                href: it.href || '#',
-                image: it.image || it.coverImage || 'assets/hero/mother-church-brand.jpg',
-                schedule: it.schedule || 'Regular Worship',
-                facts: it.facts || [],
-                overview: it.overview || [],
-                leaders: it.leaders || [],
-                functionsTitle: it.functionsTitle || 'Ministry functions',
-                functions: it.functions || [],
-                _placement: this.getMinistryPlacement(id, it),
-                _raw: it
-              });
-            }
-          }
+          if (!it || !(it.id || it.title)) return;
+          const id = it.id || `ministry_${Date.now()}`;
+          if (itemsMap.has(id)) return;
+
+          itemsMap.set(id, {
+            id,
+            title: it.title || it.name || 'Ministry Title',
+            tag: it.category || it.tag || 'Ministry',
+            category: it.category || it.tag || 'Ministry',
+            subtitle: it.summary || it.subtitle || it.description || '',
+            description: it.description || it.summary || it.subtitle || '',
+            href: it.href || '#',
+            image: it.image || it.coverImage || 'assets/hero/mother-church-brand.jpg',
+            schedule: it.schedule || 'Regular Worship',
+            facts: it.facts || [],
+            overview: it.overview || [],
+            leaders: it.leaders || [],
+            functionsTitle: it.functionsTitle || 'Ministry functions',
+            functions: it.functions || [],
+            _placement: this.getMinistryPlacement(id),
+            _sourceType: 'legacy-ministry',
+            _raw: it
+          });
         });
       }
-
-      // 3. Process key-value object entries in currentContent.ministries
-      Object.keys(mins).forEach(key => {
-        if (['houseFellowships', 'items', 'hero', 'mission', 'groups', 'homeFeatured', 'details'].includes(key)) return;
-        const obj = mins[key];
-        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-          if (!itemsMap.has(key)) {
-            itemsMap.set(key, {
-              id: key,
-              title: obj.title || obj.shortTitle || key,
-              tag: obj.category || 'Ministry',
-              category: obj.category || 'Ministry',
-              subtitle: obj.summary || obj.subtitle || '',
-              description: obj.summary || obj.subtitle || '',
-              href: obj.href || '#',
-              image: obj.image || 'assets/hero/mother-church-brand.jpg',
-              schedule: obj.schedule || 'Regular Worship',
-              facts: obj.facts || [],
-              overview: obj.overview || [],
-              leaders: obj.leaders || [],
-              functionsTitle: obj.functionsTitle || 'Ministry functions',
-              functions: obj.functions || [],
-              _placement: this.getMinistryPlacement(key, obj),
-              _raw: obj
-            });
-          }
-        }
-      });
 
       return Array.from(itemsMap.values());
     },
@@ -2479,7 +2478,7 @@
         html = `
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
-              <label>Ministry ID (Unique Key)</label>
+              <label>Ministry / Chapel ID (Unique Key)</label>
               <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'ministry_' + Date.now()}" required>
             </div>
             <div class="admin-input-group">
@@ -2501,7 +2500,7 @@
             </div>
           </div>
           <div class="admin-input-group">
-            <label>Ministry Title</label>
+            <label>Ministry / Chapel Title</label>
             <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Children's Ministry" required>
           </div>
           <div class="admin-input-group">
@@ -3483,43 +3482,81 @@
         if (!currentContent.ministries) currentContent.ministries = {};
         if (!currentContent.ministries.details) currentContent.ministries.details = {};
         if (!Array.isArray(currentContent.ministries.groups)) currentContent.ministries.groups = [];
-        if (!currentContent.chapels) currentContent.chapels = { current: [], upcoming: [] };
-        if (!Array.isArray(currentContent.chapels.current)) currentContent.chapels.current = [];
 
-        const ministryId = getF('id') || 'ministry_' + Date.now();
+        if (!currentContent.chapels) currentContent.chapels = {};
+        if (!currentContent.chapels.details) currentContent.chapels.details = {};
+        if (!Array.isArray(currentContent.chapels.current)) currentContent.chapels.current = [];
+        if (!Array.isArray(currentContent.chapels.upcoming)) currentContent.chapels.upcoming = [];
+
+        const entityId = getF('id') || `ministry_${Date.now()}`;
         const oldId = editingState.itemId;
         const category = getF('category') || 'Ministry';
         const title = getF('title') || 'Ministry Title';
         const subtitle = getF('subtitle') || '';
         const schedule = getF('schedule') || 'Regular Worship';
-        const href = getF('href') || `${ministryId}.html`;
+        const href = getF('href') || `${entityId}.html`;
         const image = getF('image') || 'assets/hero/mother-church-brand.jpg';
         const placement = getF('placement') || 'detail-only';
+        const isChapel = placement === 'chapels';
 
-        const leaders = getF('leaders').split('\n').map(v => v.trim()).filter(Boolean).map(line => {
-          const parts = line.split(':');
-          return parts.length > 1
-            ? { name: parts[0].trim(), role: parts.slice(1).join(':').trim() }
-            : { name: line.trim(), role: 'Leader' };
-        });
-        const facts = getF('facts').split('\n').map(v => v.trim()).filter(Boolean).map(line => {
-          const parts = line.split(':');
-          return parts.length > 1
-            ? { label: parts[0].trim(), value: parts.slice(1).join(':').trim() }
-            : { label: 'Focus', value: line.trim() };
-        });
-        const functions = getF('functions').split('\n').map(v => v.trim()).filter(Boolean);
-        const overview = getF('overview').split(/\n\s*\n/).map(v => v.trim()).filter(Boolean);
-        const existing = currentContent.ministries.details[oldId] || currentContent.ministries.details[ministryId] || editingState.itemData?._raw || {};
+        const leaders = getF('leaders')
+          .split('\n')
+          .map(v => v.trim())
+          .filter(Boolean)
+          .map(line => {
+            const parts = line.split(':');
+            return parts.length > 1
+              ? { name: parts[0].trim(), role: parts.slice(1).join(':').trim() }
+              : { name: line.trim(), role: 'Leader' };
+          });
 
-        const ministryData = {
+        const facts = getF('facts')
+          .split('\n')
+          .map(v => v.trim())
+          .filter(Boolean)
+          .map(line => {
+            const parts = line.split(':');
+            return parts.length > 1
+              ? { label: parts[0].trim(), value: parts.slice(1).join(':').trim() }
+              : { label: 'Focus', value: line.trim() };
+          });
+
+        const functions = getF('functions')
+          .split('\n')
+          .map(v => v.trim())
+          .filter(Boolean);
+
+        const overview = getF('overview')
+          .split(/\n\s*\n/)
+          .map(v => v.trim())
+          .filter(Boolean);
+
+        const existing =
+          currentContent.chapels.details?.[oldId] ||
+          currentContent.chapels.details?.[entityId] ||
+          currentContent.ministries.details?.[oldId] ||
+          currentContent.ministries.details?.[entityId] ||
+          editingState.itemData?._raw ||
+          {};
+
+        const previousCurrentChapel = currentContent.chapels.current.find(chapel =>
+          chapel.id === oldId ||
+          chapel.id === entityId ||
+          chapel.href === existing.href ||
+          chapel.href === href
+        );
+
+        const entityData = {
           ...existing,
-          id: ministryId,
+          id: entityId,
           href,
           category,
           tag: category,
           title,
-          shortTitle: existing.shortTitle && existing.shortTitle !== existing.title ? existing.shortTitle : title,
+          shortTitle:
+            existing.shortTitle && existing.shortTitle !== existing.title
+              ? existing.shortTitle
+              : title,
           subtitle,
           summary: subtitle,
           description: subtitle,
@@ -3528,51 +3565,65 @@
           facts,
           overview: overview.length ? overview : (existing.overview || [subtitle]),
           leaders,
-          functionsTitle: existing.functionsTitle || 'Ministry functions',
+          functionsTitle:
+            existing.functionsTitle || (isChapel ? 'Chapel focus' : 'Ministry functions'),
           functions
         };
 
-        if (oldId && oldId !== ministryId) {
-          delete currentContent.ministries.details[oldId];
-          currentContent.ministries.groups.forEach(group => {
-            if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== oldId);
-          });
-        }
-        currentContent.ministries.details[ministryId] = ministryData;
+        // Remove the entity from both canonical stores first. This makes
+        // Ministry ↔ Chapel moves deterministic.
+        [oldId, entityId].filter(Boolean).forEach(key => {
+          delete currentContent.ministries.details[key];
+          delete currentContent.chapels.details[key];
 
-        currentContent.ministries.groups.forEach(group => {
-          if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== ministryId);
+          currentContent.ministries.groups.forEach(group => {
+            if (Array.isArray(group.items)) {
+              group.items = group.items.filter(itemKey => itemKey !== key);
+            }
+          });
         });
-        if (!['chapels', 'detail-only'].includes(placement)) {
-          const targetGroup = currentContent.ministries.groups.find(group => group.id === placement);
-          if (targetGroup) {
-            if (!Array.isArray(targetGroup.items)) targetGroup.items = [];
-            if (!targetGroup.items.includes(ministryId)) targetGroup.items.push(ministryId);
+
+        currentContent.chapels.current = currentContent.chapels.current.filter(chapel =>
+          chapel.id !== oldId &&
+          chapel.id !== entityId &&
+          chapel.href !== existing.href &&
+          chapel.href !== href
+        );
+
+        if (isChapel) {
+          // Chapel canonical ownership.
+          currentContent.chapels.details[entityId] = entityData;
+          currentContent.chapels.current.push({
+            id: entityId,
+            name: title,
+            subtitle,
+            status: previousCurrentChapel?.status || 'Current Chapel',
+            logo: previousCurrentChapel?.logo || image,
+            href
+          });
+        } else {
+          // Ministry canonical ownership.
+          currentContent.ministries.details[entityId] = entityData;
+
+          if (placement !== 'detail-only') {
+            const targetGroup = currentContent.ministries.groups.find(
+              group => group.id === placement
+            );
+
+            if (targetGroup) {
+              if (!Array.isArray(targetGroup.items)) targetGroup.items = [];
+              if (!targetGroup.items.includes(entityId)) {
+                targetGroup.items.push(entityId);
+              }
+            }
           }
         }
 
-        const chapelIndex = currentContent.chapels.current.findIndex(chapel =>
-          chapel.href === existing.href || chapel.href === href ||
-          String(chapel.name || '').toLowerCase() === String(existing.title || '').toLowerCase()
-        );
-        if (placement === 'chapels') {
-          const previousChapel = chapelIndex >= 0 ? currentContent.chapels.current[chapelIndex] : {};
-          const chapelRecord = {
-            ...previousChapel,
-            name: title,
-            subtitle,
-            status: previousChapel.status || 'Current Chapel',
-            logo: previousChapel.logo || image,
-            href
-          };
-          if (chapelIndex >= 0) currentContent.chapels.current[chapelIndex] = chapelRecord;
-          else currentContent.chapels.current.push(chapelRecord);
-        } else if (chapelIndex >= 0) {
-          currentContent.chapels.current.splice(chapelIndex, 1);
-        }
-
+        // Sync both domains because this action may move ownership from one
+        // content section to the other.
         if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
         if (!(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
+
         this.renderMinistriesView();
       } else if (sec === 'leadership') {
         if (!currentContent.about) currentContent.about = {};
@@ -3773,30 +3824,51 @@
         if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
         this.renderFellowshipsView();
       } else if (sectionKey === 'ministries') {
-        if (currentContent.ministries) {
-          const detailHref = currentContent.ministries.details?.[itemId]?.href || `${itemId}.html`;
-          if (currentContent.ministries.details) {
-            delete currentContent.ministries.details[itemId];
-          }
-          if (Array.isArray(currentContent.ministries.groups)) {
-            currentContent.ministries.groups.forEach(group => {
-              if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== itemId);
-            });
-          }
-          if (Array.isArray(currentContent.ministries.items)) {
-            currentContent.ministries.items = currentContent.ministries.items.filter(i => i.id !== itemId);
-          }
-          if (currentContent.ministries[itemId]) delete currentContent.ministries[itemId];
+        if (!currentContent.ministries) currentContent.ministries = {};
+        if (!currentContent.chapels) currentContent.chapels = {};
 
-          if (Array.isArray(currentContent.chapels?.current)) {
+        const isChapel = Boolean(currentContent.chapels.details?.[itemId]);
+
+        if (isChapel) {
+          const detailHref =
+            currentContent.chapels.details?.[itemId]?.href || `${itemId}.html`;
+
+          delete currentContent.chapels.details[itemId];
+
+          if (Array.isArray(currentContent.chapels.current)) {
             currentContent.chapels.current = currentContent.chapels.current.filter(chapel =>
-              chapel.href !== detailHref && chapel.href !== `${itemId}.html`
+              chapel.id !== itemId &&
+              chapel.href !== detailHref &&
+              chapel.href !== `${itemId}.html`
             );
           }
 
+          if (!(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
+        } else {
+          if (currentContent.ministries.details) {
+            delete currentContent.ministries.details[itemId];
+          }
+
+          if (Array.isArray(currentContent.ministries.groups)) {
+            currentContent.ministries.groups.forEach(group => {
+              if (Array.isArray(group.items)) {
+                group.items = group.items.filter(key => key !== itemId);
+              }
+            });
+          }
+
+          if (Array.isArray(currentContent.ministries.items)) {
+            currentContent.ministries.items =
+              currentContent.ministries.items.filter(i => i.id !== itemId);
+          }
+
+          if (currentContent.ministries[itemId]) {
+            delete currentContent.ministries[itemId];
+          }
+
           if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
-          if (currentContent.chapels && !(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
         }
+
         this.renderMinistriesView();
       } else if (sectionKey === 'leadership') {
         if (currentContent.about && currentContent.about.leadership && Array.isArray(currentContent.about.leadership.team)) {

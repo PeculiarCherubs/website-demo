@@ -287,28 +287,32 @@
         "subtitle": "Governors Assembly",
         "status": "Current Chapel",
         "logo": "assets/logos/pdcm-english.png",
-        "href": "pdcm-english.html"
+        "href": "pdcm-english.html",
+        "id": "pdcm-english"
       },
       {
         "name": "PDCM Gwarinpa Chapel",
         "subtitle": "A local worship and discipleship community under Peculiar Cherubs.",
         "status": "Current Chapel",
         "logo": "assets/logos/pdcm-generic.png",
-        "href": "pdcm-gwarinpa.html"
+        "href": "pdcm-gwarinpa.html",
+        "id": "pdcm-gwarinpa"
       },
       {
         "name": "PDCM Byazhin Chapel",
         "subtitle": "Serving believers and families through worship, prayer, and evangelism.",
         "status": "Current Chapel",
         "logo": "assets/logos/pdcm-byazhin.png",
-        "href": "pdcm-byazhin.html"
+        "href": "pdcm-byazhin.html",
+        "id": "pdcm-byazhin"
       },
       {
         "name": "PDCM Mega Youth Chapel",
         "subtitle": "A youth-centred chapel raising disciples, worshippers, and kingdom leaders.",
         "status": "Current Chapel",
         "logo": "assets/logos/pdcm-generic.png",
-        "href": "pdcm-mega-youth.html"
+        "href": "pdcm-mega-youth.html",
+        "id": "pdcm-mega-youth"
       }
     ],
     "upcoming": [
@@ -322,7 +326,243 @@
         "text": "Coming soon to extend worship, discipleship, and evangelism.",
         "logo": "assets/logos/pdcm-generic.png"
       }
-    ]
+    ],
+    "details": {
+      "pdcm-gwarinpa": {
+        "id": "pdcm-gwarinpa",
+        "href": "pdcm-gwarinpa.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM Gwarinpa Chapel",
+        "shortTitle": "Gwarinpa Chapel",
+        "summary": "A standalone PDCM chapel serving Gwarinpa through worship, discipleship, prayer, evangelism, and community.",
+        "image": "assets/ministries/pdcm-gwarinpa.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 October 2013"
+          },
+          {
+            "label": "First Gwarinpa service",
+            "value": "5 February 2017"
+          },
+          {
+            "label": "Location",
+            "value": "Plot 14, Ken Saro-Wiwa Street, off Alhassan Dantata Road, 3rd Avenue Cornershop, Gwarinpa Estate"
+          }
+        ],
+        "overview": [
+          "The chapel began as Peculiar English Chapel at A. A. Bodunrin Hall, Kubwa, before relocating to Gwarinpa.",
+          "Following the relocation, it became Peculiar Disciples of Christ Ministry, Gwarinpa Chapel."
+        ],
+        "leaders": [
+          {
+            "name": "Prophet Kayode Aliyu",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Pastor Tope Yoosuf",
+            "role": "Secretary"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "Worship and prayer",
+          "Biblical teaching and discipleship",
+          "Evangelism and community outreach",
+          "Fellowship and pastoral care"
+        ]
+      },
+      "pdcm-english": {
+        "id": "pdcm-english",
+        "href": "pdcm-english.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM English Chapel",
+        "shortTitle": "English Chapel",
+        "summary": "An English-speaking PDCM chapel meeting every Sunday in the Church Auditorium, Kubwa.",
+        "image": "assets/ministries/pdcm-english.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 February 2022"
+          },
+          {
+            "label": "Meeting time",
+            "value": "Sundays, 7:00–9:00 a.m."
+          },
+          {
+            "label": "Location",
+            "value": "Church Auditorium, Kubwa"
+          }
+        ],
+        "overview": [
+          "The chapel held its Inaugural and Proclamation Service on Sunday, 6 February 2022.",
+          "It provides an English-language worship and discipleship expression within the Peculiar Cherubs family."
+        ],
+        "leaders": [
+          {
+            "name": "Special Apostle Oyebode Fadipe",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Special Apostle Pastor Seun Oshagbami",
+            "role": "Secretary"
+          },
+          {
+            "name": "Brother Temitope Okubote",
+            "role": "Assistant Secretary"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "English-language worship services",
+          "Prayer and biblical teaching",
+          "Discipleship and fellowship",
+          "Evangelism and community service"
+        ]
+      },
+      "pdcm-byazhin": {
+        "id": "pdcm-byazhin",
+        "href": "pdcm-byazhin.html",
+        "category": "PDCM Chapel",
+        "title": "PDCM Byazhin Chapel",
+        "shortTitle": "Byazhin Chapel",
+        "summary": "A PDCM worshipping community serving Byazhin Across and surrounding areas.",
+        "image": "assets/ministries/pdcm-byazhin.jpg",
+        "facts": [
+          {
+            "label": "Inaugural service",
+            "value": "6 February 2022"
+          },
+          {
+            "label": "Location",
+            "value": "Behind Football Field Area, Byazhin Across, by Kubwa"
+          },
+          {
+            "label": "Formation",
+            "value": "Following a week-long revival and commendation service"
+          }
+        ],
+        "overview": [
+          "PDCM Byazhin Chapel was inaugurated after a week-long revival and commendation service.",
+          "The chapel serves believers and families through worship, prayer, the Word, evangelism, and fellowship."
+        ],
+        "leaders": [
+          {
+            "name": "Pastor Kayode Ajadi",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Pastor Jerry Adesewo",
+            "role": "Deputy Shepherd"
+          },
+          {
+            "name": "Pastor Akintunde Ojo",
+            "role": "Secretary"
+          },
+          {
+            "name": "Prophetess Grace Olutola",
+            "role": "Choir Coordinator"
+          }
+        ],
+        "functionsTitle": "Chapel focus",
+        "functions": [
+          "Worship and prayer",
+          "Biblical teaching",
+          "Evangelism and discipleship",
+          "Music ministry and community fellowship"
+        ]
+      },
+      "pdcm-mega-youth": {
+        "id": "pdcm-mega-youth",
+        "href": "pdcm-mega-youth.html",
+        "category": "Standalone PDCM Chapel",
+        "title": "PDCM Mega Youth Chapel",
+        "shortTitle": "Mega Youth Chapel",
+        "summary": "A standalone church for adults aged 20–40, raising disciples, leaders, worshippers, volunteers, and witnesses for Christ.",
+        "image": "assets/ministries/pdcm-mega-youth.jpg",
+        "facts": [
+          {
+            "label": "Age group",
+            "value": "20–40 years"
+          },
+          {
+            "label": "Church status",
+            "value": "Standalone PDCM chapel"
+          },
+          {
+            "label": "Location",
+            "value": "A. A. Bodunrin Hall, Church Complex, Kubwa"
+          }
+        ],
+        "overview": [
+          "The Peculiar Youth Ministry was upgraded to a full-fledged chapel and renamed PDCM Mega Youth Chapel.",
+          "Its programmes support spiritual, educational, psychological, leadership, vocational, and relational development."
+        ],
+        "leaders": [
+          {
+            "name": "Special Mother in Israel Pastor Dayo Arogundade",
+            "role": "Shepherd in Charge"
+          },
+          {
+            "name": "Senior Apostle Adedeji Ademefun",
+            "role": "Deputy Shepherd in Charge"
+          },
+          {
+            "name": "Mother in Israel Temitayo Ogunbiyi",
+            "role": "Secretary"
+          }
+        ],
+        "functionsTitle": "What the chapel provides",
+        "functions": [
+          "Spiritual, educational, and psychological development for adults aged 20–40.",
+          "Evangelism training and participation in mission projects.",
+          "Volunteer service within the church and wider community.",
+          "Leadership training through small groups, teaching, and practical service.",
+          "Career, relationship, marriage, and life guidance and counselling.",
+          "Participation in district, national, and wider Christian youth programmes, camps, conventions, and retreats."
+        ],
+        "social": {
+          "handles": {
+            "instagram": "https://instagram.com/peculiarcherubs_youth",
+            "youtube": "https://youtube.com/@peculiarcherubschurch",
+            "facebook": "https://facebook.com/peculiarcherubs",
+            "tiktok": "https://tiktok.com/@peculiarcherubs_youth"
+          },
+          "feed": [
+            {
+              "platform": "Instagram",
+              "type": "Photo",
+              "title": "Mega Youth Praise & Encounter Night",
+              "text": "An unforgettable evening of intense worship, prayer, and word fellowship with the youth.",
+              "url": "https://instagram.com",
+              "thumbnail": "assets/events/founders-day.jpg",
+              "date": "August 2026",
+              "published": true
+            },
+            {
+              "platform": "YouTube",
+              "type": "Video",
+              "title": "Kingdom Career & Financial Wisdom Seminar",
+              "text": "Watch the keynote session on building a career with kingdom purpose and integrity.",
+              "url": "https://youtube.com",
+              "thumbnail": "assets/sermons/sermon-3.jpg",
+              "date": "August 2026",
+              "published": true
+            },
+            {
+              "platform": "TikTok",
+              "type": "Video",
+              "title": "Behind the Scenes — Mega Youth Choir Rehearsal",
+              "text": "Sneak peek into worship preparation for the upcoming Youth Sunday service.",
+              "url": "https://tiktok.com",
+              "thumbnail": "assets/sermons/sermon-2.jpg",
+              "date": "August 2026",
+              "published": true
+            }
+          ]
+        }
+      }
+    }
   },
   "sermons": {
     "hero": {
@@ -2549,236 +2789,6 @@
               "title": "Intercessory Prayer Clinic Summary",
               "text": "Photos and key prayer points from our Tuesday evening intercession session.",
               "url": "https://facebook.com",
-              "thumbnail": "assets/sermons/sermon-2.jpg",
-              "date": "August 2026",
-              "published": true
-            }
-          ]
-        }
-      },
-      "pdcm-gwarinpa": {
-        "href": "pdcm-gwarinpa.html",
-        "category": "PDCM Chapel",
-        "title": "PDCM Gwarinpa Chapel",
-        "shortTitle": "Gwarinpa Chapel",
-        "summary": "A standalone PDCM chapel serving Gwarinpa through worship, discipleship, prayer, evangelism, and community.",
-        "image": "assets/ministries/pdcm-gwarinpa.jpg",
-        "facts": [
-          {
-            "label": "Inaugural service",
-            "value": "6 October 2013"
-          },
-          {
-            "label": "First Gwarinpa service",
-            "value": "5 February 2017"
-          },
-          {
-            "label": "Location",
-            "value": "Plot 14, Ken Saro-Wiwa Street, off Alhassan Dantata Road, 3rd Avenue Cornershop, Gwarinpa Estate"
-          }
-        ],
-        "overview": [
-          "The chapel began as Peculiar English Chapel at A. A. Bodunrin Hall, Kubwa, before relocating to Gwarinpa.",
-          "Following the relocation, it became Peculiar Disciples of Christ Ministry, Gwarinpa Chapel."
-        ],
-        "leaders": [
-          {
-            "name": "Prophet Kayode Aliyu",
-            "role": "Shepherd in Charge"
-          },
-          {
-            "name": "Pastor Tope Yoosuf",
-            "role": "Secretary"
-          }
-        ],
-        "functionsTitle": "Chapel focus",
-        "functions": [
-          "Worship and prayer",
-          "Biblical teaching and discipleship",
-          "Evangelism and community outreach",
-          "Fellowship and pastoral care"
-        ]
-      },
-      "pdcm-english": {
-        "href": "pdcm-english.html",
-        "category": "PDCM Chapel",
-        "title": "PDCM English Chapel",
-        "shortTitle": "English Chapel",
-        "summary": "An English-speaking PDCM chapel meeting every Sunday in the Church Auditorium, Kubwa.",
-        "image": "assets/ministries/pdcm-english.jpg",
-        "facts": [
-          {
-            "label": "Inaugural service",
-            "value": "6 February 2022"
-          },
-          {
-            "label": "Meeting time",
-            "value": "Sundays, 7:00–9:00 a.m."
-          },
-          {
-            "label": "Location",
-            "value": "Church Auditorium, Kubwa"
-          }
-        ],
-        "overview": [
-          "The chapel held its Inaugural and Proclamation Service on Sunday, 6 February 2022.",
-          "It provides an English-language worship and discipleship expression within the Peculiar Cherubs family."
-        ],
-        "leaders": [
-          {
-            "name": "Special Apostle Oyebode Fadipe",
-            "role": "Shepherd in Charge"
-          },
-          {
-            "name": "Special Apostle Pastor Seun Oshagbami",
-            "role": "Secretary"
-          },
-          {
-            "name": "Brother Temitope Okubote",
-            "role": "Assistant Secretary"
-          }
-        ],
-        "functionsTitle": "Chapel focus",
-        "functions": [
-          "English-language worship services",
-          "Prayer and biblical teaching",
-          "Discipleship and fellowship",
-          "Evangelism and community service"
-        ]
-      },
-      "pdcm-byazhin": {
-        "href": "pdcm-byazhin.html",
-        "category": "PDCM Chapel",
-        "title": "PDCM Byazhin Chapel",
-        "shortTitle": "Byazhin Chapel",
-        "summary": "A PDCM worshipping community serving Byazhin Across and surrounding areas.",
-        "image": "assets/ministries/pdcm-byazhin.jpg",
-        "facts": [
-          {
-            "label": "Inaugural service",
-            "value": "6 February 2022"
-          },
-          {
-            "label": "Location",
-            "value": "Behind Football Field Area, Byazhin Across, by Kubwa"
-          },
-          {
-            "label": "Formation",
-            "value": "Following a week-long revival and commendation service"
-          }
-        ],
-        "overview": [
-          "PDCM Byazhin Chapel was inaugurated after a week-long revival and commendation service.",
-          "The chapel serves believers and families through worship, prayer, the Word, evangelism, and fellowship."
-        ],
-        "leaders": [
-          {
-            "name": "Pastor Kayode Ajadi",
-            "role": "Shepherd in Charge"
-          },
-          {
-            "name": "Pastor Jerry Adesewo",
-            "role": "Deputy Shepherd"
-          },
-          {
-            "name": "Pastor Akintunde Ojo",
-            "role": "Secretary"
-          },
-          {
-            "name": "Prophetess Grace Olutola",
-            "role": "Choir Coordinator"
-          }
-        ],
-        "functionsTitle": "Chapel focus",
-        "functions": [
-          "Worship and prayer",
-          "Biblical teaching",
-          "Evangelism and discipleship",
-          "Music ministry and community fellowship"
-        ]
-      },
-      "pdcm-mega-youth": {
-        "href": "pdcm-mega-youth.html",
-        "category": "Standalone PDCM Chapel",
-        "title": "PDCM Mega Youth Chapel",
-        "shortTitle": "Mega Youth Chapel",
-        "summary": "A standalone church for adults aged 20–40, raising disciples, leaders, worshippers, volunteers, and witnesses for Christ.",
-        "image": "assets/ministries/pdcm-mega-youth.jpg",
-        "facts": [
-          {
-            "label": "Age group",
-            "value": "20–40 years"
-          },
-          {
-            "label": "Church status",
-            "value": "Standalone PDCM chapel"
-          },
-          {
-            "label": "Location",
-            "value": "A. A. Bodunrin Hall, Church Complex, Kubwa"
-          }
-        ],
-        "overview": [
-          "The Peculiar Youth Ministry was upgraded to a full-fledged chapel and renamed PDCM Mega Youth Chapel.",
-          "Its programmes support spiritual, educational, psychological, leadership, vocational, and relational development."
-        ],
-        "leaders": [
-          {
-            "name": "Special Mother in Israel Pastor Dayo Arogundade",
-            "role": "Shepherd in Charge"
-          },
-          {
-            "name": "Senior Apostle Adedeji Ademefun",
-            "role": "Deputy Shepherd in Charge"
-          },
-          {
-            "name": "Mother in Israel Temitayo Ogunbiyi",
-            "role": "Secretary"
-          }
-        ],
-        "functionsTitle": "What the chapel provides",
-        "functions": [
-          "Spiritual, educational, and psychological development for adults aged 20–40.",
-          "Evangelism training and participation in mission projects.",
-          "Volunteer service within the church and wider community.",
-          "Leadership training through small groups, teaching, and practical service.",
-          "Career, relationship, marriage, and life guidance and counselling.",
-          "Participation in district, national, and wider Christian youth programmes, camps, conventions, and retreats."
-        ],
-        "social": {
-          "handles": {
-            "instagram": "https://instagram.com/peculiarcherubs_youth",
-            "youtube": "https://youtube.com/@peculiarcherubschurch",
-            "facebook": "https://facebook.com/peculiarcherubs",
-            "tiktok": "https://tiktok.com/@peculiarcherubs_youth"
-          },
-          "feed": [
-            {
-              "platform": "Instagram",
-              "type": "Photo",
-              "title": "Mega Youth Praise & Encounter Night",
-              "text": "An unforgettable evening of intense worship, prayer, and word fellowship with the youth.",
-              "url": "https://instagram.com",
-              "thumbnail": "assets/events/founders-day.jpg",
-              "date": "August 2026",
-              "published": true
-            },
-            {
-              "platform": "YouTube",
-              "type": "Video",
-              "title": "Kingdom Career & Financial Wisdom Seminar",
-              "text": "Watch the keynote session on building a career with kingdom purpose and integrity.",
-              "url": "https://youtube.com",
-              "thumbnail": "assets/sermons/sermon-3.jpg",
-              "date": "August 2026",
-              "published": true
-            },
-            {
-              "platform": "TikTok",
-              "type": "Video",
-              "title": "Behind the Scenes — Mega Youth Choir Rehearsal",
-              "text": "Sneak peek into worship preparation for the upcoming Youth Sunday service.",
-              "url": "https://tiktok.com",
               "thumbnail": "assets/sermons/sermon-2.jpg",
               "date": "August 2026",
               "published": true
