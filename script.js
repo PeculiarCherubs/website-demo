@@ -2458,51 +2458,315 @@ function renderSundaySchoolDetail(content) {
     });
   }
 
-  // 3. Audio Text-to-Speech Player
+  // 3. Audio Text-to-Speech Player (Enhanced with Natural Voice Selection, Segmented Reading, & Active Card Highlighting)
   const audioPlayBtn = document.querySelector("[data-ss-audio-play]");
+  const audioStopBtn = document.querySelector("[data-ss-audio-stop]");
   const audioStatus = document.querySelector("[data-ss-audio-status]");
   const audioBtnText = document.querySelector("[data-ss-audio-btn-text]");
+  const audioIcon = document.querySelector(".ss-audio-icon");
+
   let isSpeaking = false;
+  let isPaused = false;
+  let currentSegmentIndex = 0;
+  let segmentTimeout = null;
+  let cachedVoice = null;
+
+  // Smart natural voice selector: prefers Neural / Natural / Google / Premium online voices
+  const getBestVoice = () => {
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || !voices.length) return null;
+
+    // 1. Natural / Neural / Online voices (Edge / Windows / Chrome)
+    const natural = voices.find(v =>
+      v.lang.startsWith("en") &&
+      (v.name.includes("Natural") || v.name.includes("Online") || v.name.includes("Neural"))
+    );
+    if (natural) return natural;
+
+    // 2. Google English voices
+    const google = voices.find(v => v.lang.startsWith("en") && v.name.includes("Google"));
+    if (google) return google;
+
+    // 3. Premium / Enhanced / Siri voices (Apple / iOS / macOS)
+    const apple = voices.find(v =>
+      v.lang.startsWith("en") &&
+      (v.name.includes("Premium") || v.name.includes("Enhanced") || v.name.includes("Samantha"))
+    );
+    if (apple) return apple;
+
+    // 4. Modern US/GB English
+    const modernEn = voices.find(v => v.lang === "en-US" || v.lang === "en-GB");
+    if (modernEn) return modernEn;
+
+    // 5. Fallback English
+    const fallbackEn = voices.find(v => v.lang.startsWith("en"));
+    return fallbackEn || voices[0];
+  };
+
+  if ("speechSynthesis" in window) {
+    cachedVoice = getBestVoice();
+    window.speechSynthesis.onvoiceschanged = () => {
+      cachedVoice = getBestVoice();
+    };
+  }
+
+  // Build semantic segments for the current lesson with varied pacing, pitch, and target elements
+  const buildSegments = () => {
+    const segments = [];
+
+    // 1. Lesson Title & Overview
+    segments.push({
+      label: "Lesson Title",
+      text: `Sunday School Lesson ${lesson.lessonNumber}: ${lesson.topic}. ${lesson.subtitle || ''}`,
+      rate: 0.95,
+      pitch: 1.0,
+      pause: 700,
+      targetSelector: ".sunday-school-hero"
+    });
+
+    // 2. Memory Verse (Contemplative, slower, reverent tone)
+    if (lesson.memoryVerse) {
+      segments.push({
+        label: "Memory Verse",
+        text: `Golden Memory Verse, recited from ${lesson.memoryVerse.reference}. "${lesson.memoryVerse.text}"`,
+        rate: 0.85,
+        pitch: 0.96,
+        pause: 900,
+        targetSelector: "#ss-section-verse"
+      });
+
+      if (lesson.memoryVerse.context) {
+        segments.push({
+          label: "Verse Context",
+          text: `Context and focus: ${lesson.memoryVerse.context}`,
+          rate: 0.92,
+          pitch: 1.0,
+          pause: 650,
+          targetSelector: "#ss-section-verse"
+        });
+      }
+    }
+
+    // 3. Golden Text
+    if (lesson.goldenText) {
+      segments.push({
+        label: "Golden Key Text",
+        text: `Golden Key Text: ${lesson.goldenText}`,
+        rate: 0.88,
+        pitch: 0.98,
+        pause: 750,
+        targetSelector: "#ss-section-verse"
+      });
+    }
+
+    // 4. Scripture Readings
+    if (lesson.mainScriptures && lesson.mainScriptures.length > 0) {
+      lesson.mainScriptures.forEach((s, idx) => {
+        segments.push({
+          label: s.label || `Reading ${idx + 1}`,
+          text: `${s.label || 'Scripture Reading'}, from ${s.reference}: "${s.text.replace(/\.\.\./g, '... ')}"`,
+          rate: 0.88,
+          pitch: 0.98,
+          pause: 750,
+          targetSelector: "#ss-section-scriptures"
+        });
+      });
+    }
+
+    // 5. Introduction & Objectives
+    if (lesson.introduction) {
+      segments.push({
+        label: "Introduction",
+        text: `Lesson Introduction: ${lesson.introduction}`,
+        rate: 0.96,
+        pitch: 1.0,
+        pause: 750,
+        targetSelector: "#ss-section-objectives"
+      });
+    }
+
+    // 6. Outlines & Exegesis (each outline has distinct focus)
+    if (lesson.outlines && lesson.outlines.length > 0) {
+      lesson.outlines.forEach(ot => {
+        const cleanPoints = (ot.points || []).map(p => p.replace(/\*\*/g, '')).join(". ");
+        const outlineText = `Outline ${ot.number}: ${ot.title}. Scripture: ${ot.scripture}. Summary: ${ot.summary}. Key points: ${cleanPoints}. ${ot.keyInsight ? `Key Insight: ${ot.keyInsight}` : ''}`;
+        segments.push({
+          label: `Outline ${ot.number}`,
+          text: outlineText,
+          rate: 0.94,
+          pitch: 1.0,
+          pause: 800,
+          targetSelector: "#ss-section-outlines"
+        });
+      });
+    }
+
+    // 7. Discussion Questions (Slight inflection for engagement)
+    if (lesson.discussionQuestions && lesson.discussionQuestions.length > 0) {
+      const qText = lesson.discussionQuestions.map((dq, idx) => `Question ${idx + 1}: ${dq.question}`).join(". ");
+      segments.push({
+        label: "Discussion Questions",
+        text: `Class Discussion and Reflection. ${qText}`,
+        rate: 0.92,
+        pitch: 1.03,
+        pause: 800,
+        targetSelector: "#ss-section-discussion"
+      });
+    }
+
+    // 8. Life Application
+    if (lesson.lifeApplication) {
+      segments.push({
+        label: "Life Application",
+        text: `Weekly Faith Application: ${lesson.lifeApplication}`,
+        rate: 0.88,
+        pitch: 0.97,
+        pause: 900,
+        targetSelector: "#ss-section-application"
+      });
+    }
+
+    // 9. Closing Benediction
+    segments.push({
+      label: "Closing Benediction",
+      text: `This concludes Sunday School Lesson ${lesson.lessonNumber}. May God richly bless the meditation of His word.`,
+      rate: 0.88,
+      pitch: 0.95,
+      pause: 400,
+      targetSelector: null
+    });
+
+    return segments;
+  };
+
+  const clearHighlight = () => {
+    document.querySelectorAll(".ss-reading-active").forEach(el => el.classList.remove("ss-reading-active"));
+  };
+
+  const highlightCard = (targetSelector) => {
+    clearHighlight();
+    if (!targetSelector) return;
+    const card = document.querySelector(targetSelector);
+    if (card) {
+      card.classList.add("ss-reading-active");
+
+      // Auto-scroll gently into view if offscreen
+      const rect = card.getBoundingClientRect();
+      const toolbarOffset = 110;
+      if (rect.top < toolbarOffset || rect.bottom > window.innerHeight) {
+        const targetScroll = window.scrollY + rect.top - toolbarOffset;
+        window.scrollTo({ top: Math.max(0, targetScroll), behavior: "smooth" });
+      }
+
+      // Sync active state in TOC
+      const targetId = card.getAttribute("id");
+      if (targetId) {
+        document.querySelectorAll(".ss-toc-link").forEach(link => {
+          link.classList.toggle("active", link.getAttribute("href") === `#${targetId}`);
+        });
+      }
+    }
+  };
+
+  const stopAudio = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    clearTimeout(segmentTimeout);
+    isSpeaking = false;
+    isPaused = false;
+    currentSegmentIndex = 0;
+    clearHighlight();
+
+    if (audioStatus) audioStatus.textContent = "Ready to read aloud";
+    if (audioBtnText) audioBtnText.textContent = "Listen";
+    if (audioIcon) audioIcon.textContent = "▶";
+    audioPlayBtn.classList.remove("playing");
+    if (audioStopBtn) audioStopBtn.classList.add("hidden");
+  };
+
+  const playSegment = (segments, index) => {
+    if (!isSpeaking || index >= segments.length) {
+      stopAudio();
+      if (audioStatus) audioStatus.textContent = "Finished reading";
+      return;
+    }
+
+    currentSegmentIndex = index;
+    const seg = segments[index];
+
+    // Highlight card
+    highlightCard(seg.targetSelector);
+
+    // Update status bar
+    if (audioStatus) audioStatus.textContent = `Reading: ${seg.label}...`;
+
+    const utterance = new SpeechSynthesisUtterance(seg.text);
+    utterance.voice = cachedVoice || getBestVoice();
+    utterance.rate = seg.rate || 0.95;
+    utterance.pitch = seg.pitch || 1.0;
+
+    utterance.onend = () => {
+      if (!isSpeaking) return;
+      // Add conversational pause between sections
+      segmentTimeout = setTimeout(() => {
+        playSegment(segments, index + 1);
+      }, seg.pause || 600);
+    };
+
+    utterance.onerror = (e) => {
+      // If canceled purposefully, ignore
+      if (e.error === "canceled" || e.error === "interrupted") return;
+      console.warn("Speech synthesis segment error:", e);
+      // Attempt to advance to next segment
+      segmentTimeout = setTimeout(() => {
+        playSegment(segments, index + 1);
+      }, 400);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   if (audioPlayBtn && "speechSynthesis" in window) {
     audioPlayBtn.addEventListener("click", () => {
-      if (isSpeaking) {
+      const segments = buildSegments();
+
+      if (isSpeaking && !isPaused) {
+        // Pause
         window.speechSynthesis.cancel();
+        clearTimeout(segmentTimeout);
+        isPaused = true;
         isSpeaking = false;
-        if (audioStatus) audioStatus.textContent = "Audio paused";
-        if (audioBtnText) audioBtnText.textContent = "Listen";
+        if (audioStatus) audioStatus.textContent = `Paused: ${segments[currentSegmentIndex]?.label || 'lesson'}`;
+        if (audioBtnText) audioBtnText.textContent = "Resume";
+        if (audioIcon) audioIcon.textContent = "▶";
         audioPlayBtn.classList.remove("playing");
       } else {
+        // Play or Resume
         window.speechSynthesis.cancel();
-        const textToRead = `Sunday School Lesson ${lesson.lessonNumber}: ${lesson.topic}. Memory Verse: ${lesson.memoryVerse?.text || ''}. Introduction: ${lesson.introduction}`;
+        clearTimeout(segmentTimeout);
+        isSpeaking = true;
+        isPaused = false;
 
-        const utterance = new SpeechSynthesisUtterance(textToRead);
-        utterance.rate = 0.95;
-        utterance.pitch = 1.0;
+        if (audioBtnText) audioBtnText.textContent = "Pause";
+        if (audioIcon) audioIcon.textContent = "⏸";
+        audioPlayBtn.classList.add("playing");
+        if (audioStopBtn) audioStopBtn.classList.remove("hidden");
 
-        utterance.onstart = () => {
-          isSpeaking = true;
-          if (audioStatus) audioStatus.textContent = "Reading lesson aloud...";
-          if (audioBtnText) audioBtnText.textContent = "Pause";
-          audioPlayBtn.classList.add("playing");
-        };
-
-        utterance.onend = () => {
-          isSpeaking = false;
-          if (audioStatus) audioStatus.textContent = "Finished reading";
-          if (audioBtnText) audioBtnText.textContent = "Listen";
-          audioPlayBtn.classList.remove("playing");
-        };
-
-        utterance.onerror = () => {
-          isSpeaking = false;
-          if (audioStatus) audioStatus.textContent = "Audio playback error";
-          if (audioBtnText) audioBtnText.textContent = "Listen";
-          audioPlayBtn.classList.remove("playing");
-        };
-
-        window.speechSynthesis.speak(utterance);
+        playSegment(segments, currentSegmentIndex);
       }
+    });
+
+    if (audioStopBtn) {
+      audioStopBtn.addEventListener("click", () => {
+        stopAudio();
+      });
+    }
+
+    // Cancel speech when navigating away
+    window.addEventListener("beforeunload", () => {
+      window.speechSynthesis.cancel();
     });
   } else if (audioPlayBtn) {
     if (audioStatus) audioStatus.textContent = "Audio reader unsupported";
