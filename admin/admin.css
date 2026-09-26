@@ -1335,3 +1335,20 @@ body.admin-body {
   background: var(--admin-warning);
   box-shadow: 0 0 8px var(--admin-warning);
 }
+
+
+/* --------------------------------------------------------------------------
+   Authenticated CMS identity
+   -------------------------------------------------------------------------- */
+.admin-user-identity {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: .45rem .75rem;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, .82);
+  font-size: .76rem;
+  font-weight: 700;
+}

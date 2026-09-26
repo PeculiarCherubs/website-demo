@@ -964,10 +964,14 @@ function renderMinistries(content) {
 
 function renderMinistryDetail(content) {
   const key = document.body.dataset.ministryKey;
-  const item = content.ministries.details[key];
+  const isChapelDetail = document.body.dataset.page === "chapelDetail";
+  const item = isChapelDetail
+    ? content.chapels?.details?.[key]
+    : content.ministries?.details?.[key];
 
   if (!item) {
-    throw new Error(`Unknown ministry key: ${key}`);
+    const entityType = isChapelDetail ? "chapel" : "ministry";
+    throw new Error(`Unknown ${entityType} key: ${key}`);
   }
 
   setText("[data-ministry-detail-category]", item.category);
@@ -3011,6 +3015,7 @@ async function initialiseSite() {
       about: renderAbout,
       ministries: renderMinistries,
       ministryDetail: renderMinistryDetail,
+      chapelDetail: renderMinistryDetail,
       houseFellowships: renderHouseFellowships,
       chapels: renderChapels,
       sermons: renderSermons,
