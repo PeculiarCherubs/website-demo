@@ -8,8 +8,8 @@
 (function (global) {
   'use strict';
 
-  const AUTH_KEY = 'pdcm_admin_auth_session';
-  const MASTER_PASSCODE = 'pdcm2026';
+  const AUTH_SESSION_KEY = 'pdcm_supabase_auth_session';
+  const AUTH_REFRESH_SKEW_MS = 60 * 1000;
 
   let currentContent = {};
   let isFallbackMode = false;
@@ -27,7 +27,7 @@
      */
     async init() {
       this.bindEvents();
-      this.checkAuthStatus();
+      await this.checkAuthStatus();
     },
 
     /**
@@ -37,16 +37,16 @@
       // Auth Form
       const authForm = document.getElementById('adminAuthForm');
       if (authForm) {
-        authForm.addEventListener('submit', (e) => {
+        authForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          this.handleLogin();
+          await this.handleLogin();
         });
       }
 
       // Logout / Lock
       const logoutBtn = document.getElementById('adminLogoutBtn');
       if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => this.handleLogout());
+        logoutBtn.addEventListener('click', async () => this.handleLogout());
       }
 
       // Export JSON
@@ -78,52 +78,246 @@
     },
 
     /**
-     * Checks if admin is logged in
+     * Returns the locally stored Supabase session used by the Admin Portal.
+     * The session is kept in sessionStorage so closing the browser tab ends
+     * the local Admin session.
      */
-    checkAuthStatus() {
-      const isAuth = sessionStorage.getItem(AUTH_KEY) === 'true';
-      const authOverlay = document.getElementById('adminAuthOverlay');
+    getStoredAuthSession() {
+      try {
+        const raw = sessionStorage.getItem(AUTH_SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (err) {
+        console.warn('[AdminPortal] Invalid stored auth session.', err);
+        sessionStorage.removeItem(AUTH_SESSION_KEY);
+        return null;
+      }
+    },
 
-      if (isAuth) {
-        if (authOverlay) authOverlay.classList.add('hidden');
-        this.loadFullContent();
-      } else {
-        if (authOverlay) authOverlay.classList.remove('hidden');
+    storeAuthSession(payload) {
+      const expiresIn = Number(payload.expires_in || 3600);
+      const session = {
+        accessToken: payload.access_token,
+        refreshToken: payload.refresh_token,
+        tokenType: payload.token_type || 'bearer',
+        expiresAt: Date.now() + (expiresIn * 1000),
+        user: payload.user || null
+      };
+
+      sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+      return session;
+    },
+
+    clearAuthSession() {
+      sessionStorage.removeItem(AUTH_SESSION_KEY);
+    },
+
+    getAuthConfig() {
+      const cfg = global.ContentService?.config;
+      if (!cfg?.url || !cfg?.anonKey) {
+        throw new Error('Supabase configuration is unavailable.');
+      }
+      return cfg;
+    },
+
+    async refreshAuthSession(session) {
+      if (!session?.refreshToken) return null;
+
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refresh_token: session.refreshToken })
+      });
+
+      if (!response.ok) {
+        this.clearAuthSession();
+        return null;
+      }
+
+      return this.storeAuthSession(await response.json());
+    },
+
+    async getValidAuthSession() {
+      let session = this.getStoredAuthSession();
+      if (!session?.accessToken) return null;
+
+      if (!session.expiresAt || session.expiresAt - Date.now() <= AUTH_REFRESH_SKEW_MS) {
+        session = await this.refreshAuthSession(session);
+      }
+
+      return session;
+    },
+
+    async verifyCmsAdmin(accessToken) {
+      if (!accessToken) return false;
+
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/rest/v1/rpc/is_cms_admin`, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: '{}'
+      });
+
+      if (!response.ok) {
+        console.warn('[AdminPortal] CMS admin verification failed:', response.status);
+        return false;
+      }
+
+      return (await response.json()) === true;
+    },
+
+    setAuthenticatedUser(session) {
+      const userLabel = document.getElementById('adminUserIdentity');
+      if (!userLabel) return;
+
+      const email = session?.user?.email || '';
+      userLabel.textContent = email;
+      userLabel.hidden = !email;
+    },
+
+    showAuthOverlay(message = '') {
+      const authOverlay = document.getElementById('adminAuthOverlay');
+      const errorMsg = document.getElementById('adminAuthError');
+      if (authOverlay) authOverlay.classList.remove('hidden');
+      if (errorMsg) {
+        errorMsg.textContent = message || 'Please sign in with an authorized CMS administrator account.';
+        errorMsg.style.display = message ? 'block' : 'none';
       }
     },
 
     /**
-     * Handles passcode authentication
+     * Validates the stored Supabase Auth session and CMS authorization.
      */
-    handleLogin() {
-      const input = document.getElementById('adminPasscode');
-      const errorMsg = document.getElementById('adminAuthError');
+    async checkAuthStatus() {
       const authOverlay = document.getElementById('adminAuthOverlay');
 
-      const val = input ? input.value.trim() : '';
+      try {
+        const session = await this.getValidAuthSession();
+        if (!session) {
+          this.showAuthOverlay();
+          return;
+        }
 
-      if (val === MASTER_PASSCODE) {
-        sessionStorage.setItem(AUTH_KEY, 'true');
+        const isAdmin = await this.verifyCmsAdmin(session.accessToken);
+        if (!isAdmin) {
+          this.clearAuthSession();
+          this.showAuthOverlay('This account is signed in but is not authorized to manage the CMS.');
+          return;
+        }
+
+        this.setAuthenticatedUser(session);
+        if (authOverlay) authOverlay.classList.add('hidden');
+        await this.loadFullContent();
+      } catch (err) {
+        console.error('[AdminPortal] Could not validate Admin session:', err);
+        this.clearAuthSession();
+        this.showAuthOverlay('Could not validate the Admin session. Please sign in again.');
+      }
+    },
+
+    /**
+     * Signs in through Supabase Auth using email/password credentials, then
+     * verifies that the authenticated user is explicitly listed as a CMS admin.
+     */
+    async handleLogin() {
+      const emailInput = document.getElementById('adminEmail');
+      const passwordInput = document.getElementById('adminPassword');
+      const errorMsg = document.getElementById('adminAuthError');
+      const authOverlay = document.getElementById('adminAuthOverlay');
+      const submitBtn = document.querySelector('#adminAuthForm button[type="submit"]');
+
+      const email = emailInput?.value.trim() || '';
+      const password = passwordInput?.value || '';
+
+      if (!email || !password) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Enter both your Admin email and password.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in…';
+      }
+
+      try {
+        const cfg = this.getAuthConfig();
+        const response = await fetch(`${cfg.url}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'apikey': cfg.anonKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+          const detail = await response.json().catch(() => ({}));
+          throw new Error(detail.msg || detail.error_description || 'Invalid email or password.');
+        }
+
+        const session = this.storeAuthSession(await response.json());
+        const isAdmin = await this.verifyCmsAdmin(session.accessToken);
+
+        if (!isAdmin) {
+          this.clearAuthSession();
+          throw new Error('This account is not authorized to manage the CMS.');
+        }
+
+        this.setAuthenticatedUser(session);
         if (errorMsg) errorMsg.style.display = 'none';
         if (authOverlay) authOverlay.classList.add('hidden');
-        this.showToast('Authentication successful! Welcome, Admin.', 'success');
-        this.loadFullContent();
-      } else {
+        this.showToast('Secure Admin session established.', 'success');
+        await this.loadFullContent();
+      } catch (err) {
+        console.error('[AdminPortal] Login failed:', err);
+        this.clearAuthSession();
         if (errorMsg) {
-          errorMsg.textContent = 'Incorrect passcode. Try again.';
+          errorMsg.textContent = err.message || 'Could not sign in.';
           errorMsg.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In';
         }
       }
     },
 
     /**
-     * Handles logout / locking the portal
+     * Ends the Supabase Auth session and locks the portal.
      */
-    handleLogout() {
-      sessionStorage.removeItem(AUTH_KEY);
-      const authOverlay = document.getElementById('adminAuthOverlay');
-      if (authOverlay) authOverlay.classList.remove('hidden');
-      this.showToast('Portal locked.', 'info');
+    async handleLogout() {
+      const session = this.getStoredAuthSession();
+      const cfg = global.ContentService?.config;
+
+      if (session?.accessToken && cfg?.url && cfg?.anonKey) {
+        try {
+          await fetch(`${cfg.url}/auth/v1/logout`, {
+            method: 'POST',
+            headers: {
+              'apikey': cfg.anonKey,
+              'Authorization': `Bearer ${session.accessToken}`
+            }
+          });
+        } catch (err) {
+          console.warn('[AdminPortal] Remote logout failed; local session will still be cleared.', err);
+        }
+      }
+
+      this.clearAuthSession();
+      this.setAuthenticatedUser(null);
+      this.showAuthOverlay();
+      this.showToast('Admin session ended.', 'info');
     },
 
     /**
@@ -3934,6 +4128,21 @@
         return false;
       }
 
+      const session = await this.getValidAuthSession();
+      if (!session?.accessToken) {
+        this.showAuthOverlay('Your Admin session has expired. Please sign in again.');
+        this.showToast('Admin session expired. Save was not attempted.', 'error');
+        return false;
+      }
+
+      const isAdmin = await this.verifyCmsAdmin(session.accessToken);
+      if (!isAdmin) {
+        this.clearAuthSession();
+        this.showAuthOverlay('This account is not authorized to write CMS content.');
+        this.showToast('CMS write authorization failed.', 'error');
+        return false;
+      }
+
       const endpoint = `${cfg.url}/rest/v1/${cfg.tableName}?on_conflict=key`;
 
       try {
@@ -3941,7 +4150,7 @@
           method: 'POST',
           headers: {
             'apikey': cfg.anonKey,
-            'Authorization': `Bearer ${cfg.anonKey}`,
+            'Authorization': `Bearer ${session.accessToken}`,
             'Content-Type': 'application/json',
             'Prefer': 'resolution=merge-duplicates,return=minimal'
           },
@@ -3954,13 +4163,16 @@
         if (!resp.ok) {
           const detail = await resp.text().catch(() => '');
           console.warn(
-            `[AdminPortal] Supabase upsert for '${sectionKey}' returned status ${resp.status}`,
+            `[AdminPortal] Authorized Supabase upsert for '${sectionKey}' returned status ${resp.status}`,
             detail
           );
           this.showToast(`Supabase save failed for '${sectionKey}' (${resp.status}).`, 'error');
 
-          // Re-sync Admin state with the authoritative live DB. If the DB is
-          // now unavailable, loadFullContent will enter read-only fallback.
+          if (resp.status === 401 || resp.status === 403) {
+            this.clearAuthSession();
+            this.showAuthOverlay('Your session is no longer authorized. Please sign in again.');
+          }
+
           await this.loadFullContent({ suppressToast: true, forceRefresh: true });
           return false;
         }
@@ -3975,7 +4187,7 @@
         currentContent[sectionKey] = sectionData;
         currentContent._source = 'supabase_db';
 
-        console.log(`[AdminPortal] Successfully upserted '${sectionKey}' in Supabase DB.`);
+        console.log(`[AdminPortal] Securely upserted '${sectionKey}' in Supabase DB.`);
         return true;
       } catch (err) {
         console.error(`[AdminPortal] Error syncing section '${sectionKey}' to Supabase:`, err);

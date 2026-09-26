@@ -20,26 +20,37 @@
 <body class="admin-body">
 
   <!-- ======================================================================
-       Passcode Authentication Overlay
+       Secure Supabase Authentication Overlay
        ====================================================================== -->
   <div id="adminAuthOverlay" class="admin-auth-overlay">
     <div class="admin-auth-card">
       <div class="admin-auth-icon">🛡️</div>
-      <h2>Admin Access</h2>
-      <p>Enter the master passcode to manage site content live in Supabase DB.</p>
+      <h2>CMS Administrator Sign In</h2>
+      <p>Sign in with an authorized Supabase CMS administrator account.</p>
 
       <form id="adminAuthForm">
         <div class="admin-input-group">
-          <label for="adminPasscode">Passcode</label>
-          <input type="password" id="adminPasscode" class="admin-input" placeholder="••••••••" required
+          <label for="adminEmail">Email</label>
+          <input type="email" id="adminEmail" class="admin-input" placeholder="admin@example.org" required
+            autocomplete="username">
+        </div>
+
+        <div class="admin-input-group" style="margin-top: .9rem;">
+          <label for="adminPassword">Password</label>
+          <input type="password" id="adminPassword" class="admin-input" placeholder="••••••••" required
             autocomplete="current-password">
         </div>
-        <div id="adminAuthError" class="admin-auth-error">Invalid passcode. Please try again.</div>
+
+        <div id="adminAuthError" class="admin-auth-error">Could not authenticate this account.</div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-          Unlock Portal
+          Sign In
         </button>
       </form>
+
+      <p style="margin-top: 1rem; font-size: .78rem;">
+        Access is controlled by Supabase Auth and database Row Level Security.
+      </p>
     </div>
   </div>
 
@@ -72,9 +83,11 @@
         📥 Export JSON
       </button>
 
+      <span id="adminUserIdentity" class="admin-user-identity" hidden></span>
+
       <button id="adminLogoutBtn" class="btn btn-secondary admin-btn-sm"
         style="border-color: rgba(255,255,255,0.3); color: var(--white);">
-        🔒 Lock
+        ↪ Sign Out
       </button>
     </div>
   </header>
