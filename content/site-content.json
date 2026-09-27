@@ -203,24 +203,7 @@
       "eyebrow": "Our Testimonials",
       "title": "Stories of grace and transformed lives.",
       "description": "Real stories from people who have encountered God through the ministry and community of Peculiar Cherubs.",
-      "items": [
-        {
-          "quote": "Through the prayers, teaching, and love I received here, my faith became stronger and my family experienced a new beginning.",
-          "name": "Member Name",
-          "chapel": "PDCM English Chapel"
-        },
-        {
-          "quote": "I came seeking direction and found a spiritual family. The Word helped me understand my purpose and walk confidently with God.",
-          "name": "Member Name",
-          "chapel": "PDCM Gwarinpa Chapel",
-          "featured": true
-        },
-        {
-          "quote": "The youth chapel gave me a place to worship freely, serve with my gifts, and grow alongside other young believers.",
-          "name": "Member Name",
-          "chapel": "PDCM Mega Youth Chapel"
-        }
-      ]
+      "items": []
     },
     "themes": {
       "year": {
@@ -570,56 +553,7 @@
       "title": "Truth for life.\nFaith for the journey.",
       "description": "Watch, listen, and grow through messages from across the Peculiar Cherubs family."
     },
-    "items": [
-      {
-        "category": "Faith Series",
-        "title": "Grace for the Journey",
-        "speaker": "Pastor Name",
-        "duration": "42 min",
-        "image": "https://images.unsplash.com/photo-1491396023581-4344e51fec5c?auto=format&fit=crop&w=900&q=80",
-        "id": "sermon-grace-for-the-journey"
-      },
-      {
-        "category": "Discipleship",
-        "title": "Built on the Rock",
-        "speaker": "Pastor Name",
-        "duration": "51 min",
-        "image": "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=900&q=80",
-        "id": "sermon-built-on-the-rock"
-      },
-      {
-        "category": "Prayer",
-        "title": "Mercy for Direction",
-        "speaker": "Pastor Name",
-        "duration": "37 min",
-        "image": "https://images.unsplash.com/photo-1548625361-58a9b86aa83b?auto=format&fit=crop&w=900&q=80",
-        "id": "sermon-mercy-for-direction"
-      },
-      {
-        "category": "Identity",
-        "title": "A Peculiar People",
-        "speaker": "Pastor Name",
-        "duration": "45 min",
-        "image": "https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=900&q=80",
-        "id": "sermon-a-peculiar-people"
-      },
-      {
-        "category": "Kingdom Living",
-        "title": "Living as Light",
-        "speaker": "Pastor Name",
-        "duration": "39 min",
-        "image": "https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80",
-        "id": "sermon-living-as-light"
-      },
-      {
-        "category": "Worship",
-        "title": "The Sound of Surrender",
-        "speaker": "Pastor Name",
-        "duration": "48 min",
-        "image": "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=900&q=80",
-        "id": "sermon-the-sound-of-surrender"
-      }
-    ]
+    "items": []
   },
   "publications": {
     "hero": {
@@ -729,7 +663,8 @@
           "Join us for our Wednesday Shiloh Service at 6:00 PM as we continue our series on Purpose.",
           "The Children's Ministry is recruiting teachers. Contact the parish office to register interest."
         ],
-        "pdfUrl": "#"
+        "pdfUrl": "",
+        "pdfComingSoon": true
       },
       "issue-02": {
         "type": "Goodnews This Week",
@@ -756,7 +691,8 @@
           "Monthly Hour of Praise and Deliverance will hold this Friday at 10:00 PM. Come ready for breakthroughs.",
           "Publications team is accepting testimonies for the next monthly edition."
         ],
-        "pdfUrl": "#"
+        "pdfUrl": "",
+        "pdfComingSoon": true
       },
       "issue-03": {
         "type": "Goodnews This Week",
@@ -783,7 +719,8 @@
           "Registration for Pesach International Academy's new term is now open. See student services for details.",
           "Youth Fellowship will hold a special outreach seminar this Saturday at 12:00 PM."
         ],
-        "pdfUrl": "#"
+        "pdfUrl": "",
+        "pdfComingSoon": true
       },
       "issue-04": {
         "type": "Goodnews This Week",
@@ -810,7 +747,8 @@
           "Feeding Ministry outreach will take place this Saturday morning. Volunteers should gather at 8:00 AM.",
           "Weekly contributions for church development project can be submitted via the give portal."
         ],
-        "pdfUrl": "#"
+        "pdfUrl": "",
+        "pdfComingSoon": true
       },
       "issue-05": {
         "type": "Goodnews This Week",
@@ -837,7 +775,8 @@
           "Praise Night rehearsals will hold on Thursday at 5:00 PM for all choir members.",
           "New believers class starts next Sunday immediately after the first service."
         ],
-        "pdfUrl": "#"
+        "pdfUrl": "",
+        "pdfComingSoon": true
       },
       "issue-06": {
         "type": "Goodnews This Week",
@@ -864,7 +803,8 @@
           "Couples Fellowship is hosting a dinner seminar on family relationships on August 15. Register today.",
           "House Fellowship coordinators meeting will hold after the Wednesday service."
         ],
-        "pdfUrl": "#"
+        "pdfUrl": "",
+        "pdfComingSoon": true
       }
     },
     "sundaySchool": {
@@ -917,7 +857,7 @@
           "targetAudience": "Adults, Youth & Teachers",
           "duration": "45 Minutes",
           "author": "Peculiar Cherubs Sunday School Department & HQ Lectionary Committee",
-          "pdfUrl": "#",
+          "pdfUrl": "",
           "objectives": [
             "Define the biblical concept of divine mercy (Hebrew: Hesed; Greek: Eleos).",
             "Understand how believers access God's gift of grace through repentance and faith.",
@@ -998,7 +938,8 @@
               "Intercede for families undergoing strain, praying for divine healing and reconciliation."
             ]
           },
-          "lifeApplication": "This week, identify one person against whom you have held a grudge or hard feelings. Write down a prayer for them, forgive them in your heart, and reach out with a kind message or gesture of peace."
+          "lifeApplication": "This week, identify one person against whom you have held a grudge or hard feelings. Write down a prayer for them, forgive them in your heart, and reach out with a kind message or gesture of peace.",
+          "pdfComingSoon": true
         },
         "lesson-34": {
           "id": "lesson-34",
@@ -1033,7 +974,7 @@
           "targetAudience": "Adults, Youth & Business Leaders",
           "duration": "45 Minutes",
           "author": "Peculiar Cherubs Sunday School Department",
-          "pdfUrl": "#",
+          "pdfUrl": "",
           "objectives": [
             "Understand the biblical definition of Kingdom Wealth vs worldly riches.",
             "Learn principles of faithful stewardship, budgeting, and systematic giving.",
@@ -1100,7 +1041,8 @@
               "Intercede for job opportunities and business breakthroughs."
             ]
           },
-          "lifeApplication": "Review your personal monthly budget this week, set aside a dedicated portion for charitable giving/benevolence, and bless someone in need secretly."
+          "lifeApplication": "Review your personal monthly budget this week, set aside a dedicated portion for charitable giving/benevolence, and bless someone in need secretly.",
+          "pdfComingSoon": true
         }
       }
     },
@@ -1110,7 +1052,7 @@
       "description": "Browse the authenticated 2026 headquarters lectionary by month, including scripture texts, sermon topics, objectives, and special observances.",
       "currentMonth": "July 2026",
       "button": "Download Full Lectionary",
-      "href": "#",
+      "href": "",
       "readings": [
         {
           "date": "2026-01-04",
@@ -1683,7 +1625,8 @@
           "objective": "Expound on the theme of Year 2027",
           "event": "CROSS OVER SERVICE"
         }
-      ]
+      ],
+      "comingSoon": true
     },
     "blog": {
       "eyebrow": "Publication Blog",
@@ -2248,14 +2191,16 @@
         "icon": "▶",
         "title": "Watch Live",
         "text": "Join the latest service online.",
-        "href": "#"
+        "href": "",
+        "comingSoon": true
       },
       {
         "id": "ql_link_prayer_request",
         "icon": "◉",
         "title": "Prayer Request",
         "text": "Share your prayer needs with us.",
-        "href": "#"
+        "href": "",
+        "comingSoon": true
       },
       {
         "id": "ql_link_plan_visit",
@@ -2276,7 +2221,8 @@
         "icon": "☏",
         "title": "Contact Us",
         "text": "Reach the church office or a chapel.",
-        "href": "#"
+        "href": "",
+        "comingSoon": true
       },
       {
         "id": "ql_link_events_calendar",
@@ -2382,63 +2328,7 @@
         "isPrimary": false
       }
     ],
-    "bankAccounts": [
-      {
-        "id": "acc-ngn-1",
-        "currency": "NGN",
-        "title": "Main Ministry Account (Tithes & Offerings)",
-        "bankName": "Zenith Bank",
-        "accountName": "Peculiar Cherubs Ministries",
-        "accountNumber": "1012345678",
-        "sortCode": "057150013",
-        "narrationGuide": "Include your Full Name and Purpose (e.g., 'Ezekiel Ade - Tithe')",
-        "isPrimary": true
-      },
-      {
-        "id": "acc-ngn-2",
-        "currency": "NGN",
-        "title": "Building & Expansion Fund",
-        "bankName": "Guaranty Trust Bank (GTBank)",
-        "accountName": "Peculiar Cherubs Ministries - Building Fund",
-        "accountNumber": "0123456789",
-        "sortCode": "058152062",
-        "narrationGuide": "Use narration: 'YourName - Building Fund'",
-        "isPrimary": false
-      },
-      {
-        "id": "acc-usd",
-        "currency": "USD",
-        "title": "USD Domiciliary Account",
-        "bankName": "Zenith Bank Plc",
-        "accountName": "Peculiar Cherubs Ministries",
-        "accountNumber": "5070123456",
-        "swiftCode": "ZEBLNGLA",
-        "narrationGuide": "International wire transfers / diaspora giving. Include donor name.",
-        "isPrimary": false
-      },
-      {
-        "id": "acc-gbp",
-        "currency": "GBP",
-        "title": "GBP Domiciliary Account",
-        "bankName": "Zenith Bank Plc",
-        "accountName": "Peculiar Cherubs Ministries",
-        "accountNumber": "5080123456",
-        "swiftCode": "ZEBLNGLA",
-        "narrationGuide": "GBP wire transfers. Include donor name in reference.",
-        "isPrimary": false
-      },
-      {
-        "id": "acc-eur",
-        "currency": "EUR",
-        "title": "EUR Domiciliary Account",
-        "bankName": "Zenith Bank Plc",
-        "accountName": "Peculiar Cherubs Ministries",
-        "accountNumber": "5090123456",
-        "swiftCode": "ZEBLNGLA",
-        "narrationGuide": "Euro SEPA / international wire. Include donor name.",
-        "isPrimary": false
-      }
-    ],
+    "bankAccounts": [],
     "categories": [
       "Tithe",
       "Sunday Offering",
@@ -2507,14 +2397,14 @@
         "badge": "Missions"
       }
     ],
-    "whatsappConfirmPhone": "2348000000000",
+    "whatsappConfirmPhone": "",
     "whatsappConfirmText": "Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving/tithe. Here are the details:",
     "paymentGateway": {
       "enabled": false,
       "provider": "custom",
       "paymentUrl": "",
       "buttonLabel": "Proceed to Secure Payment ↗",
-      "noticeMessage": "Online card processing integration for Peculiar Cherubs is currently being finalized. In the meantime, you can fulfill your giving instantly with zero transaction fees using our verified Direct Bank Transfer accounts.",
+      "noticeMessage": "Online giving instructions are temporarily unavailable. Please contact the church office through an approved contact channel before making a transfer.",
       "appendDonorParams": true,
       "customNote": "Supports debit/credit cards, USSD, Apple Pay, and instant bank transfer via payment gateway."
     }
@@ -2568,32 +2458,44 @@
       {
         "code": "CHBS 101",
         "title": "Foundations of Christian Faith",
-        "text": "An introduction to essential Christian doctrines, salvation, spiritual growth, and faithful discipleship."
+        "text": "An introduction to essential Christian doctrines, salvation, spiritual growth, and faithful discipleship.",
+        "href": "",
+        "comingSoon": true
       },
       {
         "code": "CHBS 201",
         "title": "Biblical Interpretation",
-        "text": "Learn responsible principles for studying, understanding, and applying Scripture."
+        "text": "Learn responsible principles for studying, understanding, and applying Scripture.",
+        "href": "",
+        "comingSoon": true
       },
       {
         "code": "CHBS 301",
         "title": "Christian Leadership and Ministry",
-        "text": "Develop biblical leadership character, ministry skills, and a heart for serving people."
+        "text": "Develop biblical leadership character, ministry skills, and a heart for serving people.",
+        "href": "",
+        "comingSoon": true
       },
       {
         "code": "CHBS 401",
         "title": "Evangelism and Missions",
-        "text": "Explore the biblical mandate for evangelism and practical approaches to sharing the gospel."
+        "text": "Explore the biblical mandate for evangelism and practical approaches to sharing the gospel.",
+        "href": "",
+        "comingSoon": true
       },
       {
         "code": "CHBS 501",
         "title": "Prayer and Spiritual Formation",
-        "text": "Build a disciplined prayer life and cultivate habits that deepen your walk with God."
+        "text": "Build a disciplined prayer life and cultivate habits that deepen your walk with God.",
+        "href": "",
+        "comingSoon": true
       },
       {
         "code": "CHBS 601",
         "title": "Church History and Heritage",
-        "text": "Study major movements, people, and events that have shaped the Christian faith."
+        "text": "Study major movements, people, and events that have shaped the Christian faith.",
+        "href": "",
+        "comingSoon": true
       }
     ],
     "studentServices": [
@@ -2639,7 +2541,8 @@
         "Receive confirmation and student-access details"
       ],
       "button": "Open Registration Form",
-      "href": "#"
+      "href": "",
+      "comingSoon": true
     },
     "portal": {
       "eyebrow": "Student Portal",
@@ -2647,16 +2550,19 @@
       "description": "Returning students can access classes, catch-up recordings, assignments, learning materials, announcements, and academic support.",
       "buttons": [
         {
-          "label": "Sign In to Portal",
-          "href": "#"
-        },
-        {
-          "label": "Catch Up on Classes",
-          "href": "#"
+          "label": "Download Course Materials",
+          "href": "",
+          "comingSoon": true
         },
         {
           "label": "Download Course Materials",
-          "href": "#"
+          "href": "",
+          "comingSoon": true
+        },
+        {
+          "label": "Download Course Materials",
+          "href": "",
+          "comingSoon": true
         }
       ]
     }
@@ -3887,75 +3793,14 @@
         "source": "2026 HQ Lectionary"
       }
     ],
-    "socialFeed": [
-      {
-        "platform": "Website Placeholder",
-        "type": "PHOTO GALLERY",
-        "title": "Founder’s Day Highlights",
-        "text": "Celebrating our heritage, vision, and continuing mission.",
-        "url": "#media-and-social",
-        "thumbnail": "assets/events/placeholders/founders-day-highlights.jpg",
-        "published": true,
-        "placeholder": true
-      },
-      {
-        "platform": "Website Placeholder",
-        "type": "VIDEO",
-        "title": "Choir Fiesta Highlights",
-        "text": "A celebration of worship, music, and joyful praise.",
-        "url": "#media-and-social",
-        "thumbnail": "assets/events/placeholders/choir-fiesta-video.jpg",
-        "published": true,
-        "placeholder": true
-      },
-      {
-        "platform": "Website Placeholder",
-        "type": "VIDEO",
-        "title": "Shiloh Revival",
-        "text": "Prayer, renewal, worship, and the Word.",
-        "url": "#media-and-social",
-        "thumbnail": "assets/events/placeholders/shiloh-revival-video.jpg",
-        "published": true,
-        "placeholder": true
-      },
-      {
-        "platform": "Website Placeholder",
-        "type": "PHOTOS",
-        "title": "Sunday Worship Moments",
-        "text": "Worship, fellowship, prayer, and transformed lives.",
-        "url": "#media-and-social",
-        "thumbnail": "assets/events/placeholders/sunday-worship-gallery.jpg",
-        "published": true,
-        "placeholder": true
-      },
-      {
-        "platform": "Website Placeholder",
-        "type": "REEL",
-        "title": "Mega Youth Gathering",
-        "text": "Young adults growing, serving, and leading for Christ.",
-        "url": "#media-and-social",
-        "thumbnail": "assets/events/placeholders/mega-youth-reel.jpg",
-        "published": true,
-        "placeholder": true
-      },
-      {
-        "platform": "Website Placeholder",
-        "type": "SHORT CLIP",
-        "title": "Great Mercies Testimony",
-        "text": "Stories of God’s mercy, restoration, and favour.",
-        "url": "#media-and-social",
-        "thumbnail": "assets/events/placeholders/great-mercies-testimony.jpg",
-        "published": true,
-        "placeholder": true
-      }
-    ],
+    "socialFeed": [],
     "socialFeedEmpty": {
-      "title": "Social highlights will appear here.",
-      "text": "Add official Facebook, Instagram, YouTube, photo-gallery, or livestream links under events.socialFeed in site-content.json."
+      "title": "Official media highlights will appear here.",
+      "text": "No approved event photos, videos, livestreams, or social posts are currently available."
     },
     "socialFeedNotice": {
-      "title": "Generated placeholders",
-      "text": "These cards are temporary visual placeholders. Replace them later with approved photos, videos, galleries, or social-media links."
+      "title": "",
+      "text": ""
     }
   }
 }
