@@ -62,7 +62,7 @@
       <button id="adminMenuToggle" class="admin-menu-toggle" aria-label="Toggle Navigation Menu">
         ☰
       </button>
-      <a href="../index.html" target="_blank" style="display: flex; align-items: center; gap: 0.75rem;">
+      <a class="admin-inline-row" href="../index.html" target="_blank">
         <img src="../assets/logos/mother-church.png" alt="Peculiar Cherubs Logo" class="admin-header-logo"
           onerror="this.style.display='none'">
         <div class="admin-header-title">
@@ -206,7 +206,7 @@
           <div style="font-size: 0.8rem; font-weight: 800; color: var(--navy);">MAIN WEBSITE</div>
           <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem;">View changes live on website
           </div>
-          <a href="../index.html" target="_blank" class="btn btn-primary admin-btn-sm" style="width: 100%;">
+          <a href="../index.html" target="_blank" class="btn btn-primary admin-btn-sm u-w-full">
             🌐 Open Website
           </a>
         </div>
@@ -299,51 +299,51 @@
         </div>
 
         <!-- Quick Links / Recent Activity -->
-        <div
-          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
+        <div class="admin-settings-card"
+         >
           <h3 style="color: var(--navy); margin-bottom: 0.5rem;">Quick Management Actions</h3>
           <p style="color: var(--muted); font-size: 0.92rem; margin-bottom: 1.25rem;">Direct shortcuts to create,
             update, or edit live site data.</p>
 
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Quick Links & Regular Services</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage "Your next step starts
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">Quick Links & Regular Services</h4>
+              <p class="admin-setting-help">Manage "Your next step starts
                 here" links, service frequencies, and church calendar rhythm.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('quickLinks')">Manage Quick
                 Links →</button>
             </div>
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Sunday School Immersive Editor</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage memory verses, scripture
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">Sunday School Immersive Editor</h4>
+              <p class="admin-setting-help">Manage memory verses, scripture
                 readings, lesson outlines, teacher's corner & class discussions.</p>
               <button class="btn btn-primary admin-btn-sm"
                 onclick="AdminPortal.openItemModal('publications', null, true)">📖 Launch SS Immersive Editor →</button>
             </div>
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Leadership Team</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage pastoral leadership
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">Leadership Team</h4>
+              <p class="admin-setting-help">Manage pastoral leadership
                 personnels,
                 positions, titles, and portrait photos.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('leadership')">Manage
                 Leadership
                 →</button>
             </div>
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Audio & Video Sermons</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Add latest audio messages,
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">Audio & Video Sermons</h4>
+              <p class="admin-setting-help">Add latest audio messages,
                 YouTube links, and transcripts.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">Manage Sermons
                 →</button>
             </div>
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">House Fellowships</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Update fellowship centres, hosts,
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">House Fellowships</h4>
+              <p class="admin-setting-help">Update fellowship centres, hosts,
                 areas, and coordinators.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('fellowships')">Manage
                 Fellowships →</button>
@@ -541,13 +541,13 @@
         </div>
 
         <!-- Section Header Settings Card -->
-        <div
-          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
-          <div
-            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="admin-settings-card"
+         >
+          <div class="admin-setting-row"
+           >
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem;">About Page Section Header</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Customize the eyebrow, heading title, and
+              <h3 class="admin-setting-heading-sm">About Page Section Header</h3>
+              <p class="admin-setting-description">Customize the eyebrow, heading title, and
                 description displayed above the leadership cards on the About page.</p>
             </div>
             <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.saveLeadershipHeaderSettings()">
@@ -564,7 +564,7 @@
               <input type="text" id="leadershipSettingTitle" class="admin-input" placeholder="Shepherds of the flock.">
             </div>
           </div>
-          <div class="admin-input-group" style="margin-bottom: 0;">
+          <div class="admin-input-group u-mb-0">
             <label for="leadershipSettingDescription">Section Subtitle / Description</label>
             <input type="text" id="leadershipSettingDescription" class="admin-input"
               placeholder="Trusted men and women called to serve with humility, faithfulness, and a love for God's people.">
@@ -604,13 +604,13 @@
         </div>
 
         <!-- Section Header Settings Card -->
-        <div
-          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
-          <div
-            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="admin-settings-card"
+         >
+          <div class="admin-setting-row"
+           >
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem;">Quick Links Page Headers</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Customize the hero banner, useful links
+              <h3 class="admin-setting-heading-sm">Quick Links Page Headers</h3>
+              <p class="admin-setting-description">Customize the hero banner, useful links
                 section title, and church calendar section title.</p>
             </div>
             <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.saveQuickLinksHeaderSettings()">
@@ -633,13 +633,13 @@
             <input type="text" id="qlSettingHeroDesc" class="admin-input"
               placeholder="Access church information, weekly publications, services, events, prayer, and ways to connect with Peculiar Cherubs.">
           </div>
-          <div class="admin-modal-grid-2" style="margin-bottom: 0;">
-            <div class="admin-input-group" style="margin-bottom: 0;">
+          <div class="admin-modal-grid-2 u-mb-0">
+            <div class="admin-input-group u-mb-0">
               <label for="qlSettingUsefulTitle">Useful Links Section Heading</label>
               <input type="text" id="qlSettingUsefulTitle" class="admin-input"
                 placeholder="Your next step starts here.">
             </div>
-            <div class="admin-input-group" style="margin-bottom: 0;">
+            <div class="admin-input-group u-mb-0">
               <label for="qlSettingCalendarTitle">Church Calendar Section Heading</label>
               <input type="text" id="qlSettingCalendarTitle" class="admin-input"
                 placeholder="Regular services and major events.">
@@ -648,12 +648,12 @@
         </div>
 
         <!-- Sub-section 1: Useful Links ("Your next step starts here") -->
-        <div style="margin-bottom: 3rem;">
-          <div
-            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="u-mb-3xl">
+          <div class="admin-setting-row"
+           >
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">Your Next Step Starts Here</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Manage the quick links displayed in the
+              <h3 class="admin-setting-card-title">Your Next Step Starts Here</h3>
+              <p class="admin-setting-description">Manage the quick links displayed in the
                 "Useful links" section on the website and homepage preview.</p>
             </div>
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('quickLinks')">
@@ -676,12 +676,12 @@
 
         <!-- Sub-section 2: Regular Services and Major Events -->
         <div style="margin-bottom: 2rem;">
-          <div
-            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div class="admin-setting-row"
+           >
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">Regular Services & Major Events
+              <h3 class="admin-setting-card-title">Regular Services & Major Events
               </h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Manage the recurring worship services,
+              <p class="admin-setting-description">Manage the recurring worship services,
                 prayer clinic times, evangelical outreaches, and major church calendar rhythm.</p>
             </div>
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('quickEvents')">
@@ -726,8 +726,8 @@
         <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2.25rem;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">💳 Online Payment Gateway Plugin</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
+              <h3 class="admin-setting-card-title">💳 Online Payment Gateway Plugin</h3>
+              <p class="admin-setting-description">
                 Connect any payment provider (Paystack, Flutterwave, Stripe, Remita, or Custom link). When enabled, donors proceed directly to your hosted checkout page.
               </p>
             </div>
@@ -737,7 +737,7 @@
           </div>
 
           <div id="adminGatewayStatusBanner" class="admin-gateway-banner inactive">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="admin-inline-row">
               <span style="font-size: 1.5rem;">🔌</span>
               <div>
                 <strong id="adminGatewayStatusTitle">Gateway Offline / Setup Mode</strong>
@@ -751,17 +751,17 @@
 
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
-              <label for="gatewaySettingEnabled" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="gatewaySettingEnabled" style="width: 18px; height: 18px; cursor: pointer;">
+              <label class="admin-check-label" for="gatewaySettingEnabled">
+                <input class="admin-check-input" type="checkbox" id="gatewaySettingEnabled">
                 <span style="font-weight: 800; color: var(--navy);">Enable Online Payment Gateway</span>
               </label>
-              <small style="color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
+              <small class="admin-field-note">
                 Check to activate online checkout on the Give page. Uncheck to revert to bank transfer guidance notice.
               </small>
             </div>
             <div class="admin-input-group">
               <label for="gatewaySettingProvider">Payment Provider Preset</label>
-              <select id="gatewaySettingProvider" class="admin-select" style="width: 100%;" onchange="AdminPortal.onGatewayProviderChange()">
+              <select id="gatewaySettingProvider" class="admin-select u-w-full" onchange="AdminPortal.onGatewayProviderChange()">
                 <option value="custom">Custom Payment Page / Link</option>
                 <option value="paystack">Paystack (Payment Page / Link)</option>
                 <option value="flutterwave">Flutterwave (Payment Link)</option>
@@ -785,31 +785,31 @@
               <input type="text" id="gatewaySettingBtnLabel" class="admin-input" placeholder="Proceed to Secure Payment ↗">
             </div>
             <div class="admin-input-group">
-              <label for="gatewaySettingAppendParams" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="gatewaySettingAppendParams" checked style="width: 18px; height: 18px; cursor: pointer;">
+              <label class="admin-check-label" for="gatewaySettingAppendParams">
+                <input class="admin-check-input" type="checkbox" id="gatewaySettingAppendParams" checked>
                 <span style="font-weight: 700;">Pass Donor Parameters in URL</span>
               </label>
-              <small style="color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
+              <small class="admin-field-note">
                 Appends <code>?amount=...&amp;email=...&amp;name=...&amp;purpose=...</code> so the amount automatically prefills at the gateway.
               </small>
             </div>
           </div>
 
-          <div class="admin-input-group" style="margin-bottom: 0;">
+          <div class="admin-input-group u-mb-0">
             <label for="gatewaySettingNotice">Offline / Setup Notice Message</label>
             <textarea id="gatewaySettingNotice" class="admin-textarea" placeholder="Message shown to givers when the online card gateway is in setup mode..."></textarea>
-            <small style="color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
+            <small class="admin-field-note">
               Displayed in the modal when a giver clicks "Proceed to Give" while the gateway is disabled.
             </small>
           </div>
         </div>
 
         <!-- 2. Verified Church Bank Accounts Sub-Section -->
-        <div style="margin-bottom: 3rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="u-mb-3xl">
+          <div class="admin-setting-row-lg">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">🏦 Verified Church Bank Accounts</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
+              <h3 class="admin-setting-card-title">🏦 Verified Church Bank Accounts</h3>
+              <p class="admin-setting-description">
                 Direct bank accounts for local Naira transfers and foreign currency (USD, GBP, EUR) wire transfers.
               </p>
             </div>
@@ -833,11 +833,11 @@
         </div>
 
         <!-- 3. Strategic Special Projects Sub-Section -->
-        <div style="margin-bottom: 3rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="u-mb-3xl">
+          <div class="admin-setting-row-lg">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">🌟 Special Projects &amp; Targeted Missions</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
+              <h3 class="admin-setting-card-title">🌟 Special Projects &amp; Targeted Missions</h3>
+              <p class="admin-setting-description">
                 Manage active fundraising campaigns such as Chapel Expansion, Feeding Ministry, and Pesach Academy.
               </p>
             </div>
@@ -852,11 +852,11 @@
         </div>
 
         <!-- 4. Giving Page Headers & WhatsApp Notification Settings -->
-        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="admin-settings-card">
+          <div class="admin-setting-row">
             <div>
               <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.2rem;">Giving Page Content &amp; WhatsApp Confirmation</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
+              <p class="admin-setting-description">
                 Customize the transfer acknowledgment WhatsApp hotline and "Why we give" mission texts.
               </p>
             </div>
@@ -881,12 +881,12 @@
             <textarea id="givingSettingWhatsAppText" class="admin-textarea" placeholder="Message givers will send on WhatsApp to confirm their transfer..."></textarea>
           </div>
 
-          <div class="admin-modal-grid-2" style="margin-bottom: 0;">
-            <div class="admin-input-group" style="margin-bottom: 0;">
+          <div class="admin-modal-grid-2 u-mb-0">
+            <div class="admin-input-group u-mb-0">
               <label for="givingSettingWhyTitle">Why We Give Heading</label>
               <input type="text" id="givingSettingWhyTitle" class="admin-input" placeholder="Giving is worship.">
             </div>
-            <div class="admin-input-group" style="margin-bottom: 0;">
+            <div class="admin-input-group u-mb-0">
               <label for="givingSettingWhyDesc">Why We Give Description</label>
               <textarea id="givingSettingWhyDesc" class="admin-textarea" placeholder="Description explaining the spiritual mission of giving..."></textarea>
             </div>

@@ -12,4 +12,5 @@ Describe the change and why it is needed.
 - [ ] Chapel records remain canonical under `chapels.details`.
 - [ ] `node scripts/check-content-integrity.js` passes.
 - [ ] `node scripts/check-navigation-integrity.js` passes.
+- [ ] `node scripts/check-ui-integrity.js` passes.
 - [ ] I manually checked the affected routes.

@@ -9,6 +9,7 @@
 - `stages/CMS_SCHEMA_STABILIZATION.md`
 - `stages/CONTENT_DATA_INTEGRITY_CLEANUP.md`
 - `stages/REPOSITORY_NAVIGATION_CLEANUP.md`
+- `stages/CSS_UI_STANDARDIZATION.md`
 
 ## Validation
 See `validation/`.

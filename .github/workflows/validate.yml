@@ -26,3 +26,6 @@ jobs:
 
       - name: Check repository and navigation integrity
         run: node scripts/check-navigation-integrity.js
+
+      - name: Check CSS/UI integrity
+        run: node scripts/check-ui-integrity.js
