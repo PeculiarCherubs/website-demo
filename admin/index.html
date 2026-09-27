@@ -20,26 +20,101 @@
 <body class="admin-body">
 
   <!-- ======================================================================
-       Passcode Authentication Overlay
+       Secure Supabase Authentication Overlay
        ====================================================================== -->
   <div id="adminAuthOverlay" class="admin-auth-overlay">
     <div class="admin-auth-card">
-      <div class="admin-auth-icon">🛡️</div>
-      <h2>Admin Access</h2>
-      <p>Enter the master passcode to manage site content live in Supabase DB.</p>
+      <!-- 1. Sign In View -->
+      <div id="adminSignInView" class="admin-auth-view">
+        <div class="admin-auth-icon">🛡️</div>
+        <h2>CMS Administrator Sign In</h2>
+        <p>Sign in with an authorized Supabase CMS administrator account.</p>
 
-      <form id="adminAuthForm">
-        <div class="admin-input-group">
-          <label for="adminPasscode">Passcode</label>
-          <input type="password" id="adminPasscode" class="admin-input" placeholder="••••••••" required
-            autocomplete="current-password">
-        </div>
-        <div id="adminAuthError" class="admin-auth-error">Invalid passcode. Please try again.</div>
+        <form id="adminAuthForm">
+          <div class="admin-input-group">
+            <label for="adminEmail">Email</label>
+            <input type="email" id="adminEmail" class="admin-input" placeholder="admin@example.org" required
+              autocomplete="username">
+          </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-          Unlock Portal
-        </button>
-      </form>
+          <div class="admin-input-group" style="margin-top: .9rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+              <label for="adminPassword" style="margin-bottom: 0;">Password</label>
+              <button type="button" id="adminForgotBtn" class="admin-link-btn" tabindex="0">Forgot Password?</button>
+            </div>
+            <input type="password" id="adminPassword" class="admin-input" placeholder="••••••••" required
+              autocomplete="current-password">
+          </div>
+
+          <div id="adminAuthError" class="admin-auth-error">Could not authenticate this account.</div>
+
+          <button type="submit" id="adminSignInSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Sign In
+          </button>
+        </form>
+
+        <p style="margin-top: 1rem; font-size: .78rem; margin-bottom: 0;">
+          Access is controlled by Supabase Auth and database Row Level Security.
+        </p>
+      </div>
+
+      <!-- 2. Forgot Password Request View -->
+      <div id="adminForgotView" class="admin-auth-view" style="display: none;">
+        <div class="admin-auth-icon">🔑</div>
+        <h2>Reset CMS Password</h2>
+        <p>Enter your administrator email to receive a secure Supabase password recovery link.</p>
+
+        <form id="adminForgotForm">
+          <div class="admin-input-group">
+            <label for="adminForgotEmail">Administrator Email</label>
+            <input type="email" id="adminForgotEmail" class="admin-input" placeholder="admin@example.org" required
+              autocomplete="email">
+          </div>
+
+          <div id="adminForgotSuccess" class="admin-auth-success" style="display: none;"></div>
+          <div id="adminForgotError" class="admin-auth-error"></div>
+
+          <button type="submit" id="adminForgotSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Send Recovery Link
+          </button>
+
+          <button type="button" id="adminBackToSignInBtn" class="btn btn-secondary" style="width: 100%; margin-top: 0.6rem;">
+            ← Back to Sign In
+          </button>
+        </form>
+      </div>
+
+      <!-- 3. Set New Password View (from Email Recovery Link) -->
+      <div id="adminResetView" class="admin-auth-view" style="display: none;">
+        <div class="admin-auth-icon">✨</div>
+        <h2>Create New Password</h2>
+        <p>Enter a new secure password for your administrator account (minimum 8 characters).</p>
+
+        <form id="adminResetForm">
+          <div class="admin-input-group">
+            <label for="adminNewPassword">New Password</label>
+            <input type="password" id="adminNewPassword" class="admin-input" placeholder="••••••••" minlength="8" required
+              autocomplete="new-password">
+          </div>
+
+          <div class="admin-input-group" style="margin-top: .9rem;">
+            <label for="adminConfirmPassword">Confirm New Password</label>
+            <input type="password" id="adminConfirmPassword" class="admin-input" placeholder="••••••••" minlength="8" required
+              autocomplete="new-password">
+          </div>
+
+          <div id="adminResetSuccess" class="admin-auth-success" style="display: none;"></div>
+          <div id="adminResetError" class="admin-auth-error"></div>
+
+          <button type="submit" id="adminResetSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Save Password & Sign In
+          </button>
+
+          <button type="button" id="adminCancelResetBtn" class="btn btn-secondary" style="width: 100%; margin-top: 0.6rem;">
+            Cancel
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -51,7 +126,7 @@
       <button id="adminMenuToggle" class="admin-menu-toggle" aria-label="Toggle Navigation Menu">
         ☰
       </button>
-      <a href="../index.html" target="_blank" style="display: flex; align-items: center; gap: 0.75rem;">
+      <a class="admin-inline-row" href="../index.html" target="_blank">
         <img src="../assets/logos/mother-church.png" alt="Peculiar Cherubs Logo" class="admin-header-logo"
           onerror="this.style.display='none'">
         <div class="admin-header-title">
@@ -72,9 +147,16 @@
         📥 Export JSON
       </button>
 
+      <span id="adminUserIdentity" class="admin-user-identity" hidden></span>
+
+      <button id="adminChangePasswordBtn" class="btn btn-secondary admin-btn-sm" title="Change Password"
+        style="border-color: rgba(255,255,255,0.3); color: var(--white);" hidden>
+        🔑 Password
+      </button>
+
       <button id="adminLogoutBtn" class="btn btn-secondary admin-btn-sm"
         style="border-color: rgba(255,255,255,0.3); color: var(--white);">
-        🔒 Lock
+        ↪ Sign Out
       </button>
     </div>
   </header>
@@ -193,7 +275,7 @@
           <div style="font-size: 0.8rem; font-weight: 800; color: var(--navy);">MAIN WEBSITE</div>
           <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem;">View changes live on website
           </div>
-          <a href="../index.html" target="_blank" class="btn btn-primary admin-btn-sm" style="width: 100%;">
+          <a href="../index.html" target="_blank" class="btn btn-primary admin-btn-sm u-w-full">
             🌐 Open Website
           </a>
         </div>
@@ -202,6 +284,12 @@
 
     <!-- Main Workspace View Panels -->
     <main class="admin-main">
+      <div id="adminFallbackBanner" class="admin-fallback-banner" hidden>
+        <strong>Read-only fallback mode.</strong>
+        Supabase live content could not be loaded completely. The Admin Portal is showing
+        <code>content/site-content.json</code> only as an emergency fallback. Reconnect to
+        Supabase before making changes.
+      </div>
 
       <!-- ------------------------------------------------------------------
            Panel: Dashboard
@@ -280,51 +368,51 @@
         </div>
 
         <!-- Quick Links / Recent Activity -->
-        <div
-          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
+        <div class="admin-settings-card"
+         >
           <h3 style="color: var(--navy); margin-bottom: 0.5rem;">Quick Management Actions</h3>
           <p style="color: var(--muted); font-size: 0.92rem; margin-bottom: 1.25rem;">Direct shortcuts to create,
             update, or edit live site data.</p>
 
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Quick Links & Regular Services</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage "Your next step starts
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">Quick Links & Regular Services</h4>
+              <p class="admin-setting-help">Manage "Your next step starts
                 here" links, service frequencies, and church calendar rhythm.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('quickLinks')">Manage Quick
                 Links →</button>
             </div>
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Sunday School Immersive Editor</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage memory verses, scripture
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">Sunday School Immersive Editor</h4>
+              <p class="admin-setting-help">Manage memory verses, scripture
                 readings, lesson outlines, teacher's corner & class discussions.</p>
               <button class="btn btn-primary admin-btn-sm"
                 onclick="AdminPortal.openItemModal('publications', null, true)">📖 Launch SS Immersive Editor →</button>
             </div>
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Leadership Team</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Manage pastoral leadership
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">Leadership Team</h4>
+              <p class="admin-setting-help">Manage pastoral leadership
                 personnels,
                 positions, titles, and portrait photos.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('leadership')">Manage
                 Leadership
                 →</button>
             </div>
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">Audio & Video Sermons</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Add latest audio messages,
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">Audio & Video Sermons</h4>
+              <p class="admin-setting-help">Add latest audio messages,
                 YouTube links, and transcripts.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">Manage Sermons
                 →</button>
             </div>
-            <div
-              style="border: 1px solid var(--admin-border); padding: 1.25rem; border-radius: 16px; background: #fafbfc;">
-              <h4 style="margin: 0 0 0.5rem; color: var(--navy);">House Fellowships</h4>
-              <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">Update fellowship centres, hosts,
+            <div class="admin-setting-group"
+             >
+              <h4 class="admin-setting-heading">House Fellowships</h4>
+              <p class="admin-setting-help">Update fellowship centres, hosts,
                 areas, and coordinators.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('fellowships')">Manage
                 Fellowships →</button>
@@ -522,13 +610,13 @@
         </div>
 
         <!-- Section Header Settings Card -->
-        <div
-          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
-          <div
-            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="admin-settings-card"
+         >
+          <div class="admin-setting-row"
+           >
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem;">About Page Section Header</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Customize the eyebrow, heading title, and
+              <h3 class="admin-setting-heading-sm">About Page Section Header</h3>
+              <p class="admin-setting-description">Customize the eyebrow, heading title, and
                 description displayed above the leadership cards on the About page.</p>
             </div>
             <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.saveLeadershipHeaderSettings()">
@@ -545,7 +633,7 @@
               <input type="text" id="leadershipSettingTitle" class="admin-input" placeholder="Shepherds of the flock.">
             </div>
           </div>
-          <div class="admin-input-group" style="margin-bottom: 0;">
+          <div class="admin-input-group u-mb-0">
             <label for="leadershipSettingDescription">Section Subtitle / Description</label>
             <input type="text" id="leadershipSettingDescription" class="admin-input"
               placeholder="Trusted men and women called to serve with humility, faithfulness, and a love for God's people.">
@@ -585,13 +673,13 @@
         </div>
 
         <!-- Section Header Settings Card -->
-        <div
-          style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
-          <div
-            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="admin-settings-card"
+         >
+          <div class="admin-setting-row"
+           >
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem;">Quick Links Page Headers</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Customize the hero banner, useful links
+              <h3 class="admin-setting-heading-sm">Quick Links Page Headers</h3>
+              <p class="admin-setting-description">Customize the hero banner, useful links
                 section title, and church calendar section title.</p>
             </div>
             <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.saveQuickLinksHeaderSettings()">
@@ -614,13 +702,13 @@
             <input type="text" id="qlSettingHeroDesc" class="admin-input"
               placeholder="Access church information, weekly publications, services, events, prayer, and ways to connect with Peculiar Cherubs.">
           </div>
-          <div class="admin-modal-grid-2" style="margin-bottom: 0;">
-            <div class="admin-input-group" style="margin-bottom: 0;">
+          <div class="admin-modal-grid-2 u-mb-0">
+            <div class="admin-input-group u-mb-0">
               <label for="qlSettingUsefulTitle">Useful Links Section Heading</label>
               <input type="text" id="qlSettingUsefulTitle" class="admin-input"
                 placeholder="Your next step starts here.">
             </div>
-            <div class="admin-input-group" style="margin-bottom: 0;">
+            <div class="admin-input-group u-mb-0">
               <label for="qlSettingCalendarTitle">Church Calendar Section Heading</label>
               <input type="text" id="qlSettingCalendarTitle" class="admin-input"
                 placeholder="Regular services and major events.">
@@ -629,12 +717,12 @@
         </div>
 
         <!-- Sub-section 1: Useful Links ("Your next step starts here") -->
-        <div style="margin-bottom: 3rem;">
-          <div
-            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="u-mb-3xl">
+          <div class="admin-setting-row"
+           >
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">Your Next Step Starts Here</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Manage the quick links displayed in the
+              <h3 class="admin-setting-card-title">Your Next Step Starts Here</h3>
+              <p class="admin-setting-description">Manage the quick links displayed in the
                 "Useful links" section on the website and homepage preview.</p>
             </div>
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('quickLinks')">
@@ -657,12 +745,12 @@
 
         <!-- Sub-section 2: Regular Services and Major Events -->
         <div style="margin-bottom: 2rem;">
-          <div
-            style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div class="admin-setting-row"
+           >
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">Regular Services & Major Events
+              <h3 class="admin-setting-card-title">Regular Services & Major Events
               </h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Manage the recurring worship services,
+              <p class="admin-setting-description">Manage the recurring worship services,
                 prayer clinic times, evangelical outreaches, and major church calendar rhythm.</p>
             </div>
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('quickEvents')">
@@ -707,8 +795,8 @@
         <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2.25rem;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">💳 Online Payment Gateway Plugin</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
+              <h3 class="admin-setting-card-title">💳 Online Payment Gateway Plugin</h3>
+              <p class="admin-setting-description">
                 Connect any payment provider (Paystack, Flutterwave, Stripe, Remita, or Custom link). When enabled, donors proceed directly to your hosted checkout page.
               </p>
             </div>
@@ -718,7 +806,7 @@
           </div>
 
           <div id="adminGatewayStatusBanner" class="admin-gateway-banner inactive">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="admin-inline-row">
               <span style="font-size: 1.5rem;">🔌</span>
               <div>
                 <strong id="adminGatewayStatusTitle">Gateway Offline / Setup Mode</strong>
@@ -732,17 +820,17 @@
 
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
-              <label for="gatewaySettingEnabled" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="gatewaySettingEnabled" style="width: 18px; height: 18px; cursor: pointer;">
+              <label class="admin-check-label" for="gatewaySettingEnabled">
+                <input class="admin-check-input" type="checkbox" id="gatewaySettingEnabled">
                 <span style="font-weight: 800; color: var(--navy);">Enable Online Payment Gateway</span>
               </label>
-              <small style="color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
+              <small class="admin-field-note">
                 Check to activate online checkout on the Give page. Uncheck to revert to bank transfer guidance notice.
               </small>
             </div>
             <div class="admin-input-group">
               <label for="gatewaySettingProvider">Payment Provider Preset</label>
-              <select id="gatewaySettingProvider" class="admin-select" style="width: 100%;" onchange="AdminPortal.onGatewayProviderChange()">
+              <select id="gatewaySettingProvider" class="admin-select u-w-full" onchange="AdminPortal.onGatewayProviderChange()">
                 <option value="custom">Custom Payment Page / Link</option>
                 <option value="paystack">Paystack (Payment Page / Link)</option>
                 <option value="flutterwave">Flutterwave (Payment Link)</option>
@@ -766,31 +854,31 @@
               <input type="text" id="gatewaySettingBtnLabel" class="admin-input" placeholder="Proceed to Secure Payment ↗">
             </div>
             <div class="admin-input-group">
-              <label for="gatewaySettingAppendParams" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="gatewaySettingAppendParams" checked style="width: 18px; height: 18px; cursor: pointer;">
+              <label class="admin-check-label" for="gatewaySettingAppendParams">
+                <input class="admin-check-input" type="checkbox" id="gatewaySettingAppendParams" checked>
                 <span style="font-weight: 700;">Pass Donor Parameters in URL</span>
               </label>
-              <small style="color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
+              <small class="admin-field-note">
                 Appends <code>?amount=...&amp;email=...&amp;name=...&amp;purpose=...</code> so the amount automatically prefills at the gateway.
               </small>
             </div>
           </div>
 
-          <div class="admin-input-group" style="margin-bottom: 0;">
+          <div class="admin-input-group u-mb-0">
             <label for="gatewaySettingNotice">Offline / Setup Notice Message</label>
             <textarea id="gatewaySettingNotice" class="admin-textarea" placeholder="Message shown to givers when the online card gateway is in setup mode..."></textarea>
-            <small style="color: var(--muted); font-size: 0.78rem; display: block; margin-top: 0.25rem;">
+            <small class="admin-field-note">
               Displayed in the modal when a giver clicks "Proceed to Give" while the gateway is disabled.
             </small>
           </div>
         </div>
 
         <!-- 2. Verified Church Bank Accounts Sub-Section -->
-        <div style="margin-bottom: 3rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="u-mb-3xl">
+          <div class="admin-setting-row-lg">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">🏦 Verified Church Bank Accounts</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
+              <h3 class="admin-setting-card-title">🏦 Verified Church Bank Accounts</h3>
+              <p class="admin-setting-description">
                 Direct bank accounts for local Naira transfers and foreign currency (USD, GBP, EUR) wire transfers.
               </p>
             </div>
@@ -829,11 +917,11 @@
         </div>
 
         <!-- 3. Strategic Special Projects Sub-Section -->
-        <div style="margin-bottom: 3rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="u-mb-3xl">
+          <div class="admin-setting-row-lg">
             <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.3rem;">🌟 Special Projects &amp; Targeted Missions</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
+              <h3 class="admin-setting-card-title">🌟 Special Projects &amp; Targeted Missions</h3>
+              <p class="admin-setting-description">
                 Manage active fundraising campaigns such as Chapel Expansion, Feeding Ministry, and Pesach Academy.
               </p>
             </div>
@@ -848,11 +936,11 @@
         </div>
 
         <!-- 4. Giving Page Headers & WhatsApp Notification Settings -->
-        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="admin-settings-card">
+          <div class="admin-setting-row">
             <div>
               <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.2rem;">Giving Page Content &amp; WhatsApp Confirmation</h3>
-              <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">
+              <p class="admin-setting-description">
                 Customize the transfer acknowledgment WhatsApp hotline and "Why we give" mission texts.
               </p>
             </div>
@@ -877,12 +965,12 @@
             <textarea id="givingSettingWhatsAppText" class="admin-textarea" placeholder="Message givers will send on WhatsApp to confirm their transfer..."></textarea>
           </div>
 
-          <div class="admin-modal-grid-2" style="margin-bottom: 0;">
-            <div class="admin-input-group" style="margin-bottom: 0;">
+          <div class="admin-modal-grid-2 u-mb-0">
+            <div class="admin-input-group u-mb-0">
               <label for="givingSettingWhyTitle">Why We Give Heading</label>
               <input type="text" id="givingSettingWhyTitle" class="admin-input" placeholder="Giving is worship.">
             </div>
-            <div class="admin-input-group" style="margin-bottom: 0;">
+            <div class="admin-input-group u-mb-0">
               <label for="givingSettingWhyDesc">Why We Give Description</label>
               <textarea id="givingSettingWhyDesc" class="admin-textarea" placeholder="Description explaining the spiritual mission of giving..."></textarea>
             </div>
@@ -967,12 +1055,6 @@
             <p>Edit complete content sections that do not yet have dedicated visual forms.</p>
           </div>
           <div class="admin-panel-actions">
-            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.restoreAdvancedSectionFromLocal()">
-              ↩ Load Repository Fallback
-            </button>
-            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.standardizeCmsFromRepository()">
-              🔄 Standardize CMS from Repository
-            </button>
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveAdvancedSection()">
               💾 Save Section to Supabase
             </button>
@@ -980,12 +1062,10 @@
         </div>
 
         <div class="admin-advanced-notice">
-          <strong>Full content coverage:</strong>
-          the visual editors remain the easiest way to handle common tasks, while this section exposes every
-          top-level <code>site-content.json</code> section so nothing is stranded outside the CMS.
-          <br><br>
-          <strong>Standardize CMS from Repository</strong> performs a migration-safe merge: existing Supabase
-          values are preserved, while missing fields and content from the repository JSON are added.
+          <strong>Live CMS content:</strong>
+          use the visual editors for routine publishing and Advanced Content for complete
+          live Supabase sections. The repository JSON is now fallback/backup only and is
+          not imported from this screen.
         </div>
 
         <div class="admin-advanced-grid">
@@ -1013,11 +1093,9 @@
 
             <textarea id="advancedJsonEditor" class="admin-json-editor" spellcheck="false"
               oninput="AdminPortal.validateAdvancedJson()"></textarea>
-
-            <div id="cmsMigrationStatus" class="admin-migration-status" hidden></div>
             <p class="admin-advanced-help">
-              Saving replaces only the selected Supabase <code>site_content</code> section.
-              The standardization action works across all sections and preserves existing live values wherever possible.
+              Saving updates only the selected live Supabase <code>site_content</code> section.
+              Repository JSON is not imported from this screen.
             </p>
           </div>
         </div>
@@ -1059,6 +1137,45 @@
         </button>
         <button type="button" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveModalItem()">
           💾 Save to Supabase DB
+        </button>
+      </div>
+    </div>
+  <!-- ======================================================================
+       Authenticated Change Password Modal
+       ====================================================================== -->
+  <div id="adminChangePasswordModal" class="admin-modal">
+    <div class="admin-modal-content" style="max-width: 480px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title">Change Account Password</h3>
+        <button type="button" class="admin-modal-close" onclick="AdminPortal.closeChangePasswordModal()">×</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0; margin-bottom: 1.25rem;">
+          Update your Supabase authentication password. Your new password must be at least 8 characters.
+        </p>
+
+        <form id="adminChangePasswordForm" onsubmit="event.preventDefault(); AdminPortal.handleAuthenticatedPasswordChange();">
+          <div class="admin-input-group">
+            <label for="adminAuthNewPassword">New Password</label>
+            <input type="password" id="adminAuthNewPassword" class="admin-input" placeholder="••••••••" minlength="8" required autocomplete="new-password">
+          </div>
+
+          <div class="admin-input-group" style="margin-top: .9rem;">
+            <label for="adminAuthConfirmPassword">Confirm New Password</label>
+            <input type="password" id="adminAuthConfirmPassword" class="admin-input" placeholder="••••••••" minlength="8" required autocomplete="new-password">
+          </div>
+
+          <div id="adminChangePasswordError" class="admin-auth-error"></div>
+        </form>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.closeChangePasswordModal()">
+          Cancel
+        </button>
+        <button type="button" id="adminSavePasswordBtn" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.handleAuthenticatedPasswordChange()">
+          💾 Update Password
         </button>
       </div>
     </div>

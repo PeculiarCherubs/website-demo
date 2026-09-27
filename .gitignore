@@ -1,0 +1,23 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local editor / OS files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Backups / exports
+backups/
+supabase/backups/
+*.backup.json
+*.export.json
+*.sql.bak
+
+# Temporary
+*.tmp
+*.log

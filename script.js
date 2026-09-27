@@ -21,8 +21,23 @@ const setMultilineText = (selector, value) => {
 const setLink = (selector, item) => {
   const element = document.querySelector(selector);
   if (!element || !item) return;
-  element.textContent = item.label || item.text || "";
-  element.href = item.href || "#";
+
+  const label = item.label || item.text || "";
+  const href = String(item.href || "").trim();
+  const hasDestination = href && href !== "#";
+
+  if (hasDestination) {
+    element.textContent = label;
+    element.href = href;
+    element.classList.remove("coming-soon-btn");
+    element.removeAttribute("aria-disabled");
+    return;
+  }
+
+  element.textContent = `${label}${label ? " · " : ""}Coming Soon`;
+  element.removeAttribute("href");
+  element.classList.add("coming-soon-btn");
+  element.setAttribute("aria-disabled", "true");
 };
 
 const escapeHtml = value =>
@@ -180,8 +195,12 @@ function renderHome(content) {
 
   const homeMinistries = document.querySelector("[data-home-ministries]");
   if (homeMinistries) {
-    homeMinistries.innerHTML = content.ministries.homeFeatured
-      .map(key => content.ministries.details[key])
+    const featuredKeys = Array.isArray(content.ministries?.homeFeatured)
+      ? content.ministries.homeFeatured
+      : [];
+    const details = content.ministries?.details || {};
+    homeMinistries.innerHTML = featuredKeys
+      .map(key => details[key])
       .filter(Boolean)
       .map(item => ministryCard(item))
       .join("");
@@ -209,7 +228,10 @@ function renderHome(content) {
 
   const homeSermons = document.querySelector("[data-home-sermons]");
   if (homeSermons) {
-    homeSermons.innerHTML = content.sermons.items.slice(0, 3).map(sermon => sermonCard(sermon)).join("");
+    const sermonItems = Array.isArray(content.sermons?.items) ? content.sermons.items : [];
+    homeSermons.innerHTML = sermonItems.slice(0, 3).map(sermon => sermonCard(sermon)).join("");
+    const sermonSection = homeSermons.closest("section");
+    if (sermonSection) sermonSection.hidden = sermonItems.length === 0;
   }
 
   setText("[data-testimonials-eyebrow]", home.testimonials.eyebrow);
@@ -218,7 +240,8 @@ function renderHome(content) {
 
   const testimonialList = document.querySelector("[data-testimonials-list]");
   if (testimonialList) {
-    testimonialList.innerHTML = home.testimonials.items.map(item => `
+    const testimonialItems = Array.isArray(home.testimonials?.items) ? home.testimonials.items : [];
+    testimonialList.innerHTML = testimonialItems.map(item => `
       <article class="testimonial-card${item.featured ? " featured-testimonial" : ""}">
         <div class="testimonial-mark">“</div>
         <p>${escapeHtml(item.quote)}</p>
@@ -226,11 +249,14 @@ function renderHome(content) {
         <span>${escapeHtml(item.chapel)}</span>
       </article>
     `).join("");
+    const testimonialSection = testimonialList.closest("section");
+    if (testimonialSection) testimonialSection.hidden = testimonialItems.length === 0;
   }
 
   const quickLinks = document.querySelector("[data-home-quick-links]");
   if (quickLinks) {
-    quickLinks.innerHTML = content.quickLinks.links.slice(2, 5).map(link => quickLinkCard(link)).join("");
+    const linkItems = Array.isArray(content.quickLinks?.links) ? content.quickLinks.links : [];
+    quickLinks.innerHTML = linkItems.slice(2, 5).map(link => quickLinkCard(link)).join("");
   }
 }
 
@@ -250,8 +276,24 @@ function sermonCard(sermon) {
 }
 
 function quickLinkCard(link) {
+  const href = String(link?.href || "").trim();
+  const hasDestination = href && href !== "#";
+
+  if (!hasDestination) {
+    return `
+      <div class="quick-link coming-soon-quick-link" aria-disabled="true">
+        <div class="icon">${escapeHtml(link.icon)}</div>
+        <div>
+          <div class="meta">Coming Soon</div>
+          <h3>${escapeHtml(link.title)}</h3>
+          <p>${escapeHtml(link.text)}</p>
+        </div>
+      </div>
+    `;
+  }
+
   return `
-    <a class="quick-link" href="${escapeHtml(link.href)}">
+    <a class="quick-link" href="${escapeHtml(href)}">
       <div class="icon">${escapeHtml(link.icon)}</div>
       <div>
         <h3>${escapeHtml(link.title)}</h3>
@@ -325,6 +367,12 @@ function renderAbout(content) {
             </article>
           `;
         }).join("");
+        const leadershipSection = teamGrid.closest("section");
+        if (leadershipSection) leadershipSection.hidden = false;
+      } else {
+        teamGrid.innerHTML = "";
+        const leadershipSection = teamGrid.closest("section");
+        if (leadershipSection) leadershipSection.hidden = true;
       }
     }
   }
@@ -385,7 +433,10 @@ function renderSermons(content) {
   renderStandardHero(content.sermons);
   const list = document.querySelector("[data-sermons-list]");
   if (list) {
-    list.innerHTML = content.sermons.items.map(sermon => sermonCard(sermon)).join("");
+    const sermonItems = Array.isArray(content.sermons?.items) ? content.sermons.items : [];
+    list.innerHTML = sermonItems.map(sermon => sermonCard(sermon)).join("");
+    const contentSection = list.closest("section");
+    if (contentSection) contentSection.hidden = sermonItems.length === 0;
   }
 }
 
@@ -837,13 +888,18 @@ function renderPublicationDetail(content) {
 
   const pdfLink = document.querySelector("[data-pub-pdf]");
   if (pdfLink) {
-    pdfLink.href = item.pdfUrl || "#";
-    if (!item.pdfUrl || item.pdfUrl === "#") {
-      pdfLink.style.opacity = "0.6";
-      pdfLink.textContent = "PDF Coming Soon";
-      pdfLink.addEventListener("click", event => event.preventDefault());
-    } else {
+    const pdfUrl = String(item.pdfUrl || "").trim();
+
+    if (pdfUrl && pdfUrl !== "#") {
+      pdfLink.href = pdfUrl;
       pdfLink.textContent = `Download ${item.issue} PDF`;
+      pdfLink.classList.remove("coming-soon-btn");
+      pdfLink.removeAttribute("aria-disabled");
+    } else {
+      pdfLink.removeAttribute("href");
+      pdfLink.textContent = "PDF · Coming Soon";
+      pdfLink.classList.add("coming-soon-btn");
+      pdfLink.setAttribute("aria-disabled", "true");
     }
   }
 
@@ -964,10 +1020,14 @@ function renderMinistries(content) {
 
 function renderMinistryDetail(content) {
   const key = document.body.dataset.ministryKey;
-  const item = content.ministries.details[key];
+  const isChapelDetail = document.body.dataset.page === "chapelDetail";
+  const item = isChapelDetail
+    ? content.chapels?.details?.[key]
+    : content.ministries?.details?.[key];
 
   if (!item) {
-    throw new Error(`Unknown ministry key: ${key}`);
+    const entityType = isChapelDetail ? "chapel" : "ministry";
+    throw new Error(`Unknown ${entityType} key: ${key}`);
   }
 
   setText("[data-ministry-detail-category]", item.category);
@@ -1146,14 +1206,22 @@ function renderBibleCollege(content) {
 
   const courses = document.querySelector("[data-bible-courses]");
   if (courses) {
-    courses.innerHTML = school.courses.map(course => `
-      <article class="card bible-course-card">
-        <div class="meta">${escapeHtml(course.code)}</div>
-        <h3>${escapeHtml(course.title)}</h3>
-        <p>${escapeHtml(course.text)}</p>
-        <a class="text-link" href="#">Course details ↗</a>
-      </article>
-    `).join("");
+    courses.innerHTML = school.courses.map(course => {
+      const courseHref = String(course.href || "").trim();
+      const hasCourseLink = courseHref && courseHref !== "#";
+
+      return `
+        <article class="card bible-course-card">
+          <div class="meta">${escapeHtml(course.code)}</div>
+          <h3>${escapeHtml(course.title)}</h3>
+          <p>${escapeHtml(course.text)}</p>
+          ${hasCourseLink
+            ? `<a class="text-link" href="${escapeHtml(courseHref)}">${escapeHtml(course.button || "Course details")} ↗</a>`
+            : `<span class="text-link coming-soon-link" aria-disabled="true">${escapeHtml(course.button || "Course details")} · Coming Soon</span>`
+          }
+        </article>
+      `;
+    }).join("");
   }
 
   const services = document.querySelector("[data-bible-services]");
@@ -1170,10 +1238,27 @@ function renderBibleCollege(content) {
   setText("[data-bible-registration-eyebrow]", school.registration.eyebrow);
   setText("[data-bible-registration-title]", school.registration.title);
   setText("[data-bible-registration-description]", school.registration.description);
-  setLink("[data-bible-registration-button]", {
-    label: school.registration.button,
-    href: school.registration.href
-  });
+
+  const registrationButton = document.querySelector("[data-bible-registration-button]");
+  if (registrationButton) {
+    const registrationHref = String(school.registration?.href || "").trim();
+    const hasRegistrationLink = registrationHref && registrationHref !== "#";
+    const label = school.registration?.button || "Open Registration Form";
+
+    if (hasRegistrationLink) {
+      registrationButton.textContent = label;
+      registrationButton.href = registrationHref;
+      registrationButton.classList.remove("coming-soon-btn");
+      registrationButton.removeAttribute("aria-disabled");
+    } else {
+      registrationButton.textContent = `${label} · Coming Soon`;
+      registrationButton.removeAttribute("href");
+      registrationButton.classList.add("coming-soon-btn");
+      registrationButton.setAttribute("aria-disabled", "true");
+    }
+
+    registrationButton.hidden = false;
+  }
 
   const steps = document.querySelector("[data-bible-registration-steps]");
   if (steps) {
@@ -1191,12 +1276,19 @@ function renderBibleCollege(content) {
 
   const buttons = document.querySelector("[data-bible-portal-buttons]");
   if (buttons) {
-    buttons.innerHTML = school.portal.buttons.map((button, index) => `
-      <a class="btn ${index === 0 ? "btn-primary" : "btn-secondary"}"
-         href="${escapeHtml(button.href)}">
-        ${escapeHtml(button.label)}
-      </a>
-    `).join("");
+    const portalButtons = school.portal?.buttons || [];
+
+    buttons.innerHTML = portalButtons.map((button, index) => {
+      const href = String(button?.href || "").trim();
+      const hasLink = href && href !== "#";
+      const cls = `btn ${index === 0 ? "btn-primary" : "btn-secondary"}`;
+
+      return hasLink
+        ? `<a class="${cls}" href="${escapeHtml(href)}">${escapeHtml(button.label)}</a>`
+        : `<span class="${cls} coming-soon-btn" aria-disabled="true">${escapeHtml(button.label)} · Coming Soon</span>`;
+    }).join("");
+
+    buttons.hidden = portalButtons.length === 0;
   }
 }
 
@@ -2102,9 +2194,16 @@ function renderGive(content) {
   // WhatsApp Notification Button
   const waBtn = hub.querySelector("[data-give-whatsapp-btn]");
   if (waBtn) {
-    const waPhone = (giveData.whatsappConfirmPhone || "2348000000000").replace(/[^0-9]/g, "");
+    const waPhone = String(giveData.whatsappConfirmPhone || "").replace(/[^0-9]/g, "");
     const waText = giveData.whatsappConfirmText || "Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving. Here are the details:";
-    waBtn.href = `https://wa.me/${waPhone}?text=${encodeURIComponent(waText)}`;
+
+    if (waPhone) {
+      waBtn.href = `https://wa.me/${waPhone}?text=${encodeURIComponent(waText)}`;
+      waBtn.hidden = false;
+    } else {
+      waBtn.removeAttribute("href");
+      waBtn.hidden = true;
+    }
   }
 
   // 4. Online Giving Form & Amount Presets
@@ -2362,14 +2461,20 @@ function renderSundaySchoolDetail(content) {
   // PDF Link
   const pdfBtn = document.querySelector("[data-ss-pdf-btn]");
   if (pdfBtn) {
-    if (lesson.pdfUrl && lesson.pdfUrl !== "#") {
-      pdfBtn.href = lesson.pdfUrl;
-      pdfBtn.classList.remove("disabled");
+    const pdfUrl = String(lesson.pdfUrl || "").trim();
+
+    if (pdfUrl && pdfUrl !== "#") {
+      pdfBtn.href = pdfUrl;
+      pdfBtn.textContent = "📥 PDF";
+      pdfBtn.classList.remove("coming-soon-btn");
+      pdfBtn.removeAttribute("aria-disabled");
+      pdfBtn.removeAttribute("title");
     } else {
-      pdfBtn.href = "#";
-      pdfBtn.style.opacity = "0.6";
+      pdfBtn.removeAttribute("href");
+      pdfBtn.textContent = "📥 PDF · Coming Soon";
+      pdfBtn.classList.add("coming-soon-btn");
+      pdfBtn.setAttribute("aria-disabled", "true");
       pdfBtn.title = "PDF version coming soon";
-      pdfBtn.addEventListener("click", e => e.preventDefault());
     }
   }
 
@@ -2674,51 +2779,315 @@ function renderSundaySchoolDetail(content) {
     });
   }
 
-  // 3. Audio Text-to-Speech Player
+  // 3. Audio Text-to-Speech Player (Enhanced with Natural Voice Selection, Segmented Reading, & Active Card Highlighting)
   const audioPlayBtn = document.querySelector("[data-ss-audio-play]");
+  const audioStopBtn = document.querySelector("[data-ss-audio-stop]");
   const audioStatus = document.querySelector("[data-ss-audio-status]");
   const audioBtnText = document.querySelector("[data-ss-audio-btn-text]");
+  const audioIcon = document.querySelector(".ss-audio-icon");
+
   let isSpeaking = false;
+  let isPaused = false;
+  let currentSegmentIndex = 0;
+  let segmentTimeout = null;
+  let cachedVoice = null;
+
+  // Smart natural voice selector: prefers Neural / Natural / Google / Premium online voices
+  const getBestVoice = () => {
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || !voices.length) return null;
+
+    // 1. Natural / Neural / Online voices (Edge / Windows / Chrome)
+    const natural = voices.find(v =>
+      v.lang.startsWith("en") &&
+      (v.name.includes("Natural") || v.name.includes("Online") || v.name.includes("Neural"))
+    );
+    if (natural) return natural;
+
+    // 2. Google English voices
+    const google = voices.find(v => v.lang.startsWith("en") && v.name.includes("Google"));
+    if (google) return google;
+
+    // 3. Premium / Enhanced / Siri voices (Apple / iOS / macOS)
+    const apple = voices.find(v =>
+      v.lang.startsWith("en") &&
+      (v.name.includes("Premium") || v.name.includes("Enhanced") || v.name.includes("Samantha"))
+    );
+    if (apple) return apple;
+
+    // 4. Modern US/GB English
+    const modernEn = voices.find(v => v.lang === "en-US" || v.lang === "en-GB");
+    if (modernEn) return modernEn;
+
+    // 5. Fallback English
+    const fallbackEn = voices.find(v => v.lang.startsWith("en"));
+    return fallbackEn || voices[0];
+  };
+
+  if ("speechSynthesis" in window) {
+    cachedVoice = getBestVoice();
+    window.speechSynthesis.onvoiceschanged = () => {
+      cachedVoice = getBestVoice();
+    };
+  }
+
+  // Build semantic segments for the current lesson with varied pacing, pitch, and target elements
+  const buildSegments = () => {
+    const segments = [];
+
+    // 1. Lesson Title & Overview
+    segments.push({
+      label: "Lesson Title",
+      text: `Sunday School Lesson ${lesson.lessonNumber}: ${lesson.topic}. ${lesson.subtitle || ''}`,
+      rate: 0.95,
+      pitch: 1.0,
+      pause: 700,
+      targetSelector: ".sunday-school-hero"
+    });
+
+    // 2. Memory Verse (Contemplative, slower, reverent tone)
+    if (lesson.memoryVerse) {
+      segments.push({
+        label: "Memory Verse",
+        text: `Golden Memory Verse, recited from ${lesson.memoryVerse.reference}. "${lesson.memoryVerse.text}"`,
+        rate: 0.85,
+        pitch: 0.96,
+        pause: 900,
+        targetSelector: "#ss-section-verse"
+      });
+
+      if (lesson.memoryVerse.context) {
+        segments.push({
+          label: "Verse Context",
+          text: `Context and focus: ${lesson.memoryVerse.context}`,
+          rate: 0.92,
+          pitch: 1.0,
+          pause: 650,
+          targetSelector: "#ss-section-verse"
+        });
+      }
+    }
+
+    // 3. Golden Text
+    if (lesson.goldenText) {
+      segments.push({
+        label: "Golden Key Text",
+        text: `Golden Key Text: ${lesson.goldenText}`,
+        rate: 0.88,
+        pitch: 0.98,
+        pause: 750,
+        targetSelector: "#ss-section-verse"
+      });
+    }
+
+    // 4. Scripture Readings
+    if (lesson.mainScriptures && lesson.mainScriptures.length > 0) {
+      lesson.mainScriptures.forEach((s, idx) => {
+        segments.push({
+          label: s.label || `Reading ${idx + 1}`,
+          text: `${s.label || 'Scripture Reading'}, from ${s.reference}: "${s.text.replace(/\.\.\./g, '... ')}"`,
+          rate: 0.88,
+          pitch: 0.98,
+          pause: 750,
+          targetSelector: "#ss-section-scriptures"
+        });
+      });
+    }
+
+    // 5. Introduction & Objectives
+    if (lesson.introduction) {
+      segments.push({
+        label: "Introduction",
+        text: `Lesson Introduction: ${lesson.introduction}`,
+        rate: 0.96,
+        pitch: 1.0,
+        pause: 750,
+        targetSelector: "#ss-section-objectives"
+      });
+    }
+
+    // 6. Outlines & Exegesis (each outline has distinct focus)
+    if (lesson.outlines && lesson.outlines.length > 0) {
+      lesson.outlines.forEach(ot => {
+        const cleanPoints = (ot.points || []).map(p => p.replace(/\*\*/g, '')).join(". ");
+        const outlineText = `Outline ${ot.number}: ${ot.title}. Scripture: ${ot.scripture}. Summary: ${ot.summary}. Key points: ${cleanPoints}. ${ot.keyInsight ? `Key Insight: ${ot.keyInsight}` : ''}`;
+        segments.push({
+          label: `Outline ${ot.number}`,
+          text: outlineText,
+          rate: 0.94,
+          pitch: 1.0,
+          pause: 800,
+          targetSelector: "#ss-section-outlines"
+        });
+      });
+    }
+
+    // 7. Discussion Questions (Slight inflection for engagement)
+    if (lesson.discussionQuestions && lesson.discussionQuestions.length > 0) {
+      const qText = lesson.discussionQuestions.map((dq, idx) => `Question ${idx + 1}: ${dq.question}`).join(". ");
+      segments.push({
+        label: "Discussion Questions",
+        text: `Class Discussion and Reflection. ${qText}`,
+        rate: 0.92,
+        pitch: 1.03,
+        pause: 800,
+        targetSelector: "#ss-section-discussion"
+      });
+    }
+
+    // 8. Life Application
+    if (lesson.lifeApplication) {
+      segments.push({
+        label: "Life Application",
+        text: `Weekly Faith Application: ${lesson.lifeApplication}`,
+        rate: 0.88,
+        pitch: 0.97,
+        pause: 900,
+        targetSelector: "#ss-section-application"
+      });
+    }
+
+    // 9. Closing Benediction
+    segments.push({
+      label: "Closing Benediction",
+      text: `This concludes Sunday School Lesson ${lesson.lessonNumber}. May God richly bless the meditation of His word.`,
+      rate: 0.88,
+      pitch: 0.95,
+      pause: 400,
+      targetSelector: null
+    });
+
+    return segments;
+  };
+
+  const clearHighlight = () => {
+    document.querySelectorAll(".ss-reading-active").forEach(el => el.classList.remove("ss-reading-active"));
+  };
+
+  const highlightCard = (targetSelector) => {
+    clearHighlight();
+    if (!targetSelector) return;
+    const card = document.querySelector(targetSelector);
+    if (card) {
+      card.classList.add("ss-reading-active");
+
+      // Auto-scroll gently into view if offscreen
+      const rect = card.getBoundingClientRect();
+      const toolbarOffset = 110;
+      if (rect.top < toolbarOffset || rect.bottom > window.innerHeight) {
+        const targetScroll = window.scrollY + rect.top - toolbarOffset;
+        window.scrollTo({ top: Math.max(0, targetScroll), behavior: "smooth" });
+      }
+
+      // Sync active state in TOC
+      const targetId = card.getAttribute("id");
+      if (targetId) {
+        document.querySelectorAll(".ss-toc-link").forEach(link => {
+          link.classList.toggle("active", link.getAttribute("href") === `#${targetId}`);
+        });
+      }
+    }
+  };
+
+  const stopAudio = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    clearTimeout(segmentTimeout);
+    isSpeaking = false;
+    isPaused = false;
+    currentSegmentIndex = 0;
+    clearHighlight();
+
+    if (audioStatus) audioStatus.textContent = "Ready to read aloud";
+    if (audioBtnText) audioBtnText.textContent = "Listen";
+    if (audioIcon) audioIcon.textContent = "▶";
+    audioPlayBtn.classList.remove("playing");
+    if (audioStopBtn) audioStopBtn.classList.add("hidden");
+  };
+
+  const playSegment = (segments, index) => {
+    if (!isSpeaking || index >= segments.length) {
+      stopAudio();
+      if (audioStatus) audioStatus.textContent = "Finished reading";
+      return;
+    }
+
+    currentSegmentIndex = index;
+    const seg = segments[index];
+
+    // Highlight card
+    highlightCard(seg.targetSelector);
+
+    // Update status bar
+    if (audioStatus) audioStatus.textContent = `Reading: ${seg.label}...`;
+
+    const utterance = new SpeechSynthesisUtterance(seg.text);
+    utterance.voice = cachedVoice || getBestVoice();
+    utterance.rate = seg.rate || 0.95;
+    utterance.pitch = seg.pitch || 1.0;
+
+    utterance.onend = () => {
+      if (!isSpeaking) return;
+      // Add conversational pause between sections
+      segmentTimeout = setTimeout(() => {
+        playSegment(segments, index + 1);
+      }, seg.pause || 600);
+    };
+
+    utterance.onerror = (e) => {
+      // If canceled purposefully, ignore
+      if (e.error === "canceled" || e.error === "interrupted") return;
+      console.warn("Speech synthesis segment error:", e);
+      // Attempt to advance to next segment
+      segmentTimeout = setTimeout(() => {
+        playSegment(segments, index + 1);
+      }, 400);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   if (audioPlayBtn && "speechSynthesis" in window) {
     audioPlayBtn.addEventListener("click", () => {
-      if (isSpeaking) {
+      const segments = buildSegments();
+
+      if (isSpeaking && !isPaused) {
+        // Pause
         window.speechSynthesis.cancel();
+        clearTimeout(segmentTimeout);
+        isPaused = true;
         isSpeaking = false;
-        if (audioStatus) audioStatus.textContent = "Audio paused";
-        if (audioBtnText) audioBtnText.textContent = "Listen";
+        if (audioStatus) audioStatus.textContent = `Paused: ${segments[currentSegmentIndex]?.label || 'lesson'}`;
+        if (audioBtnText) audioBtnText.textContent = "Resume";
+        if (audioIcon) audioIcon.textContent = "▶";
         audioPlayBtn.classList.remove("playing");
       } else {
+        // Play or Resume
         window.speechSynthesis.cancel();
-        const textToRead = `Sunday School Lesson ${lesson.lessonNumber}: ${lesson.topic}. Memory Verse: ${lesson.memoryVerse?.text || ''}. Introduction: ${lesson.introduction}`;
+        clearTimeout(segmentTimeout);
+        isSpeaking = true;
+        isPaused = false;
 
-        const utterance = new SpeechSynthesisUtterance(textToRead);
-        utterance.rate = 0.95;
-        utterance.pitch = 1.0;
+        if (audioBtnText) audioBtnText.textContent = "Pause";
+        if (audioIcon) audioIcon.textContent = "⏸";
+        audioPlayBtn.classList.add("playing");
+        if (audioStopBtn) audioStopBtn.classList.remove("hidden");
 
-        utterance.onstart = () => {
-          isSpeaking = true;
-          if (audioStatus) audioStatus.textContent = "Reading lesson aloud...";
-          if (audioBtnText) audioBtnText.textContent = "Pause";
-          audioPlayBtn.classList.add("playing");
-        };
-
-        utterance.onend = () => {
-          isSpeaking = false;
-          if (audioStatus) audioStatus.textContent = "Finished reading";
-          if (audioBtnText) audioBtnText.textContent = "Listen";
-          audioPlayBtn.classList.remove("playing");
-        };
-
-        utterance.onerror = () => {
-          isSpeaking = false;
-          if (audioStatus) audioStatus.textContent = "Audio playback error";
-          if (audioBtnText) audioBtnText.textContent = "Listen";
-          audioPlayBtn.classList.remove("playing");
-        };
-
-        window.speechSynthesis.speak(utterance);
+        playSegment(segments, currentSegmentIndex);
       }
+    });
+
+    if (audioStopBtn) {
+      audioStopBtn.addEventListener("click", () => {
+        stopAudio();
+      });
+    }
+
+    // Cancel speech when navigating away
+    window.addEventListener("beforeunload", () => {
+      window.speechSynthesis.cancel();
     });
   } else if (audioPlayBtn) {
     if (audioStatus) audioStatus.textContent = "Audio reader unsupported";
@@ -2890,39 +3259,6 @@ function setupNavigation() {
   });
 }
 
-function mergeSiteContent(base, override) {
-  if (Array.isArray(override)) return [...override];
-  if (!override || typeof override !== "object") {
-    return override === undefined ? base : override;
-  }
-
-  const result = {
-    ...(base && typeof base === "object" && !Array.isArray(base) ? base : {})
-  };
-
-  Object.entries(override).forEach(([key, value]) => {
-    if (key === "_source") {
-      result[key] = value;
-      return;
-    }
-
-    if (
-      value &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      result[key] &&
-      typeof result[key] === "object" &&
-      !Array.isArray(result[key])
-    ) {
-      result[key] = mergeSiteContent(result[key], value);
-    } else {
-      result[key] = Array.isArray(value) ? [...value] : value;
-    }
-  });
-
-  return result;
-}
-
 async function loadLocalContent() {
   const response = await fetch(CONTENT_PATH, { cache: "no-store" });
 
@@ -2934,49 +3270,19 @@ async function loadLocalContent() {
 }
 
 async function loadMergedContent(page) {
-  const localContent = typeof ContentService !== "undefined"
-    ? await ContentService.fetchLocalFallback()
-    : await loadLocalContent();
-
-  if (typeof ContentService === "undefined") {
-    return {
-      ...localContent,
-      _source: "local"
-    };
+  // Supabase is the live source of truth.
+  // ContentService itself falls back to site-content.json only when the live
+  // page sections cannot be loaded.
+  if (typeof ContentService !== "undefined") {
+    return ContentService.getPageContent(page);
   }
 
-  try {
-    const liveContent = await ContentService.getPageContent(page);
-
-    // Always merge live data over the newer local schema.
-    // This protects newer structures that may not yet exist in Supabase.
-    const merged = mergeSiteContent(localContent, liveContent || {});
-
-    // IMPORTANT:
-    // The Supabase `navigation` row is still based on the older navigation.
-    // Keep the repository's current navigation as the single shared menu
-    // until the DB navigation section is migrated to the new CHAPELS /
-    // MINISTRIES split.
-    const liveNavigationIsCurrent =
-      Array.isArray(liveContent?.navigation) &&
-      liveContent.navigation.some(item => String(item?.label || "").toUpperCase() === "CHAPELS");
-
-    merged.navigation = liveNavigationIsCurrent
-      ? liveContent.navigation
-      : localContent.navigation;
-
-    merged._source = String(liveContent?._source || "").startsWith("supabase")
-      ? `${liveContent._source}+local-navigation`
-      : (liveContent?._source || "local");
-
-    return merged;
-  } catch (serviceError) {
-    console.warn("[ContentService] Live content unavailable; using local fallback.", serviceError);
-    return {
-      ...localContent,
-      _source: "local-fallback"
-    };
-  }
+  // If ContentService itself is unavailable, use the repository JSON as the
+  // emergency fallback so the public site can still render.
+  return {
+    ...(await loadLocalContent()),
+    _source: "local_json_fallback"
+  };
 }
 
 function setupLazyContentObservers() {
@@ -3026,6 +3332,7 @@ async function initialiseSite() {
       about: renderAbout,
       ministries: renderMinistries,
       ministryDetail: renderMinistryDetail,
+      chapelDetail: renderMinistryDetail,
       houseFellowships: renderHouseFellowships,
       chapels: renderChapels,
       sermons: renderSermons,

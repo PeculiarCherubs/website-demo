@@ -8,11 +8,13 @@
 (function (global) {
   'use strict';
 
-  const AUTH_KEY = 'pdcm_admin_auth_session';
-  const MASTER_PASSCODE = 'pdcm2026';
+  const AUTH_SESSION_KEY = 'pdcm_supabase_auth_session';
+  const AUTH_REFRESH_SKEW_MS = 60 * 1000;
 
   let currentContent = {};
+  let isFallbackMode = false;
   let activeTab = 'dashboard';
+  let pendingRecoverySession = null;
   let editingState = {
     sectionKey: null,
     itemId: null,
@@ -26,26 +28,77 @@
      */
     async init() {
       this.bindEvents();
-      this.checkAuthStatus();
+      await this.checkAuthStatus();
     },
 
     /**
      * Binds DOM event listeners
      */
     bindEvents() {
-      // Auth Form
+      // Auth Form (Sign In)
       const authForm = document.getElementById('adminAuthForm');
       if (authForm) {
-        authForm.addEventListener('submit', (e) => {
+        authForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          this.handleLogin();
+          await this.handleLogin();
+        });
+      }
+
+      // Switch to Forgot Password view
+      const forgotBtn = document.getElementById('adminForgotBtn');
+      if (forgotBtn) {
+        forgotBtn.addEventListener('click', () => {
+          this.showAuthMode('forgot');
+        });
+      }
+
+      // Back to Sign In from Forgot Password
+      const backToSignInBtn = document.getElementById('adminBackToSignInBtn');
+      if (backToSignInBtn) {
+        backToSignInBtn.addEventListener('click', () => {
+          this.showAuthMode('signin');
+        });
+      }
+
+      // Cancel Reset Password view
+      const cancelResetBtn = document.getElementById('adminCancelResetBtn');
+      if (cancelResetBtn) {
+        cancelResetBtn.addEventListener('click', () => {
+          pendingRecoverySession = null;
+          this.showAuthMode('signin');
+        });
+      }
+
+      // Forgot Password Form Submit
+      const forgotForm = document.getElementById('adminForgotForm');
+      if (forgotForm) {
+        forgotForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await this.handleForgotPassword();
+        });
+      }
+
+      // Reset Password Form Submit (Recovery flow)
+      const resetForm = document.getElementById('adminResetForm');
+      if (resetForm) {
+        resetForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await this.handleRecoveryPasswordReset();
+        });
+      }
+
+      // Change Password Button in Header (Authenticated user)
+      const changePasswordBtn = document.getElementById('adminChangePasswordBtn');
+      if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', () => {
+          this.openChangePasswordModal();
         });
       }
 
       // Logout / Lock
       const logoutBtn = document.getElementById('adminLogoutBtn');
       if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => this.handleLogout());
+        logoutBtn.addEventListener('click', async () => this.handleLogout());
       }
 
       // Export JSON
@@ -77,103 +130,778 @@
     },
 
     /**
-     * Checks if admin is logged in
+     * Returns the locally stored Supabase session used by the Admin Portal.
+     * The session is kept in sessionStorage so closing the browser tab ends
+     * the local Admin session.
      */
-    checkAuthStatus() {
-      const isAuth = sessionStorage.getItem(AUTH_KEY) === 'true';
-      const authOverlay = document.getElementById('adminAuthOverlay');
+    getStoredAuthSession() {
+      try {
+        const raw = sessionStorage.getItem(AUTH_SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (err) {
+        console.warn('[AdminPortal] Invalid stored auth session.', err);
+        sessionStorage.removeItem(AUTH_SESSION_KEY);
+        return null;
+      }
+    },
 
-      if (isAuth) {
-        if (authOverlay) authOverlay.classList.add('hidden');
-        this.loadFullContent();
-      } else {
-        if (authOverlay) authOverlay.classList.remove('hidden');
+    storeAuthSession(payload) {
+      const expiresIn = Number(payload.expires_in || 3600);
+      const session = {
+        accessToken: payload.access_token,
+        refreshToken: payload.refresh_token,
+        tokenType: payload.token_type || 'bearer',
+        expiresAt: Date.now() + (expiresIn * 1000),
+        user: payload.user || null
+      };
+
+      sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+      return session;
+    },
+
+    clearAuthSession() {
+      sessionStorage.removeItem(AUTH_SESSION_KEY);
+    },
+
+    getAuthConfig() {
+      const cfg = global.ContentService?.config;
+      if (!cfg?.url || !cfg?.anonKey) {
+        throw new Error('Supabase configuration is unavailable.');
+      }
+      return cfg;
+    },
+
+    async refreshAuthSession(session) {
+      if (!session?.refreshToken) return null;
+
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refresh_token: session.refreshToken })
+      });
+
+      if (!response.ok) {
+        this.clearAuthSession();
+        return null;
+      }
+
+      return this.storeAuthSession(await response.json());
+    },
+
+    async getValidAuthSession() {
+      let session = this.getStoredAuthSession();
+      if (!session?.accessToken) return null;
+
+      if (!session.expiresAt || session.expiresAt - Date.now() <= AUTH_REFRESH_SKEW_MS) {
+        session = await this.refreshAuthSession(session);
+      }
+
+      return session;
+    },
+
+    async verifyCmsAdmin(accessToken) {
+      if (!accessToken) return false;
+
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/rest/v1/rpc/is_cms_admin`, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: '{}'
+      });
+
+      if (!response.ok) {
+        console.warn('[AdminPortal] CMS admin verification failed:', response.status);
+        return false;
+      }
+
+      return (await response.json()) === true;
+    },
+
+    setAuthenticatedUser(session) {
+      const userLabel = document.getElementById('adminUserIdentity');
+      const changePasswordBtn = document.getElementById('adminChangePasswordBtn');
+      if (userLabel) {
+        const email = session?.user?.email || '';
+        userLabel.textContent = email;
+        userLabel.hidden = !email;
+      }
+      if (changePasswordBtn) {
+        changePasswordBtn.hidden = !session;
       }
     },
 
     /**
-     * Handles passcode authentication
+     * Parses Supabase authentication tokens or errors from URL hash (#access_token=...&type=recovery)
+     * and query params (?code=... or ?error=...).
      */
-    handleLogin() {
-      const input = document.getElementById('adminPasscode');
-      const errorMsg = document.getElementById('adminAuthError');
+    parseAuthUrlTokens() {
+      const result = {
+        accessToken: null,
+        refreshToken: null,
+        type: null,
+        expiresIn: null,
+        error: null,
+        errorDescription: null,
+        code: null
+      };
+
+      // 1. Parse Hash parameters (standard Supabase email redirect format)
+      if (typeof window !== 'undefined' && window.location.hash && window.location.hash.length > 1) {
+        try {
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          result.accessToken = hashParams.get('access_token');
+          result.refreshToken = hashParams.get('refresh_token');
+          result.type = hashParams.get('type');
+          result.expiresIn = hashParams.get('expires_in');
+          result.error = hashParams.get('error');
+          result.errorDescription = hashParams.get('error_description');
+        } catch (e) {
+          console.warn('[AdminPortal] Error parsing URL hash params:', e);
+        }
+      }
+
+      // 2. Parse Search query parameters (alternative/error redirect format)
+      if (typeof window !== 'undefined' && window.location.search && window.location.search.length > 1) {
+        try {
+          const searchParams = new URLSearchParams(window.location.search);
+          if (!result.error && searchParams.get('error')) {
+            result.error = searchParams.get('error');
+            result.errorDescription = searchParams.get('error_description');
+          }
+          if (searchParams.get('code')) {
+            result.code = searchParams.get('code');
+          }
+        } catch (e) {
+          console.warn('[AdminPortal] Error parsing URL search params:', e);
+        }
+      }
+
+      return result;
+    },
+
+    /**
+     * Removes access_token and sensitive auth parameters from the browser address bar without reloading.
+     */
+    clearAuthUrlTokens() {
+      if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState(null, '', cleanUrl);
+      }
+    },
+
+    /**
+     * Toggles between 'signin', 'forgot', and 'reset' views in the auth overlay.
+     */
+    showAuthMode(mode = 'signin', options = {}) {
+      const authOverlay = document.getElementById('adminAuthOverlay');
+      const signInView = document.getElementById('adminSignInView');
+      const forgotView = document.getElementById('adminForgotView');
+      const resetView = document.getElementById('adminResetView');
+
+      if (authOverlay) authOverlay.classList.remove('hidden');
+
+      if (signInView) signInView.style.display = mode === 'signin' ? 'block' : 'none';
+      if (forgotView) forgotView.style.display = mode === 'forgot' ? 'block' : 'none';
+      if (resetView) resetView.style.display = mode === 'reset' ? 'block' : 'none';
+
+      // Clear previous error/success indicators
+      const authError = document.getElementById('adminAuthError');
+      const forgotError = document.getElementById('adminForgotError');
+      const forgotSuccess = document.getElementById('adminForgotSuccess');
+      const resetError = document.getElementById('adminResetError');
+      const resetSuccess = document.getElementById('adminResetSuccess');
+
+      if (authError) {
+        if (options.error && mode === 'signin') {
+          authError.textContent = options.error;
+          authError.style.display = 'block';
+        } else {
+          authError.textContent = '';
+          authError.style.display = 'none';
+        }
+      }
+
+      if (forgotError) {
+        forgotError.textContent = '';
+        forgotError.style.display = 'none';
+      }
+      if (forgotSuccess) {
+        forgotSuccess.textContent = '';
+        forgotSuccess.style.display = 'none';
+      }
+      if (resetError) {
+        resetError.textContent = '';
+        resetError.style.display = 'none';
+      }
+      if (resetSuccess) {
+        resetSuccess.textContent = '';
+        resetSuccess.style.display = 'none';
+      }
+
+      // If switching to forgot view, pre-fill with email entered on signin
+      if (mode === 'forgot') {
+        const signinEmail = document.getElementById('adminEmail')?.value.trim();
+        const forgotEmailInput = document.getElementById('adminForgotEmail');
+        if (signinEmail && forgotEmailInput && !forgotEmailInput.value) {
+          forgotEmailInput.value = signinEmail;
+        }
+        if (forgotEmailInput) forgotEmailInput.focus();
+      } else if (mode === 'signin') {
+        const emailInput = document.getElementById('adminEmail');
+        if (emailInput) emailInput.focus();
+      } else if (mode === 'reset') {
+        const newPasswordInput = document.getElementById('adminNewPassword');
+        if (newPasswordInput) newPasswordInput.focus();
+      }
+    },
+
+    showAuthOverlay(message = '') {
+      this.showAuthMode('signin', { error: message });
+    },
+
+    /**
+     * Validates the stored Supabase Auth session and CMS authorization,
+     * while also checking for password recovery redirect tokens from email.
+     */
+    async checkAuthStatus() {
+      // 1. Detect if the user landed on the portal via a Supabase email link
+      const tokens = this.parseAuthUrlTokens();
+
+      // Handle email link error (e.g. otp_expired / link already used)
+      if (tokens.error) {
+        this.clearAuthUrlTokens();
+        const errorDesc = tokens.errorDescription
+          ? decodeURIComponent(tokens.errorDescription.replace(/\+/g, ' '))
+          : 'The password reset link is invalid or has expired. Please request a new one.';
+        this.showAuthMode('signin', { error: errorDesc });
+        return;
+      }
+
+      // Handle valid password recovery link
+      if (tokens.type === 'recovery' && tokens.accessToken) {
+        pendingRecoverySession = {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken
+        };
+        this.clearAuthUrlTokens();
+        this.showAuthMode('reset');
+        return;
+      }
+
+      // 2. Normal session check
       const authOverlay = document.getElementById('adminAuthOverlay');
 
-      const val = input ? input.value.trim() : '';
+      try {
+        const session = await this.getValidAuthSession();
+        if (!session) {
+          this.showAuthMode('signin');
+          return;
+        }
 
-      if (val === MASTER_PASSCODE) {
-        sessionStorage.setItem(AUTH_KEY, 'true');
+        const isAdmin = await this.verifyCmsAdmin(session.accessToken);
+        if (!isAdmin) {
+          this.clearAuthSession();
+          this.showAuthMode('signin', { error: 'This account is signed in but is not authorized to manage the CMS.' });
+          return;
+        }
+
+        this.setAuthenticatedUser(session);
+        if (authOverlay) authOverlay.classList.add('hidden');
+        await this.loadFullContent();
+      } catch (err) {
+        console.error('[AdminPortal] Could not validate Admin session:', err);
+        this.clearAuthSession();
+        this.showAuthMode('signin', { error: 'Could not validate the Admin session. Please sign in again.' });
+      }
+    },
+
+    /**
+     * Signs in through Supabase Auth using email/password credentials, then
+     * verifies that the authenticated user is explicitly listed as a CMS admin.
+     */
+    async handleLogin() {
+      const emailInput = document.getElementById('adminEmail');
+      const passwordInput = document.getElementById('adminPassword');
+      const errorMsg = document.getElementById('adminAuthError');
+      const authOverlay = document.getElementById('adminAuthOverlay');
+      const submitBtn = document.getElementById('adminSignInSubmitBtn') || document.querySelector('#adminAuthForm button[type="submit"]');
+
+      const email = emailInput?.value.trim() || '';
+      const password = passwordInput?.value || '';
+
+      if (!email || !password) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Enter both your Admin email and password.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in…';
+      }
+
+      try {
+        const cfg = this.getAuthConfig();
+        const response = await fetch(`${cfg.url}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'apikey': cfg.anonKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+          const detail = await response.json().catch(() => ({}));
+          throw new Error(detail.msg || detail.error_description || 'Invalid email or password.');
+        }
+
+        const session = this.storeAuthSession(await response.json());
+        const isAdmin = await this.verifyCmsAdmin(session.accessToken);
+
+        if (!isAdmin) {
+          this.clearAuthSession();
+          throw new Error('This account is not authorized to manage the CMS.');
+        }
+
+        this.setAuthenticatedUser(session);
         if (errorMsg) errorMsg.style.display = 'none';
         if (authOverlay) authOverlay.classList.add('hidden');
-        this.showToast('Authentication successful! Welcome, Admin.', 'success');
-        this.loadFullContent();
-      } else {
+        this.showToast('Secure Admin session established.', 'success');
+        await this.loadFullContent();
+      } catch (err) {
+        console.error('[AdminPortal] Login failed:', err);
+        this.clearAuthSession();
         if (errorMsg) {
-          errorMsg.textContent = 'Incorrect passcode. Try again.';
+          errorMsg.textContent = err.message || 'Could not sign in.';
           errorMsg.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In';
         }
       }
     },
 
     /**
-     * Handles logout / locking the portal
+     * Common reusable password update logic for both:
+     * 1. Unauthenticated password reset (passing recovery access token)
+     * 2. Authenticated administrator password change (uses active session token)
      */
-    handleLogout() {
-      sessionStorage.removeItem(AUTH_KEY);
-      const authOverlay = document.getElementById('adminAuthOverlay');
-      if (authOverlay) authOverlay.classList.remove('hidden');
-      this.showToast('Portal locked.', 'info');
+    async updateUserPassword(newPassword, customAccessToken = null) {
+      if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+        throw new Error('Password must be at least 8 characters in length.');
+      }
+
+      let token = customAccessToken;
+      if (!token) {
+        const session = await this.getValidAuthSession();
+        if (!session?.accessToken) {
+          throw new Error('Your session has expired. Please sign in again.');
+        }
+        token = session.accessToken;
+      }
+
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/auth/v1/user`, {
+        method: 'PUT',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password: newPassword })
+      });
+
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.msg || detail.error_description || detail.message || 'Could not update password.');
+      }
+
+      const updatedUser = await response.json();
+
+      // If updating an active stored session, keep the user profile coherent
+      const currentSession = this.getStoredAuthSession();
+      if (currentSession && (!customAccessToken || currentSession.accessToken === customAccessToken)) {
+        currentSession.user = updatedUser;
+        sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(currentSession));
+      }
+
+      return { success: true, user: updatedUser };
+    },
+
+    /**
+     * Sends a password reset recovery link to the given administrator email address.
+     */
+    async sendPasswordResetEmail(email, redirectTo = null) {
+      if (!email || !email.includes('@')) {
+        throw new Error('Please enter a valid administrator email address.');
+      }
+
+      const cfg = this.getAuthConfig();
+      const redirectTarget = redirectTo || (window.location.origin + window.location.pathname);
+      const endpoint = `${cfg.url}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTarget)}`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.msg || detail.error_description || 'Unable to send password recovery email.');
+      }
+
+      return { success: true };
+    },
+
+    /**
+     * Handles submission of the unauthenticated Forgot Password form.
+     */
+    async handleForgotPassword() {
+      const emailInput = document.getElementById('adminForgotEmail');
+      const errorMsg = document.getElementById('adminForgotError');
+      const successMsg = document.getElementById('adminForgotSuccess');
+      const submitBtn = document.getElementById('adminForgotSubmitBtn');
+
+      const email = emailInput?.value.trim() || '';
+
+      if (!email || !email.includes('@')) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Please enter a valid administrator email address.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (errorMsg) errorMsg.style.display = 'none';
+      if (successMsg) successMsg.style.display = 'none';
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending link…';
+      }
+
+      try {
+        await this.sendPasswordResetEmail(email);
+        if (successMsg) {
+          successMsg.innerHTML = `<strong>Recovery Link Sent!</strong> If an account is registered for <code>${email}</code>, a password reset link has been dispatched to your inbox. Please check your email and click the link to set your new password.`;
+          successMsg.style.display = 'block';
+        }
+        this.showToast('Password recovery email dispatched.', 'success');
+      } catch (err) {
+        console.error('[AdminPortal] Password recovery error:', err);
+        if (errorMsg) {
+          errorMsg.textContent = err.message || 'Could not send recovery link.';
+          errorMsg.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Recovery Link';
+        }
+      }
+    },
+
+    /**
+     * Handles setting a new password when the user arrives via a recovery email link.
+     */
+    async handleRecoveryPasswordReset() {
+      const newPasswordInput = document.getElementById('adminNewPassword');
+      const confirmPasswordInput = document.getElementById('adminConfirmPassword');
+      const errorMsg = document.getElementById('adminResetError');
+      const submitBtn = document.getElementById('adminResetSubmitBtn');
+
+      const newPassword = newPasswordInput?.value || '';
+      const confirmPassword = confirmPasswordInput?.value || '';
+
+      if (!pendingRecoverySession?.accessToken) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Recovery session has expired or is invalid. Please request a new link.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        if (errorMsg) {
+          errorMsg.textContent = 'New password must be at least 8 characters in length.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Passwords do not match. Please verify both fields.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (errorMsg) errorMsg.style.display = 'none';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving password…';
+      }
+
+      try {
+        const recoveryToken = pendingRecoverySession.accessToken;
+        const refreshToken = pendingRecoverySession.refreshToken;
+
+        const result = await this.updateUserPassword(newPassword, recoveryToken);
+
+        // Verify that the user is authorized as a CMS administrator
+        const isAdmin = await this.verifyCmsAdmin(recoveryToken);
+        if (!isAdmin) {
+          pendingRecoverySession = null;
+          throw new Error('Your password was updated, but this account is not authorized as a CMS administrator.');
+        }
+
+        // Establish the newly authenticated session
+        const session = this.storeAuthSession({
+          access_token: recoveryToken,
+          refresh_token: refreshToken,
+          expires_in: 3600,
+          user: result.user
+        });
+        pendingRecoverySession = null;
+
+        this.setAuthenticatedUser(session);
+        const authOverlay = document.getElementById('adminAuthOverlay');
+        if (authOverlay) authOverlay.classList.add('hidden');
+
+        this.showToast('Password updated! You are now signed in.', 'success');
+        await this.loadFullContent();
+      } catch (err) {
+        console.error('[AdminPortal] Recovery password reset failed:', err);
+        if (errorMsg) {
+          errorMsg.textContent = err.message || 'Could not update password.';
+          errorMsg.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Save Password & Sign In';
+        }
+      }
+    },
+
+    /**
+     * Opens the Change Password modal for an authenticated administrator.
+     */
+    openChangePasswordModal() {
+      const modal = document.getElementById('adminChangePasswordModal');
+      const newPasswordInput = document.getElementById('adminAuthNewPassword');
+      const confirmPasswordInput = document.getElementById('adminAuthConfirmPassword');
+      const errorMsg = document.getElementById('adminChangePasswordError');
+
+      if (newPasswordInput) newPasswordInput.value = '';
+      if (confirmPasswordInput) confirmPasswordInput.value = '';
+      if (errorMsg) {
+        errorMsg.textContent = '';
+        errorMsg.style.display = 'none';
+      }
+
+      if (modal) modal.classList.add('open');
+      if (newPasswordInput) newPasswordInput.focus();
+    },
+
+    /**
+     * Closes the Change Password modal.
+     */
+    closeChangePasswordModal() {
+      const modal = document.getElementById('adminChangePasswordModal');
+      if (modal) modal.classList.remove('open');
+    },
+
+    /**
+     * Handles authenticated password change form submission.
+     */
+    async handleAuthenticatedPasswordChange() {
+      const newPasswordInput = document.getElementById('adminAuthNewPassword');
+      const confirmPasswordInput = document.getElementById('adminAuthConfirmPassword');
+      const errorMsg = document.getElementById('adminChangePasswordError');
+      const saveBtn = document.getElementById('adminSavePasswordBtn');
+
+      const newPassword = newPasswordInput?.value || '';
+      const confirmPassword = confirmPasswordInput?.value || '';
+
+      if (newPassword.length < 8) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Password must be at least 8 characters in length.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Passwords do not match. Please verify both fields.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (errorMsg) errorMsg.style.display = 'none';
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Updating…';
+      }
+
+      try {
+        await this.updateUserPassword(newPassword);
+        this.closeChangePasswordModal();
+        this.showToast('Account password updated successfully.', 'success');
+      } catch (err) {
+        console.error('[AdminPortal] Authenticated password update failed:', err);
+        if (errorMsg) {
+          errorMsg.textContent = err.message || 'Could not update password.';
+          errorMsg.style.display = 'block';
+        }
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '💾 Update Password';
+        }
+      }
+    },
+
+    /**
+     * Ends the Supabase Auth session and locks the portal.
+     */
+    async handleLogout() {
+      const session = this.getStoredAuthSession();
+      const cfg = global.ContentService?.config;
+
+      if (session?.accessToken && cfg?.url && cfg?.anonKey) {
+        try {
+          await fetch(`${cfg.url}/auth/v1/logout`, {
+            method: 'POST',
+            headers: {
+              'apikey': cfg.anonKey,
+              'Authorization': `Bearer ${session.accessToken}`
+            }
+          });
+        } catch (err) {
+          console.warn('[AdminPortal] Remote logout failed; local session will still be cleared.', err);
+        }
+      }
+
+      this.clearAuthSession();
+      this.setAuthenticatedUser(null);
+      this.showAuthMode('signin');
+      this.showToast('Admin session ended.', 'info');
     },
 
     /**
      * Loads site content from Supabase DB or local fallback
      */
-    async loadFullContent() {
+    async loadFullContent(options = {}) {
+      const { suppressToast = false, forceRefresh = false } = options;
+
       try {
         this.updateStatusIndicator(true, 'Fetching live content...');
 
-        // Fetch required sections concurrently
-        const sections = ['site', 'navigation', 'home', 'about', 'chapels', 'sermons', 'publications', 'quickLinks', 'give', 'bibleCollege', 'ministries', 'events'];
+        const sections = [
+          'site', 'navigation', 'home', 'about', 'chapels', 'sermons',
+          'publications', 'quickLinks', 'give', 'bibleCollege',
+          'ministries', 'events'
+        ];
 
-        let data = {};
-        const localFallback = global.ContentService
-          ? await global.ContentService.fetchLocalFallback()
-          : {};
-
-        if (global.ContentService && typeof global.ContentService.fetchSectionsFromDB === 'function') {
-          try {
-            const liveSections = await global.ContentService.fetchSectionsFromDB(sections);
-
-            // Repository JSON is the schema and safety baseline.
-            // Any section that exists in Supabase overrides its local counterpart.
-            data = { ...localFallback };
-            Object.entries(liveSections || {}).forEach(([key, value]) => {
-              if (value !== undefined && value !== null) {
-                data[key] = value;
-              }
-            });
-
-            this.updateStatusIndicator(true, 'Live Supabase DB + repository fallback');
-          } catch (dbErr) {
-            console.warn('[AdminPortal] Supabase DB fetch failed, using local fallback:', dbErr);
-            data = localFallback;
-            this.updateStatusIndicator(false, 'Local JSON Fallback');
-          }
-        } else {
-          data = localFallback;
-          this.updateStatusIndicator(false, 'Local JSON Fallback');
+        if (
+          forceRefresh &&
+          global.ContentService &&
+          typeof global.ContentService.clearCache === 'function'
+        ) {
+          global.ContentService.clearCache();
         }
 
-        currentContent = data;
+        if (
+          global.ContentService &&
+          typeof global.ContentService.fetchSectionsFromDB === 'function'
+        ) {
+          try {
+            // Successful live load: use Supabase only. The repository JSON is
+            // NOT merged into live content.
+            const liveSections = await global.ContentService.fetchSectionsFromDB(sections);
+            currentContent = {
+              ...liveSections,
+              _source: 'supabase_db'
+            };
+
+            isFallbackMode = false;
+            this.setFallbackMode(false);
+            this.updateStatusIndicator(true, 'Live Supabase DB');
+          } catch (dbErr) {
+            console.warn(
+              '[AdminPortal] Live Supabase content is incomplete/unavailable. ' +
+              'Opening repository fallback in read-only mode.',
+              dbErr
+            );
+
+            const fallback = await global.ContentService.fetchLocalFallback();
+            currentContent = {
+              ...fallback,
+              _source: 'local_json_fallback'
+            };
+
+            isFallbackMode = true;
+            this.setFallbackMode(true);
+            this.updateStatusIndicator(false, 'Local fallback — read only');
+          }
+        } else {
+          throw new Error('ContentService is unavailable.');
+        }
+
         this.ensureStableContentIds();
         console.log('[AdminPortal] Loaded content model:', currentContent);
         this.renderAllViews();
-        this.showToast('Site content loaded successfully.', 'success');
+
+        if (!suppressToast) {
+          this.showToast(
+            isFallbackMode
+              ? 'Supabase is unavailable. Showing repository fallback in read-only mode.'
+              : 'Live Supabase content loaded successfully.',
+            isFallbackMode ? 'error' : 'success'
+          );
+        }
+
+        return !isFallbackMode;
       } catch (err) {
         console.error('[AdminPortal] Error loading content:', err);
+        isFallbackMode = true;
+        this.setFallbackMode(true);
         this.updateStatusIndicator(false, 'Fetch Error');
-        this.showToast('Failed to load site content.', 'error');
+        if (!suppressToast) {
+          this.showToast('Failed to load live site content.', 'error');
+        }
+        return false;
       }
+    },
+
+    /**
+     * Makes fallback mode explicit in the Admin interface.
+     */
+    setFallbackMode(enabled) {
+      const banner = document.getElementById('adminFallbackBanner');
+      if (banner) banner.hidden = !enabled;
+      document.body.classList.toggle('admin-fallback-mode', Boolean(enabled));
     },
 
     /**
@@ -321,7 +1049,7 @@
             teacherNotes: teacherText,
             lifeApplication: l.lifeApplication || '',
             audioUrl: l.audioUrl || '',
-            pdfUrl: l.pdfUrl || '#',
+            pdfUrl: l.pdfUrl || '',
             coverImage: 'assets/hero/mother-church-brand.jpg',
             _raw: l,
             _sourceGroup: 'sundaySchoolDetails'
@@ -345,7 +1073,7 @@
             description: arc.text || (detail ? detail.subtitle : ''),
             author: 'Peculiar Cherubs Publications',
             coverImage: 'assets/hero/mother-church-brand.jpg',
-            pdfUrl: (detail && detail.pdfUrl) ? detail.pdfUrl : '#',
+            pdfUrl: (detail && detail.pdfUrl) ? detail.pdfUrl : '',
             _raw: detail || arc,
             _sourceGroup: 'archive'
           });
@@ -393,112 +1121,82 @@
       return items;
     },
 
-    getMinistryPlacement(key, detail = {}) {
+    getMinistryPlacement(key) {
+      if (currentContent.chapels?.details?.[key]) return 'chapels';
+
       const groups = currentContent.ministries?.groups || [];
-      const group = groups.find(entry => Array.isArray(entry.items) && entry.items.includes(key));
-      if (group) return group.id;
-
-      const href = detail.href || `${key}.html`;
-      const isChapel = (currentContent.chapels?.current || []).some(chapel =>
-        chapel.href === href ||
-        String(chapel.name || '').toLowerCase() === String(detail.title || detail.shortTitle || '').toLowerCase()
+      const group = groups.find(entry =>
+        Array.isArray(entry.items) && entry.items.includes(key)
       );
-      if (isChapel || String(detail.category || '').toLowerCase().includes('chapel')) return 'chapels';
 
-      return 'detail-only';
+      return group ? group.id : 'detail-only';
     },
 
     /**
-     * Helper to aggregate ALL ministry items across items array and key-value entries in currentContent.ministries.
+     * Aggregates Ministries and Chapels for the shared Admin management view,
+     * while preserving separate canonical content stores.
      */
     getAllMinistryItems() {
-      if (!currentContent.ministries) return [];
-      const mins = currentContent.ministries;
       const itemsMap = new Map();
+      const mins = currentContent.ministries || {};
+      const chapels = currentContent.chapels || {};
 
-      // 1. Process items from currentContent.ministries.details if present
+      // Canonical ministry details.
       if (mins.details && typeof mins.details === 'object') {
         Object.keys(mins.details).forEach(key => {
           const obj = mins.details[key];
-          if (obj && typeof obj === 'object') {
-            itemsMap.set(key, {
-              id: key,
-              title: obj.title || obj.shortTitle || key,
-              tag: obj.category || 'Ministry',
-              category: obj.category || 'Ministry',
-              subtitle: obj.summary || obj.subtitle || '',
-              description: obj.summary || obj.subtitle || '',
-              href: obj.href || `${key}.html`,
-              image: obj.image || 'assets/hero/mother-church-brand.jpg',
-              schedule: obj.schedule || 'Regular Worship',
-              facts: obj.facts || [],
-              overview: obj.overview || [],
-              leaders: obj.leaders || [],
-              functionsTitle: obj.functionsTitle || 'Ministry functions',
-              functions: obj.functions || [],
-              _placement: this.getMinistryPlacement(key, obj),
-              _raw: obj
-            });
-          }
+          if (!obj || typeof obj !== 'object') return;
+
+          itemsMap.set(key, {
+            id: key,
+            title: obj.title || obj.shortTitle || key,
+            tag: obj.category || 'Ministry',
+            category: obj.category || 'Ministry',
+            subtitle: obj.summary || obj.subtitle || '',
+            description: obj.summary || obj.subtitle || '',
+            href: obj.href || `${key}.html`,
+            image: obj.image || 'assets/hero/mother-church-brand.jpg',
+            schedule: obj.schedule || 'Regular Worship',
+            facts: obj.facts || [],
+            overview: obj.overview || [],
+            leaders: obj.leaders || [],
+            functionsTitle: obj.functionsTitle || 'Ministry functions',
+            functions: obj.functions || [],
+            _placement: this.getMinistryPlacement(key),
+            _sourceType: 'ministry',
+            _raw: obj
+          });
         });
       }
 
-      // 2. Process items from currentContent.ministries.items array if present
-      if (Array.isArray(mins.items)) {
-        mins.items.forEach(it => {
-          if (it && (it.id || it.title)) {
-            const id = it.id || `ministry_${Date.now()}`;
-            if (!itemsMap.has(id)) {
-              itemsMap.set(id, {
-                id: id,
-                title: it.title || it.name || 'Ministry Title',
-                tag: it.category || it.tag || 'Ministry',
-                category: it.category || it.tag || 'Ministry',
-                subtitle: it.summary || it.subtitle || it.description || '',
-                description: it.description || it.summary || it.subtitle || '',
-                href: it.href || '#',
-                image: it.image || it.coverImage || 'assets/hero/mother-church-brand.jpg',
-                schedule: it.schedule || 'Regular Worship',
-                facts: it.facts || [],
-                overview: it.overview || [],
-                leaders: it.leaders || [],
-                functionsTitle: it.functionsTitle || 'Ministry functions',
-                functions: it.functions || [],
-                _placement: this.getMinistryPlacement(id, it),
-                _raw: it
-              });
-            }
-          }
+      // Canonical chapel details.
+      if (chapels.details && typeof chapels.details === 'object') {
+        Object.keys(chapels.details).forEach(key => {
+          const obj = chapels.details[key];
+          if (!obj || typeof obj !== 'object') return;
+
+          itemsMap.set(key, {
+            id: key,
+            title: obj.title || obj.shortTitle || key,
+            tag: obj.category || 'PDCM Chapel',
+            category: obj.category || 'PDCM Chapel',
+            subtitle: obj.summary || obj.subtitle || '',
+            description: obj.summary || obj.subtitle || '',
+            href: obj.href || `${key}.html`,
+            image: obj.image || 'assets/hero/mother-church-brand.jpg',
+            schedule: obj.schedule || 'Regular Worship',
+            facts: obj.facts || [],
+            overview: obj.overview || [],
+            leaders: obj.leaders || [],
+            functionsTitle: obj.functionsTitle || 'Chapel focus',
+            functions: obj.functions || [],
+            _placement: 'chapels',
+            _sourceType: 'chapel',
+            _raw: obj
+          });
         });
       }
 
-      // 3. Process key-value object entries in currentContent.ministries
-      Object.keys(mins).forEach(key => {
-        if (['houseFellowships', 'items', 'hero', 'mission', 'groups', 'homeFeatured', 'details'].includes(key)) return;
-        const obj = mins[key];
-        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-          if (!itemsMap.has(key)) {
-            itemsMap.set(key, {
-              id: key,
-              title: obj.title || obj.shortTitle || key,
-              tag: obj.category || 'Ministry',
-              category: obj.category || 'Ministry',
-              subtitle: obj.summary || obj.subtitle || '',
-              description: obj.summary || obj.subtitle || '',
-              href: obj.href || '#',
-              image: obj.image || 'assets/hero/mother-church-brand.jpg',
-              schedule: obj.schedule || 'Regular Worship',
-              facts: obj.facts || [],
-              overview: obj.overview || [],
-              leaders: obj.leaders || [],
-              functionsTitle: obj.functionsTitle || 'Ministry functions',
-              functions: obj.functions || [],
-              _placement: this.getMinistryPlacement(key, obj),
-              _raw: obj
-            });
-          }
-        }
-      });
 
       return Array.from(itemsMap.values());
     },
@@ -531,7 +1229,7 @@
         icon: link.icon || '🔗',
         title: link.title || 'Quick Link',
         text: link.text || link.description || '',
-        href: link.href || '#',
+        href: link.href || '',
         _index: idx,
         _raw: link
       }));
@@ -943,7 +1641,7 @@
       currentContent.about.leadership.title = getVal('leadershipSettingTitle') || 'Shepherds of the flock.';
       currentContent.about.leadership.description = getVal('leadershipSettingDescription') || '';
 
-      await this.syncSectionToSupabase('about', currentContent.about);
+      if (!(await this.syncSectionToSupabase('about', currentContent.about))) return;
       this.showToast('Leadership section header updated live in Supabase DB!', 'success');
     },
 
@@ -1057,7 +1755,7 @@
       currentContent.quickLinks.calendar.title = getVal('qlSettingCalendarTitle') || 'Regular services and major events.';
       currentContent.quickLinks.calendar.eyebrow = 'Church calendar';
 
-      await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks);
+      if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
       this.showToast('Quick Links page headers updated live in Supabase DB!', 'success');
     },
 
@@ -1385,7 +2083,7 @@
       currentContent.give.paymentGateway.appendDonorParams = chkParams ? chkParams.checked : true;
       currentContent.give.paymentGateway.noticeMessage = getVal('gatewaySettingNotice');
 
-      await this.syncSectionToSupabase('give', currentContent.give);
+      if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
       this.populateGivingForms();
       this.showToast('Payment Gateway plugin configuration synced live to Supabase DB!', 'success');
     },
@@ -1405,7 +2103,7 @@
       currentContent.give.why.title = getVal('givingSettingWhyTitle');
       currentContent.give.why.description = getVal('givingSettingWhyDesc');
 
-      await this.syncSectionToSupabase('give', currentContent.give);
+      if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
       this.showToast('Giving page settings updated live in Supabase DB!', 'success');
     },
 
@@ -1458,220 +2156,10 @@
       currentContent.home.hero.title = getVal('settingHeroTitle');
       currentContent.home.hero.highlight = getVal('settingHeroHighlight');
 
-      await this.syncSectionToSupabase('site', currentContent.site);
-      await this.syncSectionToSupabase('home', currentContent.home);
+      if (!(await this.syncSectionToSupabase('site', currentContent.site))) return;
+      if (!(await this.syncSectionToSupabase('home', currentContent.home))) return;
 
       this.showToast('Site settings updated live on Supabase DB!', 'success');
-    },
-
-    /* ======================================================================
-       Repository → CMS Standardization
-       ====================================================================== */
-
-    getStableItemKey(item) {
-      if (!item || typeof item !== 'object' || Array.isArray(item)) return null;
-
-      const candidateKeys = [
-        'id', 'slug', 'key', 'href', 'issue', 'name', 'title',
-        'date', 'label', 'reference'
-      ];
-
-      for (const key of candidateKeys) {
-        const value = item[key];
-        if (value !== undefined && value !== null && String(value).trim() !== '') {
-          return `${key}:${String(value).trim()}`;
-        }
-      }
-
-      return null;
-    },
-
-    standardizeContentValue(repositoryValue, liveValue) {
-      // Existing live scalar values win. Repository values fill gaps.
-      if (liveValue === undefined || liveValue === null) {
-        return typeof structuredClone === 'function'
-          ? structuredClone(repositoryValue)
-          : JSON.parse(JSON.stringify(repositoryValue));
-      }
-
-      if (
-        repositoryValue &&
-        liveValue &&
-        typeof repositoryValue === 'object' &&
-        typeof liveValue === 'object' &&
-        !Array.isArray(repositoryValue) &&
-        !Array.isArray(liveValue)
-      ) {
-        const result = {};
-
-        Object.keys(repositoryValue).forEach(key => {
-          result[key] = this.standardizeContentValue(
-            repositoryValue[key],
-            liveValue[key]
-          );
-        });
-
-        Object.keys(liveValue).forEach(key => {
-          if (!Object.prototype.hasOwnProperty.call(result, key)) {
-            result[key] = liveValue[key];
-          }
-        });
-
-        return result;
-      }
-
-      if (Array.isArray(repositoryValue) && Array.isArray(liveValue)) {
-        const repositoryObjects = repositoryValue.every(
-          item => item && typeof item === 'object' && !Array.isArray(item)
-        );
-        const liveObjects = liveValue.every(
-          item => item && typeof item === 'object' && !Array.isArray(item)
-        );
-
-        // Object arrays: merge matching items while preserving repository items
-        // that may be missing from an older CMS dataset.
-        if (repositoryObjects && liveObjects) {
-          const liveByKey = new Map();
-          liveValue.forEach(item => {
-            const stableKey = this.getStableItemKey(item);
-            if (stableKey) liveByKey.set(stableKey, item);
-          });
-
-          const usedLiveKeys = new Set();
-          const merged = repositoryValue.map(repoItem => {
-            const stableKey = this.getStableItemKey(repoItem);
-            const liveItem = stableKey ? liveByKey.get(stableKey) : undefined;
-
-            if (liveItem && stableKey) {
-              usedLiveKeys.add(stableKey);
-              return this.standardizeContentValue(repoItem, liveItem);
-            }
-
-            return repoItem;
-          });
-
-          // Keep CMS-only objects too.
-          liveValue.forEach(liveItem => {
-            const stableKey = this.getStableItemKey(liveItem);
-            if (!stableKey || !usedLiveKeys.has(stableKey)) {
-              const duplicate = stableKey && merged.some(
-                item => this.getStableItemKey(item) === stableKey
-              );
-              if (!duplicate) merged.push(liveItem);
-            }
-          });
-
-          return merged;
-        }
-
-        // Primitive / mixed arrays: union them so repository values are not lost,
-        // while still retaining live CMS additions.
-        const result = [...repositoryValue];
-        liveValue.forEach(item => {
-          const serialized = JSON.stringify(item);
-          if (!result.some(existing => JSON.stringify(existing) === serialized)) {
-            result.push(item);
-          }
-        });
-        return result;
-      }
-
-      return liveValue;
-    },
-
-    async standardizeCmsFromRepository() {
-      if (!global.ContentService) {
-        this.showToast('ContentService is unavailable.', 'error');
-        return;
-      }
-
-      const proceed = window.confirm(
-        'This will standardize every CMS section using the repository site-content.json as the baseline. ' +
-        'Existing live Supabase values will be preserved where they already exist, while missing fields and items will be added. Continue?'
-      );
-      if (!proceed) return;
-
-      const status = document.getElementById('cmsMigrationStatus');
-      if (status) {
-        status.hidden = false;
-        status.className = 'admin-migration-status running';
-        status.textContent = 'Preparing CMS standardization…';
-      }
-
-      try {
-        const repositoryContent = await global.ContentService.fetchLocalFallback();
-        const sectionKeys = Object.keys(repositoryContent).filter(key => key !== '_source');
-
-        let liveSections = {};
-        try {
-          liveSections = await global.ContentService.fetchSectionsFromDB(sectionKeys);
-        } catch (err) {
-          console.warn('[AdminPortal] Could not fetch all live sections before standardization. Missing sections will be created.', err);
-        }
-
-        const standardizedContent = {};
-        const results = [];
-
-        for (let index = 0; index < sectionKeys.length; index++) {
-          const sectionKey = sectionKeys[index];
-          const repositorySection = repositoryContent[sectionKey];
-          const liveSection = liveSections?.[sectionKey];
-
-          const standardizedSection = this.standardizeContentValue(
-            repositorySection,
-            liveSection
-          );
-
-          if (status) {
-            status.textContent = `Standardizing ${sectionKey} (${index + 1}/${sectionKeys.length})…`;
-          }
-
-          const ok = await this.syncSectionToSupabase(
-            sectionKey,
-            standardizedSection
-          );
-
-          results.push({ sectionKey, ok });
-          if (ok) standardizedContent[sectionKey] = standardizedSection;
-        }
-
-        // Keep the admin's in-memory model aligned with the successful migration.
-        currentContent = {
-          ...repositoryContent,
-          ...currentContent,
-          ...standardizedContent
-        };
-
-        this.renderAllViews();
-
-        const succeeded = results.filter(item => item.ok).length;
-        const failed = results.filter(item => !item.ok).map(item => item.sectionKey);
-
-        if (status) {
-          status.className = failed.length
-            ? 'admin-migration-status warning'
-            : 'admin-migration-status success';
-          status.innerHTML = failed.length
-            ? `<strong>Standardization partially completed.</strong> ${succeeded}/${results.length} sections saved. Failed: ${failed.join(', ')}.`
-            : `<strong>CMS standardized successfully.</strong> ${succeeded}/${results.length} sections were merged and saved.`;
-        }
-
-        if (failed.length) {
-          this.showToast(`CMS standardization completed with ${failed.length} failed section(s).`, 'error');
-        } else {
-          this.showToast('CMS standardization completed successfully.', 'success');
-        }
-      } catch (err) {
-        console.error('[AdminPortal] CMS standardization failed:', err);
-
-        if (status) {
-          status.hidden = false;
-          status.className = 'admin-migration-status error';
-          status.textContent = `Standardization failed: ${err.message}`;
-        }
-
-        this.showToast('CMS standardization failed. Check the browser console.', 'error');
-      }
     },
 
     /* ======================================================================
@@ -1744,30 +2232,15 @@
       }
     },
 
-    async restoreAdvancedSectionFromLocal() {
-      const select = document.getElementById('advancedSectionSelect');
-      const editor = document.getElementById('advancedJsonEditor');
-      if (!select || !editor || !global.ContentService) return;
-
-      try {
-        const local = await global.ContentService.fetchLocalFallback();
-        const sectionKey = select.value;
-
-        if (!Object.prototype.hasOwnProperty.call(local, sectionKey)) {
-          this.showToast(`No local fallback exists for '${sectionKey}'.`, 'error');
-          return;
-        }
-
-        editor.value = JSON.stringify(local[sectionKey], null, 2);
-        this.validateAdvancedJson();
-        this.showToast(`Loaded repository fallback for '${sectionKey}'. Review it before saving.`, 'info');
-      } catch (err) {
-        console.error(err);
-        this.showToast('Could not load the repository fallback.', 'error');
-      }
-    },
-
     async saveAdvancedSection() {
+      if (isFallbackMode) {
+        this.showToast(
+          'Read-only fallback mode: reconnect to Supabase before saving.',
+          'error'
+        );
+        return;
+      }
+
       const select = document.getElementById('advancedSectionSelect');
       const editor = document.getElementById('advancedJsonEditor');
       if (!select || !editor) return;
@@ -2777,7 +3250,7 @@
         html = `
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
-              <label>Ministry ID (Unique Key)</label>
+              <label>Ministry / Chapel ID (Unique Key)</label>
               <input type="text" id="modalField_id" class="admin-input" value="${item.id || 'ministry_' + Date.now()}" required>
             </div>
             <div class="admin-input-group">
@@ -2799,7 +3272,7 @@
             </div>
           </div>
           <div class="admin-input-group">
-            <label>Ministry Title</label>
+            <label>Ministry / Chapel Title</label>
             <input type="text" id="modalField_title" class="admin-input" value="${item.title || ''}" placeholder="e.g. Children's Ministry" required>
           </div>
           <div class="admin-input-group">
@@ -2903,14 +3376,14 @@
           </div>
           <div class="admin-input-group">
             <label>Target Page Link / Destination URL</label>
-            <input type="text" id="modalField_href" class="admin-input" value="${item.href || ''}" placeholder="e.g. publications.html, chapels.html, ministries.html, #" required>
+            <input type="text" id="modalField_href" class="admin-input" value="${item.href || ''}" placeholder="e.g. publications.html, chapels.html, ministries.html — leave blank for Coming Soon">
             <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.4rem;">
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='publications.html'; AdminPortal.updateModalLivePreview();">publications.html</button>
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='events.html'; AdminPortal.updateModalLivePreview();">events.html</button>
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='chapels.html'; AdminPortal.updateModalLivePreview();">chapels.html</button>
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='ministries.html'; AdminPortal.updateModalLivePreview();">ministries.html</button>
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='give.html'; AdminPortal.updateModalLivePreview();">give.html</button>
-              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='#'; AdminPortal.updateModalLivePreview();"># (Placeholder)</button>
+              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value=''; AdminPortal.updateModalLivePreview();">Coming Soon (no URL)</button>
             </div>
           </div>
           <div class="admin-input-group" style="margin-bottom: 0;">
@@ -3263,7 +3736,7 @@
         const icon = getF('icon') || '🔗';
         const title = getF('title') || 'Quick Link Title';
         const text = getF('text') || 'Quick link supporting description preview...';
-        const href = getF('href') || '#';
+        const href = getF('href') || 'Coming Soon';
 
         box.innerHTML = `
           <div style="background: #ffffff; border: 2px solid var(--admin-border); border-radius: 18px; padding: 1.5rem; display: flex; gap: 1.25rem; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
@@ -3847,43 +4320,81 @@
         if (!currentContent.ministries) currentContent.ministries = {};
         if (!currentContent.ministries.details) currentContent.ministries.details = {};
         if (!Array.isArray(currentContent.ministries.groups)) currentContent.ministries.groups = [];
-        if (!currentContent.chapels) currentContent.chapels = { current: [], upcoming: [] };
-        if (!Array.isArray(currentContent.chapels.current)) currentContent.chapels.current = [];
 
-        const ministryId = getF('id') || 'ministry_' + Date.now();
+        if (!currentContent.chapels) currentContent.chapels = {};
+        if (!currentContent.chapels.details) currentContent.chapels.details = {};
+        if (!Array.isArray(currentContent.chapels.current)) currentContent.chapels.current = [];
+        if (!Array.isArray(currentContent.chapels.upcoming)) currentContent.chapels.upcoming = [];
+
+        const entityId = getF('id') || `ministry_${Date.now()}`;
         const oldId = editingState.itemId;
         const category = getF('category') || 'Ministry';
         const title = getF('title') || 'Ministry Title';
         const subtitle = getF('subtitle') || '';
         const schedule = getF('schedule') || 'Regular Worship';
-        const href = getF('href') || `${ministryId}.html`;
+        const href = getF('href') || `${entityId}.html`;
         const image = getF('image') || 'assets/hero/mother-church-brand.jpg';
         const placement = getF('placement') || 'detail-only';
+        const isChapel = placement === 'chapels';
 
-        const leaders = getF('leaders').split('\n').map(v => v.trim()).filter(Boolean).map(line => {
-          const parts = line.split(':');
-          return parts.length > 1
-            ? { name: parts[0].trim(), role: parts.slice(1).join(':').trim() }
-            : { name: line.trim(), role: 'Leader' };
-        });
-        const facts = getF('facts').split('\n').map(v => v.trim()).filter(Boolean).map(line => {
-          const parts = line.split(':');
-          return parts.length > 1
-            ? { label: parts[0].trim(), value: parts.slice(1).join(':').trim() }
-            : { label: 'Focus', value: line.trim() };
-        });
-        const functions = getF('functions').split('\n').map(v => v.trim()).filter(Boolean);
-        const overview = getF('overview').split(/\n\s*\n/).map(v => v.trim()).filter(Boolean);
-        const existing = currentContent.ministries.details[oldId] || currentContent.ministries.details[ministryId] || editingState.itemData?._raw || {};
+        const leaders = getF('leaders')
+          .split('\n')
+          .map(v => v.trim())
+          .filter(Boolean)
+          .map(line => {
+            const parts = line.split(':');
+            return parts.length > 1
+              ? { name: parts[0].trim(), role: parts.slice(1).join(':').trim() }
+              : { name: line.trim(), role: 'Leader' };
+          });
 
-        const ministryData = {
+        const facts = getF('facts')
+          .split('\n')
+          .map(v => v.trim())
+          .filter(Boolean)
+          .map(line => {
+            const parts = line.split(':');
+            return parts.length > 1
+              ? { label: parts[0].trim(), value: parts.slice(1).join(':').trim() }
+              : { label: 'Focus', value: line.trim() };
+          });
+
+        const functions = getF('functions')
+          .split('\n')
+          .map(v => v.trim())
+          .filter(Boolean);
+
+        const overview = getF('overview')
+          .split(/\n\s*\n/)
+          .map(v => v.trim())
+          .filter(Boolean);
+
+        const existing =
+          currentContent.chapels.details?.[oldId] ||
+          currentContent.chapels.details?.[entityId] ||
+          currentContent.ministries.details?.[oldId] ||
+          currentContent.ministries.details?.[entityId] ||
+          editingState.itemData?._raw ||
+          {};
+
+        const previousCurrentChapel = currentContent.chapels.current.find(chapel =>
+          chapel.id === oldId ||
+          chapel.id === entityId ||
+          chapel.href === existing.href ||
+          chapel.href === href
+        );
+
+        const entityData = {
           ...existing,
-          id: ministryId,
+          id: entityId,
           href,
           category,
           tag: category,
           title,
-          shortTitle: existing.shortTitle && existing.shortTitle !== existing.title ? existing.shortTitle : title,
+          shortTitle:
+            existing.shortTitle && existing.shortTitle !== existing.title
+              ? existing.shortTitle
+              : title,
           subtitle,
           summary: subtitle,
           description: subtitle,
@@ -3892,51 +4403,65 @@
           facts,
           overview: overview.length ? overview : (existing.overview || [subtitle]),
           leaders,
-          functionsTitle: existing.functionsTitle || 'Ministry functions',
+          functionsTitle:
+            existing.functionsTitle || (isChapel ? 'Chapel focus' : 'Ministry functions'),
           functions
         };
 
-        if (oldId && oldId !== ministryId) {
-          delete currentContent.ministries.details[oldId];
-          currentContent.ministries.groups.forEach(group => {
-            if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== oldId);
-          });
-        }
-        currentContent.ministries.details[ministryId] = ministryData;
+        // Remove the entity from both canonical stores first. This makes
+        // Ministry ↔ Chapel moves deterministic.
+        [oldId, entityId].filter(Boolean).forEach(key => {
+          delete currentContent.ministries.details[key];
+          delete currentContent.chapels.details[key];
 
-        currentContent.ministries.groups.forEach(group => {
-          if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== ministryId);
+          currentContent.ministries.groups.forEach(group => {
+            if (Array.isArray(group.items)) {
+              group.items = group.items.filter(itemKey => itemKey !== key);
+            }
+          });
         });
-        if (!['chapels', 'detail-only'].includes(placement)) {
-          const targetGroup = currentContent.ministries.groups.find(group => group.id === placement);
-          if (targetGroup) {
-            if (!Array.isArray(targetGroup.items)) targetGroup.items = [];
-            if (!targetGroup.items.includes(ministryId)) targetGroup.items.push(ministryId);
+
+        currentContent.chapels.current = currentContent.chapels.current.filter(chapel =>
+          chapel.id !== oldId &&
+          chapel.id !== entityId &&
+          chapel.href !== existing.href &&
+          chapel.href !== href
+        );
+
+        if (isChapel) {
+          // Chapel canonical ownership.
+          currentContent.chapels.details[entityId] = entityData;
+          currentContent.chapels.current.push({
+            id: entityId,
+            name: title,
+            subtitle,
+            status: previousCurrentChapel?.status || 'Current Chapel',
+            logo: previousCurrentChapel?.logo || image,
+            href
+          });
+        } else {
+          // Ministry canonical ownership.
+          currentContent.ministries.details[entityId] = entityData;
+
+          if (placement !== 'detail-only') {
+            const targetGroup = currentContent.ministries.groups.find(
+              group => group.id === placement
+            );
+
+            if (targetGroup) {
+              if (!Array.isArray(targetGroup.items)) targetGroup.items = [];
+              if (!targetGroup.items.includes(entityId)) {
+                targetGroup.items.push(entityId);
+              }
+            }
           }
         }
 
-        const chapelIndex = currentContent.chapels.current.findIndex(chapel =>
-          chapel.href === existing.href || chapel.href === href ||
-          String(chapel.name || '').toLowerCase() === String(existing.title || '').toLowerCase()
-        );
-        if (placement === 'chapels') {
-          const previousChapel = chapelIndex >= 0 ? currentContent.chapels.current[chapelIndex] : {};
-          const chapelRecord = {
-            ...previousChapel,
-            name: title,
-            subtitle,
-            status: previousChapel.status || 'Current Chapel',
-            logo: previousChapel.logo || image,
-            href
-          };
-          if (chapelIndex >= 0) currentContent.chapels.current[chapelIndex] = chapelRecord;
-          else currentContent.chapels.current.push(chapelRecord);
-        } else if (chapelIndex >= 0) {
-          currentContent.chapels.current.splice(chapelIndex, 1);
-        }
-
+        // Sync both domains because this action may move ownership from one
+        // content section to the other.
         if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
         if (!(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
+
         this.renderMinistriesView();
       } else if (sec === 'leadership') {
         if (!currentContent.about) currentContent.about = {};
@@ -3970,12 +4495,16 @@
         if (!currentContent.quickLinks) currentContent.quickLinks = {};
         if (!Array.isArray(currentContent.quickLinks.links)) currentContent.quickLinks.links = [];
 
+        const rawHref = String(getF('href') || '').trim();
+        const normalizedHref = rawHref === '#' ? '' : rawHref;
+
         const newLink = {
           id: id,
           icon: getF('icon') || '🔗',
           title: getF('title'),
           text: getF('text'),
-          href: getF('href') || '#'
+          href: normalizedHref,
+          comingSoon: normalizedHref === ''
         };
 
         const existingIdx = currentContent.quickLinks.links.findIndex(
@@ -4151,30 +4680,51 @@
         if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
         this.renderFellowshipsView();
       } else if (sectionKey === 'ministries') {
-        if (currentContent.ministries) {
-          const detailHref = currentContent.ministries.details?.[itemId]?.href || `${itemId}.html`;
-          if (currentContent.ministries.details) {
-            delete currentContent.ministries.details[itemId];
-          }
-          if (Array.isArray(currentContent.ministries.groups)) {
-            currentContent.ministries.groups.forEach(group => {
-              if (Array.isArray(group.items)) group.items = group.items.filter(key => key !== itemId);
-            });
-          }
-          if (Array.isArray(currentContent.ministries.items)) {
-            currentContent.ministries.items = currentContent.ministries.items.filter(i => i.id !== itemId);
-          }
-          if (currentContent.ministries[itemId]) delete currentContent.ministries[itemId];
+        if (!currentContent.ministries) currentContent.ministries = {};
+        if (!currentContent.chapels) currentContent.chapels = {};
 
-          if (Array.isArray(currentContent.chapels?.current)) {
+        const isChapel = Boolean(currentContent.chapels.details?.[itemId]);
+
+        if (isChapel) {
+          const detailHref =
+            currentContent.chapels.details?.[itemId]?.href || `${itemId}.html`;
+
+          delete currentContent.chapels.details[itemId];
+
+          if (Array.isArray(currentContent.chapels.current)) {
             currentContent.chapels.current = currentContent.chapels.current.filter(chapel =>
-              chapel.href !== detailHref && chapel.href !== `${itemId}.html`
+              chapel.id !== itemId &&
+              chapel.href !== detailHref &&
+              chapel.href !== `${itemId}.html`
             );
           }
 
+          if (!(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
+        } else {
+          if (currentContent.ministries.details) {
+            delete currentContent.ministries.details[itemId];
+          }
+
+          if (Array.isArray(currentContent.ministries.groups)) {
+            currentContent.ministries.groups.forEach(group => {
+              if (Array.isArray(group.items)) {
+                group.items = group.items.filter(key => key !== itemId);
+              }
+            });
+          }
+
+          if (Array.isArray(currentContent.ministries.items)) {
+            currentContent.ministries.items =
+              currentContent.ministries.items.filter(i => i.id !== itemId);
+          }
+
+          if (currentContent.ministries[itemId]) {
+            delete currentContent.ministries[itemId];
+          }
+
           if (!(await this.syncSectionToSupabase('ministries', currentContent.ministries))) return;
-          if (currentContent.chapels && !(await this.syncSectionToSupabase('chapels', currentContent.chapels))) return;
         }
+
         this.renderMinistriesView();
       } else if (sectionKey === 'leadership') {
         if (currentContent.about && currentContent.about.leadership && Array.isArray(currentContent.about.leadership.team)) {
@@ -4226,13 +4776,35 @@
      * Persists updated section to Supabase DB
      */
     async syncSectionToSupabase(sectionKey, sectionData) {
+      if (isFallbackMode) {
+        this.showToast(
+          'Read-only fallback mode: no CMS writes are allowed until Supabase is available.',
+          'error'
+        );
+        return false;
+      }
+
       const cfg = global.ContentService ? global.ContentService.config : null;
       if (!cfg) {
         this.showToast('ContentService configuration is unavailable.', 'error');
         return false;
       }
 
-      // UPSERT: update an existing section or create it if it does not exist.
+      const session = await this.getValidAuthSession();
+      if (!session?.accessToken) {
+        this.showAuthOverlay('Your Admin session has expired. Please sign in again.');
+        this.showToast('Admin session expired. Save was not attempted.', 'error');
+        return false;
+      }
+
+      const isAdmin = await this.verifyCmsAdmin(session.accessToken);
+      if (!isAdmin) {
+        this.clearAuthSession();
+        this.showAuthOverlay('This account is not authorized to write CMS content.');
+        this.showToast('CMS write authorization failed.', 'error');
+        return false;
+      }
+
       const endpoint = `${cfg.url}/rest/v1/${cfg.tableName}?on_conflict=key`;
 
       try {
@@ -4240,7 +4812,7 @@
           method: 'POST',
           headers: {
             'apikey': cfg.anonKey,
-            'Authorization': `Bearer ${cfg.anonKey}`,
+            'Authorization': `Bearer ${session.accessToken}`,
             'Content-Type': 'application/json',
             'Prefer': 'resolution=merge-duplicates,return=minimal'
           },
@@ -4252,16 +4824,38 @@
 
         if (!resp.ok) {
           const detail = await resp.text().catch(() => '');
-          console.warn(`[AdminPortal] Supabase upsert for '${sectionKey}' returned status ${resp.status}`, detail);
+          console.warn(
+            `[AdminPortal] Authorized Supabase upsert for '${sectionKey}' returned status ${resp.status}`,
+            detail
+          );
           this.showToast(`Supabase save failed for '${sectionKey}' (${resp.status}).`, 'error');
+
+          if (resp.status === 401 || resp.status === 403) {
+            this.clearAuthSession();
+            this.showAuthOverlay('Your session is no longer authorized. Please sign in again.');
+          }
+
+          await this.loadFullContent({ suppressToast: true, forceRefresh: true });
           return false;
         }
 
-        console.log(`[AdminPortal] Successfully upserted '${sectionKey}' in Supabase DB.`);
+        if (
+          global.ContentService &&
+          typeof global.ContentService.setCachedSection === 'function'
+        ) {
+          global.ContentService.setCachedSection(sectionKey, sectionData);
+        }
+
+        currentContent[sectionKey] = sectionData;
+        currentContent._source = 'supabase_db';
+
+        console.log(`[AdminPortal] Securely upserted '${sectionKey}' in Supabase DB.`);
         return true;
       } catch (err) {
         console.error(`[AdminPortal] Error syncing section '${sectionKey}' to Supabase:`, err);
         this.showToast(`Could not save '${sectionKey}' to Supabase.`, 'error');
+
+        await this.loadFullContent({ suppressToast: true, forceRefresh: true });
         return false;
       }
     },
