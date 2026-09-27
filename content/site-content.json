@@ -80,6 +80,11 @@
       ]
     },
     {
+      "label": "LIVE",
+      "href": "live.html",
+      "className": "nav-live"
+    },
+    {
       "label": "SERMONS",
       "href": "sermons.html"
     },
@@ -554,6 +559,140 @@
       "description": "Watch, listen, and grow through messages from across the Peculiar Cherubs family."
     },
     "items": []
+  },
+  "livestream": {
+    "hero": {
+      "eyebrow": "Online Sanctuary",
+      "title": "Worship & Word Live",
+      "description": "Experience life-transforming worship and timely preachings from our Mother Church and branch chapels on YouTube and Facebook."
+    },
+    "channels": [
+      {
+        "id": "general",
+        "chapelId": "general",
+        "name": "Mother Church / General",
+        "status": "offline",
+        "title": "Sunday Celebration & Deliverance Service",
+        "theme": "Supernatural Advancement",
+        "speaker": "Senior Pastor",
+        "schedule": "Sunday · 9:00 AM | Wednesday · 6:00 PM",
+        "defaultPlatform": "youtube",
+        "youtube": {
+          "enabled": true,
+          "url": "https://www.youtube.com/@PeculiarCherubs/live",
+          "videoId": "",
+          "channelUrl": "https://www.youtube.com/@PeculiarCherubs"
+        },
+        "facebook": {
+          "enabled": true,
+          "url": "https://www.facebook.com/peculiarcherubs/live_videos/",
+          "videoUrl": "",
+          "pageUrl": "https://www.facebook.com/peculiarcherubs"
+        },
+        "bulletin": "Welcome to our live broadcast! Share the fellowship with family and friends.",
+        "replayUrl": ""
+      },
+      {
+        "id": "pdcm-english",
+        "chapelId": "pdcm-english",
+        "name": "PDCM English Chapel",
+        "status": "offline",
+        "title": "English Chapel Worship Service",
+        "theme": "Faith and Divine Fellowship",
+        "speaker": "Chapel Minister",
+        "schedule": "Sunday · 8:30 AM",
+        "defaultPlatform": "facebook",
+        "youtube": {
+          "enabled": false,
+          "url": "",
+          "videoId": "",
+          "channelUrl": ""
+        },
+        "facebook": {
+          "enabled": true,
+          "url": "https://www.facebook.com/pdcmenglish/live_videos/",
+          "videoUrl": "",
+          "pageUrl": "https://www.facebook.com/pdcmenglish"
+        },
+        "bulletin": "Join PDCM English Chapel live for uplifting worship and deep scriptural insight.",
+        "replayUrl": ""
+      },
+      {
+        "id": "pdcm-gwarinpa",
+        "chapelId": "pdcm-gwarinpa",
+        "name": "PDCM Gwarinpa Chapel",
+        "status": "offline",
+        "title": "Gwarinpa Chapel Divine Service",
+        "theme": "Walking in Victory",
+        "speaker": "Chapel Minister",
+        "schedule": "Sunday · 8:30 AM",
+        "defaultPlatform": "facebook",
+        "youtube": {
+          "enabled": false,
+          "url": "",
+          "videoId": "",
+          "channelUrl": ""
+        },
+        "facebook": {
+          "enabled": true,
+          "url": "https://www.facebook.com/pdcmgwarinpa/live_videos/",
+          "videoUrl": "",
+          "pageUrl": "https://www.facebook.com/pdcmgwarinpa"
+        },
+        "bulletin": "Welcome to PDCM Gwarinpa Chapel livestream.",
+        "replayUrl": ""
+      },
+      {
+        "id": "pdcm-mega-youth",
+        "chapelId": "pdcm-mega-youth",
+        "name": "PDCM Mega Youth Chapel",
+        "status": "offline",
+        "title": "Mega Youth Service",
+        "theme": "Ignited for Impact",
+        "speaker": "Youth Pastor",
+        "schedule": "Sunday · 10:00 AM",
+        "defaultPlatform": "youtube",
+        "youtube": {
+          "enabled": true,
+          "url": "https://www.youtube.com/@pdcmegayouth/live",
+          "videoId": "",
+          "channelUrl": "https://www.youtube.com/@pdcmegayouth"
+        },
+        "facebook": {
+          "enabled": true,
+          "url": "https://www.facebook.com/pdcmegayouth/live_videos/",
+          "videoUrl": "",
+          "pageUrl": "https://www.facebook.com/pdcmegayouth"
+        },
+        "bulletin": "Connect with the Mega Youth movement live in spirit and truth.",
+        "replayUrl": ""
+      },
+      {
+        "id": "pdcm-byazhin",
+        "chapelId": "pdcm-byazhin",
+        "name": "PDCM Byazhin Chapel",
+        "status": "offline",
+        "title": "Byazhin Chapel Service",
+        "theme": "Grace and Glory",
+        "speaker": "Chapel Minister",
+        "schedule": "Sunday · 8:30 AM",
+        "defaultPlatform": "facebook",
+        "youtube": {
+          "enabled": false,
+          "url": "",
+          "videoId": "",
+          "channelUrl": ""
+        },
+        "facebook": {
+          "enabled": true,
+          "url": "https://www.facebook.com/pdcmbyazhin/live_videos/",
+          "videoUrl": "",
+          "pageUrl": "https://www.facebook.com/pdcmbyazhin"
+        },
+        "bulletin": "Welcome to PDCM Byazhin Chapel broadcast.",
+        "replayUrl": ""
+      }
+    ]
   },
   "publications": {
     "hero": {

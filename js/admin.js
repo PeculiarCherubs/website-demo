@@ -821,7 +821,7 @@
         const sections = [
           'site', 'navigation', 'home', 'about', 'chapels', 'sermons',
           'publications', 'quickLinks', 'give', 'bibleCollege',
-          'ministries', 'events'
+          'ministries', 'events', 'livestream'
         ];
 
         if (
@@ -1306,6 +1306,7 @@
       this.renderLeadershipView();
       this.renderQuickLinksView();
       this.renderGivingView();
+      this.renderLivestreamView();
       this.populateQuickLinksHeaderForm();
       this.populateLeadershipHeaderForm();
       this.populateGivingForms();
@@ -1353,6 +1354,10 @@
 
       const bGiving = document.getElementById('badgeGivingAccounts');
       if (bGiving) bGiving.textContent = giveAccounts.length;
+
+      const bLive = document.getElementById('badgeLivestream');
+      const liveChannels = (currentContent.livestream && currentContent.livestream.channels) || [];
+      if (bLive) bLive.textContent = liveChannels.length;
 
       // Dashboard stats
       const statP = document.getElementById('statPublicationsCount');
@@ -1454,6 +1459,335 @@
           </div>
         </div>
       `).join('');
+    },
+
+    /* ======================================================================
+       Livestreams View
+       ====================================================================== */
+    selectedLivestreamChannelId: 'general',
+
+    renderLivestreamView() {
+      if (typeof document === 'undefined') return;
+      const select = document.getElementById('livestreamChannelSelect');
+      if (!select) return;
+
+      if (!currentContent.livestream) {
+        currentContent.livestream = { channels: [] };
+      }
+      if (!Array.isArray(currentContent.livestream.channels) || currentContent.livestream.channels.length === 0) {
+        currentContent.livestream.channels = [
+          {
+            id: 'general',
+            chapelId: 'general',
+            name: 'Mother Church / General',
+            status: 'offline',
+            title: 'Sunday Celebration & Deliverance Service',
+            theme: 'Supernatural Advancement',
+            speaker: 'Senior Pastor',
+            schedule: 'Sunday · 9:00 AM | Wednesday · 6:00 PM',
+            defaultPlatform: 'youtube',
+            youtube: { enabled: true, url: 'https://www.youtube.com/@PeculiarCherubs/live', videoId: '', channelUrl: 'https://www.youtube.com/@PeculiarCherubs' },
+            facebook: { enabled: true, url: 'https://www.facebook.com/peculiarcherubs/live_videos/', videoUrl: '', pageUrl: 'https://www.facebook.com/peculiarcherubs' },
+            bulletin: 'Welcome to our live broadcast! Share the fellowship with family and friends.'
+          },
+          {
+            id: 'pdcm-english',
+            chapelId: 'pdcm-english',
+            name: 'PDCM English Chapel',
+            status: 'offline',
+            title: 'English Chapel Worship Service',
+            theme: 'Faith and Divine Fellowship',
+            speaker: 'Chapel Minister',
+            schedule: 'Sunday · 8:30 AM',
+            defaultPlatform: 'facebook',
+            youtube: { enabled: false, url: '', videoId: '', channelUrl: '' },
+            facebook: { enabled: true, url: 'https://www.facebook.com/pdcmenglish/live_videos/', videoUrl: '', pageUrl: 'https://www.facebook.com/pdcmenglish' },
+            bulletin: 'Join PDCM English Chapel live for uplifting worship and deep scriptural insight.'
+          },
+          {
+            id: 'pdcm-gwarinpa',
+            chapelId: 'pdcm-gwarinpa',
+            name: 'PDCM Gwarinpa Chapel',
+            status: 'offline',
+            title: 'Gwarinpa Chapel Divine Service',
+            theme: 'Walking in Victory',
+            speaker: 'Chapel Minister',
+            schedule: 'Sunday · 8:30 AM',
+            defaultPlatform: 'facebook',
+            youtube: { enabled: false, url: '', videoId: '', channelUrl: '' },
+            facebook: { enabled: true, url: 'https://www.facebook.com/pdcmgwarinpa/live_videos/', videoUrl: '', pageUrl: 'https://www.facebook.com/pdcmgwarinpa' },
+            bulletin: 'Welcome to PDCM Gwarinpa Chapel livestream.'
+          },
+          {
+            id: 'pdcm-mega-youth',
+            chapelId: 'pdcm-mega-youth',
+            name: 'PDCM Mega Youth Chapel',
+            status: 'offline',
+            title: 'Mega Youth Service',
+            theme: 'Ignited for Impact',
+            speaker: 'Youth Pastor',
+            schedule: 'Sunday · 10:00 AM',
+            defaultPlatform: 'youtube',
+            youtube: { enabled: true, url: 'https://www.youtube.com/@pdcmegayouth/live', videoId: '', channelUrl: 'https://www.youtube.com/@pdcmegayouth' },
+            facebook: { enabled: true, url: 'https://www.facebook.com/pdcmegayouth/live_videos/', videoUrl: '', pageUrl: 'https://www.facebook.com/pdcmegayouth' },
+            bulletin: 'Connect with the Mega Youth movement live in spirit and truth.'
+          },
+          {
+            id: 'pdcm-byazhin',
+            chapelId: 'pdcm-byazhin',
+            name: 'PDCM Byazhin Chapel',
+            status: 'offline',
+            title: 'Byazhin Chapel Service',
+            theme: 'Grace and Glory',
+            speaker: 'Chapel Minister',
+            schedule: 'Sunday · 8:30 AM',
+            defaultPlatform: 'facebook',
+            youtube: { enabled: false, url: '', videoId: '', channelUrl: '' },
+            facebook: { enabled: true, url: 'https://www.facebook.com/pdcmbyazhin/live_videos/', videoUrl: '', pageUrl: 'https://www.facebook.com/pdcmbyazhin' },
+            bulletin: 'Welcome to PDCM Byazhin Chapel broadcast.'
+          }
+        ];
+      }
+
+      const channels = currentContent.livestream.channels;
+
+      select.innerHTML = channels.map(ch => {
+        const isLive = (ch.status || '').toLowerCase() === 'live';
+        const indicator = isLive ? '🔴 LIVE' : (ch.status || 'OFFLINE').toUpperCase();
+        return `<option value="${ch.id}">${ch.name} [${indicator}]</option>`;
+      }).join('');
+
+      if (!channels.some(c => c.id === this.selectedLivestreamChannelId)) {
+        this.selectedLivestreamChannelId = channels[0]?.id || 'general';
+      }
+      select.value = this.selectedLivestreamChannelId;
+
+      this.renderLivestreamChannelForm();
+    },
+
+    switchLivestreamChannel(channelId) {
+      this.selectedLivestreamChannelId = channelId;
+      this.renderLivestreamChannelForm();
+    },
+
+    renderLivestreamChannelForm() {
+      const container = document.getElementById('livestreamChannelEditor');
+      if (!container) return;
+
+      const channels = (currentContent.livestream && currentContent.livestream.channels) || [];
+      const ch = channels.find(c => c.id === this.selectedLivestreamChannelId) || channels[0];
+      if (!ch) {
+        container.innerHTML = `<p style="color: var(--muted);">No channel found.</p>`;
+        return;
+      }
+
+      const status = (ch.status || 'offline').toLowerCase();
+      const yt = ch.youtube || {};
+      const fb = ch.facebook || {};
+      const defPlatform = ch.defaultPlatform || 'youtube';
+
+      container.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3 style="color: var(--navy); margin: 0 0 0.25rem 0;">Configuring: ${ch.name}</h3>
+            <span style="font-size: 0.85rem; color: var(--muted);">Channel ID: <code>${ch.id}</code> (Linked to chapel: <code>${ch.chapelId || ch.id}</code>)</span>
+          </div>
+          <div>
+            <a href="../live.html?chapel=${encodeURIComponent(ch.chapelId || ch.id)}" target="_blank" class="btn btn-secondary admin-btn-sm" style="text-decoration: none;">
+              ↗ Preview on Live Site
+            </a>
+          </div>
+        </div>
+
+        <form id="formLivestreamChannel" onsubmit="event.preventDefault(); AdminPortal.saveLivestreamSettings();">
+          <!-- Broadcast Status -->
+          <div class="admin-input-group" style="background: #f8fafc; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--admin-border); margin-bottom: 1.5rem;">
+            <label style="font-weight: 700; color: var(--navy); margin-bottom: 0.65rem; display: block;">Live Broadcast Status</label>
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+              <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600;">
+                <input type="radio" name="live_status" value="live" ${status === 'live' ? 'checked' : ''}>
+                <span style="color: #ff3b30;">🔴 Live Now (Broadcasting)</span>
+              </label>
+              <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600;">
+                <input type="radio" name="live_status" value="upcoming" ${status === 'upcoming' ? 'checked' : ''}>
+                <span style="color: #f59e0b;">⏰ Upcoming / Scheduled</span>
+              </label>
+              <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600;">
+                <input type="radio" name="live_status" value="offline" ${status === 'offline' ? 'checked' : ''}>
+                <span style="color: var(--muted);">⏹ Offline / Show Replay</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Service Information -->
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Service / Stream Title</label>
+              <input type="text" id="live_title" class="admin-input" value="${ch.title || ''}" placeholder="Sunday Worship &amp; Deliverance Service" required>
+            </div>
+            <div class="admin-input-group">
+              <label>Minister / Speaker</label>
+              <input type="text" id="live_speaker" class="admin-input" value="${ch.speaker || ''}" placeholder="Senior Pastor / Chapel Minister">
+            </div>
+          </div>
+
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Service Theme / Topic</label>
+              <input type="text" id="live_theme" class="admin-input" value="${ch.theme || ''}" placeholder="Supernatural Fruitfulness">
+            </div>
+            <div class="admin-input-group">
+              <label>Regular Service Schedule</label>
+              <input type="text" id="live_schedule" class="admin-input" value="${ch.schedule || ''}" placeholder="Sunday · 9:00 AM | Wednesday · 6:00 PM">
+            </div>
+          </div>
+
+          <!-- Platform Settings -->
+          <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--admin-border);">
+            <div class="admin-input-group">
+              <label style="font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; display: block;">Default Video Platform on Site</label>
+              <div style="display: flex; gap: 1.5rem;">
+                <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                  <input type="radio" name="live_default_platform" value="youtube" ${defPlatform === 'youtube' ? 'checked' : ''}>
+                  ▶ YouTube Player First
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                  <input type="radio" name="live_default_platform" value="facebook" ${defPlatform === 'facebook' ? 'checked' : ''}>
+                  📘 Facebook Player First
+                </label>
+              </div>
+            </div>
+
+            <!-- YouTube Configuration Card -->
+            <div style="background: #fafafa; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+                <strong style="color: #c4302b; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 1rem;">
+                  ▶ YouTube Stream Configuration
+                </strong>
+                <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; cursor: pointer;">
+                  <input type="checkbox" id="live_yt_enabled" ${yt.enabled !== false ? 'checked' : ''}> Enable YouTube Tab
+                </label>
+              </div>
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>YouTube Video ID or Direct Stream URL</label>
+                  <input type="text" id="live_yt_url" class="admin-input" value="${yt.videoId || yt.url || ''}" placeholder="e.g. dQw4w9WgXcQ or https://youtube.com/watch?v=...">
+                  <small style="color: var(--muted); font-size: 0.8rem;">Paste the full video link or just the 11-character video ID.</small>
+                </div>
+                <div class="admin-input-group">
+                  <label>YouTube Official Channel URL</label>
+                  <input type="text" id="live_yt_channel" class="admin-input" value="${yt.channelUrl || yt.url || ''}" placeholder="https://www.youtube.com/@PeculiarCherubs">
+                </div>
+              </div>
+            </div>
+
+            <!-- Facebook Configuration Card -->
+            <div style="background: #fafafa; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+                <strong style="color: #1877f2; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 1rem;">
+                  📘 Facebook Stream Configuration
+                </strong>
+                <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; cursor: pointer;">
+                  <input type="checkbox" id="live_fb_enabled" ${fb.enabled !== false ? 'checked' : ''}> Enable Facebook Tab
+                </label>
+              </div>
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label>Facebook Live Video URL or Video ID</label>
+                  <input type="text" id="live_fb_video" class="admin-input" value="${fb.videoUrl || ''}" placeholder="e.g. https://www.facebook.com/.../videos/123456 or 123456">
+                  <small style="color: var(--muted); font-size: 0.8rem;">Direct video permalink (e.g. <code>https://www.facebook.com/page/videos/123456</code>, <code>watch/?v=123456</code>, or the video ID). Do not use mobile /share/ links.</small>
+                </div>
+                <div class="admin-input-group">
+                  <label>Facebook Official Page URL</label>
+                  <input type="text" id="live_fb_page" class="admin-input" value="${fb.pageUrl || fb.url || ''}" placeholder="https://www.facebook.com/peculiarcherubs">
+                </div>
+              </div>
+            </div>
+
+            <!-- Bulletin / Notes -->
+            <div class="admin-input-group">
+              <label>Service Bulletin / Welcome Note</label>
+              <textarea id="live_bulletin" class="admin-textarea" rows="2" placeholder="Welcome to our live service! Share the stream to bless someone today.">${ch.bulletin || ''}</textarea>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+            <button type="button" class="btn btn-primary" onclick="AdminPortal.saveLivestreamSettings()">
+              💾 Save ${ch.name} Livestream Settings
+            </button>
+          </div>
+        </form>
+      `;
+    },
+
+    async saveLivestreamSettings() {
+      if (!currentContent.livestream) {
+        currentContent.livestream = { channels: [] };
+      }
+      const channels = currentContent.livestream.channels || [];
+      const ch = channels.find(c => c.id === this.selectedLivestreamChannelId);
+      if (!ch) {
+        this.showToast('Channel not found.', 'error');
+        return;
+      }
+
+      const statusEl = document.querySelector('input[name="live_status"]:checked');
+      const defPlatformEl = document.querySelector('input[name="live_default_platform"]:checked');
+      const title = (document.getElementById('live_title')?.value || '').trim();
+      const speaker = (document.getElementById('live_speaker')?.value || '').trim();
+      const theme = (document.getElementById('live_theme')?.value || '').trim();
+      const schedule = (document.getElementById('live_schedule')?.value || '').trim();
+      const bulletin = (document.getElementById('live_bulletin')?.value || '').trim();
+
+      const ytEnabled = document.getElementById('live_yt_enabled')?.checked ?? true;
+      let ytRaw = (document.getElementById('live_yt_url')?.value || '').trim();
+      const ytChannel = (document.getElementById('live_yt_channel')?.value || '').trim();
+
+      const fbEnabled = document.getElementById('live_fb_enabled')?.checked ?? true;
+      let fbVideo = (document.getElementById('live_fb_video')?.value || '').trim();
+      let fbPage = (document.getElementById('live_fb_page')?.value || '').trim();
+
+      // Normalize Facebook Video URL
+      if (fbVideo) {
+        if (/^\d{8,}$/.test(fbVideo)) {
+          fbVideo = `https://www.facebook.com/watch/?v=${fbVideo}`;
+        }
+        fbVideo = fbVideo.replace(/^https?:\/\/(?:web|m|mobile)\.facebook\.com/i, 'https://www.facebook.com');
+
+        if (fbVideo.includes('/share/v/') || fbVideo.includes('/share/') || fbVideo.includes('fb.watch')) {
+          this.showToast('⚠️ Note: Facebook Share links (/share/v/...) cannot be embedded directly by Facebook. Use the direct video URL or ID.', 'warning');
+        }
+      }
+
+      ch.status = statusEl ? statusEl.value : (ch.status || 'offline');
+      ch.defaultPlatform = defPlatformEl ? defPlatformEl.value : (ch.defaultPlatform || 'youtube');
+      if (title) ch.title = title;
+      ch.speaker = speaker;
+      ch.theme = theme;
+      ch.schedule = schedule;
+      ch.bulletin = bulletin;
+
+      ch.youtube = {
+        enabled: ytEnabled,
+        url: ytRaw || ytChannel || '',
+        videoId: ytRaw && !ytRaw.includes('/') ? ytRaw : '',
+        channelUrl: ytChannel
+      };
+
+      ch.facebook = {
+        enabled: fbEnabled,
+        videoUrl: fbVideo,
+        pageUrl: fbPage,
+        url: fbVideo || fbPage || ''
+      };
+
+      this.showToast('Syncing livestream updates to Supabase...');
+      const ok = await this.syncSectionToSupabase('livestream', currentContent.livestream);
+      if (ok) {
+        this.showToast(`✅ Livestream settings for ${ch.name} updated successfully!`, 'success');
+        this.renderStatsAndBadges();
+        this.renderLivestreamView();
+      }
     },
 
     /* ======================================================================
@@ -2172,7 +2506,7 @@
 
       const preferredOrder = [
         'site', 'navigation', 'home', 'about', 'chapels', 'sermons',
-        'publications', 'quickLinks', 'give', 'bibleCollege', 'ministries', 'events'
+        'publications', 'quickLinks', 'give', 'bibleCollege', 'ministries', 'events', 'livestream'
       ];
 
       const keys = [

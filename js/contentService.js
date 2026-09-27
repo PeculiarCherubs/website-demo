@@ -40,7 +40,8 @@
     'publicationPost',
     'events',
     'quickLinks',
-    'give'
+    'give',
+    'live'
   ]);
 
   // Critical shared sections required for initial header/footer paint
@@ -48,7 +49,7 @@
 
   // Primary page-to-section mapping for lazy section loading
   const PAGE_SECTION_MAP = {
-    home: ['home', 'ministries', 'sermons', 'quickLinks'],
+    home: ['home', 'ministries', 'sermons', 'quickLinks', 'livestream'],
     about: ['about'],
     ministries: ['ministries'],
     ministryDetail: ['ministries'],
@@ -56,14 +57,15 @@
     houseFellowships: ['ministries'],
     bibleCollege: ['bibleCollege'],
     chapels: ['chapels'],
-    sermons: ['sermons'],
+    sermons: ['sermons', 'livestream'],
     publications: ['publications'],
     publicationDetail: ['publications'],
     publicationPost: ['publications'],
     sundaySchoolDetail: ['publications'],
     quickLinks: ['quickLinks'],
     events: ['events'],
-    give: ['give']
+    give: ['give'],
+    live: ['livestream', 'chapels']
   };
 
   // In-memory cache for loaded sections
@@ -190,9 +192,25 @@
       );
 
       if (unresolvedKeys.length > 0) {
-        throw new Error(
-          `Supabase is missing required site_content section(s): ${unresolvedKeys.join(', ')}`
-        );
+        try {
+          const fallbackData = await this.fetchLocalFallback();
+          const healed = [];
+          unresolvedKeys.forEach(k => {
+            if (fallbackData && Object.prototype.hasOwnProperty.call(fallbackData, k)) {
+              cache[k] = fallbackData[k];
+              healed.push(k);
+            }
+          });
+          const stillMissing = unresolvedKeys.filter(k => !healed.includes(k));
+          if (stillMissing.length > 0) {
+            throw new Error(`Supabase is missing required site_content section(s): ${stillMissing.join(', ')}`);
+          }
+          console.info(`[ContentService] Sourced new section(s) from local fallback: ${healed.join(', ')}`);
+        } catch (healErr) {
+          throw new Error(
+            `Supabase is missing required site_content section(s): ${unresolvedKeys.join(', ')}`
+          );
+        }
       }
 
       const result = {};

@@ -197,6 +197,15 @@
               <span id="badgeSermons" class="admin-nav-badge">0</span>
             </button>
           </li>
+          <li class="admin-nav-item" data-tab="livestream">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">📺</span>
+                <span>Livestreams</span>
+              </div>
+              <span id="badgeLivestream" class="admin-nav-badge">0</span>
+            </button>
+          </li>
           <li class="admin-nav-item" data-tab="events">
             <button type="button">
               <div class="admin-nav-label-group">
@@ -409,13 +418,17 @@
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('sermons')">Manage Sermons
                 →</button>
             </div>
-            <div class="admin-setting-group"
-             >
+            <div class="admin-setting-group">
               <h4 class="admin-setting-heading">House Fellowships</h4>
               <p class="admin-setting-help">Update fellowship centres, hosts,
                 areas, and coordinators.</p>
               <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('fellowships')">Manage
                 Fellowships →</button>
+            </div>
+            <div class="admin-setting-group">
+              <h4 class="admin-setting-heading">📺 Livestreams & Broadcasts</h4>
+              <p class="admin-setting-help">Configure Sunday &amp; Midweek livestream links on YouTube and Facebook per chapel.</p>
+              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.switchTab('livestream')">Manage Livestreams →</button>
             </div>
           </div>
         </div>
@@ -489,6 +502,41 @@
 
         <div id="gridSermons" class="admin-cards-grid">
           <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Livestreams
+           ------------------------------------------------------------------ -->
+      <section id="panelLivestream" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Livestreams & Broadcast Channels</h2>
+            <p>Control live status, YouTube video/channel links, and Facebook live URLs per chapel.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveLivestreamSettings()">
+              💾 Save Livestream Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Channel Selector Card -->
+        <div class="admin-settings-card" style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <label style="font-weight: 700; color: var(--navy); display: block; margin-bottom: 0.25rem;">Select Chapel Channel to Configure:</label>
+              <p class="admin-setting-help" style="margin: 0;">Each chapel manages its own independent social feeds and stream links.</p>
+            </div>
+            <select id="livestreamChannelSelect" class="admin-select" style="min-width: 260px; font-weight: 600;" onchange="AdminPortal.switchLivestreamChannel(this.value)">
+              <!-- Dynamic options -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Channel Configuration Form -->
+        <div id="livestreamChannelEditor" class="admin-settings-card">
+          <!-- Rendered dynamically by AdminPortal.renderLivestreamChannelForm() -->
         </div>
       </section>
 

@@ -7685,6 +7685,421 @@ textarea:focus-visible {
   }
 }
 
+/* ==========================================================================
+   LIVESTREAM & BROADCAST HUB STYLES
+   ========================================================================== */
+
+.nav-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: #ff3b30 !important;
+}
+
+.nav-live::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b30;
+  box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);
+  animation: pulse-live-dot 1.8s infinite;
+}
+
+@keyframes pulse-live-dot {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 7px rgba(255, 59, 48, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 59, 48, 0);
+  }
+}
+
+.live-channel-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.live-channel-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.live-channel-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.live-channel-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--navy);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.live-channel-pill:hover {
+  border-color: var(--navy);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.live-channel-pill.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--white);
+  box-shadow: var(--shadow-md);
+}
+
+.live-channel-pill .mini-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff3b30;
+  display: inline-block;
+  animation: pulse-live-dot 1.5s infinite;
+}
+
+/* Main Broadcast Card */
+.live-broadcast-card {
+  background: var(--white);
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: var(--shadow-lg, 0 10px 30px rgba(0, 0, 0, 0.06));
+  overflow: hidden;
+  margin-bottom: 3.5rem;
+}
+
+.live-broadcast-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.75rem;
+  background: #0d1b2a;
+  color: var(--white);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.live-status-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.live-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.live-status-badge.status-live {
+  background: rgba(255, 59, 48, 0.2);
+  color: #ff4757;
+  border: 1px solid rgba(255, 59, 48, 0.4);
+}
+
+.live-status-badge.status-live .live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff4757;
+  animation: pulse-live-dot 1.5s infinite;
+}
+
+.live-status-badge.status-upcoming {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.live-status-badge.status-upcoming .live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fbbf24;
+}
+
+.live-status-badge.status-offline {
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.live-status-badge.status-offline .live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.live-channel-current-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #f8fafc;
+}
+
+.live-platform-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.live-platform-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.live-platform-tab:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+}
+
+.live-platform-tab.active {
+  background: var(--white);
+  color: var(--navy);
+  border-color: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.live-platform-tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Video Player Wrapper (16:9 Aspect Ratio) */
+.live-video-wrapper {
+  background: #000;
+  position: relative;
+  width: 100%;
+}
+
+.live-video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  background: #090e17;
+}
+
+.live-video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Offline Placeholder inside container */
+.live-offline-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #e2e8f0;
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+}
+
+.live-offline-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.85;
+}
+
+.live-offline-title {
+  font-family: Fraunces, serif;
+  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+
+.live-offline-schedule {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  max-width: 480px;
+  margin-bottom: 1.5rem;
+}
+
+.live-offline-links {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Stream Metadata Area */
+.live-meta-area {
+  padding: 2rem 2.25rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .live-meta-area {
+    grid-template-columns: 1fr;
+  }
+}
+
+.live-meta-pretitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.live-meta-title {
+  font-family: Fraunces, serif;
+  font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+  color: var(--navy);
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+
+.live-meta-speaker-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--text-dark, #334155);
+  margin-bottom: 0.85rem;
+}
+
+.live-meta-speaker {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.live-meta-divider {
+  color: var(--muted);
+}
+
+.live-meta-theme {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.live-meta-bulletin {
+  font-size: 0.92rem;
+  color: var(--muted);
+  max-width: 650px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.live-actions-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 200px;
+}
+
+.live-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.65rem 1.25rem;
+}
+
+/* Other Chapels Cards */
+.live-other-chapels-section {
+  margin-top: 2rem;
+}
+
+.live-chapel-card {
+  background: var(--white);
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: var(--transition-base);
+}
+
+.live-chapel-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--navy);
+}
+
+.live-chapel-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.live-chapel-card-title {
+  font-family: Fraunces, serif;
+  font-size: 1.15rem;
+  color: var(--navy);
+  margin: 0;
+}
+
+.live-chapel-card-schedule {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.live-chapel-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

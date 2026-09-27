@@ -440,6 +440,332 @@ function renderSermons(content) {
   }
 }
 
+function extractYouTubeVideoId(url) {
+  if (!url) return "";
+  const match = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/))([\w-]{11})/i);
+  return match ? match[1] : "";
+}
+
+function normalizeFacebookVideoUrl(url) {
+  if (!url) return "";
+  let clean = String(url).trim();
+
+  // If a raw numeric ID is provided (e.g. 1399712975629138)
+  if (/^\d{8,}$/.test(clean)) {
+    return `https://www.facebook.com/watch/?v=${clean}`;
+  }
+
+  // Normalize mobile/regional subdomains to www.facebook.com
+  clean = clean.replace(/^https?:\/\/(?:web|m|mobile)\.facebook\.com/i, "https://www.facebook.com");
+
+  return clean;
+}
+
+function renderLive(content) {
+  const liveData = content.livestream || {};
+  const hero = liveData.hero || {
+    eyebrow: "Online Sanctuary",
+    title: "Worship & Word Live",
+    description: "Experience life-transforming worship and timely preachings from our Mother Church and branch chapels on YouTube and Facebook."
+  };
+
+  setText("[data-live-hero-eyebrow]", hero.eyebrow);
+  setText("[data-live-hero-title]", hero.title);
+  setText("[data-live-hero-description]", hero.description);
+
+  const channels = Array.isArray(liveData.channels) && liveData.channels.length > 0
+    ? liveData.channels
+    : [
+        {
+          id: "general",
+          chapelId: "general",
+          name: "Mother Church / General",
+          status: "offline",
+          title: "Sunday Celebration & Deliverance Service",
+          theme: "Supernatural Advancement",
+          speaker: "Senior Pastor",
+          schedule: "Sunday · 9:00 AM | Wednesday · 6:00 PM",
+          defaultPlatform: "youtube",
+          youtube: { enabled: true, url: "https://www.youtube.com/@PeculiarCherubs/live", videoId: "", channelUrl: "https://www.youtube.com/@PeculiarCherubs" },
+          facebook: { enabled: true, url: "https://www.facebook.com/peculiarcherubs/live_videos/", videoUrl: "", pageUrl: "https://www.facebook.com/peculiarcherubs" },
+          bulletin: "Welcome to our live broadcast! Share the fellowship with family and friends."
+        }
+      ];
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedChapel = (urlParams.get("chapel") || urlParams.get("channel") || "").toLowerCase().trim();
+
+  let activeIndex = channels.findIndex(c =>
+    (c.id && c.id.toLowerCase() === requestedChapel) ||
+    (c.chapelId && c.chapelId.toLowerCase() === requestedChapel)
+  );
+  if (activeIndex < 0) activeIndex = 0;
+
+  let activePlatform = channels[activeIndex].defaultPlatform || "youtube";
+
+  const channelPillsContainer = document.getElementById("liveChannelPills");
+  const currentChannelNameEl = document.getElementById("liveCurrentChannelName");
+  const statusBadge = document.getElementById("liveStatusBadge");
+  const statusText = document.getElementById("liveStatusText");
+  const tabYouTube = document.getElementById("tabYouTube");
+  const tabFacebook = document.getElementById("tabFacebook");
+  const videoContainer = document.getElementById("liveVideoContainer");
+  const scheduleEl = document.getElementById("liveStreamSchedule");
+  const titleEl = document.getElementById("liveStreamTitle");
+  const speakerEl = document.getElementById("liveStreamSpeaker");
+  const themeEl = document.getElementById("liveStreamTheme");
+  const bulletinEl = document.getElementById("liveStreamBulletin");
+  const btnGive = document.getElementById("btnLiveGive");
+  const btnExternal = document.getElementById("btnLiveExternal");
+  const externalBtnIcon = document.getElementById("externalBtnIcon");
+  const externalBtnText = document.getElementById("externalBtnText");
+  const otherChannelsGrid = document.getElementById("liveOtherChannelsGrid");
+
+  function renderActiveChannel() {
+    const ch = channels[activeIndex];
+    if (!ch) return;
+
+    if (channelPillsContainer) {
+      channelPillsContainer.querySelectorAll(".live-channel-pill").forEach((pill, idx) => {
+        pill.classList.toggle("active", idx === activeIndex);
+      });
+    }
+
+    if (currentChannelNameEl) currentChannelNameEl.textContent = ch.name;
+
+    const status = (ch.status || "offline").toLowerCase();
+    if (statusBadge && statusText) {
+      statusBadge.className = `live-status-badge status-${status}`;
+      if (status === "live") {
+        statusText.textContent = "🔴 LIVE NOW";
+      } else if (status === "upcoming") {
+        statusText.textContent = "⏰ UPCOMING";
+      } else {
+        statusText.textContent = "⏹ OFFLINE";
+      }
+    }
+
+    const hasYouTube = ch.youtube?.enabled !== false && (ch.youtube?.url || ch.youtube?.videoId || ch.youtube?.channelUrl);
+    const hasFacebook = ch.facebook?.enabled !== false && (ch.facebook?.url || ch.facebook?.videoUrl || ch.facebook?.pageUrl);
+
+    if (!hasYouTube && hasFacebook) {
+      activePlatform = "facebook";
+    } else if (!hasFacebook && hasYouTube) {
+      activePlatform = "youtube";
+    }
+
+    if (tabYouTube) {
+      tabYouTube.classList.toggle("active", activePlatform === "youtube");
+      tabYouTube.disabled = !hasYouTube;
+    }
+    if (tabFacebook) {
+      tabFacebook.classList.toggle("active", activePlatform === "facebook");
+      tabFacebook.disabled = !hasFacebook;
+    }
+
+    renderVideoEmbed(ch, activePlatform);
+
+    if (scheduleEl) scheduleEl.textContent = ch.schedule || "Sunday Worship Service";
+    if (titleEl) titleEl.textContent = ch.title || `${ch.name} Service`;
+    if (speakerEl) speakerEl.textContent = ch.speaker || "Minister";
+    if (themeEl) themeEl.textContent = ch.theme ? `Theme: ${ch.theme}` : "";
+    if (bulletinEl) bulletinEl.textContent = ch.bulletin || "Welcome to our live service.";
+
+    if (btnGive) {
+      const chapelTarget = ch.chapelId || ch.id;
+      btnGive.href = `give.html?chapel=${encodeURIComponent(chapelTarget)}`;
+    }
+
+    if (btnExternal && externalBtnText && externalBtnIcon) {
+      if (activePlatform === "youtube") {
+        btnExternal.href = ch.youtube?.url || ch.youtube?.channelUrl || "https://www.youtube.com/@PeculiarCherubs";
+        externalBtnIcon.textContent = "▶";
+        externalBtnText.textContent = "Open in YouTube";
+      } else {
+        btnExternal.href = ch.facebook?.videoUrl || ch.facebook?.pageUrl || ch.facebook?.url || "https://www.facebook.com/peculiarcherubs";
+        externalBtnIcon.textContent = "📘";
+        externalBtnText.textContent = "Open on Facebook";
+      }
+    }
+
+    renderOtherChannels();
+  }
+
+  function renderVideoEmbed(ch, platform) {
+    if (!videoContainer) return;
+
+    if (platform === "youtube") {
+      const vidId = ch.youtube?.videoId || extractYouTubeVideoId(ch.youtube?.url);
+      if (vidId) {
+        videoContainer.innerHTML = `
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(vidId)}?autoplay=1&rel=0"
+            title="${escapeHtml(ch.name)} Live Broadcast"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+        `;
+        return;
+      }
+
+      const channelUrl = ch.youtube?.channelUrl || ch.youtube?.url || "https://www.youtube.com/@PeculiarCherubs";
+      videoContainer.innerHTML = `
+        <div class="live-offline-view">
+          <div class="live-offline-icon">▶</div>
+          <div class="live-offline-title">${escapeHtml(ch.name)} Stream Offline</div>
+          <div class="live-offline-schedule">Regular Service: ${escapeHtml(ch.schedule || "Sunday 9:00 AM")}</div>
+          <div class="live-offline-links">
+            <a href="${escapeHtml(channelUrl)}" class="btn btn-primary" target="_blank" rel="noopener">Visit YouTube Channel ↗</a>
+            ${ch.facebook?.pageUrl || ch.facebook?.url ? `<button type="button" class="btn btn-outline" id="btnSwitchToFb">Check Facebook Live 📘</button>` : ""}
+          </div>
+        </div>
+      `;
+      const btnSwitchFb = document.getElementById("btnSwitchToFb");
+      if (btnSwitchFb) {
+        btnSwitchFb.addEventListener("click", () => {
+          activePlatform = "facebook";
+          renderActiveChannel();
+        });
+      }
+    } else {
+      const rawFb = ch.facebook?.videoUrl || ch.facebook?.url || "";
+      const fbVideoUrl = normalizeFacebookVideoUrl(rawFb);
+
+      const isVideoLink = fbVideoUrl && (
+        fbVideoUrl.includes("/videos/") ||
+        fbVideoUrl.includes("watch") ||
+        fbVideoUrl.includes("video.php") ||
+        fbVideoUrl.includes("/reel/") ||
+        /^\d+$/.test(rawFb.trim())
+      );
+
+      if (isVideoLink) {
+        const embedSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(fbVideoUrl)}&show_text=0&autoplay=true`;
+        videoContainer.innerHTML = `
+          <iframe
+            src="${embedSrc}"
+            title="${escapeHtml(ch.name)} Facebook Live"
+            style="border:none;overflow:hidden;width:100%;height:100%;position:absolute;top:0;left:0;"
+            scrolling="no"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen="true">
+          </iframe>
+        `;
+        return;
+      }
+
+      const fbPageUrl = ch.facebook?.pageUrl || ch.facebook?.url || "https://www.facebook.com/peculiarcherubs";
+      videoContainer.innerHTML = `
+        <div class="live-offline-view">
+          <div class="live-offline-icon">📘</div>
+          <div class="live-offline-title">${escapeHtml(ch.name)} Facebook Stream</div>
+          <div class="live-offline-schedule">Follow our official Facebook page for live broadcast notifications and updates.</div>
+          <div class="live-offline-links">
+            <a href="${escapeHtml(fbPageUrl)}" class="btn btn-primary" target="_blank" rel="noopener">Open Facebook Page ↗</a>
+            ${ch.youtube?.url || ch.youtube?.channelUrl ? `<button type="button" class="btn btn-outline" id="btnSwitchToYt">Watch on YouTube ▶</button>` : ""}
+          </div>
+        </div>
+      `;
+      const btnSwitchYt = document.getElementById("btnSwitchToYt");
+      if (btnSwitchYt) {
+        btnSwitchYt.addEventListener("click", () => {
+          activePlatform = "youtube";
+          renderActiveChannel();
+        });
+      }
+    }
+  }
+
+  function renderOtherChannels() {
+    if (!otherChannelsGrid) return;
+    const others = channels.filter((_, idx) => idx !== activeIndex);
+    if (!others.length) {
+      otherChannelsGrid.innerHTML = `<p style="grid-column: 1/-1; color: var(--muted); text-align: center;">No other broadcast locations registered.</p>`;
+      return;
+    }
+
+    otherChannelsGrid.innerHTML = others.map(ch => {
+      const idx = channels.findIndex(c => c.id === ch.id);
+      const isLive = (ch.status || "").toLowerCase() === "live";
+      return `
+        <div class="live-chapel-card">
+          <div class="live-chapel-card-head">
+            <h3 class="live-chapel-card-title">${escapeHtml(ch.name)}</h3>
+            <span class="live-status-badge status-${escapeHtml((ch.status || 'offline').toLowerCase())}">
+              ${isLive ? '<span class="live-dot"></span>' : ''}
+              ${isLive ? 'LIVE' : escapeHtml(ch.status || 'OFFLINE').toUpperCase()}
+            </span>
+          </div>
+          <div class="live-chapel-card-schedule">
+            📅 ${escapeHtml(ch.schedule || "Sunday Service")}
+          </div>
+          <p style="font-size: 0.88rem; color: var(--muted); margin: 0;">
+            ${escapeHtml(ch.title || "Worship and Word broadcast.")}
+          </p>
+          <div class="live-chapel-card-actions">
+            <button type="button" class="btn btn-primary btn-sm" style="flex: 1;" onclick="window.selectLiveChannel(${idx})">
+              Watch Stream
+            </button>
+            <a href="give.html?chapel=${encodeURIComponent(ch.chapelId || ch.id)}" class="btn btn-outline btn-sm">
+              Give
+            </a>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  window.selectLiveChannel = function(idx) {
+    if (idx >= 0 && idx < channels.length) {
+      activeIndex = idx;
+      activePlatform = channels[activeIndex].defaultPlatform || "youtube";
+      const ch = channels[activeIndex];
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set("chapel", ch.chapelId || ch.id);
+      window.history.replaceState(null, "", newUrl.toString());
+      renderActiveChannel();
+      document.getElementById("liveBroadcastCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  if (channelPillsContainer) {
+    channelPillsContainer.innerHTML = channels.map((ch, idx) => {
+      const isLive = (ch.status || "").toLowerCase() === "live";
+      const icon = ch.id === "general" ? "🌟" : "⛪";
+      return `
+        <button type="button" class="live-channel-pill${idx === activeIndex ? ' active' : ''}" data-index="${idx}">
+          ${isLive ? '<span class="mini-live-dot"></span>' : `<span>${icon}</span>`}
+          <span>${escapeHtml(ch.name)}</span>
+        </button>
+      `;
+    }).join("");
+
+    channelPillsContainer.querySelectorAll(".live-channel-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        const idx = parseInt(pill.dataset.index, 10);
+        window.selectLiveChannel(idx);
+      });
+    });
+  }
+
+  if (tabYouTube) {
+    tabYouTube.addEventListener("click", () => {
+      activePlatform = "youtube";
+      renderActiveChannel();
+    });
+  }
+  if (tabFacebook) {
+    tabFacebook.addEventListener("click", () => {
+      activePlatform = "facebook";
+      renderActiveChannel();
+    });
+  }
+
+  renderActiveChannel();
+}
+
+
 
 
 function publicationDate(value, options = {}) {
@@ -1056,6 +1382,20 @@ function renderMinistryDetail(content) {
         <strong>${escapeHtml(fact.value)}</strong>
       </div>
     `).join("");
+
+    if (isChapelDetail) {
+      facts.insertAdjacentHTML("beforeend", `
+        <div class="ministry-fact" style="grid-column: 1/-1; background: rgba(13, 27, 42, 0.03); border: 1.5px solid var(--navy); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <span>Broadcast Channel</span>
+            <strong>Watch Services Live</strong>
+          </div>
+          <a href="live.html?chapel=${encodeURIComponent(key)}" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+            <span>🔴</span> Join ${escapeHtml(item.shortTitle || item.title)} Stream
+          </a>
+        </div>
+      `);
+    }
   }
 
   const leadersSection = document.querySelector("[data-ministry-leaders-section]");
@@ -3343,7 +3683,8 @@ async function initialiseSite() {
       quickLinks: renderQuickLinks,
       events: renderEvents,
       give: renderGive,
-      bibleCollege: renderBibleCollege
+      bibleCollege: renderBibleCollege,
+      live: renderLive
     };
 
     renderers[page]?.(content);

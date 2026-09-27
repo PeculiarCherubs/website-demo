@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Watch Live | Peculiar Cherubs</title>
+  <meta name="description" content="Watch live church services and streams from Peculiar Cherubs and our branch chapels on YouTube and Facebook Live.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="live" data-content-loading="true">
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" data-site-logo alt="Peculiar Cherubs logo">
+      <span data-site-short-name></span>
+    </a>
+
+    <button class="menu-btn" type="button" aria-label="Open navigation" aria-expanded="false">
+      ☰
+    </button>
+
+    <nav class="nav-links" aria-label="Primary navigation" data-navigation></nav>
+  </div>
+</header>
+
+<main>
+  <!-- Hero Section -->
+  <section class="page-hero branded-page-hero live-hero">
+    <div class="page-hero-brand-mark" aria-hidden="true"></div>
+    <div class="container">
+      <span class="eyebrow" data-live-hero-eyebrow>Online Sanctuary</span>
+      <h1 data-live-hero-title>Worship & Word Live</h1>
+      <p data-live-hero-description>Experience life-transforming worship and timely preachings from our Mother Church and branch chapels on YouTube and Facebook.</p>
+    </div>
+  </section>
+
+  <!-- Live Stream Hub Section -->
+  <section class="section section-soft live-stream-section">
+    <div class="container">
+
+      <!-- Channel Switcher -->
+      <div class="live-channel-bar">
+        <span class="live-channel-label">Select Chapel Channel:</span>
+        <div class="live-channel-pills" id="liveChannelPills">
+          <!-- Rendered dynamically by script.js -->
+        </div>
+      </div>
+
+      <!-- Main Broadcast Card -->
+      <div class="live-broadcast-card" id="liveBroadcastCard">
+        <!-- Broadcast Header & Platform Switcher -->
+        <div class="live-broadcast-topbar">
+          <div class="live-status-container">
+            <span class="live-status-badge" id="liveStatusBadge">
+              <span class="live-dot"></span>
+              <span id="liveStatusText">CONNECTING...</span>
+            </span>
+            <span class="live-channel-current-name" id="liveCurrentChannelName">Mother Church / General</span>
+          </div>
+
+          <div class="live-platform-tabs" id="livePlatformTabs">
+            <button type="button" class="live-platform-tab active" data-platform="youtube" id="tabYouTube">
+              <span class="tab-icon">▶</span> YouTube Live
+            </button>
+            <button type="button" class="live-platform-tab" data-platform="facebook" id="tabFacebook">
+              <span class="tab-icon">📘</span> Facebook Live
+            </button>
+          </div>
+        </div>
+
+        <!-- Video Player / Stream Container -->
+        <div class="live-video-wrapper">
+          <div class="live-video-container" id="liveVideoContainer">
+            <!-- Dynamic embed iframe or offline state inserted here -->
+          </div>
+        </div>
+
+        <!-- Stream Metadata & Action Area -->
+        <div class="live-meta-area">
+          <div class="live-meta-info">
+            <div class="live-meta-pretitle" id="liveStreamSchedule">Sunday · 9:00 AM | Wednesday · 6:00 PM</div>
+            <h2 class="live-meta-title" id="liveStreamTitle">Sunday Celebration &amp; Deliverance Service</h2>
+            <div class="live-meta-speaker-wrap">
+              <span class="live-meta-speaker" id="liveStreamSpeaker">Senior Pastor</span>
+              <span class="live-meta-divider" id="liveStreamDivider">·</span>
+              <span class="live-meta-theme" id="liveStreamTheme">Supernatural Advancement</span>
+            </div>
+            <p class="live-meta-bulletin" id="liveStreamBulletin">Welcome to our live service! Share the stream with friends and family.</p>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="live-actions-bar">
+            <a href="give.html" id="btnLiveGive" class="btn btn-primary live-action-btn">
+              <span>💛</span> Give Online
+            </a>
+            <a href="quick-links.html" id="btnLivePrayer" class="btn btn-outline live-action-btn">
+              <span>🙏</span> Prayer Request
+            </a>
+            <a href="https://www.youtube.com/@PeculiarCherubs" id="btnLiveExternal" class="btn btn-secondary live-action-btn" target="_blank" rel="noopener">
+              <span id="externalBtnIcon">↗</span> <span id="externalBtnText">Open in App</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other Chapel Channels Grid -->
+      <div class="live-other-chapels-section">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">All Broadcast Locations</span>
+            <h2>Explore Our Chapels' Live Channels</h2>
+          </div>
+        </div>
+        <div class="grid-3" id="liveOtherChannelsGrid">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="brand footer-brand">
+          <img class="brand-logo footer-logo" data-site-logo alt="Peculiar Cherubs logo">
+          <span data-site-short-name></span>
+        </div>
+        <p data-site-full-name></p>
+      </div>
+
+      <div>
+        <h3>Explore</h3>
+        <p><a href="about.html">About Us</a></p>
+        <p><a href="chapels.html">Chapels</a></p>
+        <p><a href="ministries.html">Ministries</a></p>
+        <p><a href="house-fellowships.html">House Fellowships</a></p>
+      </div>
+
+      <div>
+        <h3>Connect</h3>
+        <p><a href="live.html">Watch Live</a></p>
+        <p><a href="sermons.html">Sermons</a></p>
+        <p><a href="publications.html">Publications</a></p>
+        <p><a href="events.html">Events</a></p>
+        <p><a href="quick-links.html">Quick Links</a></p>
+        <p><a href="give.html">Give</a></p>
+      </div>
+
+      <div>
+        <h3>Service Times</h3>
+        <p data-service-sunday></p>
+        <p data-service-midweek></p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© <span data-copyright-year></span> <span data-site-full-name></span>.</span>
+      <span data-site-tagline></span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/contentService.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
