@@ -68,6 +68,7 @@
 
   // In-memory cache for loaded sections
   const cache = {};
+  const versions = {};
   const pendingRequests = {};
   let localFallbackCache = null;
 
@@ -113,7 +114,7 @@
 
       const reqPromise = (async () => {
         try {
-          const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=eq.${encodeURIComponent(sectionKey)}&select=key,data`;
+          const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=eq.${encodeURIComponent(sectionKey)}&select=key,data,updated_at`;
           const signal = this.getAbortSignal();
 
           const options = {
@@ -132,8 +133,10 @@
           const rows = await response.json();
           if (!rows || rows.length === 0) throw new Error(`Section '${sectionKey}' not found.`);
 
-          const data = rows[0].data;
+          const row = rows[0];
+          const data = row.data;
           cache[sectionKey] = data;
+          versions[sectionKey] = row.updated_at || null;
           return data;
         } catch (err) {
           console.warn(`[ContentService] On-demand live load failed for '${sectionKey}', using local fallback.`, err);
@@ -159,7 +162,7 @@
 
       if (missingKeys.length > 0) {
         const keysFilter = missingKeys.map(k => encodeURIComponent(k)).join(',');
-        const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=in.(${keysFilter})&select=key,data`;
+        const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=in.(${keysFilter})&select=key,data,updated_at`;
         const signal = this.getAbortSignal();
 
         const options = {
@@ -182,6 +185,7 @@
         const rows = await response.json();
         rows.forEach(row => {
           cache[row.key] = row.data;
+          versions[row.key] = row.updated_at || null;
         });
       }
 
@@ -206,8 +210,20 @@
     /**
      * Keeps the live section cache coherent after a successful CMS write.
      */
-    setCachedSection(sectionKey, sectionData) {
+    setCachedSection(sectionKey, sectionData, updatedAt = null) {
       cache[sectionKey] = sectionData;
+      if (updatedAt !== null && updatedAt !== undefined) {
+        versions[sectionKey] = updatedAt;
+      }
+    },
+
+    /**
+     * Returns the optimistic-concurrency version loaded for a section.
+     */
+    getSectionVersion(sectionKey) {
+      return Object.prototype.hasOwnProperty.call(versions, sectionKey)
+        ? versions[sectionKey]
+        : null;
     },
 
     /**
@@ -216,11 +232,13 @@
     clearCache(sectionKey = null) {
       if (sectionKey) {
         delete cache[sectionKey];
+        delete versions[sectionKey];
         delete pendingRequests[sectionKey];
         return;
       }
 
       Object.keys(cache).forEach(key => delete cache[key]);
+      Object.keys(versions).forEach(key => delete versions[key]);
       Object.keys(pendingRequests).forEach(key => delete pendingRequests[key]);
     },
 

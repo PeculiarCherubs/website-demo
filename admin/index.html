@@ -190,6 +190,15 @@
               </div>
             </button>
           </li>
+
+          <li class="admin-nav-item" data-tab="adminAccess">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">🔐</span>
+                <span>Admin Access</span>
+              </div>
+            </button>
+          </li>
           <li class="admin-nav-item" data-tab="advancedContent">
             <button type="button">
               <div class="admin-nav-label-group">
@@ -960,6 +969,55 @@
         </form>
       </section>
 
+
+
+      <!-- ------------------------------------------------------------------
+           Panel: Admin Access
+           ------------------------------------------------------------------ -->
+      <section id="panelAdminAccess" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Admin Access & Roles</h2>
+            <p>Assign CMS roles to existing Supabase Auth users. Permissions are enforced by Supabase, not only by the interface.</p>
+          </div>
+        </div>
+
+        <div class="admin-settings-card">
+          <h3 class="admin-setting-heading">Authorize an existing Auth user</h3>
+          <p class="admin-setting-help">
+            Create the account under Supabase Authentication first, then enter that user's email here and choose a CMS role.
+          </p>
+
+          <form id="adminAccessAddForm" class="admin-access-form">
+            <div class="admin-input-group">
+              <label for="adminAccessEmail">User email</label>
+              <input id="adminAccessEmail" class="admin-input" type="email" autocomplete="off" required
+                placeholder="editor@example.com">
+            </div>
+            <div class="admin-input-group">
+              <label for="adminAccessRole">Role</label>
+              <select id="adminAccessRole" class="admin-select" required></select>
+            </div>
+            <button class="btn btn-primary admin-btn-sm" type="submit">Authorize / Assign Role</button>
+          </form>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Admin</th>
+                <th>Role</th>
+                <th>Authorized</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminAccessTableBody">
+              <tr><td colspan="4">Loading authorized Admins…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <!-- ------------------------------------------------------------------
            Panel: Advanced Content

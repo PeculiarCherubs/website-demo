@@ -10,6 +10,7 @@
 - `stages/CONTENT_DATA_INTEGRITY_CLEANUP.md`
 - `stages/REPOSITORY_NAVIGATION_CLEANUP.md`
 - `stages/CSS_UI_STANDARDIZATION.md`
+- `stages/FINAL_QA_SECURITY_HARDENING.md`
 
 ## Validation
 See `validation/`.
@@ -25,6 +26,7 @@ See `features/`.
 
 ## Security
 - `security/GIT_HISTORY_DATA_POLICY.md`
+- `security/CMS_RECOVERY_AUDIT_RUNBOOK.md`
 
 ## Archive
 Superseded merge guides, audits and the old README are preserved under `archive/` for traceability. They are not current operating instructions.

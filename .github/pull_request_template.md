@@ -13,4 +13,6 @@ Describe the change and why it is needed.
 - [ ] `node scripts/check-content-integrity.js` passes.
 - [ ] `node scripts/check-navigation-integrity.js` passes.
 - [ ] `node scripts/check-ui-integrity.js` passes.
+- [ ] `node scripts/check-security-integrity.js` passes.
+- [ ] `node scripts/check-final-qa.js` passes.
 - [ ] I manually checked the affected routes.

@@ -1532,3 +1532,34 @@ body.admin-body {
     align-items: flex-start;
   }
 }
+
+/* Role-based Admin access */
+.admin-access-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(220px, .7fr) auto;
+  align-items: end;
+  gap: 1rem;
+}
+
+.admin-role-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: .3rem .7rem;
+  border-radius: 999px;
+  background: var(--sky);
+  color: var(--navy);
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.admin-permission-hidden {
+  display: none !important;
+}
+
+@media (max-width: 800px) {
+  .admin-access-form {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}

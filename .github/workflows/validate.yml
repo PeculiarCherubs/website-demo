@@ -29,3 +29,10 @@ jobs:
 
       - name: Check CSS/UI integrity
         run: node scripts/check-ui-integrity.js
+
+
+      - name: Check security integrity
+        run: node scripts/check-security-integrity.js
+
+      - name: Check final QA integrity
+        run: node scripts/check-final-qa.js

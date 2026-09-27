@@ -14,6 +14,23 @@
   let currentContent = {};
   let isFallbackMode = false;
   let activeTab = 'dashboard';
+  let currentAccessProfile = null;
+  let availableCmsRoles = [];
+
+  const TAB_PERMISSIONS = {
+    dashboard: null,
+    publications: 'publications.manage',
+    sermons: 'sermons.manage',
+    events: 'events.manage',
+    fellowships: 'ministries.manage',
+    ministries: 'ministries.manage',
+    leadership: 'about.manage',
+    quickLinks: 'quicklinks.manage',
+    giving: 'giving.manage',
+    siteSettings: 'site.manage',
+    adminAccess: 'admins.manage',
+    advancedContent: 'advanced.manage'
+  };
   let editingState = {
     sectionKey: null,
     itemId: null,
@@ -47,6 +64,15 @@
       const logoutBtn = document.getElementById('adminLogoutBtn');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => this.handleLogout());
+      }
+
+      // Admin Access / Role Management
+      const adminAccessAddForm = document.getElementById('adminAccessAddForm');
+      if (adminAccessAddForm) {
+        adminAccessAddForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await this.assignAdminRoleFromForm();
+        });
       }
 
       // Export JSON
@@ -173,6 +199,239 @@
       return (await response.json()) === true;
     },
 
+    async fetchCmsAccessProfile(accessToken) {
+      if (!accessToken) return null;
+
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/rest/v1/rpc/cms_get_access_profile`, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: '{}'
+      });
+
+      if (!response.ok) {
+        console.warn('[AdminPortal] Could not load CMS access profile:', response.status);
+        return null;
+      }
+
+      const payload = await response.json();
+      return Array.isArray(payload) ? payload[0] || null : payload;
+    },
+
+    hasPermission(permissionKey) {
+      if (!permissionKey) return Boolean(currentAccessProfile);
+      const permissions = Array.isArray(currentAccessProfile?.permissions)
+        ? currentAccessProfile.permissions
+        : [];
+      return permissions.includes(permissionKey);
+    },
+
+    canOpenTab(tabName) {
+      if (tabName === 'dashboard') return Boolean(currentAccessProfile);
+      const required = TAB_PERMISSIONS[tabName];
+      return Boolean(required && this.hasPermission(required));
+    },
+
+    applyAccessProfile() {
+      const profile = currentAccessProfile;
+      if (!profile) return;
+
+      document.querySelectorAll('.admin-nav-item[data-tab]').forEach(item => {
+        const tab = item.getAttribute('data-tab');
+        item.classList.toggle('admin-permission-hidden', !this.canOpenTab(tab));
+      });
+
+      document.querySelectorAll('.admin-view-panel').forEach(panel => {
+        const raw = panel.id.replace(/^panel/, '');
+        const tab = raw.charAt(0).toLowerCase() + raw.slice(1);
+        if (tab !== 'dashboard') {
+          panel.classList.toggle('admin-permission-hidden', !this.canOpenTab(tab));
+        }
+      });
+
+      const exportBtn = document.getElementById('adminExportBtn');
+      if (exportBtn) exportBtn.hidden = !this.hasPermission('export.manage');
+
+      const quickRules = [
+        ['publications.manage', `[onclick*="switchTab('publications')"], [onclick*="openItemModal('publications'"]`],
+        ['sermons.manage', `[onclick*="switchTab('sermons')"], [onclick*="openItemModal('sermons'"]`],
+        ['events.manage', `[onclick*="switchTab('events')"], [onclick*="openItemModal('events'"]`],
+        ['ministries.manage', `[onclick*="switchTab('fellowships')"], [onclick*="switchTab('ministries')"]`],
+        ['about.manage', `[onclick*="switchTab('leadership')"]`],
+        ['quicklinks.manage', `[onclick*="switchTab('quickLinks')"]`],
+        ['giving.manage', `[onclick*="switchTab('giving')"]`],
+        ['site.manage', `[onclick*="switchTab('siteSettings')"]`],
+        ['advanced.manage', `[onclick*="switchTab('advancedContent')"]`]
+      ];
+
+      quickRules.forEach(([permission, selector]) => {
+        document.querySelectorAll(selector).forEach(el => {
+          el.classList.toggle('admin-permission-hidden', !this.hasPermission(permission));
+        });
+      });
+
+      const statRules = {
+        statPublicationsCount: 'publications.manage',
+        statSermonsCount: 'sermons.manage',
+        statEventsCount: 'events.manage',
+        statFellowshipsCount: 'ministries.manage',
+        statLeadershipCount: 'about.manage',
+        statQuickLinksCount: 'quicklinks.manage',
+        statGivingCount: 'giving.manage'
+      };
+
+      Object.entries(statRules).forEach(([id, permission]) => {
+        const stat = document.getElementById(id);
+        const card = stat?.closest('.admin-stat-card');
+        if (card) card.classList.toggle('admin-permission-hidden', !this.hasPermission(permission));
+      });
+
+      const session = this.getStoredAuthSession();
+      const label = document.getElementById('adminUserIdentity');
+      if (label) {
+        const email = session?.user?.email || profile.email || '';
+        label.textContent = `${email}${profile.role_label ? ` · ${profile.role_label}` : ''}`;
+        label.hidden = !email;
+      }
+
+      if (!this.canOpenTab(activeTab)) {
+        this.switchTab('dashboard');
+      }
+    },
+
+    async loadAdminAccess() {
+      if (!this.hasPermission('admins.manage')) return;
+
+      const session = await this.getValidAuthSession();
+      if (!session?.accessToken) return;
+
+      const cfg = this.getAuthConfig();
+      const headers = {
+        'apikey': cfg.anonKey,
+        'Authorization': `Bearer ${session.accessToken}`,
+        'Content-Type': 'application/json'
+      };
+
+      const [rolesResp, adminsResp] = await Promise.all([
+        fetch(`${cfg.url}/rest/v1/rpc/cms_list_roles`, { method: 'POST', headers, body: '{}' }),
+        fetch(`${cfg.url}/rest/v1/rpc/cms_list_admins`, { method: 'POST', headers, body: '{}' })
+      ]);
+
+      if (!rolesResp.ok || !adminsResp.ok) {
+        this.showToast('Could not load Admin roles/access list.', 'error');
+        return;
+      }
+
+      availableCmsRoles = await rolesResp.json();
+      const admins = await adminsResp.json();
+
+      const roleSelect = document.getElementById('adminAccessRole');
+      if (roleSelect) {
+        roleSelect.innerHTML = availableCmsRoles.map(role =>
+          `<option value="${role.role_key}">${role.label}</option>`
+        ).join('');
+      }
+
+      const tbody = document.getElementById('adminAccessTableBody');
+      if (tbody) {
+        tbody.innerHTML = admins.map(admin => {
+          const roleOptions = availableCmsRoles.map(role =>
+            `<option value="${role.role_key}" ${role.role_key === admin.role_key ? 'selected' : ''}>${role.label}</option>`
+          ).join('');
+
+          return `
+            <tr>
+              <td>${admin.email}</td>
+              <td>
+                <select class="admin-select" onchange="AdminPortal.setAdminRole('${admin.user_id}', this.value)">
+                  ${roleOptions}
+                </select>
+              </td>
+              <td>${new Date(admin.created_at).toLocaleString()}</td>
+              <td style="text-align:right;">
+                <button class="admin-icon-btn danger" title="Remove CMS access"
+                  onclick="AdminPortal.removeCmsAdmin('${admin.user_id}', '${admin.email}')">🗑️</button>
+              </td>
+            </tr>
+          `;
+        }).join('') || `<tr><td colspan="4">No authorized CMS Admins found.</td></tr>`;
+      }
+    },
+
+    async callAdminAccessRpc(functionName, body) {
+      const session = await this.getValidAuthSession();
+      if (!session?.accessToken || !this.hasPermission('admins.manage')) {
+        this.showToast('You do not have permission to manage Admin access.', 'error');
+        return false;
+      }
+
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/rest/v1/rpc/${functionName}`, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': `Bearer ${session.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body || {})
+      });
+
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        this.showToast(detail.message || 'Admin access update failed.', 'error');
+        return false;
+      }
+
+      return true;
+    },
+
+    async assignAdminRoleFromForm() {
+      const email = document.getElementById('adminAccessEmail')?.value.trim() || '';
+      const roleKey = document.getElementById('adminAccessRole')?.value || '';
+      if (!email || !roleKey) return;
+
+      const ok = await this.callAdminAccessRpc('cms_assign_admin_role', {
+        p_email: email,
+        p_role_key: roleKey
+      });
+
+      if (ok) {
+        document.getElementById('adminAccessEmail').value = '';
+        this.showToast('CMS role assigned.', 'success');
+        await this.loadAdminAccess();
+      }
+    },
+
+    async setAdminRole(userId, roleKey) {
+      const ok = await this.callAdminAccessRpc('cms_set_admin_role', {
+        p_user_id: userId,
+        p_role_key: roleKey
+      });
+      if (ok) {
+        this.showToast('Admin role updated.', 'success');
+        await this.loadAdminAccess();
+      } else {
+        await this.loadAdminAccess();
+      }
+    },
+
+    async removeCmsAdmin(userId, email) {
+      if (!confirm(`Remove CMS access for ${email}?`)) return;
+
+      const ok = await this.callAdminAccessRpc('cms_remove_admin', {
+        p_user_id: userId
+      });
+
+      if (ok) {
+        this.showToast('CMS access removed.', 'success');
+        await this.loadAdminAccess();
+      }
+    },
+
     setAuthenticatedUser(session) {
       const userLabel = document.getElementById('adminUserIdentity');
       if (!userLabel) return;
@@ -212,7 +471,15 @@
           return;
         }
 
+        currentAccessProfile = await this.fetchCmsAccessProfile(session.accessToken);
+        if (!currentAccessProfile) {
+          this.clearAuthSession();
+          this.showAuthOverlay('This CMS account has no valid role assignment.');
+          return;
+        }
+
         this.setAuthenticatedUser(session);
+        this.applyAccessProfile();
         if (authOverlay) authOverlay.classList.add('hidden');
         await this.loadFullContent();
       } catch (err) {
@@ -273,10 +540,17 @@
           throw new Error('This account is not authorized to manage the CMS.');
         }
 
+        currentAccessProfile = await this.fetchCmsAccessProfile(session.accessToken);
+        if (!currentAccessProfile) {
+          this.clearAuthSession();
+          throw new Error('This CMS account has no valid role assignment.');
+        }
+
         this.setAuthenticatedUser(session);
+        this.applyAccessProfile();
         if (errorMsg) errorMsg.style.display = 'none';
         if (authOverlay) authOverlay.classList.add('hidden');
-        this.showToast('Secure Admin session established.', 'success');
+        this.showToast(`Secure Admin session established (${currentAccessProfile.role_label}).`, 'success');
         await this.loadFullContent();
       } catch (err) {
         console.error('[AdminPortal] Login failed:', err);
@@ -315,6 +589,8 @@
       }
 
       this.clearAuthSession();
+      currentAccessProfile = null;
+      availableCmsRoles = [];
       this.setAuthenticatedUser(null);
       this.showAuthOverlay();
       this.showToast('Admin session ended.', 'info');
@@ -383,6 +659,7 @@
         this.ensureStableContentIds();
         console.log('[AdminPortal] Loaded content model:', currentContent);
         this.renderAllViews();
+        this.applyAccessProfile();
 
         if (!suppressToast) {
           this.showToast(
@@ -434,7 +711,18 @@
      * Switches workspace active tab
      */
     switchTab(tabName) {
+      if (!this.canOpenTab(tabName)) {
+        this.showToast('Your CMS role does not permit access to that section.', 'error');
+        return;
+      }
+
       activeTab = tabName;
+
+      if (tabName === 'adminAccess') {
+        this.loadAdminAccess().catch(err => {
+          console.error('[AdminPortal] Could not load Admin Access panel.', err);
+        });
+      }
 
       // Update sidebar nav state
       document.querySelectorAll('.admin-nav-item').forEach(item => {
@@ -4118,7 +4406,13 @@
         return false;
       }
 
-      const endpoint = `${cfg.url}/rest/v1/${cfg.tableName}?on_conflict=key`;
+      const expectedUpdatedAt =
+        global.ContentService &&
+        typeof global.ContentService.getSectionVersion === 'function'
+          ? global.ContentService.getSectionVersion(sectionKey)
+          : null;
+
+      const endpoint = `${cfg.url}/rest/v1/rpc/cms_upsert_site_content`;
 
       try {
         const resp = await fetch(endpoint, {
@@ -4127,23 +4421,59 @@
             'apikey': cfg.anonKey,
             'Authorization': `Bearer ${session.accessToken}`,
             'Content-Type': 'application/json',
-            'Prefer': 'resolution=merge-duplicates,return=minimal'
+            'Accept': 'application/json'
           },
           body: JSON.stringify({
-            key: sectionKey,
-            data: sectionData
+            p_key: sectionKey,
+            p_data: sectionData,
+            p_expected_updated_at: expectedUpdatedAt
           })
         });
 
         if (!resp.ok) {
-          const detail = await resp.text().catch(() => '');
+          const detail = await resp.json().catch(async () => ({
+            message: await resp.text().catch(() => '')
+          }));
+
+          const detailMessage = [
+            detail?.code,
+            detail?.message,
+            detail?.details,
+            detail?.hint
+          ].filter(Boolean).join(' ');
+
           console.warn(
-            `[AdminPortal] Authorized Supabase upsert for '${sectionKey}' returned status ${resp.status}`,
+            `[AdminPortal] Hardened CMS RPC save for '${sectionKey}' returned status ${resp.status}`,
             detail
           );
+
+          if (
+            detailMessage.includes('cms_permission_denied')
+          ) {
+            this.showToast(
+              `Your CMS role does not permit changes to '${sectionKey}'.`,
+              'error'
+            );
+            await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+            return false;
+          }
+
+          if (
+            detailMessage.includes('content_conflict') ||
+            detailMessage.includes('content_version_required') ||
+            detail?.code === '40001'
+          ) {
+            this.showToast(
+              `Save conflict for '${sectionKey}': another Admin changed this content after you loaded it. Reloading the latest version.`,
+              'error'
+            );
+            await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+            return false;
+          }
+
           this.showToast(`Supabase save failed for '${sectionKey}' (${resp.status}).`, 'error');
 
-          if (resp.status === 401 || resp.status === 403) {
+          if (resp.status === 401 || resp.status === 403 || detail?.code === '42501') {
             this.clearAuthSession();
             this.showAuthOverlay('Your session is no longer authorized. Please sign in again.');
           }
@@ -4152,20 +4482,31 @@
           return false;
         }
 
+        const payload = await resp.json();
+        const savedRow = Array.isArray(payload) ? payload[0] : payload;
+
+        if (!savedRow?.key || !savedRow?.updated_at) {
+          console.warn('[AdminPortal] CMS RPC returned an unexpected response.', payload);
+          this.showToast(`Supabase save response was incomplete for '${sectionKey}'.`, 'error');
+          await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+          return false;
+        }
+
         if (
           global.ContentService &&
           typeof global.ContentService.setCachedSection === 'function'
         ) {
-          global.ContentService.setCachedSection(sectionKey, sectionData);
+          global.ContentService.setCachedSection(
+            sectionKey,
+            savedRow.data ?? sectionData,
+            savedRow.updated_at
+          );
         }
 
-        currentContent[sectionKey] = sectionData;
-        currentContent._source = 'supabase_db';
-
-        console.log(`[AdminPortal] Securely upserted '${sectionKey}' in Supabase DB.`);
+        currentContent[sectionKey] = savedRow.data ?? sectionData;
         return true;
       } catch (err) {
-        console.error(`[AdminPortal] Error syncing section '${sectionKey}' to Supabase:`, err);
+        console.error(`[AdminPortal] Could not save '${sectionKey}' through hardened CMS RPC.`, err);
         this.showToast(`Could not save '${sectionKey}' to Supabase.`, 'error');
 
         await this.loadFullContent({ suppressToast: true, forceRefresh: true });
@@ -4177,6 +4518,11 @@
      * Exports full content JSON file for repository offline backup
      */
     exportContentJson() {
+      if (!this.hasPermission('export.manage')) {
+        this.showToast('Your CMS role does not permit full-content export.', 'error');
+        return;
+      }
+
       const copy = { ...currentContent };
       delete copy._source;
 
