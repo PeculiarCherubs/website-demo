@@ -560,7 +560,7 @@
             teacherNotes: teacherText,
             lifeApplication: l.lifeApplication || '',
             audioUrl: l.audioUrl || '',
-            pdfUrl: l.pdfUrl || '#',
+            pdfUrl: l.pdfUrl || '',
             coverImage: 'assets/hero/mother-church-brand.jpg',
             _raw: l,
             _sourceGroup: 'sundaySchoolDetails'
@@ -584,7 +584,7 @@
             description: arc.text || (detail ? detail.subtitle : ''),
             author: 'Peculiar Cherubs Publications',
             coverImage: 'assets/hero/mother-church-brand.jpg',
-            pdfUrl: (detail && detail.pdfUrl) ? detail.pdfUrl : '#',
+            pdfUrl: (detail && detail.pdfUrl) ? detail.pdfUrl : '',
             _raw: detail || arc,
             _sourceGroup: 'archive'
           });
@@ -708,35 +708,6 @@
         });
       }
 
-      // Legacy ministry items remain readable for compatibility until
-      // repository cleanup, but do not override canonical detail records.
-      if (Array.isArray(mins.items)) {
-        mins.items.forEach(it => {
-          if (!it || !(it.id || it.title)) return;
-          const id = it.id || `ministry_${Date.now()}`;
-          if (itemsMap.has(id)) return;
-
-          itemsMap.set(id, {
-            id,
-            title: it.title || it.name || 'Ministry Title',
-            tag: it.category || it.tag || 'Ministry',
-            category: it.category || it.tag || 'Ministry',
-            subtitle: it.summary || it.subtitle || it.description || '',
-            description: it.description || it.summary || it.subtitle || '',
-            href: it.href || '#',
-            image: it.image || it.coverImage || 'assets/hero/mother-church-brand.jpg',
-            schedule: it.schedule || 'Regular Worship',
-            facts: it.facts || [],
-            overview: it.overview || [],
-            leaders: it.leaders || [],
-            functionsTitle: it.functionsTitle || 'Ministry functions',
-            functions: it.functions || [],
-            _placement: this.getMinistryPlacement(id),
-            _sourceType: 'legacy-ministry',
-            _raw: it
-          });
-        });
-      }
 
       return Array.from(itemsMap.values());
     },
@@ -769,7 +740,7 @@
         icon: link.icon || '🔗',
         title: link.title || 'Quick Link',
         text: link.text || link.description || '',
-        href: link.href || '#',
+        href: link.href || '',
         _index: idx,
         _raw: link
       }));
@@ -2798,14 +2769,14 @@
           </div>
           <div class="admin-input-group">
             <label>Target Page Link / Destination URL</label>
-            <input type="text" id="modalField_href" class="admin-input" value="${item.href || ''}" placeholder="e.g. publications.html, chapels.html, ministries.html, #" required>
+            <input type="text" id="modalField_href" class="admin-input" value="${item.href || ''}" placeholder="e.g. publications.html, chapels.html, ministries.html — leave blank for Coming Soon">
             <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.4rem;">
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='publications.html'; AdminPortal.updateModalLivePreview();">publications.html</button>
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='events.html'; AdminPortal.updateModalLivePreview();">events.html</button>
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='chapels.html'; AdminPortal.updateModalLivePreview();">chapels.html</button>
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='ministries.html'; AdminPortal.updateModalLivePreview();">ministries.html</button>
               <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='give.html'; AdminPortal.updateModalLivePreview();">give.html</button>
-              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value='#'; AdminPortal.updateModalLivePreview();"># (Placeholder)</button>
+              <button type="button" class="btn btn-secondary admin-btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;" onclick="document.getElementById('modalField_href').value=''; AdminPortal.updateModalLivePreview();">Coming Soon (no URL)</button>
             </div>
           </div>
           <div class="admin-input-group" style="margin-bottom: 0;">
@@ -3096,7 +3067,7 @@
         const icon = getF('icon') || '🔗';
         const title = getF('title') || 'Quick Link Title';
         const text = getF('text') || 'Quick link supporting description preview...';
-        const href = getF('href') || '#';
+        const href = getF('href') || 'Coming Soon';
 
         box.innerHTML = `
           <div style="background: #ffffff; border: 2px solid var(--admin-border); border-radius: 18px; padding: 1.5rem; display: flex; gap: 1.25rem; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
@@ -3851,12 +3822,16 @@
         if (!currentContent.quickLinks) currentContent.quickLinks = {};
         if (!Array.isArray(currentContent.quickLinks.links)) currentContent.quickLinks.links = [];
 
+        const rawHref = String(getF('href') || '').trim();
+        const normalizedHref = rawHref === '#' ? '' : rawHref;
+
         const newLink = {
           id: id,
           icon: getF('icon') || '🔗',
           title: getF('title'),
           text: getF('text'),
-          href: getF('href') || '#'
+          href: normalizedHref,
+          comingSoon: normalizedHref === ''
         };
 
         const existingIdx = currentContent.quickLinks.links.findIndex(

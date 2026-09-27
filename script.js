@@ -21,8 +21,23 @@ const setMultilineText = (selector, value) => {
 const setLink = (selector, item) => {
   const element = document.querySelector(selector);
   if (!element || !item) return;
-  element.textContent = item.label || item.text || "";
-  element.href = item.href || "#";
+
+  const label = item.label || item.text || "";
+  const href = String(item.href || "").trim();
+  const hasDestination = href && href !== "#";
+
+  if (hasDestination) {
+    element.textContent = label;
+    element.href = href;
+    element.classList.remove("coming-soon-btn");
+    element.removeAttribute("aria-disabled");
+    return;
+  }
+
+  element.textContent = `${label}${label ? " · " : ""}Coming Soon`;
+  element.removeAttribute("href");
+  element.classList.add("coming-soon-btn");
+  element.setAttribute("aria-disabled", "true");
 };
 
 const escapeHtml = value =>
@@ -256,8 +271,24 @@ function sermonCard(sermon) {
 }
 
 function quickLinkCard(link) {
+  const href = String(link?.href || "").trim();
+  const hasDestination = href && href !== "#";
+
+  if (!hasDestination) {
+    return `
+      <div class="quick-link coming-soon-quick-link" aria-disabled="true">
+        <div class="icon">${escapeHtml(link.icon)}</div>
+        <div>
+          <div class="meta">Coming Soon</div>
+          <h3>${escapeHtml(link.title)}</h3>
+          <p>${escapeHtml(link.text)}</p>
+        </div>
+      </div>
+    `;
+  }
+
   return `
-    <a class="quick-link" href="${escapeHtml(link.href)}">
+    <a class="quick-link" href="${escapeHtml(href)}">
       <div class="icon">${escapeHtml(link.icon)}</div>
       <div>
         <h3>${escapeHtml(link.title)}</h3>
@@ -852,13 +883,18 @@ function renderPublicationDetail(content) {
 
   const pdfLink = document.querySelector("[data-pub-pdf]");
   if (pdfLink) {
-    pdfLink.href = item.pdfUrl || "#";
-    if (!item.pdfUrl || item.pdfUrl === "#") {
-      pdfLink.style.opacity = "0.6";
-      pdfLink.textContent = "PDF Coming Soon";
-      pdfLink.addEventListener("click", event => event.preventDefault());
-    } else {
+    const pdfUrl = String(item.pdfUrl || "").trim();
+
+    if (pdfUrl && pdfUrl !== "#") {
+      pdfLink.href = pdfUrl;
       pdfLink.textContent = `Download ${item.issue} PDF`;
+      pdfLink.classList.remove("coming-soon-btn");
+      pdfLink.removeAttribute("aria-disabled");
+    } else {
+      pdfLink.removeAttribute("href");
+      pdfLink.textContent = "PDF · Coming Soon";
+      pdfLink.classList.add("coming-soon-btn");
+      pdfLink.setAttribute("aria-disabled", "true");
     }
   }
 
@@ -2204,14 +2240,20 @@ function renderSundaySchoolDetail(content) {
   // PDF Link
   const pdfBtn = document.querySelector("[data-ss-pdf-btn]");
   if (pdfBtn) {
-    if (lesson.pdfUrl && lesson.pdfUrl !== "#") {
-      pdfBtn.href = lesson.pdfUrl;
-      pdfBtn.classList.remove("disabled");
+    const pdfUrl = String(lesson.pdfUrl || "").trim();
+
+    if (pdfUrl && pdfUrl !== "#") {
+      pdfBtn.href = pdfUrl;
+      pdfBtn.textContent = "📥 PDF";
+      pdfBtn.classList.remove("coming-soon-btn");
+      pdfBtn.removeAttribute("aria-disabled");
+      pdfBtn.removeAttribute("title");
     } else {
-      pdfBtn.href = "#";
-      pdfBtn.style.opacity = "0.6";
+      pdfBtn.removeAttribute("href");
+      pdfBtn.textContent = "📥 PDF · Coming Soon";
+      pdfBtn.classList.add("coming-soon-btn");
+      pdfBtn.setAttribute("aria-disabled", "true");
       pdfBtn.title = "PDF version coming soon";
-      pdfBtn.addEventListener("click", e => e.preventDefault());
     }
   }
 

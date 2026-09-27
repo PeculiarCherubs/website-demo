@@ -7315,3 +7315,13 @@ body.teacher-mode .ss-teacher-card {
   align-items: center;
   gap: .35rem;
 }
+
+/* Repository/navigation cleanup: disabled future-action state */
+.coming-soon-quick-link {
+  cursor: default;
+  opacity: .72;
+}
+
+.coming-soon-quick-link:hover {
+  transform: none;
+}
