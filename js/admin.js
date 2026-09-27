@@ -14,6 +14,7 @@
   let currentContent = {};
   let isFallbackMode = false;
   let activeTab = 'dashboard';
+  let pendingRecoverySession = null;
   let editingState = {
     sectionKey: null,
     itemId: null,
@@ -34,12 +35,63 @@
      * Binds DOM event listeners
      */
     bindEvents() {
-      // Auth Form
+      // Auth Form (Sign In)
       const authForm = document.getElementById('adminAuthForm');
       if (authForm) {
         authForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           await this.handleLogin();
+        });
+      }
+
+      // Switch to Forgot Password view
+      const forgotBtn = document.getElementById('adminForgotBtn');
+      if (forgotBtn) {
+        forgotBtn.addEventListener('click', () => {
+          this.showAuthMode('forgot');
+        });
+      }
+
+      // Back to Sign In from Forgot Password
+      const backToSignInBtn = document.getElementById('adminBackToSignInBtn');
+      if (backToSignInBtn) {
+        backToSignInBtn.addEventListener('click', () => {
+          this.showAuthMode('signin');
+        });
+      }
+
+      // Cancel Reset Password view
+      const cancelResetBtn = document.getElementById('adminCancelResetBtn');
+      if (cancelResetBtn) {
+        cancelResetBtn.addEventListener('click', () => {
+          pendingRecoverySession = null;
+          this.showAuthMode('signin');
+        });
+      }
+
+      // Forgot Password Form Submit
+      const forgotForm = document.getElementById('adminForgotForm');
+      if (forgotForm) {
+        forgotForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await this.handleForgotPassword();
+        });
+      }
+
+      // Reset Password Form Submit (Recovery flow)
+      const resetForm = document.getElementById('adminResetForm');
+      if (resetForm) {
+        resetForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await this.handleRecoveryPasswordReset();
+        });
+      }
+
+      // Change Password Button in Header (Authenticated user)
+      const changePasswordBtn = document.getElementById('adminChangePasswordBtn');
+      if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', () => {
+          this.openChangePasswordModal();
         });
       }
 
@@ -175,40 +227,189 @@
 
     setAuthenticatedUser(session) {
       const userLabel = document.getElementById('adminUserIdentity');
-      if (!userLabel) return;
-
-      const email = session?.user?.email || '';
-      userLabel.textContent = email;
-      userLabel.hidden = !email;
-    },
-
-    showAuthOverlay(message = '') {
-      const authOverlay = document.getElementById('adminAuthOverlay');
-      const errorMsg = document.getElementById('adminAuthError');
-      if (authOverlay) authOverlay.classList.remove('hidden');
-      if (errorMsg) {
-        errorMsg.textContent = message || 'Please sign in with an authorized CMS administrator account.';
-        errorMsg.style.display = message ? 'block' : 'none';
+      const changePasswordBtn = document.getElementById('adminChangePasswordBtn');
+      if (userLabel) {
+        const email = session?.user?.email || '';
+        userLabel.textContent = email;
+        userLabel.hidden = !email;
+      }
+      if (changePasswordBtn) {
+        changePasswordBtn.hidden = !session;
       }
     },
 
     /**
-     * Validates the stored Supabase Auth session and CMS authorization.
+     * Parses Supabase authentication tokens or errors from URL hash (#access_token=...&type=recovery)
+     * and query params (?code=... or ?error=...).
+     */
+    parseAuthUrlTokens() {
+      const result = {
+        accessToken: null,
+        refreshToken: null,
+        type: null,
+        expiresIn: null,
+        error: null,
+        errorDescription: null,
+        code: null
+      };
+
+      // 1. Parse Hash parameters (standard Supabase email redirect format)
+      if (typeof window !== 'undefined' && window.location.hash && window.location.hash.length > 1) {
+        try {
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          result.accessToken = hashParams.get('access_token');
+          result.refreshToken = hashParams.get('refresh_token');
+          result.type = hashParams.get('type');
+          result.expiresIn = hashParams.get('expires_in');
+          result.error = hashParams.get('error');
+          result.errorDescription = hashParams.get('error_description');
+        } catch (e) {
+          console.warn('[AdminPortal] Error parsing URL hash params:', e);
+        }
+      }
+
+      // 2. Parse Search query parameters (alternative/error redirect format)
+      if (typeof window !== 'undefined' && window.location.search && window.location.search.length > 1) {
+        try {
+          const searchParams = new URLSearchParams(window.location.search);
+          if (!result.error && searchParams.get('error')) {
+            result.error = searchParams.get('error');
+            result.errorDescription = searchParams.get('error_description');
+          }
+          if (searchParams.get('code')) {
+            result.code = searchParams.get('code');
+          }
+        } catch (e) {
+          console.warn('[AdminPortal] Error parsing URL search params:', e);
+        }
+      }
+
+      return result;
+    },
+
+    /**
+     * Removes access_token and sensitive auth parameters from the browser address bar without reloading.
+     */
+    clearAuthUrlTokens() {
+      if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState(null, '', cleanUrl);
+      }
+    },
+
+    /**
+     * Toggles between 'signin', 'forgot', and 'reset' views in the auth overlay.
+     */
+    showAuthMode(mode = 'signin', options = {}) {
+      const authOverlay = document.getElementById('adminAuthOverlay');
+      const signInView = document.getElementById('adminSignInView');
+      const forgotView = document.getElementById('adminForgotView');
+      const resetView = document.getElementById('adminResetView');
+
+      if (authOverlay) authOverlay.classList.remove('hidden');
+
+      if (signInView) signInView.style.display = mode === 'signin' ? 'block' : 'none';
+      if (forgotView) forgotView.style.display = mode === 'forgot' ? 'block' : 'none';
+      if (resetView) resetView.style.display = mode === 'reset' ? 'block' : 'none';
+
+      // Clear previous error/success indicators
+      const authError = document.getElementById('adminAuthError');
+      const forgotError = document.getElementById('adminForgotError');
+      const forgotSuccess = document.getElementById('adminForgotSuccess');
+      const resetError = document.getElementById('adminResetError');
+      const resetSuccess = document.getElementById('adminResetSuccess');
+
+      if (authError) {
+        if (options.error && mode === 'signin') {
+          authError.textContent = options.error;
+          authError.style.display = 'block';
+        } else {
+          authError.textContent = '';
+          authError.style.display = 'none';
+        }
+      }
+
+      if (forgotError) {
+        forgotError.textContent = '';
+        forgotError.style.display = 'none';
+      }
+      if (forgotSuccess) {
+        forgotSuccess.textContent = '';
+        forgotSuccess.style.display = 'none';
+      }
+      if (resetError) {
+        resetError.textContent = '';
+        resetError.style.display = 'none';
+      }
+      if (resetSuccess) {
+        resetSuccess.textContent = '';
+        resetSuccess.style.display = 'none';
+      }
+
+      // If switching to forgot view, pre-fill with email entered on signin
+      if (mode === 'forgot') {
+        const signinEmail = document.getElementById('adminEmail')?.value.trim();
+        const forgotEmailInput = document.getElementById('adminForgotEmail');
+        if (signinEmail && forgotEmailInput && !forgotEmailInput.value) {
+          forgotEmailInput.value = signinEmail;
+        }
+        if (forgotEmailInput) forgotEmailInput.focus();
+      } else if (mode === 'signin') {
+        const emailInput = document.getElementById('adminEmail');
+        if (emailInput) emailInput.focus();
+      } else if (mode === 'reset') {
+        const newPasswordInput = document.getElementById('adminNewPassword');
+        if (newPasswordInput) newPasswordInput.focus();
+      }
+    },
+
+    showAuthOverlay(message = '') {
+      this.showAuthMode('signin', { error: message });
+    },
+
+    /**
+     * Validates the stored Supabase Auth session and CMS authorization,
+     * while also checking for password recovery redirect tokens from email.
      */
     async checkAuthStatus() {
+      // 1. Detect if the user landed on the portal via a Supabase email link
+      const tokens = this.parseAuthUrlTokens();
+
+      // Handle email link error (e.g. otp_expired / link already used)
+      if (tokens.error) {
+        this.clearAuthUrlTokens();
+        const errorDesc = tokens.errorDescription
+          ? decodeURIComponent(tokens.errorDescription.replace(/\+/g, ' '))
+          : 'The password reset link is invalid or has expired. Please request a new one.';
+        this.showAuthMode('signin', { error: errorDesc });
+        return;
+      }
+
+      // Handle valid password recovery link
+      if (tokens.type === 'recovery' && tokens.accessToken) {
+        pendingRecoverySession = {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken
+        };
+        this.clearAuthUrlTokens();
+        this.showAuthMode('reset');
+        return;
+      }
+
+      // 2. Normal session check
       const authOverlay = document.getElementById('adminAuthOverlay');
 
       try {
         const session = await this.getValidAuthSession();
         if (!session) {
-          this.showAuthOverlay();
+          this.showAuthMode('signin');
           return;
         }
 
         const isAdmin = await this.verifyCmsAdmin(session.accessToken);
         if (!isAdmin) {
           this.clearAuthSession();
-          this.showAuthOverlay('This account is signed in but is not authorized to manage the CMS.');
+          this.showAuthMode('signin', { error: 'This account is signed in but is not authorized to manage the CMS.' });
           return;
         }
 
@@ -218,7 +419,7 @@
       } catch (err) {
         console.error('[AdminPortal] Could not validate Admin session:', err);
         this.clearAuthSession();
-        this.showAuthOverlay('Could not validate the Admin session. Please sign in again.');
+        this.showAuthMode('signin', { error: 'Could not validate the Admin session. Please sign in again.' });
       }
     },
 
@@ -231,7 +432,7 @@
       const passwordInput = document.getElementById('adminPassword');
       const errorMsg = document.getElementById('adminAuthError');
       const authOverlay = document.getElementById('adminAuthOverlay');
-      const submitBtn = document.querySelector('#adminAuthForm button[type="submit"]');
+      const submitBtn = document.getElementById('adminSignInSubmitBtn') || document.querySelector('#adminAuthForm button[type="submit"]');
 
       const email = emailInput?.value.trim() || '';
       const password = passwordInput?.value || '';
@@ -294,6 +495,294 @@
     },
 
     /**
+     * Common reusable password update logic for both:
+     * 1. Unauthenticated password reset (passing recovery access token)
+     * 2. Authenticated administrator password change (uses active session token)
+     */
+    async updateUserPassword(newPassword, customAccessToken = null) {
+      if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+        throw new Error('Password must be at least 8 characters in length.');
+      }
+
+      let token = customAccessToken;
+      if (!token) {
+        const session = await this.getValidAuthSession();
+        if (!session?.accessToken) {
+          throw new Error('Your session has expired. Please sign in again.');
+        }
+        token = session.accessToken;
+      }
+
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/auth/v1/user`, {
+        method: 'PUT',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password: newPassword })
+      });
+
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.msg || detail.error_description || detail.message || 'Could not update password.');
+      }
+
+      const updatedUser = await response.json();
+
+      // If updating an active stored session, keep the user profile coherent
+      const currentSession = this.getStoredAuthSession();
+      if (currentSession && (!customAccessToken || currentSession.accessToken === customAccessToken)) {
+        currentSession.user = updatedUser;
+        sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(currentSession));
+      }
+
+      return { success: true, user: updatedUser };
+    },
+
+    /**
+     * Sends a password reset recovery link to the given administrator email address.
+     */
+    async sendPasswordResetEmail(email, redirectTo = null) {
+      if (!email || !email.includes('@')) {
+        throw new Error('Please enter a valid administrator email address.');
+      }
+
+      const cfg = this.getAuthConfig();
+      const redirectTarget = redirectTo || (window.location.origin + window.location.pathname);
+      const endpoint = `${cfg.url}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTarget)}`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.msg || detail.error_description || 'Unable to send password recovery email.');
+      }
+
+      return { success: true };
+    },
+
+    /**
+     * Handles submission of the unauthenticated Forgot Password form.
+     */
+    async handleForgotPassword() {
+      const emailInput = document.getElementById('adminForgotEmail');
+      const errorMsg = document.getElementById('adminForgotError');
+      const successMsg = document.getElementById('adminForgotSuccess');
+      const submitBtn = document.getElementById('adminForgotSubmitBtn');
+
+      const email = emailInput?.value.trim() || '';
+
+      if (!email || !email.includes('@')) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Please enter a valid administrator email address.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (errorMsg) errorMsg.style.display = 'none';
+      if (successMsg) successMsg.style.display = 'none';
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending link…';
+      }
+
+      try {
+        await this.sendPasswordResetEmail(email);
+        if (successMsg) {
+          successMsg.innerHTML = `<strong>Recovery Link Sent!</strong> If an account is registered for <code>${email}</code>, a password reset link has been dispatched to your inbox. Please check your email and click the link to set your new password.`;
+          successMsg.style.display = 'block';
+        }
+        this.showToast('Password recovery email dispatched.', 'success');
+      } catch (err) {
+        console.error('[AdminPortal] Password recovery error:', err);
+        if (errorMsg) {
+          errorMsg.textContent = err.message || 'Could not send recovery link.';
+          errorMsg.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Recovery Link';
+        }
+      }
+    },
+
+    /**
+     * Handles setting a new password when the user arrives via a recovery email link.
+     */
+    async handleRecoveryPasswordReset() {
+      const newPasswordInput = document.getElementById('adminNewPassword');
+      const confirmPasswordInput = document.getElementById('adminConfirmPassword');
+      const errorMsg = document.getElementById('adminResetError');
+      const submitBtn = document.getElementById('adminResetSubmitBtn');
+
+      const newPassword = newPasswordInput?.value || '';
+      const confirmPassword = confirmPasswordInput?.value || '';
+
+      if (!pendingRecoverySession?.accessToken) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Recovery session has expired or is invalid. Please request a new link.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        if (errorMsg) {
+          errorMsg.textContent = 'New password must be at least 8 characters in length.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Passwords do not match. Please verify both fields.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (errorMsg) errorMsg.style.display = 'none';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving password…';
+      }
+
+      try {
+        const recoveryToken = pendingRecoverySession.accessToken;
+        const refreshToken = pendingRecoverySession.refreshToken;
+
+        const result = await this.updateUserPassword(newPassword, recoveryToken);
+
+        // Verify that the user is authorized as a CMS administrator
+        const isAdmin = await this.verifyCmsAdmin(recoveryToken);
+        if (!isAdmin) {
+          pendingRecoverySession = null;
+          throw new Error('Your password was updated, but this account is not authorized as a CMS administrator.');
+        }
+
+        // Establish the newly authenticated session
+        const session = this.storeAuthSession({
+          access_token: recoveryToken,
+          refresh_token: refreshToken,
+          expires_in: 3600,
+          user: result.user
+        });
+        pendingRecoverySession = null;
+
+        this.setAuthenticatedUser(session);
+        const authOverlay = document.getElementById('adminAuthOverlay');
+        if (authOverlay) authOverlay.classList.add('hidden');
+
+        this.showToast('Password updated! You are now signed in.', 'success');
+        await this.loadFullContent();
+      } catch (err) {
+        console.error('[AdminPortal] Recovery password reset failed:', err);
+        if (errorMsg) {
+          errorMsg.textContent = err.message || 'Could not update password.';
+          errorMsg.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Save Password & Sign In';
+        }
+      }
+    },
+
+    /**
+     * Opens the Change Password modal for an authenticated administrator.
+     */
+    openChangePasswordModal() {
+      const modal = document.getElementById('adminChangePasswordModal');
+      const newPasswordInput = document.getElementById('adminAuthNewPassword');
+      const confirmPasswordInput = document.getElementById('adminAuthConfirmPassword');
+      const errorMsg = document.getElementById('adminChangePasswordError');
+
+      if (newPasswordInput) newPasswordInput.value = '';
+      if (confirmPasswordInput) confirmPasswordInput.value = '';
+      if (errorMsg) {
+        errorMsg.textContent = '';
+        errorMsg.style.display = 'none';
+      }
+
+      if (modal) modal.classList.add('open');
+      if (newPasswordInput) newPasswordInput.focus();
+    },
+
+    /**
+     * Closes the Change Password modal.
+     */
+    closeChangePasswordModal() {
+      const modal = document.getElementById('adminChangePasswordModal');
+      if (modal) modal.classList.remove('open');
+    },
+
+    /**
+     * Handles authenticated password change form submission.
+     */
+    async handleAuthenticatedPasswordChange() {
+      const newPasswordInput = document.getElementById('adminAuthNewPassword');
+      const confirmPasswordInput = document.getElementById('adminAuthConfirmPassword');
+      const errorMsg = document.getElementById('adminChangePasswordError');
+      const saveBtn = document.getElementById('adminSavePasswordBtn');
+
+      const newPassword = newPasswordInput?.value || '';
+      const confirmPassword = confirmPasswordInput?.value || '';
+
+      if (newPassword.length < 8) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Password must be at least 8 characters in length.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Passwords do not match. Please verify both fields.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (errorMsg) errorMsg.style.display = 'none';
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Updating…';
+      }
+
+      try {
+        await this.updateUserPassword(newPassword);
+        this.closeChangePasswordModal();
+        this.showToast('Account password updated successfully.', 'success');
+      } catch (err) {
+        console.error('[AdminPortal] Authenticated password update failed:', err);
+        if (errorMsg) {
+          errorMsg.textContent = err.message || 'Could not update password.';
+          errorMsg.style.display = 'block';
+        }
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '💾 Update Password';
+        }
+      }
+    },
+
+    /**
      * Ends the Supabase Auth session and locks the portal.
      */
     async handleLogout() {
@@ -316,7 +805,7 @@
 
       this.clearAuthSession();
       this.setAuthenticatedUser(null);
-      this.showAuthOverlay();
+      this.showAuthMode('signin');
       this.showToast('Admin session ended.', 'info');
     },
 
