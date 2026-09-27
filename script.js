@@ -195,8 +195,12 @@ function renderHome(content) {
 
   const homeMinistries = document.querySelector("[data-home-ministries]");
   if (homeMinistries) {
-    homeMinistries.innerHTML = content.ministries.homeFeatured
-      .map(key => content.ministries.details[key])
+    const featuredKeys = Array.isArray(content.ministries?.homeFeatured)
+      ? content.ministries.homeFeatured
+      : [];
+    const details = content.ministries?.details || {};
+    homeMinistries.innerHTML = featuredKeys
+      .map(key => details[key])
       .filter(Boolean)
       .map(item => ministryCard(item))
       .join("");
@@ -251,7 +255,8 @@ function renderHome(content) {
 
   const quickLinks = document.querySelector("[data-home-quick-links]");
   if (quickLinks) {
-    quickLinks.innerHTML = content.quickLinks.links.slice(2, 5).map(link => quickLinkCard(link)).join("");
+    const linkItems = Array.isArray(content.quickLinks?.links) ? content.quickLinks.links : [];
+    quickLinks.innerHTML = linkItems.slice(2, 5).map(link => quickLinkCard(link)).join("");
   }
 }
 
