@@ -24,97 +24,33 @@
        ====================================================================== -->
   <div id="adminAuthOverlay" class="admin-auth-overlay">
     <div class="admin-auth-card">
-      <!-- 1. Sign In View -->
-      <div id="adminSignInView" class="admin-auth-view">
-        <div class="admin-auth-icon">🛡️</div>
-        <h2>CMS Administrator Sign In</h2>
-        <p>Sign in with an authorized Supabase CMS administrator account.</p>
+      <div class="admin-auth-icon">🛡️</div>
+      <h2>CMS Administrator Sign In</h2>
+      <p>Sign in with an authorized Supabase CMS administrator account.</p>
 
-        <form id="adminAuthForm">
-          <div class="admin-input-group">
-            <label for="adminEmail">Email</label>
-            <input type="email" id="adminEmail" class="admin-input" placeholder="admin@example.org" required
-              autocomplete="username">
-          </div>
+      <form id="adminAuthForm">
+        <div class="admin-input-group">
+          <label for="adminEmail">Email</label>
+          <input type="email" id="adminEmail" class="admin-input" placeholder="admin@example.org" required
+            autocomplete="username">
+        </div>
 
-          <div class="admin-input-group" style="margin-top: .9rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-              <label for="adminPassword" style="margin-bottom: 0;">Password</label>
-              <button type="button" id="adminForgotBtn" class="admin-link-btn" tabindex="0">Forgot Password?</button>
-            </div>
-            <input type="password" id="adminPassword" class="admin-input" placeholder="••••••••" required
-              autocomplete="current-password">
-          </div>
+        <div class="admin-input-group" style="margin-top: .9rem;">
+          <label for="adminPassword">Password</label>
+          <input type="password" id="adminPassword" class="admin-input" placeholder="••••••••" required
+            autocomplete="current-password">
+        </div>
 
-          <div id="adminAuthError" class="admin-auth-error">Could not authenticate this account.</div>
+        <div id="adminAuthError" class="admin-auth-error">Could not authenticate this account.</div>
 
-          <button type="submit" id="adminSignInSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-            Sign In
-          </button>
-        </form>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+          Sign In
+        </button>
+      </form>
 
-        <p style="margin-top: 1rem; font-size: .78rem; margin-bottom: 0;">
-          Access is controlled by Supabase Auth and database Row Level Security.
-        </p>
-      </div>
-
-      <!-- 2. Forgot Password Request View -->
-      <div id="adminForgotView" class="admin-auth-view" style="display: none;">
-        <div class="admin-auth-icon">🔑</div>
-        <h2>Reset CMS Password</h2>
-        <p>Enter your administrator email to receive a secure Supabase password recovery link.</p>
-
-        <form id="adminForgotForm">
-          <div class="admin-input-group">
-            <label for="adminForgotEmail">Administrator Email</label>
-            <input type="email" id="adminForgotEmail" class="admin-input" placeholder="admin@example.org" required
-              autocomplete="email">
-          </div>
-
-          <div id="adminForgotSuccess" class="admin-auth-success" style="display: none;"></div>
-          <div id="adminForgotError" class="admin-auth-error"></div>
-
-          <button type="submit" id="adminForgotSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-            Send Recovery Link
-          </button>
-
-          <button type="button" id="adminBackToSignInBtn" class="btn btn-secondary" style="width: 100%; margin-top: 0.6rem;">
-            ← Back to Sign In
-          </button>
-        </form>
-      </div>
-
-      <!-- 3. Set New Password View (from Email Recovery Link) -->
-      <div id="adminResetView" class="admin-auth-view" style="display: none;">
-        <div class="admin-auth-icon">✨</div>
-        <h2>Create New Password</h2>
-        <p>Enter a new secure password for your administrator account (minimum 8 characters).</p>
-
-        <form id="adminResetForm">
-          <div class="admin-input-group">
-            <label for="adminNewPassword">New Password</label>
-            <input type="password" id="adminNewPassword" class="admin-input" placeholder="••••••••" minlength="8" required
-              autocomplete="new-password">
-          </div>
-
-          <div class="admin-input-group" style="margin-top: .9rem;">
-            <label for="adminConfirmPassword">Confirm New Password</label>
-            <input type="password" id="adminConfirmPassword" class="admin-input" placeholder="••••••••" minlength="8" required
-              autocomplete="new-password">
-          </div>
-
-          <div id="adminResetSuccess" class="admin-auth-success" style="display: none;"></div>
-          <div id="adminResetError" class="admin-auth-error"></div>
-
-          <button type="submit" id="adminResetSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-            Save Password & Sign In
-          </button>
-
-          <button type="button" id="adminCancelResetBtn" class="btn btn-secondary" style="width: 100%; margin-top: 0.6rem;">
-            Cancel
-          </button>
-        </form>
-      </div>
+      <p style="margin-top: 1rem; font-size: .78rem;">
+        Access is controlled by Supabase Auth and database Row Level Security.
+      </p>
     </div>
   </div>
 
@@ -148,11 +84,6 @@
       </button>
 
       <span id="adminUserIdentity" class="admin-user-identity" hidden></span>
-
-      <button id="adminChangePasswordBtn" class="btn btn-secondary admin-btn-sm" title="Change Password"
-        style="border-color: rgba(255,255,255,0.3); color: var(--white);" hidden>
-        🔑 Password
-      </button>
 
       <button id="adminLogoutBtn" class="btn btn-secondary admin-btn-sm"
         style="border-color: rgba(255,255,255,0.3); color: var(--white);">
@@ -1034,6 +965,43 @@
                 <input type="text" id="settingHeroHighlight" class="admin-input">
               </div>
             </div>
+
+            <div class="admin-setting-group">
+              <div class="admin-setting-row">
+                <div>
+                  <h4 class="admin-setting-heading-sm">Homepage Live Mode</h4>
+                  <p class="admin-setting-description">
+                    When enabled with a valid YouTube live-video URL, the homepage hero displays the stream directly.
+                  </p>
+                </div>
+                <label class="admin-check-label">
+                  <input id="settingHeroLiveEnabled" class="admin-check-input" type="checkbox">
+                  <span>Live stream is active</span>
+                </label>
+              </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label for="settingHeroLiveTitle">Live Panel Title</label>
+                  <input type="text" id="settingHeroLiveTitle" class="admin-input"
+                    placeholder="Worship with us live">
+                </div>
+                <div class="admin-input-group">
+                  <label for="settingHeroLiveVideoUrl">YouTube Live Video URL</label>
+                  <input type="url" id="settingHeroLiveVideoUrl" class="admin-input"
+                    placeholder="https://www.youtube.com/watch?v=...">
+                  <span class="admin-field-note">
+                    Use the specific live-video URL, not only the channel URL.
+                  </span>
+                </div>
+              </div>
+
+              <div class="admin-input-group">
+                <label for="settingHeroLiveChannelUrl">Church YouTube Channel URL</label>
+                <input type="url" id="settingHeroLiveChannelUrl" class="admin-input"
+                  placeholder="https://youtube.com/@peculiarcherubschurch">
+              </div>
+            </div>
           </div>
         </form>
       </section>
@@ -1180,45 +1148,6 @@
         </button>
         <button type="button" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveModalItem()">
           💾 Save to Supabase DB
-        </button>
-      </div>
-    </div>
-  <!-- ======================================================================
-       Authenticated Change Password Modal
-       ====================================================================== -->
-  <div id="adminChangePasswordModal" class="admin-modal">
-    <div class="admin-modal-content" style="max-width: 480px;">
-      <div class="admin-modal-header">
-        <h3 class="admin-modal-title">Change Account Password</h3>
-        <button type="button" class="admin-modal-close" onclick="AdminPortal.closeChangePasswordModal()">×</button>
-      </div>
-
-      <div class="admin-modal-body">
-        <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0; margin-bottom: 1.25rem;">
-          Update your Supabase authentication password. Your new password must be at least 8 characters.
-        </p>
-
-        <form id="adminChangePasswordForm" onsubmit="event.preventDefault(); AdminPortal.handleAuthenticatedPasswordChange();">
-          <div class="admin-input-group">
-            <label for="adminAuthNewPassword">New Password</label>
-            <input type="password" id="adminAuthNewPassword" class="admin-input" placeholder="••••••••" minlength="8" required autocomplete="new-password">
-          </div>
-
-          <div class="admin-input-group" style="margin-top: .9rem;">
-            <label for="adminAuthConfirmPassword">Confirm New Password</label>
-            <input type="password" id="adminAuthConfirmPassword" class="admin-input" placeholder="••••••••" minlength="8" required autocomplete="new-password">
-          </div>
-
-          <div id="adminChangePasswordError" class="admin-auth-error"></div>
-        </form>
-      </div>
-
-      <div class="admin-modal-footer">
-        <button type="button" class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.closeChangePasswordModal()">
-          Cancel
-        </button>
-        <button type="button" id="adminSavePasswordBtn" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.handleAuthenticatedPasswordChange()">
-          💾 Update Password
         </button>
       </div>
     </div>

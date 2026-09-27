@@ -48,7 +48,7 @@
 
   // Primary page-to-section mapping for lazy section loading
   const PAGE_SECTION_MAP = {
-    home: ['home', 'ministries', 'sermons', 'quickLinks'],
+    home: ['home'],
     about: ['about'],
     ministries: ['ministries'],
     ministryDetail: ['ministries'],

@@ -156,6 +156,39 @@ function renderHeroSlides(slides) {
   });
 }
 
+function extractYouTubeVideoId(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  // Accept a bare YouTube video ID.
+  if (/^[A-Za-z0-9_-]{11}$/.test(raw)) return raw;
+
+  try {
+    const url = new URL(raw);
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+
+    if (host === "youtu.be") {
+      const candidate = url.pathname.split("/").filter(Boolean)[0] || "";
+      return /^[A-Za-z0-9_-]{11}$/.test(candidate) ? candidate : "";
+    }
+
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      const watchId = url.searchParams.get("v") || "";
+      if (/^[A-Za-z0-9_-]{11}$/.test(watchId)) return watchId;
+
+      const parts = url.pathname.split("/").filter(Boolean);
+      if (["live", "embed", "shorts"].includes(parts[0])) {
+        const candidate = parts[1] || "";
+        return /^[A-Za-z0-9_-]{11}$/.test(candidate) ? candidate : "";
+      }
+    }
+  } catch (_) {
+    return "";
+  }
+
+  return "";
+}
+
 function renderHome(content) {
   const home = content.home;
 
@@ -176,6 +209,49 @@ function renderHome(content) {
   setText("[data-home-hero-description]", home.hero.description);
   setLink("[data-home-primary-button]", home.hero.primaryButton);
   setLink("[data-home-secondary-button]", home.hero.secondaryButton);
+
+  const liveConfig = home.hero?.liveStream || {};
+  const liveVideoId = extractYouTubeVideoId(liveConfig.videoUrl);
+  const isLive = liveConfig.enabled === true && Boolean(liveVideoId);
+
+  const heroRoot = document.querySelector(".hero-slideshow");
+  const heroInner = document.querySelector("[data-home-hero-inner]");
+  const livePanel = document.querySelector("[data-home-live-panel]");
+  const liveIframe = document.querySelector("[data-home-live-iframe]");
+  const liveTitle = document.querySelector("[data-home-live-title]");
+  const liveYouTubeLink = document.querySelector("[data-home-live-youtube-link]");
+
+  heroRoot?.classList.toggle("is-live", isLive);
+  heroInner?.classList.toggle("is-live", isLive);
+
+  if (livePanel) {
+    livePanel.hidden = !isLive;
+  }
+
+  if (isLive && liveIframe) {
+    liveIframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(liveVideoId)}?rel=0`;
+  } else if (liveIframe) {
+    liveIframe.removeAttribute("src");
+  }
+
+  if (liveTitle) {
+    liveTitle.textContent = liveConfig.title || "Worship with us live";
+  }
+
+  if (liveYouTubeLink) {
+    const watchUrl = String(liveConfig.videoUrl || "").trim();
+    const channelUrl = String(liveConfig.channelUrl || "").trim();
+    const target = watchUrl || channelUrl;
+
+    if (target) {
+      liveYouTubeLink.href = target;
+      liveYouTubeLink.hidden = false;
+    } else {
+      liveYouTubeLink.removeAttribute("href");
+      liveYouTubeLink.hidden = true;
+    }
+  }
+
   setText("[data-home-scroll-text]", home.hero.scrollText);
 
   setText("[data-home-identity-eyebrow]", home.identity.eyebrow);
@@ -195,12 +271,8 @@ function renderHome(content) {
 
   const homeMinistries = document.querySelector("[data-home-ministries]");
   if (homeMinistries) {
-    const featuredKeys = Array.isArray(content.ministries?.homeFeatured)
-      ? content.ministries.homeFeatured
-      : [];
-    const details = content.ministries?.details || {};
-    homeMinistries.innerHTML = featuredKeys
-      .map(key => details[key])
+    homeMinistries.innerHTML = content.ministries.homeFeatured
+      .map(key => content.ministries.details[key])
       .filter(Boolean)
       .map(item => ministryCard(item))
       .join("");
@@ -255,8 +327,7 @@ function renderHome(content) {
 
   const quickLinks = document.querySelector("[data-home-quick-links]");
   if (quickLinks) {
-    const linkItems = Array.isArray(content.quickLinks?.links) ? content.quickLinks.links : [];
-    quickLinks.innerHTML = linkItems.slice(2, 5).map(link => quickLinkCard(link)).join("");
+    quickLinks.innerHTML = content.quickLinks.links.slice(2, 5).map(link => quickLinkCard(link)).join("");
   }
 }
 

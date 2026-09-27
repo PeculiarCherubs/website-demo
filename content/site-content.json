@@ -165,7 +165,13 @@
           "image": "assets/ministries/pdcm-mega-youth.jpg",
           "alt": "PDCM Mega Youth Chapel members"
         }
-      ]
+      ],
+      "liveStream": {
+        "enabled": false,
+        "videoUrl": "",
+        "title": "Worship with us live",
+        "channelUrl": "https://youtube.com/@peculiarcherubschurch"
+      }
     },
     "identity": {
       "eyebrow": "Who we are",

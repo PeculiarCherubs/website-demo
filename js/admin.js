@@ -1810,6 +1810,12 @@
       setVal('settingHeroBadge', hero.badge);
       setVal('settingHeroTitle', hero.title);
       setVal('settingHeroHighlight', hero.highlight);
+      setVal('settingHeroLiveTitle', hero.liveStream && hero.liveStream.title);
+      setVal('settingHeroLiveVideoUrl', hero.liveStream && hero.liveStream.videoUrl);
+      setVal('settingHeroLiveChannelUrl', hero.liveStream && hero.liveStream.channelUrl);
+
+      const liveEnabled = document.getElementById('settingHeroLiveEnabled');
+      if (liveEnabled) liveEnabled.checked = hero.liveStream?.enabled === true;
     },
 
     /**
@@ -1836,6 +1842,15 @@
       currentContent.home.hero.badge = getVal('settingHeroBadge');
       currentContent.home.hero.title = getVal('settingHeroTitle');
       currentContent.home.hero.highlight = getVal('settingHeroHighlight');
+
+      const liveEnabled = document.getElementById('settingHeroLiveEnabled');
+      currentContent.home.hero.liveStream = {
+        enabled: Boolean(liveEnabled && liveEnabled.checked),
+        videoUrl: getVal('settingHeroLiveVideoUrl'),
+        title: getVal('settingHeroLiveTitle') || 'Worship with us live',
+        channelUrl: getVal('settingHeroLiveChannelUrl') || 'https://youtube.com/@peculiarcherubschurch'
+      };
+      delete currentContent.home.hero.liveButton;
 
       if (!(await this.syncSectionToSupabase('site', currentContent.site))) return;
       if (!(await this.syncSectionToSupabase('home', currentContent.home))) return;
