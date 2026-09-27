@@ -7296,3 +7296,22 @@ body.teacher-mode .ss-teacher-card {
     text-align-last: auto;
   }
 }
+
+/* Future feature / unavailable action state */
+.coming-soon-btn,
+.coming-soon-link {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: .68;
+  user-select: none;
+}
+
+.coming-soon-btn {
+  filter: saturate(.65);
+}
+
+.coming-soon-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}

@@ -209,7 +209,10 @@ function renderHome(content) {
 
   const homeSermons = document.querySelector("[data-home-sermons]");
   if (homeSermons) {
-    homeSermons.innerHTML = content.sermons.items.slice(0, 3).map(sermon => sermonCard(sermon)).join("");
+    const sermonItems = Array.isArray(content.sermons?.items) ? content.sermons.items : [];
+    homeSermons.innerHTML = sermonItems.slice(0, 3).map(sermon => sermonCard(sermon)).join("");
+    const sermonSection = homeSermons.closest("section");
+    if (sermonSection) sermonSection.hidden = sermonItems.length === 0;
   }
 
   setText("[data-testimonials-eyebrow]", home.testimonials.eyebrow);
@@ -218,7 +221,8 @@ function renderHome(content) {
 
   const testimonialList = document.querySelector("[data-testimonials-list]");
   if (testimonialList) {
-    testimonialList.innerHTML = home.testimonials.items.map(item => `
+    const testimonialItems = Array.isArray(home.testimonials?.items) ? home.testimonials.items : [];
+    testimonialList.innerHTML = testimonialItems.map(item => `
       <article class="testimonial-card${item.featured ? " featured-testimonial" : ""}">
         <div class="testimonial-mark">“</div>
         <p>${escapeHtml(item.quote)}</p>
@@ -226,6 +230,8 @@ function renderHome(content) {
         <span>${escapeHtml(item.chapel)}</span>
       </article>
     `).join("");
+    const testimonialSection = testimonialList.closest("section");
+    if (testimonialSection) testimonialSection.hidden = testimonialItems.length === 0;
   }
 
   const quickLinks = document.querySelector("[data-home-quick-links]");
@@ -325,6 +331,12 @@ function renderAbout(content) {
             </article>
           `;
         }).join("");
+        const leadershipSection = teamGrid.closest("section");
+        if (leadershipSection) leadershipSection.hidden = false;
+      } else {
+        teamGrid.innerHTML = "";
+        const leadershipSection = teamGrid.closest("section");
+        if (leadershipSection) leadershipSection.hidden = true;
       }
     }
   }
@@ -385,7 +397,10 @@ function renderSermons(content) {
   renderStandardHero(content.sermons);
   const list = document.querySelector("[data-sermons-list]");
   if (list) {
-    list.innerHTML = content.sermons.items.map(sermon => sermonCard(sermon)).join("");
+    const sermonItems = Array.isArray(content.sermons?.items) ? content.sermons.items : [];
+    list.innerHTML = sermonItems.map(sermon => sermonCard(sermon)).join("");
+    const contentSection = list.closest("section");
+    if (contentSection) contentSection.hidden = sermonItems.length === 0;
   }
 }
 
@@ -1150,14 +1165,22 @@ function renderBibleCollege(content) {
 
   const courses = document.querySelector("[data-bible-courses]");
   if (courses) {
-    courses.innerHTML = school.courses.map(course => `
-      <article class="card bible-course-card">
-        <div class="meta">${escapeHtml(course.code)}</div>
-        <h3>${escapeHtml(course.title)}</h3>
-        <p>${escapeHtml(course.text)}</p>
-        <a class="text-link" href="#">Course details ↗</a>
-      </article>
-    `).join("");
+    courses.innerHTML = school.courses.map(course => {
+      const courseHref = String(course.href || "").trim();
+      const hasCourseLink = courseHref && courseHref !== "#";
+
+      return `
+        <article class="card bible-course-card">
+          <div class="meta">${escapeHtml(course.code)}</div>
+          <h3>${escapeHtml(course.title)}</h3>
+          <p>${escapeHtml(course.text)}</p>
+          ${hasCourseLink
+            ? `<a class="text-link" href="${escapeHtml(courseHref)}">${escapeHtml(course.button || "Course details")} ↗</a>`
+            : `<span class="text-link coming-soon-link" aria-disabled="true">${escapeHtml(course.button || "Course details")} · Coming Soon</span>`
+          }
+        </article>
+      `;
+    }).join("");
   }
 
   const services = document.querySelector("[data-bible-services]");
@@ -1174,10 +1197,27 @@ function renderBibleCollege(content) {
   setText("[data-bible-registration-eyebrow]", school.registration.eyebrow);
   setText("[data-bible-registration-title]", school.registration.title);
   setText("[data-bible-registration-description]", school.registration.description);
-  setLink("[data-bible-registration-button]", {
-    label: school.registration.button,
-    href: school.registration.href
-  });
+
+  const registrationButton = document.querySelector("[data-bible-registration-button]");
+  if (registrationButton) {
+    const registrationHref = String(school.registration?.href || "").trim();
+    const hasRegistrationLink = registrationHref && registrationHref !== "#";
+    const label = school.registration?.button || "Open Registration Form";
+
+    if (hasRegistrationLink) {
+      registrationButton.textContent = label;
+      registrationButton.href = registrationHref;
+      registrationButton.classList.remove("coming-soon-btn");
+      registrationButton.removeAttribute("aria-disabled");
+    } else {
+      registrationButton.textContent = `${label} · Coming Soon`;
+      registrationButton.removeAttribute("href");
+      registrationButton.classList.add("coming-soon-btn");
+      registrationButton.setAttribute("aria-disabled", "true");
+    }
+
+    registrationButton.hidden = false;
+  }
 
   const steps = document.querySelector("[data-bible-registration-steps]");
   if (steps) {
@@ -1195,12 +1235,19 @@ function renderBibleCollege(content) {
 
   const buttons = document.querySelector("[data-bible-portal-buttons]");
   if (buttons) {
-    buttons.innerHTML = school.portal.buttons.map((button, index) => `
-      <a class="btn ${index === 0 ? "btn-primary" : "btn-secondary"}"
-         href="${escapeHtml(button.href)}">
-        ${escapeHtml(button.label)}
-      </a>
-    `).join("");
+    const portalButtons = school.portal?.buttons || [];
+
+    buttons.innerHTML = portalButtons.map((button, index) => {
+      const href = String(button?.href || "").trim();
+      const hasLink = href && href !== "#";
+      const cls = `btn ${index === 0 ? "btn-primary" : "btn-secondary"}`;
+
+      return hasLink
+        ? `<a class="${cls}" href="${escapeHtml(href)}">${escapeHtml(button.label)}</a>`
+        : `<span class="${cls} coming-soon-btn" aria-disabled="true">${escapeHtml(button.label)} · Coming Soon</span>`;
+    }).join("");
+
+    buttons.hidden = portalButtons.length === 0;
   }
 }
 
@@ -1912,9 +1959,16 @@ function renderGive(content) {
   // WhatsApp Notification Button
   const waBtn = hub.querySelector("[data-give-whatsapp-btn]");
   if (waBtn) {
-    const waPhone = (giveData.whatsappConfirmPhone || "2348000000000").replace(/[^0-9]/g, "");
+    const waPhone = String(giveData.whatsappConfirmPhone || "").replace(/[^0-9]/g, "");
     const waText = giveData.whatsappConfirmText || "Hello Peculiar Cherubs Finance Team, I have just completed a transfer for my giving. Here are the details:";
-    waBtn.href = `https://wa.me/${waPhone}?text=${encodeURIComponent(waText)}`;
+
+    if (waPhone) {
+      waBtn.href = `https://wa.me/${waPhone}?text=${encodeURIComponent(waText)}`;
+      waBtn.hidden = false;
+    } else {
+      waBtn.removeAttribute("href");
+      waBtn.hidden = true;
+    }
   }
 
   // 4. Online Giving Form & Amount Presets
