@@ -22,6 +22,7 @@
     dashboard: null,
     publications: 'publications.manage',
     sermons: 'sermons.manage',
+    livestream: 'livestream.manage',
     events: 'events.manage',
     fellowships: 'ministries.manage',
     ministries: 'ministries.manage',
@@ -1124,7 +1125,7 @@
         this.updateStatusIndicator(true, 'Fetching live content...');
 
         const sections = [
-          'site', 'navigation', 'home', 'about', 'chapels', 'sermons',
+          'site', 'navigation', 'home', 'about', 'chapels', 'sermons', 'livestream',
           'publications', 'quickLinks', 'give', 'bibleCollege',
           'ministries', 'events'
         ];
@@ -1614,6 +1615,7 @@
       this.renderStatsAndBadges();
       this.renderPublicationsView();
       this.renderSermonsView();
+      this.renderLivestreamView();
       this.renderEventsView();
       this.renderFellowshipsView();
       this.renderMinistriesView();
@@ -1634,6 +1636,7 @@
       if (typeof document === 'undefined') return;
       const pubs = this.getAllPublicationItems();
       const sermons = (currentContent.sermons && currentContent.sermons.items) || [];
+      const livestreamChannels = Object.values(currentContent.livestream?.channels || {}).filter(Boolean);
       const events = (currentContent.events && currentContent.events.items) || [];
       const fellowships = (currentContent.ministries && currentContent.ministries.houseFellowships) || [];
       const mins = this.getAllMinistryItems();
@@ -1649,6 +1652,7 @@
 
       const bSermons = document.getElementById('badgeSermons');
       if (bSermons) bSermons.textContent = sermons.length;
+      const bLivestream=document.getElementById('badgeLivestream'); if(bLivestream)bLivestream.textContent=livestreamChannels.length;
 
       const bEvents = document.getElementById('badgeEvents');
       if (bEvents) bEvents.textContent = events.length;
@@ -1735,6 +1739,30 @@
           </div>
         `;
       }).join('');
+    },
+
+    getLivestreamChannelEntries(){
+      const ch=currentContent.livestream?.channels||{}, details=currentContent.chapels?.details||{};
+      return Object.entries(ch).map(([key,channel])=>({key,label:channel.label||(key==='mother-church'?'Mother Church':details[key]?.shortTitle||details[key]?.title||key),channel}));
+    },
+    renderLivestreamView(){
+      const select=document.getElementById('livestreamChannelSelect'); if(!select)return;
+      const entries=this.getLivestreamChannelEntries(), prev=select.value;
+      select.innerHTML=entries.map(e=>`<option value="${e.key}">${e.label}</option>`).join('');
+      const key=entries.some(e=>e.key===prev)?prev:(entries[0]?.key||''); select.value=key; if(key)this.populateLivestreamForm(key);
+    },
+    populateLivestreamForm(key){
+      const c=currentContent.livestream?.channels?.[key]||{}, b=c.currentBroadcast||{}, set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
+      const local=v=>{if(!v)return '';const d=new Date(v);if(Number.isNaN(d.getTime()))return '';const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;};
+      set('livestreamStatusOverride',c.statusOverride||'auto');set('livestreamServiceType',b.serviceType||'Sunday Worship');set('livestreamTitle',b.title);set('livestreamSpeaker',b.speaker);set('livestreamVideoUrl',b.videoUrl);set('livestreamStartsAt',local(b.startsAt));set('livestreamEndsAt',local(b.endsAt));set('livestreamYoutubeChannel',c.youtubeChannelUrl);
+    },
+    async saveLivestreamChannel(){
+      if(!this.hasPermission('livestream.manage')){this.showToast('Your CMS role does not permit broadcast management.','error');return;}
+      const key=document.getElementById('livestreamChannelSelect')?.value;if(!key)return;
+      const get=id=>document.getElementById(id)?.value?.trim()||'', iso=id=>{const v=get(id);if(!v)return '';const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toISOString();};
+      const c=currentContent.livestream.channels[key];
+      c.statusOverride=get('livestreamStatusOverride')||'auto';c.youtubeChannelUrl=get('livestreamYoutubeChannel');c.currentBroadcast={...(c.currentBroadcast||{}),serviceType:get('livestreamServiceType')||'Sunday Worship',title:get('livestreamTitle'),speaker:get('livestreamSpeaker'),videoUrl:get('livestreamVideoUrl'),startsAt:iso('livestreamStartsAt'),endsAt:iso('livestreamEndsAt')};
+      if(!(await this.syncSectionToSupabase('livestream',currentContent.livestream)))return;this.showToast('Broadcast settings saved securely to Supabase.','success');this.renderLivestreamView();
     },
 
     /* ======================================================================

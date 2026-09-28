@@ -90,11 +90,15 @@ function renderShared(content) {
   const navigation = document.querySelector("[data-navigation]");
   if (navigation) {
     navigation.innerHTML = content.navigation.map(item => {
-      const classNames = [item.className].filter(Boolean).join(" ");
+      const isSermons = item.href === "sermons.html";
+      const live = liveChannels(content);
+      const classNames = [item.className, isSermons && live.length ? "nav-live-now" : ""].filter(Boolean).join(" ");
       const className = classNames ? ` class="${escapeHtml(classNames)}"` : "";
+      const href = isSermons && live.length ? (live.length === 1 ? `live.html?chapel=${encodeURIComponent(live[0].key)}` : "live.html") : item.href;
+      const label = isSermons && live.length ? `<span class="live-pulse-dot"></span> LIVE NOW` : escapeHtml(item.label);
 
-      if (!item.children?.length) {
-        return `<a${className} href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`;
+      if (!item.children?.length || isSermons) {
+        return `<a${className} href="${escapeHtml(href)}">${label}</a>`;
       }
 
       const children = item.children.map(child => `
@@ -189,6 +193,77 @@ function extractYouTubeVideoId(value) {
   return "";
 }
 
+
+function chapelLabelForKey(content,key){
+  if(key==="mother-church") return "Mother Church";
+  const c=content.chapels?.details?.[key];
+  return c?.shortTitle||c?.title||key;
+}
+function chapelHrefForKey(content,key){
+  if(key==="mother-church") return "about.html";
+  return content.chapels?.details?.[key]?.href||`${key}.html`;
+}
+function broadcastState(channel){
+  if(!channel?.enabled) return "hidden";
+  const o=String(channel.statusOverride||"auto").toLowerCase();
+  if(["live","upcoming","recap","hidden"].includes(o)&&o!=="auto") return o;
+  const b=channel.currentBroadcast||{}, now=Date.now(), start=Date.parse(b.startsAt||""), end=Date.parse(b.endsAt||"");
+  const media=Boolean(extractYouTubeVideoId(b.videoUrl));
+  if(Number.isFinite(start)&&now<start) return "upcoming";
+  if(Number.isFinite(start)&&media&&(!Number.isFinite(end)||now<=end)) return "live";
+  if(media&&(Number.isFinite(end)?now>end:!Number.isFinite(start))) return "recap";
+  return "upcoming";
+}
+function nextService(channel){
+  const s=Array.isArray(channel?.schedule)?channel.schedule:[];
+  if(!s.length) return null;
+  const offset=Number(channel.utcOffsetMinutes??60), now=new Date(), local=new Date(now.getTime()+offset*60000);
+  let best=null;
+  s.forEach(item=>{
+    const [hh,mm]=String(item.time||"09:00").split(":").map(Number);
+    let d=(Number(item.dayOfWeek)-local.getUTCDay()+7)%7;
+    let cand=new Date(Date.UTC(local.getUTCFullYear(),local.getUTCMonth(),local.getUTCDate()+d,hh,mm));
+    if(d===0&&cand<=local) cand.setUTCDate(cand.getUTCDate()+7);
+    const utc=new Date(cand.getTime()-offset*60000);
+    if(!best||utc<best.date) best={date:utc,label:item.label||"Next Service"};
+  });
+  return best;
+}
+function countdown(date){
+  if(!date) return "";
+  let m=Math.max(0,Math.floor((date-Date.now())/60000)),d=Math.floor(m/1440),h=Math.floor((m%1440)/60);m%=60;
+  return d?`${d}d ${h}h ${m}m`:h?`${h}h ${m}m`:`${Math.max(1,m)}m`;
+}
+function broadcastChannels(content){
+  return Object.entries(content.livestream?.channels||{}).map(([key,ch])=>({key,...ch,label:ch.label||chapelLabelForKey(content,key),state:broadcastState(ch)})).filter(ch=>ch.enabled&&ch.state!=="hidden");
+}
+function liveChannels(content){ return broadcastChannels(content).filter(ch=>ch.state==="live"); }
+function broadcastModel(content,ch){
+  const b=ch.currentBroadcast||{}, next=nextService(ch), state=ch.state||broadcastState(ch), vid=String(b.videoUrl||"").trim();
+  return {state,title:b.title||b.serviceType||"Next Service",speaker:b.speaker||"",videoUrl:vid,youtubeId:extractYouTubeVideoId(vid),external:vid||ch.youtubeChannelUrl||"",next,chapelLabel:ch.label||chapelLabelForKey(content,ch.key),chapelHref:chapelHrefForKey(content,ch.key)};
+}
+function stateLabel(s){return s==="live"?"LIVE NOW":s==="recap"?"LATEST SERVICE":"UPCOMING";}
+function broadcastMarkup(content,ch){
+  const m=broadcastModel(content,ch), next=m.next?`${escapeHtml(m.next.label)} in ${escapeHtml(countdown(m.next.date))}`:"";
+  return `<div class="broadcast-inline broadcast-${escapeHtml(m.state)}">
+    <div class="broadcast-inline-player">${m.youtubeId?`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(m.youtubeId)}?rel=0" title="${escapeHtml(m.title)}" allowfullscreen></iframe>`:`<div class="broadcast-player-empty"><span>${escapeHtml(stateLabel(m.state))}</span><strong>${escapeHtml(m.title)}</strong></div>`}</div>
+    <div class="broadcast-inline-copy"><div class="broadcast-card-topline"><span class="broadcast-state-badge">${m.state==="live"?'<span class="live-pulse-dot"></span>':""}${escapeHtml(stateLabel(m.state))}</span>${next?`<span class="broadcast-countdown">${next}</span>`:""}</div><div class="meta">${escapeHtml(m.chapelLabel)}</div><h3>${escapeHtml(m.title)}</h3>${m.speaker?`<p>${escapeHtml(m.speaker)}</p>`:""}<div class="hero-actions">${m.external?`<a class="btn btn-primary" href="${escapeHtml(m.external)}" target="_blank" rel="noopener noreferrer">${m.state==="live"?"Watch Live":m.state==="recap"?"Watch Recap":"YouTube Channel"} ↗</a>`:""}<a class="btn btn-secondary" href="live.html?chapel=${encodeURIComponent(ch.key)}">Broadcast Details</a></div></div>
+  </div>`;
+}
+function renderLive(content){
+  setText("[data-live-eyebrow]",content.livestream?.hero?.eyebrow);
+  setText("[data-live-title]",content.livestream?.hero?.title);
+  setText("[data-live-description]",content.livestream?.hero?.description);
+  const channels=broadcastChannels(content), pills=document.querySelector("[data-live-pills]"), main=document.querySelector("[data-live-main]"), loc=document.querySelector("[data-live-locations]");
+  const q=new URLSearchParams(location.search).get("chapel"); let active=channels.some(c=>c.key===q)?q:(liveChannels(content)[0]?.key||channels[0]?.key||"");
+  const draw=()=>{const ch=channels.find(c=>c.key===active)||channels[0]; if(!ch)return;
+    if(pills){pills.innerHTML=channels.map(c=>`<button class="broadcast-channel-pill ${c.key===active?"active":""}" data-broadcast-key="${escapeHtml(c.key)}">${c.state==="live"?'<span class="live-pulse-dot"></span>':""}${escapeHtml(c.label)}</button>`).join(""); pills.querySelectorAll("[data-broadcast-key]").forEach(b=>b.onclick=()=>{active=b.dataset.broadcastKey; const u=new URL(location.href);u.searchParams.set("chapel",active);history.replaceState(null,"",u);draw();});}
+    if(main) main.innerHTML=broadcastMarkup(content,ch);
+  };
+  if(loc) loc.innerHTML=channels.map(c=>`<article class="broadcast-card"><div class="broadcast-card-topline"><span class="broadcast-state-badge">${c.state==="live"?'<span class="live-pulse-dot"></span>':""}${escapeHtml(stateLabel(c.state))}</span></div><div class="meta">${escapeHtml(c.label)}</div><h3>${escapeHtml((c.currentBroadcast||{}).title||(c.currentBroadcast||{}).serviceType||"Broadcast")}</h3><a class="text-link" href="live.html?chapel=${encodeURIComponent(c.key)}">View broadcast ↗</a></article>`).join("");
+  draw();
+}
+
 function renderHome(content) {
   const home = content.home || {};
   const hero = home.hero || {};
@@ -213,48 +288,6 @@ function renderHome(content) {
   setText("[data-home-hero-description]", hero.description);
   setLink("[data-home-primary-button]", hero.primaryButton);
   setLink("[data-home-secondary-button]", hero.secondaryButton);
-
-  const liveConfig = hero.liveStream || {};
-  const liveVideoId = extractYouTubeVideoId(liveConfig.videoUrl);
-  const isLive = liveConfig.enabled === true && Boolean(liveVideoId);
-
-  const heroRoot = document.querySelector(".hero-slideshow");
-  const heroInner = document.querySelector("[data-home-hero-inner]");
-  const livePanel = document.querySelector("[data-home-live-panel]");
-  const liveIframe = document.querySelector("[data-home-live-iframe]");
-  const liveTitle = document.querySelector("[data-home-live-title]");
-  const liveYouTubeLink = document.querySelector("[data-home-live-youtube-link]");
-
-  heroRoot?.classList.toggle("is-live", isLive);
-  heroInner?.classList.toggle("is-live", isLive);
-
-  if (livePanel) {
-    livePanel.hidden = !isLive;
-  }
-
-  if (isLive && liveIframe) {
-    liveIframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(liveVideoId)}?rel=0`;
-  } else if (liveIframe) {
-    liveIframe.removeAttribute("src");
-  }
-
-  if (liveTitle) {
-    liveTitle.textContent = liveConfig.title || "Worship with us live";
-  }
-
-  if (liveYouTubeLink) {
-    const watchUrl = String(liveConfig.videoUrl || "").trim();
-    const channelUrl = String(liveConfig.channelUrl || "").trim();
-    const target = watchUrl || channelUrl;
-
-    if (target) {
-      liveYouTubeLink.href = target;
-      liveYouTubeLink.hidden = false;
-    } else {
-      liveYouTubeLink.removeAttribute("href");
-      liveYouTubeLink.hidden = true;
-    }
-  }
 
   setText("[data-home-scroll-text]", hero.scrollText);
 
@@ -339,6 +372,9 @@ function renderHome(content) {
     const testimonialSection = testimonialList.closest("section");
     if (testimonialSection) testimonialSection.hidden = testimonialItems.length === 0;
   }
+
+  const homeBroadcast=document.querySelector("[data-home-broadcast]");
+  if(homeBroadcast){const all=broadcastChannels(content), chosen=liveChannels(content)[0]||all[0]; homeBroadcast.innerHTML=chosen?broadcastMarkup(content,chosen):"";}
 
   const quickLinks = document.querySelector("[data-home-quick-links]");
   if (quickLinks) {
@@ -557,15 +593,20 @@ function renderChapels(content) {
 
 function renderSermons(content) {
   renderStandardHero(content.sermons);
-  const list = document.querySelector("[data-sermons-list]");
-  if (list) {
-    const sermonItems = Array.isArray(content.sermons?.items) ? content.sermons.items : [];
-    list.innerHTML = sermonItems.map(sermon => sermonCard(sermon)).join("");
-    const contentSection = list.closest("section");
-    if (contentSection) contentSection.hidden = sermonItems.length === 0;
+  const live=liveChannels(content), sec=document.querySelector("[data-sermon-live-section]"), tabs=document.querySelector("[data-sermon-live-tabs]"), main=document.querySelector("[data-sermon-live-main]");
+  if(sec) sec.hidden=!live.length;
+  if(live.length&&main){
+    let active=live[0].key;
+    const draw=()=>{const ch=live.find(c=>c.key===active)||live[0]; main.innerHTML=broadcastMarkup(content,ch); if(tabs){tabs.innerHTML=live.length>1?live.map(c=>`<button class="broadcast-live-tab ${c.key===active?"active":""}" data-live-key="${escapeHtml(c.key)}"><span class="live-pulse-dot"></span>${escapeHtml(c.label)}</button>`).join(""):""; tabs.querySelectorAll("[data-live-key]").forEach(b=>b.onclick=()=>{active=b.dataset.liveKey;draw();});}};
+    draw();
+  }
+  const list=document.querySelector("[data-sermons-list]");
+  if(list){
+    const items=(Array.isArray(content.sermons?.items)?content.sermons.items:[]).filter(s=>s.published!==false).sort((a,b)=>(Date.parse(b.date||"")||0)-(Date.parse(a.date||"")||0));
+    list.innerHTML=items.map(s=>sermonCard(s,{chapelLabel:s.chapelId?chapelLabelForKey(content,s.chapelId):""})).join("");
+    const section=list.closest("section"); if(section)section.hidden=!items.length;
   }
 }
-
 
 
 function publicationDate(value, options = {}) {
@@ -1210,6 +1251,13 @@ function renderMinistryDetail(content) {
         <p>${escapeHtml(value)}</p>
       </article>
     `).join("");
+  }
+
+  if(isChapelDetail){
+    const ch=broadcastChannels(content).find(c=>c.key===key), box=document.querySelector("[data-chapel-broadcast]"), sec=document.querySelector("[data-chapel-broadcast-section]"), head=document.querySelector("[data-chapel-broadcast-heading]"), hub=document.querySelector("[data-chapel-broadcast-hub-link]");
+    if(head) head.textContent=`${item.shortTitle||item.title} online.`;
+    if(hub) hub.href=`live.html?chapel=${encodeURIComponent(key)}`;
+    if(ch&&box){box.innerHTML=broadcastMarkup(content,ch); if(sec)sec.hidden=false;} else if(sec)sec.hidden=true;
   }
 
   // Chapel Sermons: pull from the single church-wide Sermons archive.
@@ -3310,6 +3358,7 @@ async function initialiseSite() {
       houseFellowships: renderHouseFellowships,
       chapels: renderChapels,
       sermons: renderSermons,
+      live: renderLive,
       publications: renderPublications,
       publicationPost: renderPublicationPost,
       publicationDetail: renderPublicationDetail,

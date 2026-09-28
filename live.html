@@ -1,16 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Sermons | Peculiar Cherubs</title>
+  <title>Live Broadcasts — Peculiar Cherubs</title>
   <meta name="description" content="Peculiar Cherubs">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="sermons" data-content-loading="true">
+<body data-page="live" data-content-loading="true">
 <header class="site-header">
   <div class="container nav">
     <a class="brand" href="index.html">
@@ -25,34 +25,15 @@
     <nav class="nav-links" aria-label="Primary navigation" data-navigation></nav>
   </div>
 </header>
-
 <main>
-  <section class="page-hero branded-page-hero">
-    <div class="page-hero-brand-mark" aria-hidden="true"></div>
-    <div class="container">
-      <span class="eyebrow" data-page-hero-eyebrow></span>
-      <h1 data-page-hero-title></h1>
-      <p data-page-hero-description></p>
-    </div>
-  </section>
-  <section class="section sermon-live-section" data-sermon-live-section hidden>
-    <div class="container"><div class="section-head"><div><span class="eyebrow"><span class="live-pulse-dot"></span> Live Now</span><h2>Join a service happening now.</h2></div><a class="btn btn-secondary" href="live.html">Broadcast Hub</a></div><div class="broadcast-live-tabs" data-sermon-live-tabs></div><div data-sermon-live-main></div></div>
-  </section>
-
-
-  <section class="section">
-    <div class="container">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Featured messages</span>
-          <h2>Recent teachings.</h2>
-        </div>
-      </div>
-      <div class="grid-3" data-sermons-list></div>
-    </div>
-  </section>
+<section class="page-hero"><div class="container"><span class="eyebrow" data-live-eyebrow></span><h1 data-live-title></h1><p data-live-description></p></div></section>
+<section class="section"><div class="container">
+<div class="broadcast-channel-pills" data-live-pills></div>
+<div data-live-main></div>
+<div class="section-head"><div><span class="eyebrow">All broadcast locations</span><h2>Explore every worshipping community.</h2></div></div>
+<div class="grid-3" data-live-locations></div>
+</div></section>
 </main>
-
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
@@ -94,8 +75,5 @@
     </div>
   </div>
 </footer>
-
-<script src="js/contentService.js"></script>
-  <script src="script.js"></script>
-</body>
-</html>
+<script src="js/contentService.js"></script><script src="script.js"></script>
+</body></html>

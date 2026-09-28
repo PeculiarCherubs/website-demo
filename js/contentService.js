@@ -40,11 +40,12 @@
     'publicationPost',
     'events',
     'quickLinks',
-    'give'
+    'give',
+    'live'
   ]);
 
   // Critical shared sections required for initial header/footer paint
-  const CRITICAL_SECTIONS = ['site', 'navigation', 'chapels'];
+  const CRITICAL_SECTIONS = ['site', 'navigation', 'chapels', 'livestream'];
 
   // Primary page-to-section mapping for lazy section loading
   const PAGE_SECTION_MAP = {
@@ -57,6 +58,7 @@
     bibleCollege: ['bibleCollege'],
     chapels: ['chapels'],
     sermons: ['sermons'],
+    live: ['livestream', 'sermons'],
     publications: ['publications'],
     publicationDetail: ['publications'],
     publicationPost: ['publications'],

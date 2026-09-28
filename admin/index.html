@@ -202,7 +202,8 @@
               </div>
               <span id="badgeSermons" class="admin-nav-badge">0</span>
             </button>
-          </li>
+          </li>          <li class="admin-nav-item" data-tab="livestream"><button type="button"><div class="admin-nav-label-group"><span class="admin-nav-icon">📺</span><span>Broadcasts</span></div><span id="badgeLivestream" class="admin-nav-badge">0</span></button></li>
+
           <li class="admin-nav-item" data-tab="events">
             <button type="button">
               <div class="admin-nav-label-group">
@@ -506,6 +507,11 @@
           <!-- Rendered dynamically -->
         </div>
       </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: Broadcasts
+           ------------------------------------------------------------------ -->
+      <section id="panelLivestream" class="admin-view-panel"><div class="admin-panel-header"><div class="admin-panel-title"><h2>Multi-Chapel Broadcasts</h2><p>Manage upcoming, live and recap broadcasts from one canonical source.</p></div><div class="admin-panel-actions"><button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveLivestreamChannel()">💾 Save Broadcast</button></div></div><div class="admin-broadcast-editor"><div class="admin-input-group"><label for="livestreamChannelSelect">Broadcast Location</label><select id="livestreamChannelSelect" class="admin-select" onchange="AdminPortal.populateLivestreamForm(this.value)"></select></div><div class="admin-modal-grid-2"><div class="admin-input-group"><label for="livestreamStatusOverride">State</label><select id="livestreamStatusOverride" class="admin-select"><option value="auto">Automatic</option><option value="live">Force Live</option><option value="upcoming">Force Upcoming</option><option value="recap">Force Recap</option><option value="hidden">Hide</option></select></div><div class="admin-input-group"><label for="livestreamServiceType">Service Type</label><input id="livestreamServiceType" class="admin-input" type="text"></div></div><div class="admin-modal-grid-2"><div class="admin-input-group"><label for="livestreamTitle">Title</label><input id="livestreamTitle" class="admin-input" type="text"></div><div class="admin-input-group"><label for="livestreamSpeaker">Speaker</label><input id="livestreamSpeaker" class="admin-input" type="text"></div></div><div class="admin-input-group"><label for="livestreamVideoUrl">YouTube Video / Live URL</label><input id="livestreamVideoUrl" class="admin-input" type="url"></div><div class="admin-modal-grid-2"><div class="admin-input-group"><label for="livestreamStartsAt">Starts At</label><input id="livestreamStartsAt" class="admin-input" type="datetime-local"></div><div class="admin-input-group"><label for="livestreamEndsAt">Expected End</label><input id="livestreamEndsAt" class="admin-input" type="datetime-local"></div></div><div class="admin-input-group"><label for="livestreamYoutubeChannel">YouTube Channel URL</label><input id="livestreamYoutubeChannel" class="admin-input" type="url"></div></div></section>
 
       <!-- ------------------------------------------------------------------
            Panel: Events

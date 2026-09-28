@@ -165,13 +165,7 @@
           "image": "assets/ministries/pdcm-mega-youth.jpg",
           "alt": "PDCM Mega Youth Chapel members"
         }
-      ],
-      "liveStream": {
-        "enabled": false,
-        "videoUrl": "",
-        "title": "Worship with us live",
-        "channelUrl": "https://youtube.com/@peculiarcherubschurch"
-      }
+      ]
     },
     "identity": {
       "eyebrow": "Who we are",
@@ -3807,6 +3801,121 @@
     "socialFeedNotice": {
       "title": "",
       "text": ""
+    }
+  },
+  "livestream": {
+    "hero": {
+      "eyebrow": "Peculiar Cherubs Live",
+      "title": "One church. Many worshipping communities.",
+      "description": "Join live services, revisit the latest broadcast, and see what is coming next."
+    },
+    "channels": {
+      "mother-church": {
+        "enabled": true,
+        "label": "Mother Church",
+        "statusOverride": "auto",
+        "youtubeChannelUrl": "https://youtube.com/@peculiarcherubschurch",
+        "currentBroadcast": {
+          "title": "",
+          "speaker": "",
+          "serviceType": "Sunday Worship",
+          "videoUrl": "",
+          "startsAt": "",
+          "endsAt": ""
+        },
+        "schedule": [
+          {
+            "label": "Sunday Worship",
+            "dayOfWeek": 0,
+            "time": "09:00"
+          }
+        ],
+        "utcOffsetMinutes": 60
+      },
+      "pdcm-gwarinpa": {
+        "enabled": true,
+        "statusOverride": "auto",
+        "youtubeChannelUrl": "",
+        "currentBroadcast": {
+          "title": "",
+          "speaker": "",
+          "serviceType": "Sunday Worship",
+          "videoUrl": "",
+          "startsAt": "",
+          "endsAt": ""
+        },
+        "schedule": [
+          {
+            "label": "Sunday Worship",
+            "dayOfWeek": 0,
+            "time": "09:00"
+          }
+        ],
+        "utcOffsetMinutes": 60
+      },
+      "pdcm-english": {
+        "enabled": true,
+        "statusOverride": "auto",
+        "youtubeChannelUrl": "",
+        "currentBroadcast": {
+          "title": "",
+          "speaker": "",
+          "serviceType": "Sunday Worship",
+          "videoUrl": "",
+          "startsAt": "",
+          "endsAt": ""
+        },
+        "schedule": [
+          {
+            "label": "Sunday Worship",
+            "dayOfWeek": 0,
+            "time": "09:00"
+          }
+        ],
+        "utcOffsetMinutes": 60
+      },
+      "pdcm-byazhin": {
+        "enabled": true,
+        "statusOverride": "auto",
+        "youtubeChannelUrl": "",
+        "currentBroadcast": {
+          "title": "",
+          "speaker": "",
+          "serviceType": "Sunday Worship",
+          "videoUrl": "",
+          "startsAt": "",
+          "endsAt": ""
+        },
+        "schedule": [
+          {
+            "label": "Sunday Worship",
+            "dayOfWeek": 0,
+            "time": "09:00"
+          }
+        ],
+        "utcOffsetMinutes": 60
+      },
+      "pdcm-mega-youth": {
+        "enabled": true,
+        "statusOverride": "auto",
+        "youtubeChannelUrl": "",
+        "currentBroadcast": {
+          "title": "",
+          "speaker": "",
+          "serviceType": "Sunday Worship",
+          "videoUrl": "",
+          "startsAt": "",
+          "endsAt": ""
+        },
+        "schedule": [
+          {
+            "label": "Sunday Worship",
+            "dayOfWeek": 0,
+            "time": "09:00"
+          }
+        ],
+        "utcOffsetMinutes": 60
+      }
     }
   }
 }

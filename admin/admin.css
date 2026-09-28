@@ -1621,3 +1621,6 @@ body.admin-body {
 .admin-auth-view {
   animation: fadeIn .2s ease-in-out;
 }
+
+
+.admin-broadcast-editor{background:var(--white);border:1px solid var(--admin-border);border-radius:20px;padding:1.75rem}
