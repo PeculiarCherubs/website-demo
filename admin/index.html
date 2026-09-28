@@ -1114,7 +1114,21 @@
             </div>
             <div class="admin-input-group">
               <label for="adminAccessRole">Role</label>
-              <select id="adminAccessRole" class="admin-select" required></select>
+              <select id="adminAccessRole" class="admin-select" required
+                onchange="AdminPortal.updateAdminAccessScopeControls()"></select>
+            </div>
+            <div class="admin-input-group" id="adminAccessScopeGroup">
+              <label for="adminAccessScopeType">Access scope</label>
+              <select id="adminAccessScopeType" class="admin-select"
+                onchange="AdminPortal.updateAdminAccessScopeControls()">
+                <option value="global">Global — all content</option>
+                <option value="chapel">Selected chapel(s)</option>
+              </select>
+            </div>
+            <div class="admin-input-group" id="adminAccessChapelScopeGroup" hidden>
+              <label for="adminAccessChapels">Assigned chapel(s)</label>
+              <select id="adminAccessChapels" class="admin-select admin-multi-select" multiple></select>
+              <small class="admin-field-note">Use Ctrl/Cmd to select more than one chapel.</small>
             </div>
             <button class="btn btn-primary admin-btn-sm" type="submit">Authorize / Assign Role</button>
           </form>
@@ -1126,12 +1140,13 @@
               <tr>
                 <th>Admin</th>
                 <th>Role</th>
+                <th>Scope</th>
                 <th>Authorized</th>
                 <th style="text-align:right;">Actions</th>
               </tr>
             </thead>
             <tbody id="adminAccessTableBody">
-              <tr><td colspan="4">Loading authorized Admins…</td></tr>
+              <tr><td colspan="5">Loading authorized Admins…</td></tr>
             </tbody>
           </table>
         </div>
@@ -1277,6 +1292,43 @@
           onclick="AdminPortal.handleAuthenticatedPasswordChange()">
           💾 Update Password
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       CMS Access Scope Modal
+       ====================================================================== -->
+  <div id="adminScopeModal" class="admin-modal">
+    <div class="admin-modal-content" style="max-width: 560px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title">Manage Chapel Scope</h3>
+        <button type="button" class="admin-modal-close" onclick="AdminPortal.closeAdminScopeModal()">×</button>
+      </div>
+      <div class="admin-modal-body">
+        <p id="adminScopeIdentity" style="color: var(--muted); margin: 0;"></p>
+        <input type="hidden" id="adminScopeUserId">
+
+        <div class="admin-input-group">
+          <label for="adminScopeType">Access scope</label>
+          <select id="adminScopeType" class="admin-select"
+            onchange="AdminPortal.updateScopeModalControls()">
+            <option value="global">Global — all content</option>
+            <option value="chapel">Selected chapel(s)</option>
+          </select>
+        </div>
+
+        <div class="admin-input-group" id="adminScopeChapelGroup">
+          <label for="adminScopeChapels">Assigned chapel(s)</label>
+          <select id="adminScopeChapels" class="admin-select admin-multi-select" multiple></select>
+          <small class="admin-field-note">Chapel Content Managers must have at least one assigned chapel.</small>
+        </div>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="btn btn-secondary admin-btn-sm"
+          onclick="AdminPortal.closeAdminScopeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary admin-btn-sm"
+          onclick="AdminPortal.saveAdminScope()">💾 Save Scope</button>
       </div>
     </div>
   </div>

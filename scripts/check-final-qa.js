@@ -102,6 +102,46 @@ if (!chapelContentService.includes("chapelDetail: ['chapels', 'sermons']")) {
   issues.push('Chapel detail pages must load the unified sermons section.');
 }
 
+
+const scopedAccessFiles = [
+  'supabase/migrations/chapel-scoped-cms-access.sql',
+  'supabase/audits/chapel-scoped-cms-access-audit.sql',
+  'docs/security/CHAPEL_SCOPED_CMS_ACCESS.md'
+];
+
+for (const file of scopedAccessFiles) {
+  if (!fs.existsSync(path.join(root, file))) {
+    issues.push(`Chapel-scoped access file missing: ${file}`);
+  }
+}
+
+const scopedAdmin = read('js/admin.js');
+for (const marker of [
+  'chapel.content.manage',
+  'isChapelScoped',
+  'canManageChapel',
+  'cms_update_chapel_content',
+  'cms_update_chapel_broadcast',
+  'cms_upsert_chapel_sermon',
+  'cms_delete_chapel_sermon'
+]) {
+  if (!scopedAdmin.includes(marker)) {
+    issues.push(`Chapel-scoped Admin marker missing: ${marker}`);
+  }
+}
+
+
+const livestreamCanonicalizationFiles = [
+  'supabase/migrations/livestream-schema-canonicalization.sql',
+  'supabase/audits/livestream-schema-canonicalization-audit.sql'
+];
+
+for (const file of livestreamCanonicalizationFiles) {
+  if (!fs.existsSync(path.join(root, file))) {
+    issues.push(`Livestream canonicalization file missing: ${file}`);
+  }
+}
+
 if (issues.length) {
   console.error('Final QA integrity check FAILED');
   issues.forEach(issue => console.error(`- ${issue}`));

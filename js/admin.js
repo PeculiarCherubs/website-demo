@@ -283,8 +283,40 @@
       return permissions.includes(permissionKey);
     },
 
+    isChapelScoped() {
+      return currentAccessProfile?.scope_type === 'chapel';
+    },
+
+    getChapelScopes() {
+      return Array.isArray(currentAccessProfile?.chapel_scopes)
+        ? currentAccessProfile.chapel_scopes
+        : [];
+    },
+
+    canManageChapel(chapelKey) {
+      if (!chapelKey) return false;
+      if (!this.isChapelScoped()) return true;
+      return this.getChapelScopes().includes(chapelKey);
+    },
+
+    getScopedChapelEntries() {
+      const details = currentContent.chapels?.details || {};
+      return Object.entries(details)
+        .filter(([key]) => this.canManageChapel(key))
+        .map(([key, chapel]) => ({
+          key,
+          label: chapel.shortTitle || chapel.title || key
+        }));
+    },
+
     canOpenTab(tabName) {
       if (tabName === 'dashboard') return Boolean(currentAccessProfile);
+
+      if (tabName === 'ministries') {
+        return this.hasPermission('ministries.manage')
+          || this.hasPermission('chapel.content.manage');
+      }
+
       const required = TAB_PERMISSIONS[tabName];
       return Boolean(required && this.hasPermission(required));
     },
@@ -347,13 +379,64 @@
       const label = document.getElementById('adminUserIdentity');
       if (label) {
         const email = session?.user?.email || profile.email || '';
-        label.textContent = `${email}${profile.role_label ? ` · ${profile.role_label}` : ''}`;
+        const scopeSuffix = profile.scope_type === 'chapel'
+          ? ` · ${Array.isArray(profile.chapel_scopes) ? profile.chapel_scopes.length : 0} chapel scope`
+          : '';
+        label.textContent = `${email}${profile.role_label ? ` · ${profile.role_label}` : ''}${scopeSuffix}`;
         label.hidden = !email;
+      }
+
+      if (this.hasPermission('chapel.content.manage')) {
+        document.querySelectorAll(`[onclick*="switchTab('ministries')"]`).forEach(el => {
+          el.classList.remove('admin-permission-hidden');
+        });
+      }
+
+      if (this.isChapelScoped()) {
+        document.querySelectorAll(`[onclick*="openItemModal('ministries'"]`).forEach(el => {
+          el.classList.add('admin-permission-hidden');
+        });
       }
 
       if (!this.canOpenTab(activeTab)) {
         this.switchTab('dashboard');
       }
+    },
+
+    getAdminScopeChapelOptions(selectedKeys = []) {
+      const selected = new Set(Array.isArray(selectedKeys) ? selectedKeys : []);
+      const details = currentContent.chapels?.details || {};
+
+      return Object.entries(details)
+        .map(([key, chapel]) => `
+          <option value="${key}" ${selected.has(key) ? 'selected' : ''}>
+            ${chapel.shortTitle || chapel.title || key}
+          </option>
+        `)
+        .join('');
+    },
+
+    updateAdminAccessScopeControls() {
+      const roleKey = document.getElementById('adminAccessRole')?.value || '';
+      const scopeSelect = document.getElementById('adminAccessScopeType');
+      const chapelGroup = document.getElementById('adminAccessChapelScopeGroup');
+
+      const isChapelRole = roleKey === 'chapel_content_manager';
+
+      if (scopeSelect) {
+        scopeSelect.value = isChapelRole ? 'chapel' : 'global';
+        scopeSelect.disabled = true;
+      }
+
+      if (chapelGroup) {
+        chapelGroup.hidden = !isChapelRole;
+      }
+    },
+
+    updateScopeModalControls() {
+      const type = document.getElementById('adminScopeType')?.value || 'global';
+      const group = document.getElementById('adminScopeChapelGroup');
+      if (group) group.hidden = type !== 'chapel';
     },
 
     async loadAdminAccess() {
@@ -389,12 +472,36 @@
         ).join('');
       }
 
+      const addChapels = document.getElementById('adminAccessChapels');
+      if (addChapels) {
+        addChapels.innerHTML = this.getAdminScopeChapelOptions();
+      }
+
+      this.updateAdminAccessScopeControls();
+
       const tbody = document.getElementById('adminAccessTableBody');
       if (tbody) {
         tbody.innerHTML = admins.map(admin => {
           const roleOptions = availableCmsRoles.map(role =>
             `<option value="${role.role_key}" ${role.role_key === admin.role_key ? 'selected' : ''}>${role.label}</option>`
           ).join('');
+
+          const chapelScopes = Array.isArray(admin.chapel_scopes)
+            ? admin.chapel_scopes
+            : [];
+
+          const scopeLabels = chapelScopes
+            .map(key => currentContent.chapels?.details?.[key]?.shortTitle
+              || currentContent.chapels?.details?.[key]?.title
+              || key);
+
+          const scopeSummary = admin.scope_type === 'global'
+            ? `<span class="admin-scope-chip global">Global</span>`
+            : scopeLabels.length
+              ? scopeLabels.map(label => `<span class="admin-scope-chip">${label}</span>`).join(' ')
+              : `<span class="admin-scope-warning">No chapel assigned</span>`;
+
+          const encodedScopes = encodeURIComponent(JSON.stringify(chapelScopes));
 
           return `
             <tr>
@@ -404,6 +511,19 @@
                   ${roleOptions}
                 </select>
               </td>
+              <td>
+                <div class="admin-scope-summary">
+                  ${scopeSummary}
+                  <button class="admin-icon-btn" title="Manage access scope"
+                    onclick="AdminPortal.openAdminScopeModal(
+                      '${admin.user_id}',
+                      '${encodeURIComponent(admin.email)}',
+                      '${admin.role_key}',
+                      '${admin.scope_type}',
+                      '${encodedScopes}'
+                    )">🎯</button>
+                </div>
+              </td>
               <td>${new Date(admin.created_at).toLocaleString()}</td>
               <td style="text-align:right;">
                 <button class="admin-icon-btn danger" title="Remove CMS access"
@@ -411,7 +531,72 @@
               </td>
             </tr>
           `;
-        }).join('') || `<tr><td colspan="4">No authorized CMS Admins found.</td></tr>`;
+        }).join('') || `<tr><td colspan="5">No authorized CMS Admins found.</td></tr>`;
+      }
+    },
+
+    openAdminScopeModal(userId, encodedEmail, roleKey, scopeType, encodedScopes) {
+      const modal = document.getElementById('adminScopeModal');
+      const identity = document.getElementById('adminScopeIdentity');
+      const userIdInput = document.getElementById('adminScopeUserId');
+      const typeSelect = document.getElementById('adminScopeType');
+      const chapelSelect = document.getElementById('adminScopeChapels');
+
+      let scopes = [];
+      try {
+        scopes = JSON.parse(decodeURIComponent(encodedScopes || '[]'));
+      } catch (_) {
+        scopes = [];
+      }
+
+      const email = decodeURIComponent(encodedEmail || '');
+
+      if (identity) {
+        identity.textContent = `${email} · ${roleKey}`;
+      }
+      if (userIdInput) userIdInput.value = userId;
+
+      const chapelRole = roleKey === 'chapel_content_manager';
+      if (typeSelect) {
+        typeSelect.value = chapelRole ? 'chapel' : 'global';
+        typeSelect.disabled = true;
+      }
+
+      if (chapelSelect) {
+        chapelSelect.innerHTML = this.getAdminScopeChapelOptions(scopes);
+      }
+
+      this.updateScopeModalControls();
+      modal?.classList.add('open');
+    },
+
+    closeAdminScopeModal() {
+      document.getElementById('adminScopeModal')?.classList.remove('open');
+    },
+
+    async saveAdminScope() {
+      const userId = document.getElementById('adminScopeUserId')?.value || '';
+      const scopeType = document.getElementById('adminScopeType')?.value || 'global';
+      const chapelSelect = document.getElementById('adminScopeChapels');
+      const chapelKeys = chapelSelect
+        ? Array.from(chapelSelect.selectedOptions).map(option => option.value)
+        : [];
+
+      if (scopeType === 'chapel' && chapelKeys.length === 0) {
+        this.showToast('Select at least one chapel for this account.', 'error');
+        return;
+      }
+
+      const ok = await this.callAdminAccessRpc('cms_set_admin_scopes', {
+        p_user_id: userId,
+        p_scope_type: scopeType,
+        p_chapel_keys: chapelKeys
+      });
+
+      if (ok) {
+        this.closeAdminScopeModal();
+        this.showToast('CMS access scope updated.', 'success');
+        await this.loadAdminAccess();
       }
     },
 
@@ -447,14 +632,57 @@
       const roleKey = document.getElementById('adminAccessRole')?.value || '';
       if (!email || !roleKey) return;
 
+      const chapelSelect = document.getElementById('adminAccessChapels');
+      const chapelKeys = chapelSelect
+        ? Array.from(chapelSelect.selectedOptions).map(option => option.value)
+        : [];
+
+      if (roleKey === 'chapel_content_manager' && chapelKeys.length === 0) {
+        this.showToast('Select at least one chapel for a Chapel Content Manager.', 'error');
+        return;
+      }
+
       const ok = await this.callAdminAccessRpc('cms_assign_admin_role', {
         p_email: email,
         p_role_key: roleKey
       });
 
-      if (ok) {
+      if (!ok) return;
+
+      // Reload once to resolve the user UUID returned through the Admin list.
+      await this.loadAdminAccess();
+
+      const session = await this.getValidAuthSession();
+      const cfg = this.getAuthConfig();
+      const response = await fetch(`${cfg.url}/rest/v1/rpc/cms_list_admins`, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': `Bearer ${session.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: '{}'
+      });
+
+      const admins = response.ok ? await response.json() : [];
+      const assigned = admins.find(admin =>
+        String(admin.email || '').toLowerCase() === email.toLowerCase()
+      );
+
+      if (!assigned) {
+        this.showToast('Role assigned, but the scope could not be resolved. Open Admin Access and set the scope manually.', 'error');
+        return;
+      }
+
+      const scopeOk = await this.callAdminAccessRpc('cms_set_admin_scopes', {
+        p_user_id: assigned.user_id,
+        p_scope_type: roleKey === 'chapel_content_manager' ? 'chapel' : 'global',
+        p_chapel_keys: roleKey === 'chapel_content_manager' ? chapelKeys : []
+      });
+
+      if (scopeOk) {
         document.getElementById('adminAccessEmail').value = '';
-        this.showToast('CMS role assigned.', 'success');
+        this.showToast('CMS role and access scope assigned.', 'success');
         await this.loadAdminAccess();
       }
     },
@@ -465,7 +693,11 @@
         p_role_key: roleKey
       });
       if (ok) {
-        this.showToast('Admin role updated.', 'success');
+        if (roleKey === 'chapel_content_manager') {
+          this.showToast('Role updated. Assign at least one chapel scope before this account can edit content.', 'success');
+        } else {
+          this.showToast('Admin role updated with Global scope.', 'success');
+        }
         await this.loadAdminAccess();
       } else {
         await this.loadAdminAccess();
@@ -1743,7 +1975,9 @@
 
     getLivestreamChannelEntries(){
       const ch=currentContent.livestream?.channels||{}, details=currentContent.chapels?.details||{};
-      return Object.entries(ch).map(([key,channel])=>({key,label:channel.label||(key==='mother-church'?'Mother Church':details[key]?.shortTitle||details[key]?.title||key),channel}));
+      return Object.entries(ch)
+        .filter(([key]) => !this.isChapelScoped() || this.canManageChapel(key))
+        .map(([key,channel])=>({key,label:channel.label||(key==='mother-church'?'Mother Church':details[key]?.shortTitle||details[key]?.title||key),channel}));
     },
     renderLivestreamView(){
       const select=document.getElementById('livestreamChannelSelect'); if(!select)return;
@@ -1762,7 +1996,14 @@
       const get=id=>document.getElementById(id)?.value?.trim()||'', iso=id=>{const v=get(id);if(!v)return '';const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toISOString();};
       const c=currentContent.livestream.channels[key];
       c.statusOverride=get('livestreamStatusOverride')||'auto';c.youtubeChannelUrl=get('livestreamYoutubeChannel');c.currentBroadcast={...(c.currentBroadcast||{}),serviceType:get('livestreamServiceType')||'Sunday Worship',title:get('livestreamTitle'),speaker:get('livestreamSpeaker'),videoUrl:get('livestreamVideoUrl'),startsAt:iso('livestreamStartsAt'),endsAt:iso('livestreamEndsAt')};
-      if(!(await this.syncSectionToSupabase('livestream',currentContent.livestream)))return;this.showToast('Broadcast settings saved securely to Supabase.','success');this.renderLivestreamView();
+      const saved = this.isChapelScoped()
+        ? await this.syncScopedChapelBroadcast(key, c)
+        : await this.syncSectionToSupabase('livestream', currentContent.livestream);
+
+      if (!saved) return;
+
+      this.showToast('Broadcast settings saved securely to Supabase.', 'success');
+      this.renderLivestreamView();
     },
 
     /* ======================================================================
@@ -1773,7 +2014,11 @@
       const grid = document.getElementById('gridSermons');
       if (!grid) return;
 
-      const items = filteredItems || (currentContent.sermons && currentContent.sermons.items) || [];
+      let items = filteredItems || (currentContent.sermons && currentContent.sermons.items) || [];
+
+      if (this.isChapelScoped()) {
+        items = items.filter(item => this.canManageChapel(item.chapelId));
+      }
 
       if (items.length === 0) {
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--muted);">No sermons found. Click "+ Add Sermon" to create one.</div>`;
@@ -1872,7 +2117,13 @@
       const grid = document.getElementById('gridMinistries');
       if (!grid) return;
 
-      const items = filteredItems || this.getAllMinistryItems();
+      let items = filteredItems || this.getAllMinistryItems();
+
+      if (this.isChapelScoped()) {
+        items = items.filter(item =>
+          item._sourceType === 'chapel' && this.canManageChapel(item.id)
+        );
+      }
 
       if (items.length === 0) {
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--muted);">No ministries found. Click "+ Add Ministry" to create one.</div>`;
@@ -2592,6 +2843,23 @@
        Universal Modal Form Editor & Live Card Preview
        ====================================================================== */
     openItemModal(sectionKey, itemId, isSundaySchoolOverride = false) {
+      if (this.isChapelScoped()) {
+        if (sectionKey === 'ministries') {
+          if (!itemId || !this.canManageChapel(itemId)) {
+            this.showToast('You can only edit chapel pages assigned to your account.', 'error');
+            return;
+          }
+        }
+
+        if (sectionKey === 'sermons' && itemId) {
+          const sermon = (currentContent.sermons?.items || []).find(item => item.id === itemId);
+          if (!sermon || !this.canManageChapel(sermon.chapelId)) {
+            this.showToast('You can only edit sermons from your assigned chapel(s).', 'error');
+            return;
+          }
+        }
+      }
+
       editingState.sectionKey = sectionKey;
       editingState.itemId = itemId || null;
 
@@ -2754,6 +3022,20 @@
       }
 
       this.buildModalFormFields(sectionKey, editingState.itemData);
+
+      if (this.isChapelScoped() && sectionKey === 'ministries') {
+        const idField = document.getElementById('modalField_id');
+        const placementField = document.getElementById('modalField_placement');
+        const hrefField = document.getElementById('modalField_href');
+
+        if (idField) idField.readOnly = true;
+        if (placementField) {
+          placementField.value = 'chapels';
+          placementField.disabled = true;
+        }
+        if (hrefField) hrefField.readOnly = true;
+      }
+
       this.updateModalLivePreview();
 
       const modal = document.getElementById('adminItemModal');
@@ -3381,6 +3663,16 @@
               <label>Date</label>
               <input type="text" id="modalField_date" class="admin-input" value="${item.date || '2026-09-03'}">
             </div>
+          </div>
+          <div class="admin-input-group">
+            <label>Chapel</label>
+            <select id="modalField_chapelId" class="admin-select" style="width:100%;" required>
+              ${this.getScopedChapelEntries().map(chapel => `
+                <option value="${chapel.key}" ${item.chapelId === chapel.key ? 'selected' : ''}>
+                  ${chapel.label}
+                </option>
+              `).join('')}
+            </select>
           </div>
           <div class="admin-input-group">
             <label>Sermon Title</label>
@@ -4422,9 +4714,22 @@
         const items = currentContent.sermons.items || [];
         const existingIdx = items.findIndex(i => i.id === editingState.itemId || i.id === id);
         const existing = existingIdx >= 0 ? items[existingIdx] : (editingState.itemData || {});
+        const chapelId = getF('chapelId') || existing.chapelId || '';
+        if (!chapelId) {
+          this.showToast('Choose the chapel this sermon belongs to.', 'error');
+          return;
+        }
+
+        if (this.isChapelScoped() && !this.canManageChapel(chapelId)) {
+          this.showToast('You cannot publish sermons for that chapel.', 'error');
+          return;
+        }
+
         const newItem = {
           ...existing,
           id,
+          chapelId,
+          published: existing.published !== false,
           category: getF('category') || existing.category || getF('series') || 'General',
           title: getF('title'),
           speaker: getF('speaker'),
@@ -4440,7 +4745,12 @@
         if (existingIdx >= 0) items[existingIdx] = newItem;
         else items.unshift(newItem);
         currentContent.sermons.items = items;
-        if (!(await this.syncSectionToSupabase('sermons', currentContent.sermons))) return;
+
+        const sermonSaved = this.isChapelScoped()
+          ? await this.syncScopedChapelSermon(chapelId, newItem)
+          : await this.syncSectionToSupabase('sermons', currentContent.sermons);
+
+        if (!sermonSaved) return;
         this.renderSermonsView();
       } else if (sec === 'events') {
         if (!currentContent.events) currentContent.events = { items: [] };
@@ -4583,6 +4893,28 @@
             existing.functionsTitle || (isChapel ? 'Chapel focus' : 'Ministry functions'),
           functions
         };
+
+        if (this.isChapelScoped()) {
+          const scopedKey = editingState.itemId;
+          if (!scopedKey || !this.canManageChapel(scopedKey)) {
+            this.showToast('You can only update an assigned chapel.', 'error');
+            return;
+          }
+
+          const scopedData = {
+            ...entityData,
+            id: scopedKey,
+            href: existing.href || `${scopedKey}.html`
+          };
+
+          const chapelSaved = await this.syncScopedChapelContent(scopedKey, scopedData);
+          if (!chapelSaved) return;
+
+          this.renderMinistriesView();
+          this.closeItemModal();
+          this.showToast('Chapel page content saved.', 'success');
+          return;
+        }
 
         // Remove the entity from both canonical stores first. This makes
         // Ministry ↔ Chapel moves deterministic.
@@ -4830,8 +5162,20 @@
         if (!(await this.syncSectionToSupabase('publications', currentContent.publications))) return;
         this.renderAllViews();
       } else if (sectionKey === 'sermons') {
-        currentContent.sermons.items = (currentContent.sermons.items || []).filter(i => i.id !== itemId);
-        if (!(await this.syncSectionToSupabase('sermons', currentContent.sermons))) return;
+        const existingSermon = (currentContent.sermons.items || []).find(i => i.id === itemId);
+
+        if (this.isChapelScoped()) {
+          if (!existingSermon?.chapelId || !this.canManageChapel(existingSermon.chapelId)) {
+            this.showToast('You cannot delete a sermon from another chapel.', 'error');
+            return;
+          }
+
+          if (!(await this.deleteScopedChapelSermon(existingSermon.chapelId, itemId))) return;
+        } else {
+          currentContent.sermons.items = (currentContent.sermons.items || []).filter(i => i.id !== itemId);
+          if (!(await this.syncSectionToSupabase('sermons', currentContent.sermons))) return;
+        }
+
         this.renderSermonsView();
       } else if (sectionKey === 'events') {
         currentContent.events.items = (currentContent.events.items || []).filter(i => i.id !== itemId);
@@ -4846,6 +5190,11 @@
         if (!currentContent.chapels) currentContent.chapels = {};
 
         const isChapel = Boolean(currentContent.chapels.details?.[itemId]);
+
+        if (isChapel && this.isChapelScoped()) {
+          this.showToast('Chapel Content Managers cannot delete chapel records.', 'error');
+          return;
+        }
 
         if (isChapel) {
           const detailHref =
@@ -4932,6 +5281,147 @@
 
       this.renderStatsAndBadges();
       this.showToast('Item deleted.', 'success');
+    },
+
+    async syncScopedResource(functionName, body, sectionKey) {
+      if (isFallbackMode) {
+        this.showToast('Read-only fallback mode: scoped saves require Supabase.', 'error');
+        return false;
+      }
+
+      const cfg = global.ContentService ? global.ContentService.config : null;
+      const session = await this.getValidAuthSession();
+
+      if (!cfg || !session?.accessToken) {
+        this.showToast('Admin session is unavailable.', 'error');
+        return false;
+      }
+
+      const expectedUpdatedAt =
+        global.ContentService &&
+        typeof global.ContentService.getSectionVersion === 'function'
+          ? global.ContentService.getSectionVersion(sectionKey)
+          : null;
+
+      try {
+        const response = await fetch(`${cfg.url}/rest/v1/rpc/${functionName}`, {
+          method: 'POST',
+          headers: {
+            'apikey': cfg.anonKey,
+            'Authorization': `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            ...(body || {}),
+            p_expected_updated_at: expectedUpdatedAt
+          })
+        });
+
+        if (!response.ok) {
+          const detail = await response.json().catch(async () => ({
+            message: await response.text().catch(() => '')
+          }));
+
+          const message = [
+            detail?.code,
+            detail?.message,
+            detail?.details,
+            detail?.hint
+          ].filter(Boolean).join(' ');
+
+          if (
+            message.includes('chapel_scope_denied') ||
+            message.includes('cms_permission_denied')
+          ) {
+            this.showToast('Your account is not permitted to change that chapel resource.', 'error');
+            return false;
+          }
+
+          if (
+            message.includes('content_conflict') ||
+            message.includes('content_version_required') ||
+            detail?.code === '40001'
+          ) {
+            this.showToast('Save conflict: another Admin changed this section. Reloading the latest version.', 'error');
+            await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+            return false;
+          }
+
+          this.showToast('Scoped CMS save failed.', 'error');
+          return false;
+        }
+
+        const payload = await response.json();
+        const savedRow = Array.isArray(payload) ? payload[0] : payload;
+
+        if (!savedRow?.key || !savedRow?.updated_at) {
+          this.showToast('Scoped CMS save returned an incomplete response.', 'error');
+          return false;
+        }
+
+        if (
+          global.ContentService &&
+          typeof global.ContentService.setCachedSection === 'function'
+        ) {
+          global.ContentService.setCachedSection(
+            sectionKey,
+            savedRow.data,
+            savedRow.updated_at
+          );
+        }
+
+        currentContent[sectionKey] = savedRow.data;
+        return true;
+      } catch (err) {
+        console.error(`[AdminPortal] Scoped RPC '${functionName}' failed.`, err);
+        this.showToast('Could not save the scoped chapel resource.', 'error');
+        return false;
+      }
+    },
+
+    async syncScopedChapelContent(chapelKey, chapelData) {
+      return this.syncScopedResource(
+        'cms_update_chapel_content',
+        {
+          p_chapel_key: chapelKey,
+          p_chapel_data: chapelData
+        },
+        'chapels'
+      );
+    },
+
+    async syncScopedChapelBroadcast(chapelKey, channelData) {
+      return this.syncScopedResource(
+        'cms_update_chapel_broadcast',
+        {
+          p_chapel_key: chapelKey,
+          p_channel_data: channelData
+        },
+        'livestream'
+      );
+    },
+
+    async syncScopedChapelSermon(chapelKey, sermonData) {
+      return this.syncScopedResource(
+        'cms_upsert_chapel_sermon',
+        {
+          p_chapel_key: chapelKey,
+          p_sermon: sermonData
+        },
+        'sermons'
+      );
+    },
+
+    async deleteScopedChapelSermon(chapelKey, sermonId) {
+      return this.syncScopedResource(
+        'cms_delete_chapel_sermon',
+        {
+          p_chapel_key: chapelKey,
+          p_sermon_id: sermonId
+        },
+        'sermons'
+      );
     },
 
     /**

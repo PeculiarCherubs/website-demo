@@ -1624,3 +1624,39 @@ body.admin-body {
 
 
 .admin-broadcast-editor{background:var(--white);border:1px solid var(--admin-border);border-radius:20px;padding:1.75rem}
+
+/* Chapel-scoped CMS access */
+.admin-multi-select {
+  width: 100%;
+  min-height: 130px;
+  border-radius: 12px;
+}
+
+.admin-scope-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+
+.admin-scope-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: .22rem .55rem;
+  border-radius: 999px;
+  background: var(--sky);
+  color: var(--navy);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.admin-scope-chip.global {
+  background: rgba(16, 185, 129, .12);
+  color: #065f46;
+}
+
+.admin-scope-warning {
+  color: var(--admin-danger);
+  font-weight: 700;
+  font-size: .8rem;
+}
