@@ -142,6 +142,23 @@ for (const file of livestreamCanonicalizationFiles) {
   }
 }
 
+
+const liveNavigationCleanupFiles = [
+  'supabase/migrations/sermons-live-navigation-cleanup.sql',
+  'supabase/audits/sermons-live-navigation-cleanup-audit.sql'
+];
+
+for (const file of liveNavigationCleanupFiles) {
+  if (!fs.existsSync(path.join(root, file))) {
+    issues.push(`Sermons/Live navigation cleanup file missing: ${file}`);
+  }
+}
+
+const liveCleanupScript = read('script.js');
+if (!liveCleanupScript.includes('pills.hidden=live.length<=1')) {
+  issues.push('Broadcast Hub is not restricting chapel pills to simultaneous live broadcasts.');
+}
+
 if (issues.length) {
   console.error('Final QA integrity check FAILED');
   issues.forEach(issue => console.error(`- ${issue}`));

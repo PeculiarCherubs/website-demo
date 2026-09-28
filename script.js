@@ -254,13 +254,50 @@ function renderLive(content){
   setText("[data-live-eyebrow]",content.livestream?.hero?.eyebrow);
   setText("[data-live-title]",content.livestream?.hero?.title);
   setText("[data-live-description]",content.livestream?.hero?.description);
-  const channels=broadcastChannels(content), pills=document.querySelector("[data-live-pills]"), main=document.querySelector("[data-live-main]"), loc=document.querySelector("[data-live-locations]");
-  const q=new URLSearchParams(location.search).get("chapel"); let active=channels.some(c=>c.key===q)?q:(liveChannels(content)[0]?.key||channels[0]?.key||"");
-  const draw=()=>{const ch=channels.find(c=>c.key===active)||channels[0]; if(!ch)return;
-    if(pills){pills.innerHTML=channels.map(c=>`<button class="broadcast-channel-pill ${c.key===active?"active":""}" data-broadcast-key="${escapeHtml(c.key)}">${c.state==="live"?'<span class="live-pulse-dot"></span>':""}${escapeHtml(c.label)}</button>`).join(""); pills.querySelectorAll("[data-broadcast-key]").forEach(b=>b.onclick=()=>{active=b.dataset.broadcastKey; const u=new URL(location.href);u.searchParams.set("chapel",active);history.replaceState(null,"",u);draw();});}
+
+  const channels=broadcastChannels(content);
+  const live=liveChannels(content);
+  const pills=document.querySelector("[data-live-pills]");
+  const main=document.querySelector("[data-live-main]");
+  const loc=document.querySelector("[data-live-locations]");
+
+  const q=new URLSearchParams(location.search).get("chapel");
+
+  // Deep links may intentionally open an upcoming/recap chapel.
+  // Without a deep link, the hub defaults to a chapel that is actually live.
+  let active=channels.some(c=>c.key===q)
+    ? q
+    : (live[0]?.key||channels[0]?.key||"");
+
+  const draw=()=>{
+    const ch=channels.find(c=>c.key===active)||live[0]||channels[0];
+    if(!ch)return;
+
+    // The selector row is a LIVE selector, not a permanent chapel filter.
+    // Therefore only chapels that are live appear here.
+    if(pills){
+      pills.innerHTML=live.length>1
+        ? live.map(c=>`<button class="broadcast-channel-pill ${c.key===active?"active":""}" data-broadcast-key="${escapeHtml(c.key)}"><span class="live-pulse-dot"></span>${escapeHtml(c.label)}</button>`).join("")
+        : "";
+
+      pills.hidden=live.length<=1;
+
+      pills.querySelectorAll("[data-broadcast-key]").forEach(b=>b.onclick=()=>{
+        active=b.dataset.broadcastKey;
+        const u=new URL(location.href);
+        u.searchParams.set("chapel",active);
+        history.replaceState(null,"",u);
+        draw();
+      });
+    }
+
     if(main) main.innerHTML=broadcastMarkup(content,ch);
   };
+
+  // This remains an overview of every configured broadcast location.
+  // It is not the temporary LIVE chapel selector above.
   if(loc) loc.innerHTML=channels.map(c=>`<article class="broadcast-card"><div class="broadcast-card-topline"><span class="broadcast-state-badge">${c.state==="live"?'<span class="live-pulse-dot"></span>':""}${escapeHtml(stateLabel(c.state))}</span></div><div class="meta">${escapeHtml(c.label)}</div><h3>${escapeHtml((c.currentBroadcast||{}).title||(c.currentBroadcast||{}).serviceType||"Broadcast")}</h3><a class="text-link" href="live.html?chapel=${encodeURIComponent(c.key)}">View broadcast ↗</a></article>`).join("");
+
   draw();
 }
 
