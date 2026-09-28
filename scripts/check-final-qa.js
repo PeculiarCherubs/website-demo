@@ -79,6 +79,29 @@ if (!homeDependencyMatch) {
   }
 }
 
+
+const chapelDetailPages = [
+  'pdcm-gwarinpa.html',
+  'pdcm-english.html',
+  'pdcm-byazhin.html',
+  'pdcm-mega-youth.html'
+];
+
+for (const page of chapelDetailPages) {
+  const html = read(page);
+  if (!html.includes('data-chapel-sermons-section')) {
+    issues.push(`${page} is missing the standardized chapel sermons section.`);
+  }
+  if (!html.includes('data-ministry-social-section')) {
+    issues.push(`${page} is missing the standardized chapel social section.`);
+  }
+}
+
+const chapelContentService = read('js/contentService.js');
+if (!chapelContentService.includes("chapelDetail: ['chapels', 'sermons']")) {
+  issues.push('Chapel detail pages must load the unified sermons section.');
+}
+
 if (issues.length) {
   console.error('Final QA integrity check FAILED');
   issues.forEach(issue => console.error(`- ${issue}`));

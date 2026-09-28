@@ -52,7 +52,7 @@
     about: ['about'],
     ministries: ['ministries'],
     ministryDetail: ['ministries'],
-    chapelDetail: ['chapels'],
+    chapelDetail: ['chapels', 'sermons'],
     houseFellowships: ['ministries'],
     bibleCollege: ['bibleCollege'],
     chapels: ['chapels'],

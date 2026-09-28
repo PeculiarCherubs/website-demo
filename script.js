@@ -349,16 +349,43 @@ function renderHome(content) {
   }
 }
 
-function sermonCard(sermon) {
+function sermonCard(sermon, options = {}) {
+  const chapelLabel = String(
+    options.chapelLabel ||
+    sermon.chapelName ||
+    sermon.chapel ||
+    ""
+  ).trim();
+
+  const categoryLabel = String(
+    sermon.serviceType ||
+    sermon.category ||
+    sermon.series ||
+    "Sermon"
+  ).trim();
+
+  const image = String(
+    sermon.image ||
+    sermon.thumbnail ||
+    "assets/hero/mother-church-brand.jpg"
+  ).trim();
+
+  const detailParts = [
+    sermon.speaker,
+    sermon.duration,
+    sermon.dateDisplay || sermon.date
+  ].filter(Boolean);
+
   return `
     <article class="card sermon-card">
-      <div class="sermon-thumb" style="background-image:url('${escapeHtml(sermon.image)}')">
+      <div class="sermon-thumb" style="background-image:url('${escapeHtml(image)}')">
         <span class="play">▶</span>
       </div>
       <div class="sermon-body">
-        <div class="meta">${escapeHtml(sermon.category)}</div>
-        <h3>${escapeHtml(sermon.title)}</h3>
-        <p>${escapeHtml(sermon.speaker)} · ${escapeHtml(sermon.duration)}</p>
+        ${chapelLabel ? `<div class="sermon-chapel-tag">${escapeHtml(chapelLabel)}</div>` : ""}
+        <div class="meta">${escapeHtml(categoryLabel)}</div>
+        <h3>${escapeHtml(sermon.title || "Sermon")}</h3>
+        ${detailParts.length ? `<p>${detailParts.map(escapeHtml).join(" · ")}</p>` : ""}
       </div>
     </article>
   `;
@@ -1185,6 +1212,58 @@ function renderMinistryDetail(content) {
     `).join("");
   }
 
+  // Chapel Sermons: pull from the single church-wide Sermons archive.
+  // A chapel page never owns a separate sermon collection.
+  if (isChapelDetail) {
+    const chapelSermonsSection = document.querySelector("[data-chapel-sermons-section]");
+    const chapelSermonsList = document.querySelector("[data-chapel-sermons-list]");
+    const chapelSermonsEmpty = document.querySelector("[data-chapel-sermons-empty]");
+    const chapelSermonsTitle = document.querySelector("[data-chapel-sermons-title]");
+
+    const allSermons = Array.isArray(content.sermons?.items)
+      ? content.sermons.items
+      : [];
+
+    const chapelSermons = allSermons
+      .filter(sermon => {
+        const sermonChapelKey = String(
+          sermon.chapelId ||
+          sermon.chapelKey ||
+          ""
+        ).trim();
+        return sermonChapelKey === key && sermon.published !== false;
+      })
+      .sort((a, b) => {
+        const aDate = Date.parse(a.date || a.publishedAt || "") || 0;
+        const bDate = Date.parse(b.date || b.publishedAt || "") || 0;
+        return bDate - aDate;
+      });
+
+    if (chapelSermonsTitle) {
+      chapelSermonsTitle.textContent =
+        `Latest messages from ${item.shortTitle || item.title}.`;
+    }
+
+    if (chapelSermonsList) {
+      chapelSermonsList.innerHTML = chapelSermons
+        .slice(0, 3)
+        .map(sermon => sermonCard(sermon, {
+          chapelLabel: item.shortTitle || item.title
+        }))
+        .join("");
+    }
+
+    if (chapelSermonsEmpty) {
+      chapelSermonsEmpty.hidden = chapelSermons.length > 0;
+      chapelSermonsEmpty.textContent =
+        `No published sermons from ${item.shortTitle || item.title} yet. New messages and completed livestreams will appear here when published.`;
+    }
+
+    if (chapelSermonsSection) {
+      chapelSermonsSection.hidden = false;
+    }
+  }
+
   // Render Social Media Handles & Feed
   const socialSection = document.querySelector("[data-ministry-social-section]");
   const handlesContainer = document.querySelector("[data-ministry-social-handles]");
@@ -1235,7 +1314,19 @@ function renderMinistryDetail(content) {
       }
     }
   } else if (socialSection) {
-    socialSection.style.display = "none";
+    if (isChapelDetail) {
+      socialSection.style.display = "";
+      if (handlesContainer) handlesContainer.innerHTML = "";
+      if (feedContainer) {
+        feedContainer.innerHTML = `
+          <div class="event-empty-state chapel-social-empty">
+            Official social channels for ${escapeHtml(item.shortTitle || item.title)} have not been published yet.
+          </div>
+        `;
+      }
+    } else {
+      socialSection.style.display = "none";
+    }
   }
 }
 

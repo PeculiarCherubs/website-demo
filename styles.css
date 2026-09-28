@@ -7740,3 +7740,49 @@ textarea:focus-visible {
     font-size: 3em;
   }
 }
+
+/* Chapel page standardization: sermons + social continuity */
+.chapel-sermons-section {
+  background:
+    radial-gradient(circle at top right, rgba(214, 231, 244, .55), transparent 34%),
+    var(--white);
+}
+
+.chapel-sermons-grid:empty {
+  display: none;
+}
+
+.chapel-sermons-empty {
+  padding: 1.25rem 1.4rem;
+  border: 1px dashed rgba(22, 34, 73, .22);
+  border-radius: var(--radius);
+  background: var(--sky);
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.sermon-chapel-tag {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: .55rem;
+  padding: .28rem .6rem;
+  border-radius: 999px;
+  background: rgba(22, 34, 73, .08);
+  color: var(--navy);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.chapel-social-empty {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 700px) {
+  .chapel-sermons-all-link {
+    width: 100%;
+    justify-content: center;
+  }
+}
