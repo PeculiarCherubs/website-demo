@@ -190,7 +190,11 @@ function extractYouTubeVideoId(value) {
 }
 
 function renderHome(content) {
-  const home = content.home;
+  const home = content.home || {};
+  const hero = home.hero || {};
+  const identity = home.identity || {};
+  const pastor = home.pastor || {};
+  const testimonials = home.testimonials || {};
 
   if (home.themes) {
     setText("[data-year-theme-label]", home.themes.year?.label);
@@ -202,15 +206,15 @@ function renderHome(content) {
     setText("[data-month-theme-scripture]", home.themes.month?.scripture);
   }
 
-  renderHeroSlides(home.hero.slides);
-  setText("[data-home-hero-badge]", home.hero.badge);
-  setText("[data-home-hero-title]", home.hero.title);
-  setText("[data-home-hero-highlight]", home.hero.highlight);
-  setText("[data-home-hero-description]", home.hero.description);
-  setLink("[data-home-primary-button]", home.hero.primaryButton);
-  setLink("[data-home-secondary-button]", home.hero.secondaryButton);
+  renderHeroSlides(Array.isArray(hero.slides) ? hero.slides : []);
+  setText("[data-home-hero-badge]", hero.badge);
+  setText("[data-home-hero-title]", hero.title);
+  setText("[data-home-hero-highlight]", hero.highlight);
+  setText("[data-home-hero-description]", hero.description);
+  setLink("[data-home-primary-button]", hero.primaryButton);
+  setLink("[data-home-secondary-button]", hero.secondaryButton);
 
-  const liveConfig = home.hero?.liveStream || {};
+  const liveConfig = hero.liveStream || {};
   const liveVideoId = extractYouTubeVideoId(liveConfig.videoUrl);
   const isLive = liveConfig.enabled === true && Boolean(liveVideoId);
 
@@ -252,15 +256,16 @@ function renderHome(content) {
     }
   }
 
-  setText("[data-home-scroll-text]", home.hero.scrollText);
+  setText("[data-home-scroll-text]", hero.scrollText);
 
-  setText("[data-home-identity-eyebrow]", home.identity.eyebrow);
-  setText("[data-home-identity-title]", home.identity.title);
-  setText("[data-home-identity-description]", home.identity.description);
+  setText("[data-home-identity-eyebrow]", identity.eyebrow);
+  setText("[data-home-identity-title]", identity.title);
+  setText("[data-home-identity-description]", identity.description);
 
   const identityCards = document.querySelector("[data-home-identity-cards]");
   if (identityCards) {
-    identityCards.innerHTML = home.identity.cards.map(card => `
+    const cards = Array.isArray(identity.cards) ? identity.cards : [];
+    identityCards.innerHTML = cards.map(card => `
       <article class="card">
         <div class="icon">${escapeHtml(card.icon)}</div>
         <h3>${escapeHtml(card.title)}</h3>
@@ -271,28 +276,38 @@ function renderHome(content) {
 
   const homeMinistries = document.querySelector("[data-home-ministries]");
   if (homeMinistries) {
-    homeMinistries.innerHTML = content.ministries.homeFeatured
-      .map(key => content.ministries.details[key])
+    const ministrySection = content.ministries || {};
+    const featuredKeys = Array.isArray(ministrySection.homeFeatured)
+      ? ministrySection.homeFeatured
+      : [];
+    const ministryDetails = ministrySection.details || {};
+
+    homeMinistries.innerHTML = featuredKeys
+      .map(key => ministryDetails[key])
       .filter(Boolean)
       .map(item => ministryCard(item))
       .join("");
   }
 
-  setText("[data-pastor-eyebrow]", home.pastor.eyebrow);
-  setText("[data-pastor-title]", home.pastor.title);
-  setText("[data-pastor-text]", home.pastor.text);
-  setText("[data-pastor-name]", home.pastor.name);
-  setText("[data-pastor-role]", home.pastor.role);
+  setText("[data-pastor-eyebrow]", pastor.eyebrow);
+  setText("[data-pastor-title]", pastor.title);
+  setText("[data-pastor-text]", pastor.text);
+  setText("[data-pastor-name]", pastor.name);
+  setText("[data-pastor-role]", pastor.role);
 
   const pastorLink = document.querySelector("[data-pastor-link]");
   if (pastorLink) {
-    pastorLink.textContent = `${home.pastor.linkLabel} ↗`;
-    pastorLink.href = home.pastor.linkHref;
+    pastorLink.textContent = pastor.linkLabel ? `${pastor.linkLabel} ↗` : "";
+    if (pastor.linkHref) {
+      pastorLink.href = pastor.linkHref;
+    } else {
+      pastorLink.removeAttribute("href");
+    }
   }
 
   const pastorPhoto = document.querySelector("[data-pastor-photo]");
-  if (pastorPhoto && home.pastor.image) {
-    pastorPhoto.style.backgroundImage = `url("${home.pastor.image}")`;
+  if (pastorPhoto && pastor.image) {
+    pastorPhoto.style.backgroundImage = `url("${pastor.image}")`;
     pastorPhoto.style.backgroundSize = "cover";
     pastorPhoto.style.backgroundPosition = "center";
     pastorPhoto.innerHTML = "";
@@ -306,13 +321,13 @@ function renderHome(content) {
     if (sermonSection) sermonSection.hidden = sermonItems.length === 0;
   }
 
-  setText("[data-testimonials-eyebrow]", home.testimonials.eyebrow);
-  setText("[data-testimonials-title]", home.testimonials.title);
-  setText("[data-testimonials-description]", home.testimonials.description);
+  setText("[data-testimonials-eyebrow]", testimonials.eyebrow);
+  setText("[data-testimonials-title]", testimonials.title);
+  setText("[data-testimonials-description]", testimonials.description);
 
   const testimonialList = document.querySelector("[data-testimonials-list]");
   if (testimonialList) {
-    const testimonialItems = Array.isArray(home.testimonials?.items) ? home.testimonials.items : [];
+    const testimonialItems = Array.isArray(testimonials.items) ? testimonials.items : [];
     testimonialList.innerHTML = testimonialItems.map(item => `
       <article class="testimonial-card${item.featured ? " featured-testimonial" : ""}">
         <div class="testimonial-mark">“</div>
@@ -327,7 +342,10 @@ function renderHome(content) {
 
   const quickLinks = document.querySelector("[data-home-quick-links]");
   if (quickLinks) {
-    quickLinks.innerHTML = content.quickLinks.links.slice(2, 5).map(link => quickLinkCard(link)).join("");
+    const links = Array.isArray(content.quickLinks?.links)
+      ? content.quickLinks.links
+      : [];
+    quickLinks.innerHTML = links.slice(2, 5).map(link => quickLinkCard(link)).join("");
   }
 }
 
@@ -385,13 +403,23 @@ function renderAbout(content) {
   renderStandardHero(content.about);
   setText("[data-about-story-eyebrow]", content.about.story.eyebrow);
   setText("[data-about-story-title]", content.about.story.title);
-  setText("[data-about-story-quote]", `“${content.about.story.quote}”`);
 
-  const paragraphs = document.querySelector("[data-about-story-paragraphs]");
-  if (paragraphs) {
-    paragraphs.innerHTML = content.about.story.paragraphs
+  const storyBody = document.querySelector("[data-about-story-body]");
+  if (storyBody) {
+    const storyParagraphs = Array.isArray(content.about.story.paragraphs)
+      ? content.about.story.paragraphs
+      : [];
+    const storyQuote = String(content.about.story.quote || "").trim();
+
+    const paragraphsHtml = storyParagraphs
       .map(paragraph => `<p>${escapeHtml(paragraph)}</p>`)
       .join("");
+
+    const quoteHtml = storyQuote
+      ? `<blockquote class="about-pull-quote">“${escapeHtml(storyQuote)}”</blockquote>`
+      : "";
+
+    storyBody.innerHTML = `${quoteHtml}${paragraphsHtml}`;
   }
 
   const values = document.querySelector("[data-about-values]");
@@ -3211,9 +3239,13 @@ async function initialiseSite() {
 
     const main = document.querySelector("main");
     if (main) {
+      const message = window.location.protocol === "file:"
+        ? "The website content could not be loaded. Open this site through a local or online web server instead of double-clicking the HTML file."
+        : "Some website content could not be loaded completely. Please refresh the page. If the problem continues, contact the site administrator.";
+
       main.insertAdjacentHTML(
         "afterbegin",
-        `<div class="container"><p class="content-error">The website content could not be loaded. Open this site through a local or online web server instead of double-clicking the HTML file.</p></div>`
+        `<div class="container"><p class="content-error">${message}</p></div>`
       );
     }
   }

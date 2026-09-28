@@ -7657,3 +7657,86 @@ textarea:focus-visible {
     animation: none;
   }
 }
+
+/* About page: editorial / newspaper story treatment */
+.about-story-wrap {
+  max-width: 1040px;
+  margin-inline: auto;
+}
+
+.about-story-wrap > h2 {
+  max-width: 760px;
+  margin-bottom: 1.35rem;
+}
+
+.about-story-body {
+  display: flow-root;
+  font-size: 1.05rem;
+}
+
+.about-story-body p {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  line-height: 1.86;
+  margin: 0 0 1.2rem;
+}
+
+.about-story-body p:first-of-type::first-letter {
+  float: left;
+  margin: .08em .12em 0 0;
+  color: var(--red);
+  font-family: 'Fraunces', serif;
+  font-size: 3.5em;
+  font-weight: 700;
+  line-height: .78;
+}
+
+.about-pull-quote {
+  float: right;
+  width: min(42%, 400px);
+  margin: .15rem 0 1.1rem 2rem;
+  padding: 1.5rem 1.6rem 1.45rem;
+  border: 0;
+  border-top: 5px solid var(--yellow);
+  border-bottom: 1px solid rgba(22, 34, 73, .18);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(145deg, rgba(214, 231, 244, .92), rgba(255, 255, 255, .98));
+  box-shadow: var(--shadow-sm);
+  color: var(--navy);
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+  font-style: italic;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.about-pull-quote::before {
+  content: "✦";
+  display: block;
+  margin-bottom: .45rem;
+  color: var(--red);
+  font-family: inherit;
+  font-size: .9rem;
+  font-style: normal;
+  letter-spacing: .08em;
+}
+
+@media (max-width: 760px) {
+  .about-story-body p {
+    text-align: left;
+    hyphens: none;
+  }
+
+  .about-pull-quote {
+    float: none;
+    width: auto;
+    margin: 1.35rem 0 1.5rem;
+  }
+
+  .about-story-body p:first-of-type::first-letter {
+    font-size: 3em;
+  }
+}

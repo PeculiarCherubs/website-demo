@@ -66,6 +66,19 @@ for (const requiredSection of [
   }
 }
 
+
+const contentService = read('js/contentService.js');
+const homeDependencyMatch = contentService.match(/home:\s*\[([^\]]+)\]/);
+if (!homeDependencyMatch) {
+  issues.push('Home PAGE_SECTION_MAP entry is missing.');
+} else {
+  for (const required of ['home', 'ministries', 'sermons', 'quickLinks']) {
+    if (!homeDependencyMatch[1].includes(`'${required}'`)) {
+      issues.push(`Home page loader is missing required section dependency: ${required}`);
+    }
+  }
+}
+
 if (issues.length) {
   console.error('Final QA integrity check FAILED');
   issues.forEach(issue => console.error(`- ${issue}`));
