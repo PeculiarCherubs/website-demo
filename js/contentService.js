@@ -1,9 +1,12 @@
 /**
  * ContentService.js
- * Unified JavaScript service for fetching site content from Supabase DB ('pdcm') or local JSON fallback.
- * Implements section-level lazy loading, in-memory caching, deduplicated requests, and on-demand section fetching.
+ * Unified JavaScript service for fetching site content via BackendAdapter or local JSON fallback.
+ * Implements section-level lazy loading, in-memory caching, deduplicated requests, on-demand section fetching,
+ * and optimistic concurrency metadata tracking.
  */
 (function (global) {
+  'use strict';
+
   // Resolve the fallback JSON relative to this script so it works from both
   // root pages and nested pages such as /admin/index.html.
   const CONTENT_SERVICE_SCRIPT_URL =
@@ -15,15 +18,16 @@
     ? new URL('../content/site-content.json', CONTENT_SERVICE_SCRIPT_URL).href
     : 'content/site-content.json';
 
-  const SUPABASE_CONFIG = {
+  // Default configuration for backwards-compatibility
+  const DEFAULT_CONFIG = {
     url: 'https://iyihwxtkgawphsnrxvop.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aWh3eHRrZ2F3cGhzbnJ4dm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MjA3NjIsImV4cCI6MjEwMzk5Njc2Mn0.61qJQ8ev9LFap1bu4A1Lr7Wy8JVvczZVb_KmhlalSQ8',
     tableName: 'site_content',
     localFallbackPath: LOCAL_FALLBACK_URL,
-    fetchTimeoutMs: 5000
+    fetchTimeoutMs: 4000
   };
 
-  // Pages currently configured to fetch live data from Supabase DB
+  // Pages currently configured to fetch live data from BaaS DB
   const DB_REROUTED_PAGES = new Set([
     'home',
     'ministries',
@@ -75,10 +79,10 @@
   let localFallbackCache = null;
 
   const ContentService = {
-    config: SUPABASE_CONFIG,
+    config: DEFAULT_CONFIG,
 
     /**
-     * Checks if a given page is set to fetch live data from Supabase DB.
+     * Checks if a given page is set to fetch live data from BaaS DB.
      */
     isDbReroutedPage(pageName) {
       return DB_REROUTED_PAGES.has(pageName);
@@ -87,13 +91,11 @@
     /**
      * Creates a safe AbortSignal with timeout.
      */
-    getAbortSignal(timeoutMs = SUPABASE_CONFIG.fetchTimeoutMs) {
+    getAbortSignal(timeoutMs = DEFAULT_CONFIG.fetchTimeoutMs) {
       if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
         try {
           return AbortSignal.timeout(timeoutMs);
-        } catch (e) {
-          // Fallback if AbortSignal.timeout fails
-        }
+        } catch (e) {}
       }
       if (typeof AbortController !== 'undefined') {
         const controller = new AbortController();
@@ -116,35 +118,44 @@
 
       const reqPromise = (async () => {
         try {
-          const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=eq.${encodeURIComponent(sectionKey)}&select=key,data,updated_at`;
-          const signal = this.getAbortSignal();
+          // If BackendAdapter circuit breaker is open, immediately short-circuit to fallback
+          if (global.BackendAdapter?.isCircuitOpen?.()) {
+            throw new Error('Backend circuit breaker open.');
+          }
 
-          const options = {
-            method: 'GET',
-            headers: {
-              'apikey': SUPABASE_CONFIG.anonKey,
-              'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-              'Accept': 'application/json'
-            },
-            cache: 'no-store'
-          };
-          if (signal) options.signal = signal;
+          let data;
+          let updatedAt = null;
 
-          const response = await fetch(endpoint, options);
-          if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-          const rows = await response.json();
-          if (!rows || rows.length === 0) throw new Error(`Section '${sectionKey}' not found.`);
+          if (global.BackendAdapter?.content?.getSection) {
+            data = await global.BackendAdapter.content.getSection(sectionKey);
+            const verObj = await global.BackendAdapter.content.getSectionVersion(sectionKey).catch(() => null);
+            updatedAt = verObj?.updated_at || null;
+          } else {
+            // Direct fetch fallback if BackendAdapter not yet registered
+            const endpoint = `${this.config.url}/rest/v1/${this.config.tableName}?key=eq.${encodeURIComponent(sectionKey)}&select=key,data,updated_at`;
+            const signal = this.getAbortSignal();
+            const resp = await fetch(endpoint, {
+              headers: {
+                'apikey': this.config.anonKey,
+                'Authorization': `Bearer ${this.config.anonKey}`,
+                'Accept': 'application/json'
+              },
+              signal,
+              cache: 'no-store'
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const rows = await resp.json();
+            if (!rows || rows.length === 0) throw new Error(`Section '${sectionKey}' not found.`);
+            data = rows[0].data;
+            updatedAt = rows[0].updated_at || null;
+          }
 
-          const row = rows[0];
-          const data = row.data;
           cache[sectionKey] = data;
-          versions[sectionKey] = row.updated_at || null;
+          versions[sectionKey] = updatedAt;
           return data;
         } catch (err) {
           console.warn(`[ContentService] On-demand live load failed for '${sectionKey}', using local fallback.`, err);
           const fallback = await this.fetchLocalFallback();
-          // IMPORTANT: fallback data is deliberately NOT written into the
-          // Supabase cache. The cache represents live CMS data only.
           return fallback[sectionKey] || {};
         } finally {
           delete pendingRequests[sectionKey];
@@ -156,39 +167,51 @@
     },
 
     /**
-     * Fetches multiple sections concurrently from Supabase DB.
+     * Fetches multiple sections concurrently from active BaaS DB.
      */
     async fetchSectionsFromDB(sectionKeys) {
       const uniqueKeys = [...new Set(sectionKeys)];
       const missingKeys = uniqueKeys.filter(k => !cache[k]);
 
       if (missingKeys.length > 0) {
-        const keysFilter = missingKeys.map(k => encodeURIComponent(k)).join(',');
-        const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=in.(${keysFilter})&select=key,data,updated_at`;
-        const signal = this.getAbortSignal();
-
-        const options = {
-          method: 'GET',
-          headers: {
-            'apikey': SUPABASE_CONFIG.anonKey,
-            'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-            'Accept': 'application/json'
-          },
-          cache: 'no-store'
-        };
-        if (signal) options.signal = signal;
-
-        const response = await fetch(endpoint, options);
-
-        if (!response.ok) {
-          throw new Error(`Failed to batch fetch sections [${missingKeys.join(', ')}] from Supabase: ${response.status}`);
+        // If circuit breaker is open, throw immediately to trigger local fallback
+        if (global.BackendAdapter?.isCircuitOpen?.()) {
+          throw new Error('Backend circuit breaker is open. Short-circuiting to local fallback.');
         }
 
-        const rows = await response.json();
-        rows.forEach(row => {
-          cache[row.key] = row.data;
-          versions[row.key] = row.updated_at || null;
-        });
+        if (global.BackendAdapter?.content?.fetchSections) {
+          const fetchedMap = await global.BackendAdapter.content.fetchSections(missingKeys);
+          for (const [k, d] of Object.entries(fetchedMap)) {
+            cache[k] = d;
+            versions[k] = d?.updated_at || new Date().toISOString();
+          }
+        } else {
+          // Direct fetch fallback
+          const keysFilter = missingKeys.map(k => encodeURIComponent(k)).join(',');
+          const endpoint = `${this.config.url}/rest/v1/${this.config.tableName}?key=in.(${keysFilter})&select=key,data,updated_at`;
+          const signal = this.getAbortSignal();
+
+          const resp = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+              'apikey': this.config.anonKey,
+              'Authorization': `Bearer ${this.config.anonKey}`,
+              'Accept': 'application/json'
+            },
+            signal,
+            cache: 'no-store'
+          });
+
+          if (!resp.ok) {
+            throw new Error(`Failed to batch fetch sections [${missingKeys.join(', ')}]: ${resp.status}`);
+          }
+
+          const rows = await resp.json();
+          rows.forEach(row => {
+            cache[row.key] = row.data;
+            versions[row.key] = row.updated_at || null;
+          });
+        }
       }
 
       const unresolvedKeys = uniqueKeys.filter(
@@ -197,7 +220,7 @@
 
       if (unresolvedKeys.length > 0) {
         throw new Error(
-          `Supabase is missing required site_content section(s): ${unresolvedKeys.join(', ')}`
+          `BaaS database is missing required site_content section(s): ${unresolvedKeys.join(', ')}`
         );
       }
 
@@ -229,7 +252,7 @@
     },
 
     /**
-     * Clears live Supabase cache so the next read is forced back to the DB.
+     * Clears live BaaS cache so the next read is forced back to the active DB.
      */
     clearCache(sectionKey = null) {
       if (sectionKey) {
@@ -252,9 +275,9 @@
         return localFallbackCache;
       }
 
-      console.log(`[ContentService] Loading local fallback from ${SUPABASE_CONFIG.localFallbackPath}`);
+      console.log(`[ContentService] Loading local fallback from ${this.config.localFallbackPath}`);
 
-      const response = await fetch(SUPABASE_CONFIG.localFallbackPath, { cache: 'no-store' });
+      const response = await fetch(this.config.localFallbackPath, { cache: 'no-store' });
       if (!response.ok) {
         throw new Error(`Local content fallback failed with status ${response.status}.`);
       }
@@ -271,7 +294,8 @@
 
       if (isRerouted) {
         try {
-          console.log(`[ContentService] Lazy-loading sections for page '${pageName}' from Supabase DB ('pdcm')...`);
+          const providerName = global.BackendAdapter?.getActiveProviderName?.() || 'live_baas';
+          console.log(`[ContentService] Lazy-loading sections for page '${pageName}' from ${providerName}...`);
 
           const pageSpecificSections = PAGE_SECTION_MAP[pageName] || [pageName];
           const requiredSections = [...CRITICAL_SECTIONS, ...pageSpecificSections];
@@ -279,11 +303,11 @@
           const sectionsData = await this.fetchSectionsFromDB(requiredSections);
           const fullContent = { ...sectionsData };
 
-          fullContent._source = 'supabase_db';
-          console.log(`[ContentService] Successfully loaded '${pageName}' sections:`, Object.keys(fullContent));
+          fullContent._source = `${providerName}_db`;
+          console.log(`[ContentService] Successfully loaded '${pageName}' sections from ${providerName}:`, Object.keys(fullContent));
           return fullContent;
         } catch (dbError) {
-          console.warn(`[ContentService] Supabase DB fetch failed for '${pageName}'. Falling back to local site-content.json.`, dbError);
+          console.warn(`[ContentService] Live BaaS DB fetch failed for '${pageName}'. Falling back to local site-content.json.`, dbError);
           const fallbackContent = await this.fetchLocalFallback();
           return {
             ...fallbackContent,
@@ -308,6 +332,29 @@
       return await this.getSection(sectionKey);
     }
   };
+
+  // Sync ContentService.config whenever ConfigManager updates
+  if (global.ConfigManager?.subscribe) {
+    global.ConfigManager.subscribe((activeName, activeCfg) => {
+      if (activeCfg) {
+        ContentService.config = {
+          ...ContentService.config,
+          ...activeCfg,
+          url: activeCfg.url || ContentService.config.url,
+          anonKey: activeCfg.anonKey || ContentService.config.anonKey,
+          tableName: activeCfg.tableName || ContentService.config.tableName
+        };
+      }
+      ContentService.clearCache();
+    });
+  }
+
+  // Clear cache if provider switches
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('cms:baas-changed', () => {
+      ContentService.clearCache();
+    });
+  }
 
   global.ContentService = ContentService;
 })(typeof window !== 'undefined' ? window : globalThis);

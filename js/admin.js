@@ -8,7 +8,7 @@
 (function (global) {
   'use strict';
 
-  const AUTH_SESSION_KEY = 'pdcm_supabase_auth_session';
+  const AUTH_SESSION_KEY = 'pdcm_auth_session';
   const AUTH_REFRESH_SKEW_MS = 60 * 1000;
 
   let currentContent = {};
@@ -31,7 +31,9 @@
     giving: 'giving.manage',
     siteSettings: 'site.manage',
     adminAccess: 'admins.manage',
-    advancedContent: 'advanced.manage'
+    advancedContent: 'advanced.manage',
+    baasSettings: 'admins.manage',
+    baaSSettings: 'admins.manage'
   };
   let editingState = {
     sectionKey: null,
@@ -157,13 +159,16 @@
     },
 
     /**
-     * Returns the locally stored Supabase session used by the Admin Portal.
+     * Returns the locally stored session used by the Admin Portal.
      * The session is kept in sessionStorage so closing the browser tab ends
      * the local Admin session.
      */
     getStoredAuthSession() {
+      if (global.BackendAdapter?.auth?.getStoredSession) {
+        return global.BackendAdapter.auth.getStoredSession();
+      }
       try {
-        const raw = sessionStorage.getItem(AUTH_SESSION_KEY);
+        const raw = sessionStorage.getItem(AUTH_SESSION_KEY) || sessionStorage.getItem('pdcm_supabase_auth_session');
         return raw ? JSON.parse(raw) : null;
       } catch (err) {
         console.warn('[AdminPortal] Invalid stored auth session.', err);
@@ -173,13 +178,16 @@
     },
 
     storeAuthSession(payload) {
-      const expiresIn = Number(payload.expires_in || 3600);
+      if (global.BackendAdapter?.auth?.storeSession) {
+        return global.BackendAdapter.auth.storeSession(payload);
+      }
+      const expiresIn = Number(payload.expires_in || payload.expiresIn || 3600);
       const session = {
-        accessToken: payload.access_token,
-        refreshToken: payload.refresh_token,
-        tokenType: payload.token_type || 'bearer',
-        expiresAt: Date.now() + (expiresIn * 1000),
-        user: payload.user || null
+        accessToken: payload.access_token || payload.accessToken,
+        refreshToken: payload.refresh_token || payload.refreshToken,
+        tokenType: payload.token_type || payload.tokenType || 'bearer',
+        expiresAt: payload.expiresAt || (Date.now() + (expiresIn * 1000)),
+        user: payload.user || payload.record || null
       };
 
       sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
@@ -187,18 +195,25 @@
     },
 
     clearAuthSession() {
+      if (global.BackendAdapter?.auth?.clearSession) {
+        global.BackendAdapter.auth.clearSession();
+      }
       sessionStorage.removeItem(AUTH_SESSION_KEY);
+      sessionStorage.removeItem('pdcm_supabase_auth_session');
     },
 
     getAuthConfig() {
-      const cfg = global.ContentService?.config;
-      if (!cfg?.url || !cfg?.anonKey) {
-        throw new Error('Supabase configuration is unavailable.');
+      const cfg = global.ConfigManager?.getActiveProviderConfig?.() || global.ContentService?.config;
+      if (!cfg?.url) {
+        throw new Error('BaaS configuration is unavailable.');
       }
       return cfg;
     },
 
     async refreshAuthSession(session) {
+      if (global.BackendAdapter?.auth?.refreshSession) {
+        return await global.BackendAdapter.auth.refreshSession(session);
+      }
       if (!session?.refreshToken) return null;
 
       const cfg = this.getAuthConfig();
@@ -220,6 +235,9 @@
     },
 
     async getValidAuthSession() {
+      if (global.BackendAdapter?.auth?.getValidSession) {
+        return await global.BackendAdapter.auth.getValidSession();
+      }
       let session = this.getStoredAuthSession();
       if (!session?.accessToken) return null;
 
@@ -232,6 +250,9 @@
 
     async verifyCmsAdmin(accessToken) {
       if (!accessToken) return false;
+      if (global.BackendAdapter?.rbac?.isCmsAdmin) {
+        return await global.BackendAdapter.rbac.isCmsAdmin(accessToken);
+      }
 
       const cfg = this.getAuthConfig();
       const response = await fetch(`${cfg.url}/rest/v1/rpc/is_cms_admin`, {
@@ -254,6 +275,9 @@
 
     async fetchCmsAccessProfile(accessToken) {
       if (!accessToken) return null;
+      if (global.BackendAdapter?.rbac?.getAccessProfile) {
+        return await global.BackendAdapter.rbac.getAccessProfile(accessToken);
+      }
 
       const cfg = this.getAuthConfig();
       const response = await fetch(`${cfg.url}/rest/v1/rpc/cms_get_access_profile`, {
@@ -317,6 +341,10 @@
           || this.hasPermission('chapel.content.manage');
       }
 
+      if (tabName === 'baasSettings' || tabName === 'baaSSettings') {
+        return this.hasPermission('admins.manage');
+      }
+
       const required = TAB_PERMISSIONS[tabName];
       return Boolean(required && this.hasPermission(required));
     },
@@ -331,8 +359,13 @@
       });
 
       document.querySelectorAll('.admin-view-panel').forEach(panel => {
-        const raw = panel.id.replace(/^panel/, '');
-        const tab = raw.charAt(0).toLowerCase() + raw.slice(1);
+        let tab;
+        if (panel.id === 'panelBaaSSettings' || panel.id === 'panelBaasSettings') {
+          tab = 'baasSettings';
+        } else {
+          const raw = panel.id.replace(/^panel/, '');
+          tab = raw.charAt(0).toLowerCase() + raw.slice(1);
+        }
         if (tab !== 'dashboard') {
           panel.classList.toggle('admin-permission-hidden', !this.canOpenTab(tab));
         }
@@ -956,22 +989,28 @@
       }
 
       try {
-        const cfg = this.getAuthConfig();
-        const response = await fetch(`${cfg.url}/auth/v1/token?grant_type=password`, {
-          method: 'POST',
-          headers: {
-            'apikey': cfg.anonKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password })
-        });
+        let session;
+        if (global.BackendAdapter?.auth?.signIn) {
+          session = await global.BackendAdapter.auth.signIn(email, password);
+        } else {
+          const cfg = this.getAuthConfig();
+          const response = await fetch(`${cfg.url}/auth/v1/token?grant_type=password`, {
+            method: 'POST',
+            headers: {
+              'apikey': cfg.anonKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
 
-        if (!response.ok) {
-          const detail = await response.json().catch(() => ({}));
-          throw new Error(detail.msg || detail.error_description || 'Invalid email or password.');
+          if (!response.ok) {
+            const detail = await response.json().catch(() => ({}));
+            throw new Error(detail.msg || detail.error_description || 'Invalid email or password.');
+          }
+
+          session = this.storeAuthSession(await response.json());
         }
 
-        const session = this.storeAuthSession(await response.json());
         const isAdmin = await this.verifyCmsAdmin(session.accessToken);
 
         if (!isAdmin) {
@@ -1023,6 +1062,11 @@
         token = session.accessToken;
       }
 
+      if (global.BackendAdapter?.auth?.updatePassword) {
+        await global.BackendAdapter.auth.updatePassword(newPassword, token);
+        return { success: true };
+      }
+
       const cfg = this.getAuthConfig();
       const response = await fetch(`${cfg.url}/auth/v1/user`, {
         method: 'PUT',
@@ -1059,18 +1103,23 @@
     },
 
     /**
-     * Requests a Supabase password-recovery email.
+     * Requests a password-recovery email.
      */
     async sendPasswordResetEmail(email, redirectTo = null) {
       if (!email || !email.includes('@')) {
         throw new Error('Please enter a valid administrator email address.');
       }
 
-      const cfg = this.getAuthConfig();
       const redirectTarget =
         redirectTo ||
         (window.location.origin + window.location.pathname);
 
+      if (global.BackendAdapter?.auth?.requestPasswordReset) {
+        await global.BackendAdapter.auth.requestPasswordReset(email, redirectTarget);
+        return;
+      }
+
+      const cfg = this.getAuthConfig();
       const endpoint =
         `${cfg.url}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTarget)}`;
 
@@ -1321,20 +1370,24 @@
      * Ends the Supabase Auth session and locks the portal.
      */
     async handleLogout() {
-      const session = this.getStoredAuthSession();
-      const cfg = global.ContentService?.config;
+      if (global.BackendAdapter?.auth?.signOut) {
+        await global.BackendAdapter.auth.signOut();
+      } else {
+        const session = this.getStoredAuthSession();
+        const cfg = global.ContentService?.config;
 
-      if (session?.accessToken && cfg?.url && cfg?.anonKey) {
-        try {
-          await fetch(`${cfg.url}/auth/v1/logout`, {
-            method: 'POST',
-            headers: {
-              'apikey': cfg.anonKey,
-              'Authorization': `Bearer ${session.accessToken}`
-            }
-          });
-        } catch (err) {
-          console.warn('[AdminPortal] Remote logout failed; local session will still be cleared.', err);
+        if (session?.accessToken && cfg?.url && cfg?.anonKey) {
+          try {
+            await fetch(`${cfg.url}/auth/v1/logout`, {
+              method: 'POST',
+              headers: {
+                'apikey': cfg.anonKey,
+                'Authorization': `Bearer ${session.accessToken}`
+              }
+            });
+          } catch (err) {
+            console.warn('[AdminPortal] Remote logout failed; local session will still be cleared.', err);
+          }
         }
       }
 
@@ -1475,6 +1528,10 @@
         });
       }
 
+      if (tabName === 'baasSettings') {
+        this.renderBaaSSettings();
+      }
+
       // Update sidebar nav state
       document.querySelectorAll('.admin-nav-item').forEach(item => {
         if (item.getAttribute('data-tab') === tabName) {
@@ -1489,10 +1546,176 @@
         panel.classList.remove('active');
       });
 
-      const activePanel = document.getElementById(`panel${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+      const panelId = (tabName === 'baasSettings' || tabName === 'baaSSettings')
+        ? 'panelBaaSSettings'
+        : `panel${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`;
+
+      const activePanel = document.getElementById(panelId)
+        || document.getElementById(`panel${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`)
+        || (tabName.toLowerCase() === 'baassettings' ? document.getElementById('panelBaaSSettings') : null);
+
       if (activePanel) {
         activePanel.classList.add('active');
+        activePanel.classList.remove('admin-permission-hidden');
       }
+    },
+
+    /**
+     * Renders the BaaS & Backend Settings view
+     */
+    renderBaaSSettings() {
+      const activeProvider = global.ConfigManager?.getActiveProviderName?.() || 'supabase';
+      const badge = document.getElementById('baasActiveProviderBadge');
+      if (badge) {
+        badge.textContent = activeProvider.toUpperCase();
+        badge.style.background = activeProvider === 'supabase' ? '#22c55e' : '#3b82f6';
+      }
+
+      const spCfg = global.ConfigManager?.getProviderConfig?.('supabase');
+      if (spCfg) {
+        const u = document.getElementById('cfgSupabaseUrl');
+        const k = document.getElementById('cfgSupabaseAnonKey');
+        const t = document.getElementById('cfgSupabaseTable');
+        if (u) u.value = spCfg.url || '';
+        if (k) k.value = spCfg.anonKey || '';
+        if (t) t.value = spCfg.tableName || 'site_content';
+      }
+
+      const pbCfg = global.ConfigManager?.getProviderConfig?.('pocketbase');
+      if (pbCfg) {
+        const u = document.getElementById('cfgPocketbaseUrl');
+        const c = document.getElementById('cfgPocketbaseContentColl');
+        const usr = document.getElementById('cfgPocketbaseUsersColl');
+        if (u) u.value = pbCfg.url || '';
+        if (c) c.value = pbCfg.contentCollection || 'site_content';
+        if (usr) usr.value = pbCfg.usersCollection || 'users';
+      }
+
+      const spBadge = document.getElementById('badgeStatusSupabase');
+      const pbBadge = document.getElementById('badgeStatusPocketbase');
+      const spBtn = document.getElementById('btnActivateSupabase');
+      const pbBtn = document.getElementById('btnActivatePocketbase');
+
+      if (spBadge) {
+        spBadge.textContent = activeProvider === 'supabase' ? 'Active' : 'Standby';
+        spBadge.style.background = activeProvider === 'supabase' ? '#22c55e' : '#334155';
+        spBadge.style.color = '#fff';
+      }
+      if (pbBadge) {
+        pbBadge.textContent = activeProvider === 'pocketbase' ? 'Active' : 'Standby';
+        pbBadge.style.background = activeProvider === 'pocketbase' ? '#22c55e' : '#334155';
+        pbBadge.style.color = '#fff';
+      }
+      if (spBtn) {
+        spBtn.disabled = activeProvider === 'supabase';
+        spBtn.textContent = activeProvider === 'supabase' ? '✓ Currently Active' : '🚀 Set as Active BaaS';
+      }
+      if (pbBtn) {
+        pbBtn.disabled = activeProvider === 'pocketbase';
+        pbBtn.textContent = activeProvider === 'pocketbase' ? '✓ Currently Active' : '🚀 Set as Active BaaS';
+      }
+    },
+
+    /**
+     * Executes non-destructive health-check test against a provider
+     */
+    async testBaaSConnection(providerName) {
+      const resultEl = document.getElementById(providerName === 'supabase' ? 'testResultSupabase' : 'testResultPocketbase');
+      if (resultEl) {
+        resultEl.innerHTML = '<span style="color: #60a5fa;">⏳ Testing connection...</span>';
+      }
+
+      let customConfig = {};
+      if (providerName === 'supabase') {
+        customConfig = {
+          url: document.getElementById('cfgSupabaseUrl')?.value.trim() || '',
+          anonKey: document.getElementById('cfgSupabaseAnonKey')?.value.trim() || '',
+          tableName: document.getElementById('cfgSupabaseTable')?.value.trim() || 'site_content'
+        };
+      } else {
+        customConfig = {
+          url: document.getElementById('cfgPocketbaseUrl')?.value.trim() || '',
+          contentCollection: document.getElementById('cfgPocketbaseContentColl')?.value.trim() || 'site_content',
+          usersCollection: document.getElementById('cfgPocketbaseUsersColl')?.value.trim() || 'users'
+        };
+      }
+
+      try {
+        const testRes = await global.BackendAdapter.testConnection(providerName, customConfig);
+        if (resultEl) {
+          if (testRes.ok) {
+            resultEl.innerHTML = `<span style="color: #22c55e; font-weight: 600;">✅ Connected (${testRes.latencyMs}ms) — ${testRes.message || 'Health check passed.'}</span>`;
+          } else {
+            resultEl.innerHTML = `<span style="color: #ef4444; font-weight: 600;">❌ Connection failed: ${testRes.error || 'Unknown error'}</span>`;
+          }
+        }
+      } catch (err) {
+        if (resultEl) {
+          resultEl.innerHTML = `<span style="color: #ef4444; font-weight: 600;">❌ Error: ${err.message}</span>`;
+        }
+      }
+    },
+
+    /**
+     * Switches active BaaS provider in real time
+     */
+    async activateBaaSProvider(providerName) {
+      try {
+        let updatedConfig = {};
+        if (providerName === 'supabase') {
+          updatedConfig = {
+            url: document.getElementById('cfgSupabaseUrl')?.value.trim() || '',
+            anonKey: document.getElementById('cfgSupabaseAnonKey')?.value.trim() || '',
+            tableName: document.getElementById('cfgSupabaseTable')?.value.trim() || 'site_content'
+          };
+        } else {
+          updatedConfig = {
+            url: document.getElementById('cfgPocketbaseUrl')?.value.trim() || '',
+            contentCollection: document.getElementById('cfgPocketbaseContentColl')?.value.trim() || 'site_content',
+            usersCollection: document.getElementById('cfgPocketbaseUsersColl')?.value.trim() || 'users'
+          };
+        }
+
+        if (global.ConfigManager?.setProviderConfig) {
+          global.ConfigManager.setProviderConfig(providerName, updatedConfig);
+        }
+
+        if (global.BackendAdapter?.setActiveProvider) {
+          await global.BackendAdapter.setActiveProvider(providerName);
+        }
+
+        this.renderBaaSSettings();
+        this.updateStatusIndicator(true, `Connected to Live ${providerName.charAt(0).toUpperCase() + providerName.slice(1)}`);
+        this.showToast(`Switched active BaaS to ${providerName.toUpperCase()}. Re-syncing CMS...`, 'success');
+
+        // Re-load site content from newly activated provider
+        await this.loadFullContent({ forceRefresh: true });
+      } catch (err) {
+        console.error('[AdminPortal] Error activating BaaS provider:', err);
+        this.showToast(`Could not activate BaaS provider: ${err.message}`, 'error');
+      }
+    },
+
+    /**
+     * Exports baas-config.json for deployment
+     */
+    exportBaaSConfig() {
+      const configStr = global.ConfigManager?.getSerializedConfig?.();
+      if (!configStr) {
+        this.showToast('Configuration could not be exported.', 'error');
+        return;
+      }
+
+      const blob = new Blob([configStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'baas-config.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      this.showToast('Downloaded baas-config.json for deployment/backup.', 'success');
     },
 
     /**
@@ -1884,7 +2107,7 @@
 
       const bSermons = document.getElementById('badgeSermons');
       if (bSermons) bSermons.textContent = sermons.length;
-      const bLivestream=document.getElementById('badgeLivestream'); if(bLivestream)bLivestream.textContent=livestreamChannels.length;
+      const bLivestream = document.getElementById('badgeLivestream'); if (bLivestream) bLivestream.textContent = livestreamChannels.length;
 
       const bEvents = document.getElementById('badgeEvents');
       if (bEvents) bEvents.textContent = events.length;
@@ -1973,29 +2196,29 @@
       }).join('');
     },
 
-    getLivestreamChannelEntries(){
-      const ch=currentContent.livestream?.channels||{}, details=currentContent.chapels?.details||{};
+    getLivestreamChannelEntries() {
+      const ch = currentContent.livestream?.channels || {}, details = currentContent.chapels?.details || {};
       return Object.entries(ch)
         .filter(([key]) => !this.isChapelScoped() || this.canManageChapel(key))
-        .map(([key,channel])=>({key,label:channel.label||(key==='mother-church'?'Mother Church':details[key]?.shortTitle||details[key]?.title||key),channel}));
+        .map(([key, channel]) => ({ key, label: channel.label || (key === 'mother-church' ? 'Mother Church' : details[key]?.shortTitle || details[key]?.title || key), channel }));
     },
-    renderLivestreamView(){
-      const select=document.getElementById('livestreamChannelSelect'); if(!select)return;
-      const entries=this.getLivestreamChannelEntries(), prev=select.value;
-      select.innerHTML=entries.map(e=>`<option value="${e.key}">${e.label}</option>`).join('');
-      const key=entries.some(e=>e.key===prev)?prev:(entries[0]?.key||''); select.value=key; if(key)this.populateLivestreamForm(key);
+    renderLivestreamView() {
+      const select = document.getElementById('livestreamChannelSelect'); if (!select) return;
+      const entries = this.getLivestreamChannelEntries(), prev = select.value;
+      select.innerHTML = entries.map(e => `<option value="${e.key}">${e.label}</option>`).join('');
+      const key = entries.some(e => e.key === prev) ? prev : (entries[0]?.key || ''); select.value = key; if (key) this.populateLivestreamForm(key);
     },
-    populateLivestreamForm(key){
-      const c=currentContent.livestream?.channels?.[key]||{}, b=c.currentBroadcast||{}, set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
-      const local=v=>{if(!v)return '';const d=new Date(v);if(Number.isNaN(d.getTime()))return '';const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;};
-      set('livestreamStatusOverride',c.statusOverride||'auto');set('livestreamServiceType',b.serviceType||'Sunday Worship');set('livestreamTitle',b.title);set('livestreamSpeaker',b.speaker);set('livestreamVideoUrl',b.videoUrl);set('livestreamStartsAt',local(b.startsAt));set('livestreamEndsAt',local(b.endsAt));set('livestreamYoutubeChannel',c.youtubeChannelUrl);
+    populateLivestreamForm(key) {
+      const c = currentContent.livestream?.channels?.[key] || {}, b = c.currentBroadcast || {}, set = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
+      const local = v => { if (!v) return ''; const d = new Date(v); if (Number.isNaN(d.getTime())) return ''; const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+      set('livestreamStatusOverride', c.statusOverride || 'auto'); set('livestreamServiceType', b.serviceType || 'Sunday Worship'); set('livestreamTitle', b.title); set('livestreamSpeaker', b.speaker); set('livestreamVideoUrl', b.videoUrl); set('livestreamStartsAt', local(b.startsAt)); set('livestreamEndsAt', local(b.endsAt)); set('livestreamYoutubeChannel', c.youtubeChannelUrl);
     },
-    async saveLivestreamChannel(){
-      if(!this.hasPermission('livestream.manage')){this.showToast('Your CMS role does not permit broadcast management.','error');return;}
-      const key=document.getElementById('livestreamChannelSelect')?.value;if(!key)return;
-      const get=id=>document.getElementById(id)?.value?.trim()||'', iso=id=>{const v=get(id);if(!v)return '';const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toISOString();};
-      const c=currentContent.livestream.channels[key];
-      c.statusOverride=get('livestreamStatusOverride')||'auto';c.youtubeChannelUrl=get('livestreamYoutubeChannel');c.currentBroadcast={...(c.currentBroadcast||{}),serviceType:get('livestreamServiceType')||'Sunday Worship',title:get('livestreamTitle'),speaker:get('livestreamSpeaker'),videoUrl:get('livestreamVideoUrl'),startsAt:iso('livestreamStartsAt'),endsAt:iso('livestreamEndsAt')};
+    async saveLivestreamChannel() {
+      if (!this.hasPermission('livestream.manage')) { this.showToast('Your CMS role does not permit broadcast management.', 'error'); return; }
+      const key = document.getElementById('livestreamChannelSelect')?.value; if (!key) return;
+      const get = id => document.getElementById(id)?.value?.trim() || '', iso = id => { const v = get(id); if (!v) return ''; const d = new Date(v); return Number.isNaN(d.getTime()) ? '' : d.toISOString(); };
+      const c = currentContent.livestream.channels[key];
+      c.statusOverride = get('livestreamStatusOverride') || 'auto'; c.youtubeChannelUrl = get('livestreamYoutubeChannel'); c.currentBroadcast = { ...(c.currentBroadcast || {}), serviceType: get('livestreamServiceType') || 'Sunday Worship', title: get('livestreamTitle'), speaker: get('livestreamSpeaker'), videoUrl: get('livestreamVideoUrl'), startsAt: iso('livestreamStartsAt'), endsAt: iso('livestreamEndsAt') };
       const saved = this.isChapelScoped()
         ? await this.syncScopedChapelBroadcast(key, c)
         : await this.syncSectionToSupabase('livestream', currentContent.livestream);
@@ -2182,9 +2405,9 @@
             <div style="background: linear-gradient(160deg, #162249 0%, #1c2c5c 100%); padding: 1.75rem 1.5rem 1.25rem; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative;">
               <div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; margin-bottom: 0.85rem; border: 3px solid var(--yellow); box-shadow: 0 4px 12px rgba(0,0,0,0.25); background: #1c2c5c; display: grid; place-items: center; flex-shrink: 0;">
                 ${hasPhoto
-                  ? `<img src="../${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span style="display:none; color:var(--yellow); font-family:'Fraunces',serif; font-size:1.6rem; font-weight:700;">${initials}</span>`
-                  : `<span style="color: var(--yellow); font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700;">${initials}</span>`
-                }
+            ? `<img src="../${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span style="display:none; color:var(--yellow); font-family:'Fraunces',serif; font-size:1.6rem; font-weight:700;">${initials}</span>`
+            : `<span style="color: var(--yellow); font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700;">${initials}</span>`
+          }
               </div>
               <h3 style="font-family: 'Fraunces', serif; color: var(--white); font-size: 1.2rem; margin: 0 0 0.35rem; line-height: 1.2;">${item.name}</h3>
               <span style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--yellow);">${item.position}</span>
@@ -2868,7 +3091,7 @@
         if (sectionKey === 'publications') {
           item = this.getAllPublicationItems().find(i => i.id === itemId);
         } else if (sectionKey === 'sermons') {
-        html = `
+          html = `
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
               <label>ID</label>
@@ -2922,8 +3145,8 @@
             </div>
           </div>
         `;
-      } else if (sectionKey === 'events') {
-        html = `
+        } else if (sectionKey === 'events') {
+          html = `
           <div class="admin-modal-grid-2">
             <div class="admin-input-group">
               <label>ID</label>
@@ -2981,7 +3204,7 @@
             <input type="text" id="modalField_source" class="admin-input" value="${item.source || ''}">
           </div>
         `;
-      } else if (sectionKey === 'fellowships') {
+        } else if (sectionKey === 'fellowships') {
           item = (currentContent.ministries.houseFellowships || []).find(i => i.id === itemId || String(i.id) === String(itemId));
         } else if (sectionKey === 'ministries') {
           item = this.getAllMinistryItems().find(i => i.id === itemId);
@@ -3299,13 +3522,13 @@
           const tagsText = Array.isArray(raw.tags) ? raw.tags.join(', ') : '';
           const ministersText = Array.isArray(goodnews.nextWeekMinisters)
             ? goodnews.nextWeekMinisters
-                .map(entry => `${entry.label || ''}: ${entry.value || ''}`)
-                .join('\n')
+              .map(entry => `${entry.label || ''}: ${entry.value || ''}`)
+              .join('\n')
             : '';
           const meditationText = Array.isArray(goodnews.bibleMeditation)
             ? goodnews.bibleMeditation
-                .map(entry => `${entry.day || ''}: ${entry.reading || ''}`)
-                .join('\n')
+              .map(entry => `${entry.day || ''}: ${entry.reading || ''}`)
+              .join('\n')
             : '';
 
           html = `
@@ -4196,9 +4419,9 @@
           <div style="background: linear-gradient(160deg, #0e1a3d 0%, #162249 55%, #1c2c5c 100%); border-radius: 20px; padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative;">
             <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-bottom: 1rem; border: 3px solid var(--yellow); box-shadow: 0 6px 18px rgba(0,0,0,0.35); background: #1c2c5c; display: grid; place-items: center;">
               ${img
-                ? `<img src="../${img}" alt="${name}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"><span style="display:none; color:var(--yellow); font-family:'Fraunces',serif; font-size:2rem; font-weight:700;">${initials}</span>`
-                : `<span style="color: var(--yellow); font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700;">${initials}</span>`
-              }
+            ? `<img src="../${img}" alt="${name}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"><span style="display:none; color:var(--yellow); font-family:'Fraunces',serif; font-size:2rem; font-weight:700;">${initials}</span>`
+            : `<span style="color: var(--yellow); font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700;">${initials}</span>`
+          }
             </div>
             <strong style="font-family: 'Fraunces', Georgia, serif; font-size: 1.25rem; color: var(--white); margin-bottom: 0.35rem; line-height: 1.2;">${name}</strong>
             <span style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--yellow);">${position}</span>
@@ -4359,14 +4582,14 @@
           const existingScriptures = Array.isArray(existingLesson.mainScriptures) ? existingLesson.mainScriptures : [];
           const mainScriptures = references.length
             ? references.map((reference, idx) => {
-                const previous = existingScriptures.find(s => s.reference === reference) || existingScriptures[idx] || {};
-                return {
-                  ...previous,
-                  reference,
-                  label: previous.label || `Scripture Reading ${idx + 1}`,
-                  text: previous.reference === reference ? (previous.text || '') : ''
-                };
-              })
+              const previous = existingScriptures.find(s => s.reference === reference) || existingScriptures[idx] || {};
+              return {
+                ...previous,
+                reference,
+                label: previous.label || `Scripture Reading ${idx + 1}`,
+                text: previous.reference === reference ? (previous.text || '') : ''
+              };
+            })
             : existingScriptures;
 
           const discussionLines = getF('discussionQuestions').split('\n').map(q => q.trim()).filter(Boolean);
@@ -4467,9 +4690,9 @@
                 const separator = line.indexOf(':');
                 return separator >= 0
                   ? {
-                      label: line.slice(0, separator).trim(),
-                      value: line.slice(separator + 1).trim()
-                    }
+                    label: line.slice(0, separator).trim(),
+                    value: line.slice(separator + 1).trim()
+                  }
                   : { label: line, value: '' };
               });
 
@@ -4481,9 +4704,9 @@
                 const separator = line.indexOf(':');
                 return separator >= 0
                   ? {
-                      day: line.slice(0, separator).trim(),
-                      reading: line.slice(separator + 1).trim()
-                    }
+                    day: line.slice(0, separator).trim(),
+                    reading: line.slice(separator + 1).trim()
+                  }
                   : { day: line, reading: '' };
               });
 
@@ -5299,7 +5522,7 @@
 
       const expectedUpdatedAt =
         global.ContentService &&
-        typeof global.ContentService.getSectionVersion === 'function'
+          typeof global.ContentService.getSectionVersion === 'function'
           ? global.ContentService.getSectionVersion(sectionKey)
           : null;
 
@@ -5430,15 +5653,9 @@
     async syncSectionToSupabase(sectionKey, sectionData) {
       if (isFallbackMode) {
         this.showToast(
-          'Read-only fallback mode: no CMS writes are allowed until Supabase is available.',
+          'Read-only fallback mode: no CMS writes are allowed until live backend is available.',
           'error'
         );
-        return false;
-      }
-
-      const cfg = global.ContentService ? global.ContentService.config : null;
-      if (!cfg) {
-        this.showToast('ContentService configuration is unavailable.', 'error');
         return false;
       }
 
@@ -5459,9 +5676,86 @@
 
       const expectedUpdatedAt =
         global.ContentService &&
-        typeof global.ContentService.getSectionVersion === 'function'
+          typeof global.ContentService.getSectionVersion === 'function'
           ? global.ContentService.getSectionVersion(sectionKey)
           : null;
+
+      // Delegate through provider-agnostic BackendAdapter if available
+      if (global.BackendAdapter?.mutations?.upsertSection) {
+        try {
+          const result = await global.BackendAdapter.mutations.upsertSection(
+            sectionKey,
+            sectionData,
+            session,
+            { expectedUpdatedAt, expectedVersion: expectedUpdatedAt }
+          );
+
+          if (!result || !result.success) {
+            this.showToast(`Save response was incomplete for '${sectionKey}'.`, 'error');
+            await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+            return false;
+          }
+
+          if (
+            global.ContentService &&
+            typeof global.ContentService.setCachedSection === 'function'
+          ) {
+            global.ContentService.setCachedSection(
+              sectionKey,
+              result.data ?? sectionData,
+              result.updated_at
+            );
+          }
+
+          currentContent[sectionKey] = result.data ?? sectionData;
+          return true;
+        } catch (err) {
+          const detailMessage = [err?.message, err?.detail?.code, err?.detail?.message, err?.detail?.hint]
+            .filter(Boolean).join(' ');
+
+          console.warn(`[AdminPortal] BackendAdapter save for '${sectionKey}' failed:`, err);
+
+          if (detailMessage.includes('cms_permission_denied')) {
+            this.showToast(
+              `Your CMS role does not permit changes to '${sectionKey}'.`,
+              'error'
+            );
+            await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+            return false;
+          }
+
+          if (
+            detailMessage.includes('content_conflict') ||
+            detailMessage.includes('content_version_required') ||
+            err?.status === 409 ||
+            err?.detail?.code === '40001'
+          ) {
+            this.showToast(
+              `Save conflict for '${sectionKey}': another Admin changed this content after you loaded it. Reloading the latest version.`,
+              'error'
+            );
+            await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+            return false;
+          }
+
+          this.showToast(`Save failed for '${sectionKey}' (${err?.status || err?.message || 'Error'}).`, 'error');
+
+          if (err?.status === 401 || err?.status === 403 || err?.detail?.code === '42501') {
+            this.clearAuthSession();
+            this.showAuthOverlay('Your session is no longer authorized. Please sign in again.');
+          }
+
+          await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+          return false;
+        }
+      }
+
+      // Fallback direct endpoint for tests/legacy environments
+      const cfg = global.ContentService ? global.ContentService.config : null;
+      if (!cfg) {
+        this.showToast('ContentService configuration is unavailable.', 'error');
+        return false;
+      }
 
       const endpoint = `${cfg.url}/rest/v1/rpc/cms_upsert_site_content`;
 
@@ -5494,7 +5788,7 @@
           ].filter(Boolean).join(' ');
 
           console.warn(
-            `[AdminPortal] Hardened CMS RPC save for '${sectionKey}' returned status ${resp.status}`,
+            `[AdminPortal] Direct CMS RPC save for '${sectionKey}' returned status ${resp.status}`,
             detail
           );
 
@@ -5522,7 +5816,7 @@
             return false;
           }
 
-          this.showToast(`Supabase save failed for '${sectionKey}' (${resp.status}).`, 'error');
+          this.showToast(`Save failed for '${sectionKey}' (${resp.status}).`, 'error');
 
           if (resp.status === 401 || resp.status === 403 || detail?.code === '42501') {
             this.clearAuthSession();
@@ -5538,7 +5832,7 @@
 
         if (!savedRow?.key || !savedRow?.updated_at) {
           console.warn('[AdminPortal] CMS RPC returned an unexpected response.', payload);
-          this.showToast(`Supabase save response was incomplete for '${sectionKey}'.`, 'error');
+          this.showToast(`Save response was incomplete for '${sectionKey}'.`, 'error');
           await this.loadFullContent({ suppressToast: true, forceRefresh: true });
           return false;
         }
@@ -5557,8 +5851,8 @@
         currentContent[sectionKey] = savedRow.data ?? sectionData;
         return true;
       } catch (err) {
-        console.error(`[AdminPortal] Could not save '${sectionKey}' through hardened CMS RPC.`, err);
-        this.showToast(`Could not save '${sectionKey}' to Supabase.`, 'error');
+        console.error(`[AdminPortal] Could not save '${sectionKey}' through CMS RPC.`, err);
+        this.showToast(`Could not save '${sectionKey}'.`, 'error');
 
         await this.loadFullContent({ suppressToast: true, forceRefresh: true });
         return false;

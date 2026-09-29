@@ -20,7 +20,7 @@
 <body class="admin-body">
 
   <!-- ======================================================================
-       Secure Supabase Authentication Overlay
+       Secure CMS Authentication Overlay
        ====================================================================== -->
   <div id="adminAuthOverlay" class="admin-auth-overlay">
     <div class="admin-auth-card">
@@ -28,7 +28,7 @@
       <div id="adminSignInView" class="admin-auth-view">
         <div class="admin-auth-icon">🛡️</div>
         <h2>CMS Administrator Sign In</h2>
-        <p>Sign in with an authorized Supabase CMS administrator account.</p>
+        <p>Sign in with an authorized CMS administrator account.</p>
 
         <form id="adminAuthForm">
           <div class="admin-input-group">
@@ -55,7 +55,7 @@
         </form>
 
         <p style="margin-top: 1rem; font-size: .78rem; margin-bottom: 0;">
-          Access is controlled by Supabase Auth, CMS roles and database security policies.
+          Access is controlled by CMS Auth, role permissions and database security policies.
         </p>
       </div>
 
@@ -63,7 +63,7 @@
       <div id="adminForgotView" class="admin-auth-view" style="display: none;">
         <div class="admin-auth-icon">🔑</div>
         <h2>Reset CMS Password</h2>
-        <p>Enter your administrator email to receive a secure Supabase password recovery link.</p>
+        <p>Enter your administrator email to receive a secure password recovery link.</p>
 
         <form id="adminForgotForm">
           <div class="admin-input-group">
@@ -144,7 +144,7 @@
     <div class="admin-header-actions">
       <div id="adminStatusIndicator" class="admin-status-indicator">
         <span class="admin-status-dot"></span>
-        <span class="admin-status-text">Connected to Supabase DB</span>
+        <span class="admin-status-text" id="adminStatusText">Connected to Live CMS</span>
       </div>
 
       <button id="adminExportBtn" class="btn btn-secondary admin-btn-sm"
@@ -283,6 +283,14 @@
               </div>
             </button>
           </li>
+          <li class="admin-nav-item" data-tab="baasSettings" id="adminNavBaaSSettings">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">⚙️</span>
+                <span>BaaS Settings</span>
+              </div>
+            </button>
+          </li>
         </ul>
       </div>
 
@@ -302,9 +310,9 @@
     <main class="admin-main">
       <div id="adminFallbackBanner" class="admin-fallback-banner" hidden>
         <strong>Read-only fallback mode.</strong>
-        Supabase live content could not be loaded completely. The Admin Portal is showing
+        Live database content could not be loaded completely. The Admin Portal is showing
         <code>content/site-content.json</code> only as an emergency fallback. Reconnect to
-        Supabase before making changes.
+        the database before making changes.
       </div>
 
       <!-- ------------------------------------------------------------------
@@ -1096,14 +1104,14 @@
         <div class="admin-panel-header">
           <div class="admin-panel-title">
             <h2>Admin Access & Roles</h2>
-            <p>Assign CMS roles to existing Supabase Auth users. Permissions are enforced by Supabase, not only by the interface.</p>
+            <p>Assign CMS roles to registered CMS Auth users. Permissions are enforced by the backend, not only by the interface.</p>
           </div>
         </div>
 
         <div class="admin-settings-card">
           <h3 class="admin-setting-heading">Authorize an existing Auth user</h3>
           <p class="admin-setting-help">
-            Create the account under Supabase Authentication first, then enter that user's email here and choose a CMS role.
+            Create the account under CMS Authentication first, then enter that user's email here and choose a CMS role.
           </p>
 
           <form id="adminAccessAddForm" class="admin-access-form">
@@ -1163,7 +1171,7 @@
           </div>
           <div class="admin-panel-actions">
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveAdvancedSection()">
-              💾 Save Section to Supabase
+              💾 Save Section
             </button>
           </div>
         </div>
@@ -1171,7 +1179,7 @@
         <div class="admin-advanced-notice">
           <strong>Live CMS content:</strong>
           use the visual editors for routine publishing and Advanced Content for complete
-          live Supabase sections. The repository JSON is now fallback/backup only and is
+          live CMS sections. The repository JSON is now fallback/backup only and is
           not imported from this screen.
         </div>
 
@@ -1201,9 +1209,100 @@
             <textarea id="advancedJsonEditor" class="admin-json-editor" spellcheck="false"
               oninput="AdminPortal.validateAdvancedJson()"></textarea>
             <p class="admin-advanced-help">
-              Saving updates only the selected live Supabase <code>site_content</code> section.
+              Saving updates only the selected live <code>site_content</code> section.
               Repository JSON is not imported from this screen.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ------------------------------------------------------------------
+           Panel: BaaS & Backend Settings (Super Admin Only)
+           ------------------------------------------------------------------ -->
+      <section id="panelBaaSSettings" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>⚙️ BaaS & Backend Configuration</h2>
+            <p>Configure, test connectivity, and dynamically switch the active Backend-as-a-Service (BaaS) provider.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.exportBaaSConfig()">
+              📥 Export baas-config.json
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-baas-active-banner" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; border-radius: 8px; background: rgba(30, 58, 138, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <span style="font-weight: 600; font-size: 0.95rem;">Active Backend:</span>
+            <span id="baasActiveProviderBadge" class="badge" style="margin-left: 0.5rem; font-weight: 700; text-transform: uppercase; background: #22c55e; color: #fff; padding: 0.25rem 0.6rem; border-radius: 4px;">Supabase</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--muted, #94a3b8);">
+            Switching active BaaS automatically updates client routing and cache synchronization in real time.
+          </div>
+        </div>
+
+        <div class="admin-baas-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem;">
+          <!-- Supabase Provider Card -->
+          <div class="card" style="padding: 1.5rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: var(--bg-surface, #1e293b);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>⚡</span> Supabase (PostgreSQL / GoTrue)
+              </h3>
+              <span id="badgeStatusSupabase" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: #334155; color: #cbd5e1;">Standby</span>
+            </div>
+            <div class="admin-form-group" style="margin-bottom: 0.75rem;">
+              <label for="cfgSupabaseUrl" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.25rem;">Project URL</label>
+              <input type="url" id="cfgSupabaseUrl" class="admin-input" style="width: 100%;" placeholder="https://xyz.supabase.co">
+            </div>
+            <div class="admin-form-group" style="margin-bottom: 0.75rem;">
+              <label for="cfgSupabaseAnonKey" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.25rem;">Public Anon Key</label>
+              <input type="text" id="cfgSupabaseAnonKey" class="admin-input" style="width: 100%; font-family: monospace; font-size: 0.8rem;" placeholder="eyJhbGci...">
+            </div>
+            <div class="admin-form-group" style="margin-bottom: 1.25rem;">
+              <label for="cfgSupabaseTable" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.25rem;">Content Table Name</label>
+              <input type="text" id="cfgSupabaseTable" class="admin-input" style="width: 100%;" value="site_content">
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.testBaaSConnection('supabase')">
+                🔍 Test Connection
+              </button>
+              <button type="button" id="btnActivateSupabase" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.activateBaaSProvider('supabase')">
+                🚀 Set as Active BaaS
+              </button>
+            </div>
+            <div id="testResultSupabase" style="margin-top: 0.75rem; font-size: 0.82rem; min-height: 1.2rem;"></div>
+          </div>
+
+          <!-- PocketBase Provider Card -->
+          <div class="card" style="padding: 1.5rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: var(--bg-surface, #1e293b);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>📦</span> PocketBase (Go / SQLite)
+              </h3>
+              <span id="badgeStatusPocketbase" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: #334155; color: #cbd5e1;">Standby</span>
+            </div>
+            <div class="admin-form-group" style="margin-bottom: 0.75rem;">
+              <label for="cfgPocketbaseUrl" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.25rem;">Server URL</label>
+              <input type="url" id="cfgPocketbaseUrl" class="admin-input" style="width: 100%;" placeholder="https://pb.yourdomain.com">
+            </div>
+            <div class="admin-form-group" style="margin-bottom: 0.75rem;">
+              <label for="cfgPocketbaseContentColl" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.25rem;">Content Collection</label>
+              <input type="text" id="cfgPocketbaseContentColl" class="admin-input" style="width: 100%;" value="site_content">
+            </div>
+            <div class="admin-form-group" style="margin-bottom: 1.25rem;">
+              <label for="cfgPocketbaseUsersColl" style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.25rem;">Auth / Users Collection</label>
+              <input type="text" id="cfgPocketbaseUsersColl" class="admin-input" style="width: 100%;" value="users">
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.testBaaSConnection('pocketbase')">
+                🔍 Test Connection
+              </button>
+              <button type="button" id="btnActivatePocketbase" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.activateBaaSProvider('pocketbase')">
+                🚀 Set as Active BaaS
+              </button>
+            </div>
+            <div id="testResultPocketbase" style="margin-top: 0.75rem; font-size: 0.82rem; min-height: 1.2rem;"></div>
           </div>
         </div>
       </section>
@@ -1243,7 +1342,7 @@
           Cancel
         </button>
         <button type="button" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveModalItem()">
-          💾 Save to Supabase DB
+          💾 Save Changes
         </button>
       </div>
     </div>
@@ -1262,7 +1361,7 @@
 
       <div class="admin-modal-body">
         <p style="color: var(--muted); font-size: .9rem; margin: 0 0 1.25rem;">
-          Update your Supabase authentication password. Your new password must be at least 8 characters.
+          Update your CMS authentication password. Your new password must be at least 8 characters.
         </p>
 
         <form id="adminChangePasswordForm"
@@ -1337,6 +1436,10 @@
   <div id="adminToastContainer" class="admin-toast-container"></div>
 
   <!-- Scripts -->
+  <script src="../js/backend/config.js"></script>
+  <script src="../js/backend/backendAdapter.js"></script>
+  <script src="../js/backend/supabaseProvider.js"></script>
+  <script src="../js/backend/pocketbaseProvider.js"></script>
   <script src="../js/contentService.js"></script>
   <script src="../js/admin.js"></script>
 </body>
