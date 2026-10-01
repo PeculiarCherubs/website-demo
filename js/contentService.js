@@ -129,7 +129,9 @@
           if (global.BackendAdapter?.content?.getSection) {
             data = await global.BackendAdapter.content.getSection(sectionKey);
             const verObj = await global.BackendAdapter.content.getSectionVersion(sectionKey).catch(() => null);
-            updatedAt = verObj?.updated_at || null;
+            updatedAt = (typeof verObj === 'string' || typeof verObj === 'number')
+              ? verObj
+              : (verObj?.updated_at || verObj?.version || null);
           } else {
             // Direct fetch fallback if BackendAdapter not yet registered
             const endpoint = `${this.config.url}/rest/v1/${this.config.tableName}?key=eq.${encodeURIComponent(sectionKey)}&select=key,data,updated_at`;
@@ -179,11 +181,17 @@
           throw new Error('Backend circuit breaker is open. Short-circuiting to local fallback.');
         }
 
-        if (global.BackendAdapter?.content?.fetchSections) {
+        if (global.BackendAdapter?.content?.fetchSectionsWithMeta) {
+          const fetchedMap = await global.BackendAdapter.content.fetchSectionsWithMeta(missingKeys);
+          for (const [k, entry] of Object.entries(fetchedMap)) {
+            cache[k] = entry.data;
+            versions[k] = entry.updated_at || null;
+          }
+        } else if (global.BackendAdapter?.content?.fetchSections) {
           const fetchedMap = await global.BackendAdapter.content.fetchSections(missingKeys);
           for (const [k, d] of Object.entries(fetchedMap)) {
-            cache[k] = d;
-            versions[k] = d?.updated_at || new Date().toISOString();
+            cache[k] = d?.data !== undefined ? d.data : d;
+            versions[k] = d?.updated_at || null;
           }
         } else {
           // Direct fetch fallback

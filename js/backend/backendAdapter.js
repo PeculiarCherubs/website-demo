@@ -227,6 +227,33 @@
         }
       },
 
+      async fetchSectionsWithMeta(sectionKeys, options = {}) {
+        if (global.ConfigManager?.init) {
+          await global.ConfigManager.init();
+        }
+        if (circuitBreaker.isOpen()) {
+          throw new Error(`Circuit breaker open for '${activeProviderName}'. Short-circuiting to fallback.`);
+        }
+        try {
+          const provider = BackendAdapter.getActiveProvider();
+          if (typeof provider.content?.fetchSectionsWithMeta === 'function') {
+            const data = await provider.content.fetchSectionsWithMeta(sectionKeys, options);
+            circuitBreaker.reset();
+            return data;
+          }
+          const plain = await provider.content.fetchSections(sectionKeys, options);
+          const mapped = {};
+          for (const [k, v] of Object.entries(plain)) {
+            mapped[k] = { data: v, updated_at: null };
+          }
+          circuitBreaker.reset();
+          return mapped;
+        } catch (err) {
+          circuitBreaker.trip(err);
+          throw err;
+        }
+      },
+
       async getSection(sectionKey, options = {}) {
         if (global.ConfigManager?.init) {
           await global.ConfigManager.init();
@@ -397,13 +424,9 @@
      */
     rbac: {
       async isCmsAdmin(accessTokenOrSession) {
-        const token = typeof accessTokenOrSession === 'string'
-          ? accessTokenOrSession
-          : accessTokenOrSession?.accessToken;
-        if (!token) return false;
-
+        if (!accessTokenOrSession) return false;
         const provider = BackendAdapter.getActiveProvider();
-        return await provider.rbac.isCmsAdmin(token);
+        return await provider.rbac.isCmsAdmin(accessTokenOrSession);
       },
 
       async getAccessProfile(accessTokenOrSession) {

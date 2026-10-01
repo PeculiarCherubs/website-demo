@@ -16,8 +16,9 @@
 
       this.content = {
         fetchSections: this.fetchSections.bind(this),
+        fetchSectionsWithMeta: this.fetchSectionsWithMeta.bind(this),
         getSection: this.getSection.bind(this),
-        // getSectionVersion: this.getSectionVersion.bind(this)
+        getSectionVersion: this.getSectionVersion.bind(this)
       };
 
       this.auth = {
@@ -131,6 +132,40 @@
       return result;
     }
 
+    async fetchSectionsWithMeta(sectionKeys, options = {}) {
+      const uniqueKeys = [...new Set(sectionKeys)];
+      if (uniqueKeys.length === 0) return {};
+
+      const keysFilter = uniqueKeys.map(k => encodeURIComponent(k)).join(',');
+      const endpoint = `${this.url}/rest/v1/${this.tableName}?key=in.(${keysFilter})&select=key,data,updated_at`;
+      const signal = options.signal || this.getAbortSignal();
+
+      const resp = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'apikey': this.anonKey,
+          'Authorization': `Bearer ${this.anonKey}`,
+          'Accept': 'application/json'
+        },
+        signal,
+        cache: 'no-store'
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Supabase query failed with status ${resp.status}`);
+      }
+
+      const rows = await resp.json();
+      const result = {};
+      rows.forEach(row => {
+        result[row.key] = {
+          data: row.data,
+          updated_at: row.updated_at || null
+        };
+      });
+      return result;
+    }
+
     async getSection(sectionKey, options = {}) {
       const endpoint = `${this.url}/rest/v1/${this.tableName}?key=eq.${encodeURIComponent(sectionKey)}&select=key,data,updated_at`;
       const signal = options.signal || this.getAbortSignal();
@@ -174,7 +209,7 @@
 
       if (!resp.ok) return null;
       const rows = await resp.json();
-      return rows && rows[0] ? rows[0] : null;
+      return rows && rows[0] ? (rows[0].updated_at || null) : null;
     }
 
     /* -------------------------------------------------------------------------
@@ -383,11 +418,23 @@
       if (!resp.ok) {
         // Fallback for simple admin
         const isAdmin = await this.isCmsAdmin(accessToken);
-        return isAdmin ? { role: 'admin', permissions: ['*'], isSuperAdmin: true } : null;
+        return isAdmin ? { role: 'super_admin', role_key: 'super_admin', permissions: ['*'], isSuperAdmin: true, scope_type: 'global', chapel_scopes: [] } : null;
       }
 
       const rows = await resp.json();
-      return Array.isArray(rows) ? (rows[0] || null) : rows;
+      const raw = Array.isArray(rows) ? (rows[0] || null) : rows;
+      if (!raw) return null;
+      const roleKey = raw.role_key || raw.role || '';
+      const isSuper = ['super_admin', 'superadmin', 'admin'].includes(String(roleKey).toLowerCase().trim());
+      return {
+        ...raw,
+        role: roleKey || (isSuper ? 'super_admin' : 'editor'),
+        role_key: roleKey || (isSuper ? 'super_admin' : 'editor'),
+        isSuperAdmin: isSuper || Boolean(raw.isSuperAdmin),
+        permissions: isSuper
+          ? (Array.isArray(raw.permissions) && raw.permissions.includes('*') ? raw.permissions : [...(raw.permissions || []), '*'])
+          : (raw.permissions || [])
+      };
     }
 
     async listRoles(session) {

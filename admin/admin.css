@@ -1660,3 +1660,695 @@ body.admin-body {
   font-weight: 700;
   font-size: .8rem;
 }
+
+/* ==========================================================================
+   Giving & Payment Gateway Management — Modern Accordion & Card Architecture
+   ========================================================================== */
+
+/* Giving Executive Stats Ribbon */
+.admin-giving-stats-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.admin-giving-stat-pill {
+  background: var(--white);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.admin-giving-stat-pill:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.08);
+}
+
+.admin-giving-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-giving-stat-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-giving-stat-num {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-giving-stat-label {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Accordion Component */
+.admin-accordion {
+  background: var(--white);
+  border-radius: 18px;
+  border: 1.5px solid var(--admin-border);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.admin-accordion.open {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.07), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
+}
+
+.admin-accordion-header {
+  padding: 1.25rem 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  background: #ffffff;
+  border-bottom: 1px solid transparent;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  gap: 1rem;
+}
+
+.admin-accordion-header:hover {
+  background: #f8fafc;
+}
+
+.admin-accordion.open .admin-accordion-header {
+  background: #fafbfd;
+  border-bottom-color: var(--admin-border);
+}
+
+.admin-accordion-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-accordion-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.admin-accordion.open .admin-accordion-icon {
+  background: #eff6ff;
+  transform: scale(1.05);
+}
+
+.admin-accordion-title {
+  margin: 0 0 0.2rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.admin-accordion-subtitle {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.admin-accordion-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.admin-accordion-badge.primary {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.admin-accordion-badge.info {
+  background: #fdf4ff;
+  color: #86198f;
+  border: 1px solid #f5d0fe;
+}
+
+.admin-accordion-badge.active {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.admin-accordion-badge.setup {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.admin-accordion-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-shrink: 0;
+}
+
+.admin-accordion-chevron {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease, color 0.2s ease;
+}
+
+.admin-accordion.open .admin-accordion-chevron {
+  transform: rotate(180deg);
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.admin-accordion-content {
+  display: none;
+}
+
+.admin-accordion.open .admin-accordion-content {
+  display: block;
+  animation: adminFadeIn 0.25s ease;
+}
+
+@keyframes adminFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-accordion-body {
+  padding: 1.75rem;
+}
+
+/* Currency Filter Tabs (Segmented Control) */
+.admin-currency-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  background: #f1f5f9;
+  padding: 0.35rem;
+  border-radius: 14px;
+  margin-bottom: 1.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-currency-tab {
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  padding: 0.55rem 1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  user-select: none;
+}
+
+.admin-currency-tab:hover {
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--navy);
+}
+
+.admin-currency-tab.active {
+  background: #ffffff;
+  color: var(--navy);
+  font-weight: 800;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.admin-currency-tab .badge-count {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.admin-currency-tab.active .badge-count {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.admin-curr-symbol {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+/* Bank Accounts Grid & Card Styling */
+.admin-giving-accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.admin-bank-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.admin-bank-card:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.1);
+}
+
+.admin-bank-card.is-primary {
+  border-color: #fde68a;
+  background: linear-gradient(180deg, #fffdfa 0%, #ffffff 100%);
+}
+
+.admin-bank-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.admin-bank-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.admin-bank-curr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.admin-bank-curr-badge.curr-ngn {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.admin-bank-curr-badge.curr-usd {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.admin-bank-curr-badge.curr-gbp {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.admin-bank-curr-badge.curr-eur {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.admin-bank-primary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.admin-bank-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.admin-bank-action-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.admin-bank-action-btn:hover {
+  background: #f1f5f9;
+  color: var(--navy);
+  border-color: #cbd5e1;
+}
+
+.admin-bank-action-btn.delete {
+  padding: 0.35rem 0.55rem;
+}
+
+.admin-bank-action-btn.delete:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.admin-bank-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.admin-bank-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.admin-bank-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-bank-title {
+  margin: 0 0 0.25rem 0;
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.3;
+}
+
+.admin-bank-name {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #64748b;
+  display: block;
+}
+
+/* Prominent Account Number Box */
+.admin-bank-num-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1.5px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-bank-num-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-bank-num-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+
+.admin-bank-num-digits {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--navy);
+  letter-spacing: 0.06em;
+  user-select: all;
+}
+
+.admin-bank-copy-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.admin-bank-copy-btn:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.admin-bank-copy-btn.copied {
+  background: #ecfdf5 !important;
+  border-color: #6ee7b7 !important;
+  color: #047857 !important;
+}
+
+/* Key-Value Beneficiary Table */
+.admin-bank-meta-table {
+  background: #fafbfd;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.admin-bank-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+}
+
+.admin-bank-meta-label {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+.admin-bank-meta-val {
+  color: var(--navy);
+  font-weight: 700;
+  text-align: right;
+  word-break: break-word;
+}
+
+.admin-bank-meta-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  color: #1e293b;
+  background: #e2e8f0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+/* Narration Callout */
+.admin-bank-narration-callout {
+  background: #eff6ff;
+  border-left: 3.5px solid #3b82f6;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #1e40af;
+  line-height: 1.45;
+}
+
+.admin-bank-narration-callout .narration-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+/* Special Projects Grid & Cards */
+.admin-giving-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.admin-project-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.admin-project-card:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.1);
+}
+
+.admin-project-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.admin-project-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.admin-project-cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: var(--sky);
+  color: var(--navy);
+  text-transform: uppercase;
+}
+
+.admin-project-highlight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.admin-project-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.admin-project-title {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.admin-project-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .admin-giving-stats-ribbon {
+    grid-template-columns: 1fr;
+  }
+  .admin-accordion-header {
+    padding: 1.1rem;
+    flex-wrap: wrap;
+  }
+  .admin-accordion-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .admin-giving-accounts-grid,
+  .admin-giving-projects-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

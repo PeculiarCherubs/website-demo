@@ -808,185 +808,314 @@
         <div class="admin-panel-header">
           <div class="admin-panel-title">
             <h2>Giving &amp; Payment Gateway Management</h2>
-            <p>Configure online payment links, church bank accounts, and strategic special projects.</p>
+            <p>Configure verified church bank accounts, online payment checkout plugins, strategic missions, and giver confirmation channels.</p>
           </div>
           <div class="admin-panel-actions">
-            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('giveAccounts')">
-              + Add Bank Account
+            <button class="btn btn-secondary admin-btn-sm" type="button" onclick="AdminPortal.expandAllGivingAccordions()">
+              📂 Expand All
             </button>
-            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.openItemModal('giveProjects')">
-              + Add Special Project
+            <button class="btn btn-secondary admin-btn-sm" type="button" onclick="AdminPortal.collapseAllGivingAccordions()">
+              📁 Collapse All
+            </button>
+            <button class="btn btn-primary admin-btn-sm" type="button" onclick="AdminPortal.openItemModal('giveAccounts')">
+              + Add Bank Account
             </button>
           </div>
         </div>
 
-        <!-- 1. Online Payment Gateway Integration Card -->
-        <div style="background: var(--white); border-radius: 20px; padding: 1.75rem; border: 1px solid var(--admin-border); margin-bottom: 2.25rem;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-            <div>
-              <h3 class="admin-setting-card-title">💳 Online Payment Gateway Plugin</h3>
-              <p class="admin-setting-description">
-                Connect any payment provider (Paystack, Flutterwave, Stripe, Remita, or Custom link). When enabled, donors proceed directly to your hosted checkout page.
-              </p>
+        <!-- Giving Executive Stats Ribbon -->
+        <div class="admin-giving-stats-ribbon">
+          <div class="admin-giving-stat-pill" onclick="AdminPortal.toggleAccordion('accordionGivingAccounts')">
+            <div class="admin-giving-stat-icon">🏦</div>
+            <div class="admin-giving-stat-content">
+              <span class="admin-giving-stat-num" id="statGivingTotalAccounts">—</span>
+              <span class="admin-giving-stat-label">Bank Accounts</span>
             </div>
-            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.savePaymentGatewaySettings()">
-              💾 Save Gateway Settings
-            </button>
           </div>
+          <div class="admin-giving-stat-pill" onclick="AdminPortal.toggleAccordion('accordionGivingGateway')">
+            <div class="admin-giving-stat-icon">💳</div>
+            <div class="admin-giving-stat-content">
+              <span class="admin-giving-stat-num" id="statGivingGatewayState">Setup Mode</span>
+              <span class="admin-giving-stat-label">Online Gateway</span>
+            </div>
+          </div>
+          <div class="admin-giving-stat-pill" onclick="AdminPortal.toggleAccordion('accordionGivingProjects')">
+            <div class="admin-giving-stat-icon">🌟</div>
+            <div class="admin-giving-stat-content">
+              <span class="admin-giving-stat-num" id="statGivingTotalProjects">—</span>
+              <span class="admin-giving-stat-label">Special Projects</span>
+            </div>
+          </div>
+          <div class="admin-giving-stat-pill" onclick="AdminPortal.toggleAccordion('accordionGivingContent')">
+            <div class="admin-giving-stat-icon">📱</div>
+            <div class="admin-giving-stat-content">
+              <span class="admin-giving-stat-num" id="statGivingWhatsAppStatus">Configured</span>
+              <span class="admin-giving-stat-label">WhatsApp Hotline</span>
+            </div>
+          </div>
+        </div>
 
-          <div id="adminGatewayStatusBanner" class="admin-gateway-banner inactive">
-            <div class="admin-inline-row">
-              <span style="font-size: 1.5rem;">🔌</span>
+        <!-- ==============================================================
+             ACCORDION 1: Verified Church Bank Accounts (Open by Default)
+             ============================================================== -->
+        <div class="admin-accordion open" id="accordionGivingAccounts">
+          <div class="admin-accordion-header" onclick="AdminPortal.toggleAccordion('accordionGivingAccounts')">
+            <div class="admin-accordion-title-wrap">
+              <span class="admin-accordion-icon">🏦</span>
               <div>
-                <strong id="adminGatewayStatusTitle">Gateway Offline / Setup Mode</strong>
-                <p id="adminGatewayStatusDesc" style="margin: 0; font-size: 0.82rem; opacity: 0.85;">
-                  The website displays a graceful notice directing givers to verified bank transfers.
+                <h3 class="admin-accordion-title">
+                  Verified Church Bank Accounts
+                  <span class="admin-accordion-badge primary" id="badgeAccountsCount">Loading...</span>
+                </h3>
+                <p class="admin-accordion-subtitle">
+                  Direct transfer accounts for local Naira offerings (NGN) and international remittances (USD, GBP, EUR).
                 </p>
               </div>
             </div>
-            <span id="adminGatewayStatusBadge" class="admin-gateway-badge">Setup Mode</span>
-          </div>
-
-          <div class="admin-modal-grid-2">
-            <div class="admin-input-group">
-              <label class="admin-check-label" for="gatewaySettingEnabled">
-                <input class="admin-check-input" type="checkbox" id="gatewaySettingEnabled">
-                <span style="font-weight: 800; color: var(--navy);">Enable Online Payment Gateway</span>
-              </label>
-              <small class="admin-field-note">
-                Check to activate online checkout on the Give page. Uncheck to revert to bank transfer guidance notice.
-              </small>
-            </div>
-            <div class="admin-input-group">
-              <label for="gatewaySettingProvider">Payment Provider Preset</label>
-              <select id="gatewaySettingProvider" class="admin-select u-w-full" onchange="AdminPortal.onGatewayProviderChange()">
-                <option value="custom">Custom Payment Page / Link</option>
-                <option value="paystack">Paystack (Payment Page / Link)</option>
-                <option value="flutterwave">Flutterwave (Payment Link)</option>
-                <option value="stripe">Stripe (Payment Link)</option>
-                <option value="remita">Remita / Nigerian Gateway</option>
-              </select>
+            <div class="admin-accordion-meta">
+              <button class="btn btn-primary admin-btn-sm" type="button" onclick="event.stopPropagation(); AdminPortal.openItemModal('giveAccounts')">
+                + Add Bank Account
+              </button>
+              <span class="admin-accordion-chevron">▾</span>
             </div>
           </div>
+          <div class="admin-accordion-content">
+            <div class="admin-accordion-body">
+              <!-- Currency Filter Pill Tabs -->
+              <div class="admin-currency-tabs" id="adminGivingCurrencyTabs">
+                <button type="button" class="admin-currency-tab active" data-curr-filter="ALL" onclick="AdminPortal.filterGivingAccounts('ALL')">
+                  <span class="admin-curr-symbol">🌐</span>
+                  <span>All Accounts</span>
+                  <span class="badge-count" id="currCountALL">0</span>
+                </button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="NGN" onclick="AdminPortal.filterGivingAccounts('NGN')">
+                  <span class="admin-curr-symbol">₦</span>
+                  <span>NGN (Naira)</span>
+                  <span class="badge-count" id="currCountNGN">0</span>
+                </button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="USD" onclick="AdminPortal.filterGivingAccounts('USD')">
+                  <span class="admin-curr-symbol">$</span>
+                  <span>USD (Dollar)</span>
+                  <span class="badge-count" id="currCountUSD">0</span>
+                </button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="GBP" onclick="AdminPortal.filterGivingAccounts('GBP')">
+                  <span class="admin-curr-symbol">£</span>
+                  <span>GBP (Pounds)</span>
+                  <span class="badge-count" id="currCountGBP">0</span>
+                </button>
+                <button type="button" class="admin-currency-tab" data-curr-filter="EUR" onclick="AdminPortal.filterGivingAccounts('EUR')">
+                  <span class="admin-curr-symbol">€</span>
+                  <span>EUR (Euros)</span>
+                  <span class="badge-count" id="currCountEUR">0</span>
+                </button>
+              </div>
 
-          <div class="admin-input-group">
-            <label for="gatewaySettingUrl">Hosted Checkout URL / Payment Link *</label>
-            <input type="url" id="gatewaySettingUrl" class="admin-input" placeholder="e.g. https://paystack.com/pay/peculiarcherubs or https://flutterwave.com/pay/..." style="font-family: ui-monospace, monospace;">
-            <small style="color: var(--muted); font-size: 0.8rem; display: block; margin-top: 0.35rem;">
-              Paste the official hosted payment page link from your Paystack, Flutterwave, or Stripe dashboard.
-            </small>
-          </div>
-
-          <div class="admin-modal-grid-2">
-            <div class="admin-input-group">
-              <label for="gatewaySettingBtnLabel">Payment Button Text</label>
-              <input type="text" id="gatewaySettingBtnLabel" class="admin-input" placeholder="Proceed to Secure Payment ↗">
+              <!-- Bank Accounts Grid -->
+              <div id="gridGivingAccounts" class="admin-giving-accounts-grid">
+                <!-- Rendered dynamically -->
+              </div>
             </div>
-            <div class="admin-input-group">
-              <label class="admin-check-label" for="gatewaySettingAppendParams">
-                <input class="admin-check-input" type="checkbox" id="gatewaySettingAppendParams" checked>
-                <span style="font-weight: 700;">Pass Donor Parameters in URL</span>
-              </label>
-              <small class="admin-field-note">
-                Appends <code>?amount=...&amp;email=...&amp;name=...&amp;purpose=...</code> so the amount automatically prefills at the gateway.
-              </small>
-            </div>
-          </div>
-
-          <div class="admin-input-group u-mb-0">
-            <label for="gatewaySettingNotice">Offline / Setup Notice Message</label>
-            <textarea id="gatewaySettingNotice" class="admin-textarea" placeholder="Message shown to givers when the online card gateway is in setup mode..."></textarea>
-            <small class="admin-field-note">
-              Displayed in the modal when a giver clicks "Proceed to Give" while the gateway is disabled.
-            </small>
           </div>
         </div>
 
-        <!-- 2. Verified Church Bank Accounts Sub-Section -->
-        <div class="u-mb-3xl">
-          <div class="admin-setting-row-lg">
-            <div>
-              <h3 class="admin-setting-card-title">🏦 Verified Church Bank Accounts</h3>
-              <p class="admin-setting-description">
-                Direct bank accounts for local Naira transfers and foreign currency (USD, GBP, EUR) wire transfers.
-              </p>
+        <!-- ==============================================================
+             ACCORDION 2: Online Payment Gateway Plugin
+             ============================================================== -->
+        <div class="admin-accordion" id="accordionGivingGateway">
+          <div class="admin-accordion-header" onclick="AdminPortal.toggleAccordion('accordionGivingGateway')">
+            <div class="admin-accordion-title-wrap">
+              <span class="admin-accordion-icon">💳</span>
+              <div>
+                <h3 class="admin-accordion-title">
+                  Online Payment Gateway Plugin
+                  <span class="admin-accordion-badge" id="badgeGatewayHeader">Setup Mode</span>
+                </h3>
+                <p class="admin-accordion-subtitle">
+                  Connect any payment provider (Paystack, Flutterwave, Stripe, Remita, or Custom hosted checkout link).
+                </p>
+              </div>
             </div>
-            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('giveAccounts')">
-              + Add Bank Account
-            </button>
+            <div class="admin-accordion-meta">
+              <button class="btn btn-primary admin-btn-sm" type="button" onclick="event.stopPropagation(); AdminPortal.savePaymentGatewaySettings()">
+                💾 Save Gateway Settings
+              </button>
+              <span class="admin-accordion-chevron">▾</span>
+            </div>
           </div>
+          <div class="admin-accordion-content">
+            <div class="admin-accordion-body">
+              <div id="adminGatewayStatusBanner" class="admin-gateway-banner inactive">
+                <div class="admin-inline-row">
+                  <span style="font-size: 1.6rem;">🔌</span>
+                  <div>
+                    <strong id="adminGatewayStatusTitle">Gateway Offline / Setup Mode</strong>
+                    <p id="adminGatewayStatusDesc" style="margin: 0; font-size: 0.84rem; opacity: 0.88;">
+                      The website displays a graceful notice directing givers to verified bank transfers.
+                    </p>
+                  </div>
+                </div>
+                <span id="adminGatewayStatusBadge" class="admin-gateway-badge">Setup Mode</span>
+              </div>
 
-          <!-- Currency Filter Tabs -->
-          <div class="admin-currency-tabs" id="adminGivingCurrencyTabs">
-            <button type="button" class="admin-currency-tab active" data-curr-filter="ALL" onclick="AdminPortal.filterGivingAccounts('ALL')">All Accounts</button>
-            <button type="button" class="admin-currency-tab" data-curr-filter="NGN" onclick="AdminPortal.filterGivingAccounts('NGN')">₦ NGN</button>
-            <button type="button" class="admin-currency-tab" data-curr-filter="USD" onclick="AdminPortal.filterGivingAccounts('USD')">$ USD</button>
-            <button type="button" class="admin-currency-tab" data-curr-filter="GBP" onclick="AdminPortal.filterGivingAccounts('GBP')">£ GBP</button>
-            <button type="button" class="admin-currency-tab" data-curr-filter="EUR" onclick="AdminPortal.filterGivingAccounts('EUR')">€ EUR</button>
-          </div>
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label class="admin-check-label" for="gatewaySettingEnabled">
+                    <input class="admin-check-input" type="checkbox" id="gatewaySettingEnabled">
+                    <span style="font-weight: 800; color: var(--navy);">Enable Online Payment Gateway</span>
+                  </label>
+                  <small class="admin-field-note">
+                    Check to activate online checkout on the Give page. Uncheck to revert to bank transfer guidance notice.
+                  </small>
+                </div>
+                <div class="admin-input-group">
+                  <label for="gatewaySettingProvider">Payment Provider Preset</label>
+                  <select id="gatewaySettingProvider" class="admin-select u-w-full" onchange="AdminPortal.onGatewayProviderChange()">
+                    <option value="custom">Custom Payment Page / Link</option>
+                    <option value="paystack">Paystack (Payment Page / Link)</option>
+                    <option value="flutterwave">Flutterwave (Payment Link)</option>
+                    <option value="stripe">Stripe (Payment Link)</option>
+                    <option value="remita">Remita / Nigerian Gateway</option>
+                  </select>
+                </div>
+              </div>
 
-          <div id="gridGivingAccounts" class="admin-cards-grid">
-            <!-- Rendered dynamically -->
+              <div class="admin-input-group">
+                <label for="gatewaySettingUrl">Hosted Checkout URL / Payment Link *</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="url" id="gatewaySettingUrl" class="admin-input" placeholder="e.g. https://paystack.com/pay/peculiarcherubs" style="font-family: ui-monospace, monospace; flex: 1;">
+                  <button type="button" class="btn btn-secondary admin-btn-sm" style="white-space: nowrap;" onclick="AdminPortal.testPaymentLink()">
+                    🔗 Test Link
+                  </button>
+                </div>
+                <small style="color: var(--muted); font-size: 0.8rem; display: block; margin-top: 0.35rem;">
+                  Paste the official hosted payment page link from your Paystack, Flutterwave, or Stripe dashboard.
+                </small>
+              </div>
+
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label for="gatewaySettingBtnLabel">Payment Button Text</label>
+                  <input type="text" id="gatewaySettingBtnLabel" class="admin-input" placeholder="Proceed to Secure Payment ↗">
+                </div>
+                <div class="admin-input-group">
+                  <label class="admin-check-label" for="gatewaySettingAppendParams">
+                    <input class="admin-check-input" type="checkbox" id="gatewaySettingAppendParams" checked>
+                    <span style="font-weight: 700;">Pass Donor Parameters in URL</span>
+                  </label>
+                  <small class="admin-field-note">
+                    Appends <code>?amount=...&amp;email=...&amp;name=...&amp;purpose=...</code> so amount prefills automatically.
+                  </small>
+                </div>
+              </div>
+
+              <div class="admin-input-group u-mb-0">
+                <label for="gatewaySettingNotice">Offline / Setup Notice Message</label>
+                <textarea id="gatewaySettingNotice" class="admin-textarea" rows="3" placeholder="Message shown to givers when the online card gateway is in setup mode..."></textarea>
+                <small class="admin-field-note">
+                  Displayed in the modal when a giver clicks "Proceed to Give" while the gateway is disabled.
+                </small>
+              </div>
+
+              <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" type="button" onclick="AdminPortal.savePaymentGatewaySettings()">
+                  💾 Save Gateway Settings
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- 3. Strategic Special Projects Sub-Section -->
-        <div class="u-mb-3xl">
-          <div class="admin-setting-row-lg">
-            <div>
-              <h3 class="admin-setting-card-title">🌟 Special Projects &amp; Targeted Missions</h3>
-              <p class="admin-setting-description">
-                Manage active fundraising campaigns such as Chapel Expansion, Feeding Ministry, and Pesach Academy.
-              </p>
+        <!-- ==============================================================
+             ACCORDION 3: Strategic Special Projects
+             ============================================================== -->
+        <div class="admin-accordion" id="accordionGivingProjects">
+          <div class="admin-accordion-header" onclick="AdminPortal.toggleAccordion('accordionGivingProjects')">
+            <div class="admin-accordion-title-wrap">
+              <span class="admin-accordion-icon">🌟</span>
+              <div>
+                <h3 class="admin-accordion-title">
+                  Special Projects &amp; Targeted Missions
+                  <span class="admin-accordion-badge info" id="badgeProjectsCount">Loading...</span>
+                </h3>
+                <p class="admin-accordion-subtitle">
+                  Manage active fundraising initiatives such as Chapel Expansion, Feeding Ministry, and Pesach Academy.
+                </p>
+              </div>
             </div>
-            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('giveProjects')">
-              + Add Special Project
-            </button>
+            <div class="admin-accordion-meta">
+              <button class="btn btn-primary admin-btn-sm" type="button" onclick="event.stopPropagation(); AdminPortal.openItemModal('giveProjects')">
+                + Add Special Project
+              </button>
+              <span class="admin-accordion-chevron">▾</span>
+            </div>
           </div>
-
-          <div id="gridGivingProjects" class="admin-cards-grid">
-            <!-- Rendered dynamically -->
+          <div class="admin-accordion-content">
+            <div class="admin-accordion-body">
+              <div id="gridGivingProjects" class="admin-giving-projects-grid">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- 4. Giving Page Headers & WhatsApp Notification Settings -->
-        <div class="admin-settings-card">
-          <div class="admin-setting-row">
-            <div>
-              <h3 style="color: var(--navy); margin: 0 0 0.25rem; font-size: 1.2rem;">Giving Page Content &amp; WhatsApp Confirmation</h3>
-              <p class="admin-setting-description">
-                Customize the transfer acknowledgment WhatsApp hotline and "Why we give" mission texts.
-              </p>
+        <!-- ==============================================================
+             ACCORDION 4: Giving Page Content & WhatsApp Notifications
+             ============================================================== -->
+        <div class="admin-accordion" id="accordionGivingContent">
+          <div class="admin-accordion-header" onclick="AdminPortal.toggleAccordion('accordionGivingContent')">
+            <div class="admin-accordion-title-wrap">
+              <span class="admin-accordion-icon">📱</span>
+              <div>
+                <h3 class="admin-accordion-title">
+                  Giving Page Content &amp; WhatsApp Notifications
+                </h3>
+                <p class="admin-accordion-subtitle">
+                  Customize the transfer acknowledgment WhatsApp hotline and "Why we give" mission texts.
+                </p>
+              </div>
             </div>
-            <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.saveGivingPageSettings()">
-              💾 Save Page Settings
-            </button>
+            <div class="admin-accordion-meta">
+              <button class="btn btn-secondary admin-btn-sm" type="button" onclick="event.stopPropagation(); AdminPortal.saveGivingPageSettings()">
+                💾 Save Page Settings
+              </button>
+              <span class="admin-accordion-chevron">▾</span>
+            </div>
           </div>
+          <div class="admin-accordion-content">
+            <div class="admin-accordion-body">
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label for="givingSettingWhatsAppPhone">Finance WhatsApp Notification Phone</label>
+                  <input type="text" id="givingSettingWhatsAppPhone" class="admin-input" placeholder="e.g. 2348012345678">
+                  <small class="admin-field-note">Include international dialing code without '+' (e.g. 234...)</small>
+                </div>
+                <div class="admin-input-group">
+                  <label for="givingSettingQuote">Why We Give Scripture Quote</label>
+                  <input type="text" id="givingSettingQuote" class="admin-input" placeholder="God loves a cheerful giver.">
+                </div>
+              </div>
 
-          <div class="admin-modal-grid-2">
-            <div class="admin-input-group">
-              <label for="givingSettingWhatsAppPhone">Finance WhatsApp Notification Phone</label>
-              <input type="text" id="givingSettingWhatsAppPhone" class="admin-input" placeholder="e.g. 2348012345678">
-            </div>
-            <div class="admin-input-group">
-              <label for="givingSettingQuote">Why We Give Scripture Quote</label>
-              <input type="text" id="givingSettingQuote" class="admin-input" placeholder="God loves a cheerful giver.">
-            </div>
-          </div>
+              <div class="admin-input-group">
+                <label for="givingSettingWhatsAppText">Default WhatsApp Prefilled Confirmation Message</label>
+                <textarea id="givingSettingWhatsAppText" class="admin-textarea" rows="3" placeholder="Message givers will send on WhatsApp to confirm their transfer..."></textarea>
+              </div>
 
-          <div class="admin-input-group">
-            <label for="givingSettingWhatsAppText">Default WhatsApp Prefilled Confirmation Message</label>
-            <textarea id="givingSettingWhatsAppText" class="admin-textarea" placeholder="Message givers will send on WhatsApp to confirm their transfer..."></textarea>
-          </div>
+              <div class="admin-modal-grid-2">
+                <div class="admin-input-group">
+                  <label for="givingSettingWhyTitle">Why We Give Heading</label>
+                  <input type="text" id="givingSettingWhyTitle" class="admin-input" placeholder="Giving is worship.">
+                </div>
+                <div class="admin-input-group">
+                  <label for="givingSettingWhyDesc">Why We Give Description</label>
+                  <textarea id="givingSettingWhyDesc" class="admin-textarea" rows="2" placeholder="Description explaining the spiritual mission of giving..."></textarea>
+                </div>
+              </div>
 
-          <div class="admin-modal-grid-2 u-mb-0">
-            <div class="admin-input-group u-mb-0">
-              <label for="givingSettingWhyTitle">Why We Give Heading</label>
-              <input type="text" id="givingSettingWhyTitle" class="admin-input" placeholder="Giving is worship.">
-            </div>
-            <div class="admin-input-group u-mb-0">
-              <label for="givingSettingWhyDesc">Why We Give Description</label>
-              <textarea id="givingSettingWhyDesc" class="admin-textarea" placeholder="Description explaining the spiritual mission of giving..."></textarea>
+              <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" type="button" onclick="AdminPortal.saveGivingPageSettings()">
+                  💾 Save Page Settings
+                </button>
+              </div>
             </div>
           </div>
         </div>

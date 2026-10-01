@@ -28,5 +28,8 @@ See `features/`.
 - `security/GIT_HISTORY_DATA_POLICY.md`
 - `security/CMS_RECOVERY_AUDIT_RUNBOOK.md`
 
+## Deployment & Operations
+- `deployment/POCKETBASE_FLY_IO_GO_LIVE.md`
+
 ## Archive
 Superseded merge guides, audits and the old README are preserved under `archive/` for traceability. They are not current operating instructions.

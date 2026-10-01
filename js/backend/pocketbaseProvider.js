@@ -17,6 +17,7 @@
 
       this.content = {
         fetchSections: this.fetchSections.bind(this),
+        fetchSectionsWithMeta: this.fetchSectionsWithMeta.bind(this),
         getSection: this.getSection.bind(this),
         getSectionVersion: this.getSectionVersion.bind(this)
       };
@@ -138,6 +139,40 @@
       return result;
     }
 
+    async fetchSectionsWithMeta(sectionKeys, options = {}) {
+      const uniqueKeys = [...new Set(sectionKeys)];
+      if (uniqueKeys.length === 0) return {};
+
+      // Build PocketBase filter: (key='home' || key='chapels' || ...)
+      const filterClause = uniqueKeys.map(k => `key='${encodeURIComponent(k)}'`).join('||');
+      const endpoint = `${this.url}/api/collections/${this.contentCollection}/records?filter=(${filterClause})&perPage=50`;
+      const signal = options.signal || this.getAbortSignal();
+
+      const resp = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        signal,
+        cache: 'no-store'
+      });
+
+      if (!resp.ok) {
+        throw new Error(`PocketBase fetch failed with status ${resp.status}`);
+      }
+
+      const payload = await resp.json();
+      const items = Array.isArray(payload.items) ? payload.items : (Array.isArray(payload) ? payload : []);
+      const result = {};
+
+      items.forEach(item => {
+        result[item.key] = {
+          data: (typeof item.data === 'string') ? JSON.parse(item.data) : item.data,
+          updated_at: item.updated || item.version || null
+        };
+      });
+
+      return result;
+    }
+
     async getSection(sectionKey, options = {}) {
       const endpoint = `${this.url}/api/collections/${this.contentCollection}/records?filter=(key='${encodeURIComponent(sectionKey)}')&perPage=1`;
       const signal = options.signal || this.getAbortSignal();
@@ -168,11 +203,7 @@
         const payload = await resp.json();
         const item = payload.items?.[0];
         if (!item) return null;
-        return {
-          key: item.key,
-          version: item.version ?? null,
-          updated_at: item.updated || item.created || new Date().toISOString()
-        };
+        return item.updated || item.version || item.created || null;
       } catch (err) {
         return null;
       }
@@ -326,12 +357,19 @@
 
     async isCmsAdmin(accessTokenOrSession) {
       const session = typeof accessTokenOrSession === 'object' ? accessTokenOrSession : null;
-      if (session?.user?.role) {
-        return session.user.role === 'admin' || session.user.role === 'superadmin' || session.user.is_admin === true;
+      if (session?.user) {
+        const user = session.user;
+        const role = String(user.role || (user.is_admin ? 'super_admin' : '')).toLowerCase().trim();
+        if (
+          ['super_admin', 'superadmin', 'admin', 'content_manager', 'editor', 'chapel_manager', 'chapel_content_manager', 'chapel_admin', 'communications_editor', 'ministry_editor', 'giving_editor', 'site_editor'].includes(role) ||
+          user.is_admin === true
+        ) {
+          return true;
+        }
       }
-      // If only token provided, fetch user access profile
+      // If only token provided or role not explicit on session, fetch user access profile
       const profile = await this.getAccessProfile(accessTokenOrSession);
-      return Boolean(profile && profile.role);
+      return Boolean(profile && (profile.isSuperAdmin || (Array.isArray(profile.permissions) && profile.permissions.length > 0)));
     }
 
     async getAccessProfile(accessTokenOrSession) {
@@ -347,14 +385,107 @@
 
         if (!resp.ok) return null;
         const payload = await resp.json();
-        const user = payload.record;
-        const role = user.role || (user.is_admin ? 'admin' : 'editor');
+        const user = payload.record || {};
+        const rawRole = String(user.role || (user.is_admin ? 'super_admin' : 'editor')).toLowerCase().trim();
+        const isSuperAdmin = ['super_admin', 'superadmin', 'admin'].includes(rawRole) || user.is_admin === true;
+
+        let roleKey = 'editor';
+        let roleLabel = 'Content Editor';
+        if (isSuperAdmin) {
+          roleKey = 'super_admin';
+          roleLabel = 'Super Admin';
+        } else if (rawRole === 'content_manager') {
+          roleKey = 'content_manager';
+          roleLabel = 'Content Manager';
+        } else if (['chapel_manager', 'chapel_content_manager', 'chapel_admin'].includes(rawRole)) {
+          roleKey = 'chapel_content_manager';
+          roleLabel = 'Chapel Content Manager';
+        } else if (rawRole === 'communications_editor') {
+          roleKey = 'communications_editor';
+          roleLabel = 'Communications Editor';
+        } else if (rawRole === 'ministry_editor') {
+          roleKey = 'ministry_editor';
+          roleLabel = 'Ministry Editor';
+        } else if (rawRole === 'giving_editor') {
+          roleKey = 'giving_editor';
+          roleLabel = 'Giving Editor';
+        } else if (rawRole === 'site_editor') {
+          roleKey = 'site_editor';
+          roleLabel = 'Site Editor';
+        } else if (rawRole) {
+          roleKey = rawRole;
+          roleLabel = rawRole.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        let chapelScopes = [];
+        if (Array.isArray(user.chapel_scopes)) {
+          chapelScopes = user.chapel_scopes;
+        } else if (typeof user.chapel_scopes === 'string' && user.chapel_scopes.trim()) {
+          try {
+            const parsed = JSON.parse(user.chapel_scopes);
+            if (Array.isArray(parsed)) chapelScopes = parsed;
+          } catch (e) {
+            chapelScopes = user.chapel_scopes.split(',').map(s => s.trim()).filter(Boolean);
+          }
+        } else if (user.chapel_id) {
+          chapelScopes = [user.chapel_id];
+        }
+
+        const scopeType = isSuperAdmin ? 'global' : (chapelScopes.length > 0 ? 'chapel' : 'global');
+        if (isSuperAdmin && chapelScopes.length === 0) {
+          chapelScopes = ['*'];
+        }
+
+        const ALL_SUPER_PERMISSIONS = [
+          'publications.manage',
+          'sermons.manage',
+          'livestream.manage',
+          'events.manage',
+          'ministries.manage',
+          'chapel.content.manage',
+          'about.manage',
+          'quicklinks.manage',
+          'giving.manage',
+          'site.manage',
+          'advanced.manage',
+          'admins.manage',
+          'export.manage',
+          'history.view',
+          '*'
+        ];
+
+        let permissions = [];
+        if (isSuperAdmin) {
+          permissions = ALL_SUPER_PERMISSIONS;
+        } else if (Array.isArray(user.permissions) && user.permissions.length > 0) {
+          permissions = user.permissions;
+        } else if (roleKey === 'chapel_content_manager') {
+          permissions = ['chapel.content.manage', 'sermons.manage', 'livestream.manage'];
+        } else if (roleKey === 'content_manager') {
+          permissions = ['publications.manage', 'sermons.manage', 'events.manage', 'ministries.manage', 'about.manage', 'quicklinks.manage', 'site.manage', 'history.view'];
+        } else if (roleKey === 'communications_editor') {
+          permissions = ['publications.manage', 'sermons.manage', 'events.manage', 'quicklinks.manage'];
+        } else if (roleKey === 'ministry_editor') {
+          permissions = ['ministries.manage', 'about.manage'];
+        } else if (roleKey === 'giving_editor') {
+          permissions = ['giving.manage'];
+        } else if (roleKey === 'site_editor') {
+          permissions = ['site.manage'];
+        } else {
+          permissions = ['publications.manage', 'sermons.manage', 'events.manage', 'ministries.manage', 'about.manage', 'quicklinks.manage', 'site.manage'];
+        }
 
         return {
-          role,
-          permissions: user.permissions || (role === 'admin' || role === 'superadmin' ? ['*'] : ['content.edit']),
+          user_id: user.id,
+          email: user.email,
+          role: roleKey,
+          role_key: roleKey,
+          role_label: roleLabel,
+          permissions,
+          scope_type: scopeType,
+          chapel_scopes: chapelScopes,
           chapelId: user.chapel_id || null,
-          isSuperAdmin: role === 'superadmin' || role === 'admin'
+          isSuperAdmin
         };
       } catch (e) {
         return null;
@@ -369,15 +500,24 @@
         });
         if (resp.ok) {
           const payload = await resp.json();
-          return payload.items || [];
+          if (Array.isArray(payload.items) && payload.items.length > 0) {
+            return payload.items.map(r => ({
+              role_key: r.role_key || r.key || r.id,
+              label: r.label || r.name || r.role_key,
+              description: r.description || '',
+              permissions: Array.isArray(r.permissions) ? r.permissions : []
+            }));
+          }
         }
       } catch (e) { }
 
-      // Default role definitions
+      // Default role definitions matching standard CMS roles
       return [
-        { key: 'admin', name: 'Super Administrator', permissions: ['*'] },
-        { key: 'editor', name: 'General Editor', permissions: ['content.edit'] },
-        { key: 'chapel_admin', name: 'Chapel Admin', permissions: ['chapel.content.manage'] }
+        { role_key: 'super_admin', label: 'Super Administrator', permissions: ['*'], description: 'Full access to all CMS functions and system settings' },
+        { role_key: 'content_manager', label: 'Content Manager', permissions: ['publications.manage', 'sermons.manage', 'events.manage', 'ministries.manage', 'about.manage', 'quicklinks.manage', 'site.manage', 'history.view'], description: 'Can manage all public content sections' },
+        { role_key: 'communications_editor', label: 'Communications Editor', permissions: ['publications.manage', 'sermons.manage', 'events.manage', 'quicklinks.manage'], description: 'Can publish announcements, events, and sermons' },
+        { role_key: 'chapel_content_manager', label: 'Chapel Content Manager', permissions: ['chapel.content.manage', 'sermons.manage', 'livestream.manage'], description: 'Manages sermons and livestream for assigned chapels' },
+        { role_key: 'site_editor', label: 'Site Editor', permissions: ['site.manage'], description: 'Can update site-wide settings' }
       ];
     }
 
@@ -388,13 +528,34 @@
       });
       if (!resp.ok) throw new Error(`Failed to list admins (${resp.status})`);
       const payload = await resp.json();
-      return (payload.items || []).map(u => ({
-        user_id: u.id,
-        email: u.email,
-        role: u.role || 'editor',
-        chapel_id: u.chapel_id || null,
-        created_at: u.created
-      }));
+      return (payload.items || []).map(u => {
+        const rawRole = (u.role || (u.is_admin ? 'super_admin' : 'editor')).toLowerCase();
+        const isSuper = ['super_admin', 'superadmin', 'admin'].includes(rawRole) || u.is_admin === true;
+        let chapelScopes = [];
+        if (Array.isArray(u.chapel_scopes)) {
+          chapelScopes = u.chapel_scopes;
+        } else if (typeof u.chapel_scopes === 'string' && u.chapel_scopes.trim()) {
+          try {
+            const parsed = JSON.parse(u.chapel_scopes);
+            if (Array.isArray(parsed)) chapelScopes = parsed;
+          } catch (e) {
+            chapelScopes = u.chapel_scopes.split(',').map(s => s.trim()).filter(Boolean);
+          }
+        } else if (u.chapel_id) {
+          chapelScopes = [u.chapel_id];
+        }
+
+        return {
+          user_id: u.id,
+          email: u.email,
+          role: u.role || (isSuper ? 'super_admin' : 'editor'),
+          role_key: u.role || (isSuper ? 'super_admin' : 'editor'),
+          scope_type: isSuper ? 'global' : (chapelScopes.length > 0 ? 'chapel' : 'global'),
+          chapel_scopes: chapelScopes,
+          chapel_id: u.chapel_id || null,
+          created_at: u.created
+        };
+      });
     }
 
     async assignAdminRole(session, params) {
@@ -411,22 +572,25 @@
       return this.setAdminRole(session, {
         targetUserId: user.id,
         roleKey: params.roleKey,
-        chapelId: params.chapelId
+        chapelId: params.chapelId,
+        chapelScopes: params.chapelScopes
       });
     }
 
     async setAdminRole(session, params) {
       const endpoint = `${this.url}/api/collections/${this.usersCollection}/records/${params.targetUserId}`;
+      const body = {};
+      if (params.roleKey) body.role = params.roleKey;
+      if (params.chapelId) body.chapel_id = params.chapelId;
+      if (params.chapelScopes) body.chapel_scopes = params.chapelScopes;
+
       const resp = await fetch(endpoint, {
         method: 'PATCH',
         headers: {
           'Authorization': session.accessToken,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          role: params.roleKey,
-          chapel_id: params.chapelId || null
-        })
+        body: JSON.stringify(body)
       });
 
       if (!resp.ok) throw new Error(`Failed to update admin role (${resp.status})`);
@@ -437,7 +601,8 @@
       return this.setAdminRole(session, {
         targetUserId,
         roleKey: 'member',
-        chapelId: null
+        chapelId: null,
+        chapelScopes: []
       });
     }
 
@@ -461,7 +626,7 @@
         if (expectedToken) {
           const currentToken = existing.updated || existing.version;
           if (currentToken && String(currentToken) !== String(expectedToken)) {
-            throw new Error('cms_permission_denied: Optimistic concurrency conflict. Content was modified by another administrator.');
+            throw new Error('content_conflict: Optimistic concurrency conflict. Content was modified by another administrator.');
           }
         }
 
