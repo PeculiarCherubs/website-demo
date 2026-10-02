@@ -71,6 +71,7 @@ try {
 const filesToAudit = [
   'js/backend/config.js',
   'js/backend/config.example.js',
+  'js/backend/syncCoordinator.js',
   'js/backend/backendAdapter.js',
   'js/backend/supabaseProvider.js',
   'js/backend/pocketbaseProvider.js',

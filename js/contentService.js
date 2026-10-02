@@ -232,6 +232,16 @@
         );
       }
 
+      // Persist live sections into local journal for offline failover recovery
+      if (global.SyncCoordinator?.recordMultipleSnapshots) {
+        const providerName = global.BackendAdapter?.getActiveProviderName?.() || 'live_baas';
+        const snapshotBatch = {};
+        for (const k of uniqueKeys) {
+          snapshotBatch[k] = { data: cache[k], updated_at: versions[k] || null };
+        }
+        global.SyncCoordinator.recordMultipleSnapshots(snapshotBatch, providerName);
+      }
+
       const result = {};
       uniqueKeys.forEach(key => {
         result[key] = cache[key];
@@ -247,6 +257,10 @@
       cache[sectionKey] = sectionData;
       if (updatedAt !== null && updatedAt !== undefined) {
         versions[sectionKey] = updatedAt;
+      }
+      if (global.SyncCoordinator?.recordSnapshot) {
+        const providerName = global.BackendAdapter?.getActiveProviderName?.() || 'live_baas';
+        global.SyncCoordinator.recordSnapshot(sectionKey, sectionData, updatedAt, providerName);
       }
     },
 

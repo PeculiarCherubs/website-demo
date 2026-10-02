@@ -94,6 +94,13 @@
     },
 
     /**
+     * Returns a registered provider class
+     */
+    getRegisteredProvider(name) {
+      return registeredProviders[String(name).toLowerCase().trim()] || null;
+    },
+
+    /**
      * Instantiates the active provider using current configuration
      */
     instantiateActiveProvider() {
@@ -142,8 +149,26 @@
     /**
      * Switches the active BaaS provider dynamically
      */
-    async setActiveProvider(providerName) {
+    async setActiveProvider(providerName, options = {}) {
       const normalized = String(providerName).toLowerCase().trim();
+      const previousProvider = activeProviderName;
+      const autoSync = options.autoSync !== false;
+
+      let syncReport = null;
+      if (autoSync && global.SyncCoordinator && previousProvider && previousProvider !== normalized) {
+        try {
+          const sourceInstance = activeProviderInstance;
+          syncReport = await global.SyncCoordinator.reconcile({
+            sourceProviderName: previousProvider,
+            targetProviderName: normalized,
+            sourceInstance,
+            session: this.auth.getStoredSession()
+          });
+        } catch (syncErr) {
+          console.warn('[BackendAdapter] Automatic failover sync encountered warnings:', syncErr);
+        }
+      }
+
       activeProviderName = normalized;
       activeProviderInstance = null;
       if (global.ConfigManager?.setActiveProvider) {
@@ -151,6 +176,7 @@
       } else {
         this.instantiateActiveProvider();
       }
+      return syncReport;
     },
 
     /**
@@ -469,7 +495,26 @@
     mutations: {
       async upsertSection(sectionKey, sectionData, session, options = {}) {
         const provider = BackendAdapter.getActiveProvider();
-        return await provider.mutations.upsertSection(sectionKey, sectionData, session, options);
+        const result = await provider.mutations.upsertSection(sectionKey, sectionData, session, options);
+
+        // Update persistent local journal for offline failover resilience
+        if (global.SyncCoordinator?.recordSnapshot) {
+          global.SyncCoordinator.recordSnapshot(
+            sectionKey,
+            sectionData,
+            result?.updated_at || new Date().toISOString(),
+            activeProviderName
+          );
+        }
+
+        // Attempt opportunistic secondary mirror in background
+        if (global.SyncCoordinator?.mirrorToSecondary) {
+          global.SyncCoordinator.mirrorToSecondary(sectionKey, sectionData, activeProviderName, session).catch(err => {
+            console.warn('[BackendAdapter] Mirror mutation deferred:', err);
+          });
+        }
+
+        return result;
       },
 
       async updateChapelContent(chapelId, payload, session) {
@@ -490,6 +535,19 @@
       async deleteChapelSermon(chapelId, sermonId, session) {
         const provider = BackendAdapter.getActiveProvider();
         return await provider.mutations.deleteChapelSermon(chapelId, sermonId, session);
+      }
+    },
+
+    /**
+     * BaaS Synchronization & Failover Reconciler Facade
+     */
+    sync: {
+      async reconcile(options = {}) {
+        if (!global.SyncCoordinator) throw new Error('SyncCoordinator is unavailable.');
+        return await global.SyncCoordinator.reconcile(options);
+      },
+      getSyncStatus() {
+        return global.SyncCoordinator ? global.SyncCoordinator.getSyncStatus() : null;
       }
     },
 

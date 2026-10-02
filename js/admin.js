@@ -1792,6 +1792,37 @@
     /**
      * Exports baas-config.json for deployment
      */
+    /**
+     * Manually triggers bidirectional reconciliation between configured BaaS providers
+     */
+    async reconcileBaaSBackends() {
+      try {
+        const activeName = global.BackendAdapter?.getActiveProviderName?.() || 'supabase';
+        const targetName = activeName === 'supabase' ? 'pocketbase' : 'supabase';
+
+        this.showToast(`Reconciling deltas between ${activeName.toUpperCase()} and ${targetName.toUpperCase()}...`, 'info');
+
+        const session = this.getStoredAuthSession();
+        const report = await global.BackendAdapter.sync.reconcile({
+          sourceProviderName: activeName,
+          targetProviderName: targetName,
+          session
+        });
+
+        this.renderBaaSSettings();
+
+        if (report.syncedKeys && report.syncedKeys.length > 0) {
+          const srcLabel = report.sourceMode === 'local_journal_cache' ? 'offline local snapshot' : 'live source';
+          this.showToast(`Successfully synchronized ${report.syncedKeys.length} section(s) to ${targetName.toUpperCase()} (${srcLabel})!`, 'success');
+        } else {
+          this.showToast('All sections are already up to date across backends.', 'info');
+        }
+      } catch (err) {
+        console.error('[AdminPortal] Reconcile error:', err);
+        this.showToast(`Synchronization failed: ${err.message}`, 'error');
+      }
+    },
+
     exportBaaSConfig() {
       const configStr = global.ConfigManager?.getSerializedConfig?.();
       if (!configStr) {

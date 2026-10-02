@@ -1371,6 +1371,34 @@
           </div>
         </div>
 
+        
+        <!-- BaaS Synchronization & Failover Recovery Card -->
+        <div id="baasSyncCard" class="card" style="margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: 10px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
+            <div>
+              <h3 style="margin: 0 0 0.25rem 0; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>🔄</span> Multi-Backend Synchronization & Failover Resilience
+              </h3>
+              <p style="margin: 0; font-size: 0.82rem; color: var(--muted, #94a3b8);">
+                Data changes are tracked in a persistent local journal. If an active database suffers an outage, failover seamlessly syncs changes to the newly activated BaaS.
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span id="baasSyncParityBadge" class="badge" style="background: #22c55e; color: #fff; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; font-size: 0.8rem;">
+                ✓ Parity Maintained
+              </span>
+              <button type="button" class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.reconcileBaaSBackends()" title="Reconcile and sync differences between both databases">
+                🔄 Reconcile & Sync Now
+              </button>
+            </div>
+          </div>
+          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 0.82rem; color: #cbd5e1; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem;">
+            <div><strong>Last Synchronized:</strong> <span id="baasLastSyncTime" style="color: var(--muted, #94a3b8);">Never</span></div>
+            <div><strong>Sync Path:</strong> <span id="baasLastSyncDirection" style="color: var(--muted, #94a3b8);">-</span></div>
+            <div><strong>Source Mode:</strong> <span id="baasLastSyncMode" style="color: var(--muted, #94a3b8);">-</span></div>
+            <div><strong>Pending Outbox:</strong> <span id="baasPendingOutboxCount" class="badge" style="background: #334155; color: #fff; padding: 0.1rem 0.4rem; border-radius: 3px;">0</span></div>
+          </div>
+        </div>
         <div class="admin-baas-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem;">
           <!-- Supabase Provider Card -->
           <div class="card" style="padding: 1.5rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: var(--bg-surface, #1e293b);">
@@ -1566,6 +1594,7 @@
 
   <!-- Scripts -->
   <script src="../js/backend/config.js"></script>
+  <script src="../js/backend/syncCoordinator.js"></script>
   <script src="../js/backend/backendAdapter.js"></script>
   <script src="../js/backend/supabaseProvider.js"></script>
   <script src="../js/backend/pocketbaseProvider.js"></script>
