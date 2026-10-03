@@ -3,3 +3,10 @@
 node_modules/
 *.local.json
 scripts/bootstrap-super-admin.generated.sql
+migration-data/*.json
+migration-data/*.sql
+
+!migration-data/README.md
+!migration-data/sermon-chapel-overrides.example.json
+
+migration-data/sermon-chapel-overrides.json

@@ -81,6 +81,7 @@ if (!homeDependencyMatch) {
 
 
 const chapelDetailPages = [
+  'peculiar-hq.html',
   'pdcm-gwarinpa.html',
   'pdcm-english.html',
   'pdcm-byazhin.html',

@@ -5,7 +5,11 @@
   "scripts": {
     "check": "node scripts/check-foundation.mjs",
     "cf:whoami": "wrangler whoami",
-    "check:stage2": "node scripts/check-stage2.mjs"
+    "check:stage2": "node scripts/check-stage2.mjs",
+    "check:stage3": "node scripts/check-stage3.mjs",
+    "migration:export": "node scripts/export-supabase-site-content.mjs",
+    "migration:transform": "node scripts/transform-supabase-to-d1.mjs",
+    "migration:validate-sql": "node scripts/generate-stage3-validation-sql.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

@@ -260,11 +260,19 @@
   },
   "chapels": {
     "hero": {
-      "eyebrow": "PDCM Chapels",
+      "eyebrow": "Worship Locations",
       "title": "One Altar.\nOne Church.",
-      "description": "Each PDCM chapel carries the vision of Peculiar Cherubs while serving the spiritual and practical needs of its immediate community."
+      "description": "Peculiar HQ and each PDCM chapel carry the vision of Peculiar Cherubs while serving their worshipping communities."
     },
     "current": [
+      {
+        "name": "Peculiar HQ",
+        "subtitle": "The headquarters worship location of Peculiar Cherubs.",
+        "status": "Peculiar HQ",
+        "logo": "assets/logos/mother-church.png",
+        "href": "peculiar-hq.html",
+        "id": "peculiar-hq"
+      },
       {
         "name": "PDCM English Chapel",
         "subtitle": "Governors Assembly",
@@ -544,6 +552,27 @@
             }
           ]
         }
+      },
+      "peculiar-hq": {
+        "id": "peculiar-hq",
+        "href": "peculiar-hq.html",
+        "category": "Peculiar HQ",
+        "title": "Peculiar HQ",
+        "shortTitle": "Peculiar HQ",
+        "summary": "The headquarters worship location of Peculiar Cherubs, with its own services, sermons, broadcasts, and church-wide gatherings.",
+        "image": "assets/hero/mother-church-brand.jpg",
+        "facts": [],
+        "overview": [
+          "Peculiar HQ is the headquarters worship location of Peculiar Cherubs.",
+          "HQ-specific services, sermons, livestreams, and updates are presented on this page."
+        ],
+        "leaders": [],
+        "functionsTitle": "HQ focus",
+        "functions": [
+          "HQ worship services and church-wide gatherings",
+          "HQ sermons and livestream broadcasts",
+          "Central church announcements and worship updates"
+        ]
       }
     }
   },
@@ -3810,28 +3839,6 @@
       "description": "Join live services, revisit the latest broadcast, and see what is coming next."
     },
     "channels": {
-      "mother-church": {
-        "enabled": true,
-        "label": "Mother Church",
-        "statusOverride": "auto",
-        "youtubeChannelUrl": "https://youtube.com/@peculiarcherubschurch",
-        "currentBroadcast": {
-          "title": "",
-          "speaker": "",
-          "serviceType": "Sunday Worship",
-          "videoUrl": "",
-          "startsAt": "",
-          "endsAt": ""
-        },
-        "schedule": [
-          {
-            "label": "Sunday Worship",
-            "dayOfWeek": 0,
-            "time": "09:00"
-          }
-        ],
-        "utcOffsetMinutes": 60
-      },
       "pdcm-gwarinpa": {
         "enabled": true,
         "statusOverride": "auto",
@@ -3899,6 +3906,28 @@
         "enabled": true,
         "statusOverride": "auto",
         "youtubeChannelUrl": "",
+        "currentBroadcast": {
+          "title": "",
+          "speaker": "",
+          "serviceType": "Sunday Worship",
+          "videoUrl": "",
+          "startsAt": "",
+          "endsAt": ""
+        },
+        "schedule": [
+          {
+            "label": "Sunday Worship",
+            "dayOfWeek": 0,
+            "time": "09:00"
+          }
+        ],
+        "utcOffsetMinutes": 60
+      },
+      "peculiar-hq": {
+        "enabled": true,
+        "label": "Peculiar HQ",
+        "statusOverride": "auto",
+        "youtubeChannelUrl": "https://youtube.com/@peculiarcherubschurch",
         "currentBroadcast": {
           "title": "",
           "speaker": "",

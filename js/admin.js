@@ -1977,7 +1977,11 @@
       const ch=currentContent.livestream?.channels||{}, details=currentContent.chapels?.details||{};
       return Object.entries(ch)
         .filter(([key]) => !this.isChapelScoped() || this.canManageChapel(key))
-        .map(([key,channel])=>({key,label:channel.label||(key==='mother-church'?'Mother Church':details[key]?.shortTitle||details[key]?.title||key),channel}));
+        .map(([key,channel])=>{
+          const canonicalKey=['mother-church','general','mother','motherchurch','mother_church'].includes(key)?'peculiar-hq':key;
+          const label=canonicalKey==='peculiar-hq'?'Peculiar HQ':(channel.label||details[canonicalKey]?.shortTitle||details[canonicalKey]?.title||canonicalKey);
+          return {key,canonicalKey,label,channel};
+        });
     },
     renderLivestreamView(){
       const select=document.getElementById('livestreamChannelSelect'); if(!select)return;

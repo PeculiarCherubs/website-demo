@@ -194,14 +194,21 @@ function extractYouTubeVideoId(value) {
 }
 
 
+function canonicalWorshipLocationKey(value){
+  const key=String(value||"").trim();
+  if(["mother-church","general","mother","motherchurch","mother_church"].includes(key)) return "peculiar-hq";
+  return key;
+}
 function chapelLabelForKey(content,key){
-  if(key==="mother-church") return "Mother Church";
-  const c=content.chapels?.details?.[key];
-  return c?.shortTitle||c?.title||key;
+  const canonical=canonicalWorshipLocationKey(key);
+  if(canonical==="peculiar-hq") return "Peculiar HQ";
+  const c=content.chapels?.details?.[canonical];
+  return c?.shortTitle||c?.title||canonical;
 }
 function chapelHrefForKey(content,key){
-  if(key==="mother-church") return "about.html";
-  return content.chapels?.details?.[key]?.href||`${key}.html`;
+  const canonical=canonicalWorshipLocationKey(key);
+  if(canonical==="peculiar-hq") return "peculiar-hq.html";
+  return content.chapels?.details?.[canonical]?.href||`${canonical}.html`;
 }
 function broadcastState(channel){
   if(!channel?.enabled) return "hidden";
@@ -235,7 +242,13 @@ function countdown(date){
   return d?`${d}d ${h}h ${m}m`:h?`${h}h ${m}m`:`${Math.max(1,m)}m`;
 }
 function broadcastChannels(content){
-  return Object.entries(content.livestream?.channels||{}).map(([key,ch])=>({key,...ch,label:ch.label||chapelLabelForKey(content,key),state:broadcastState(ch)})).filter(ch=>ch.enabled&&ch.state!=="hidden");
+  const normalized=new Map();
+  Object.entries(content.livestream?.channels||{}).forEach(([rawKey,ch])=>{
+    const key=canonicalWorshipLocationKey(rawKey);
+    const item={key,...ch,label:key==="peculiar-hq"?"Peculiar HQ":(ch.label||chapelLabelForKey(content,key)),state:broadcastState(ch)};
+    if(!normalized.has(key)||rawKey===key) normalized.set(key,item);
+  });
+  return [...normalized.values()].filter(ch=>ch.enabled&&ch.state!=="hidden");
 }
 function liveChannels(content){ return broadcastChannels(content).filter(ch=>ch.state==="live"); }
 function broadcastModel(content,ch){
@@ -261,7 +274,7 @@ function renderLive(content){
   const main=document.querySelector("[data-live-main]");
   const loc=document.querySelector("[data-live-locations]");
 
-  const q=new URLSearchParams(location.search).get("chapel");
+  const q=canonicalWorshipLocationKey(new URLSearchParams(location.search).get("chapel"));
 
   // Deep links may intentionally open an upcoming/recap chapel.
   // Without a deep link, the hub defaults to a chapel that is actually live.
@@ -1223,7 +1236,7 @@ function renderMinistries(content) {
 }
 
 function renderMinistryDetail(content) {
-  const key = document.body.dataset.ministryKey;
+  const key = canonicalWorshipLocationKey(document.body.dataset.ministryKey);
   const isChapelDetail = document.body.dataset.page === "chapelDetail";
   const item = isChapelDetail
     ? content.chapels?.details?.[key]
@@ -1311,11 +1324,11 @@ function renderMinistryDetail(content) {
 
     const chapelSermons = allSermons
       .filter(sermon => {
-        const sermonChapelKey = String(
+        const sermonChapelKey = canonicalWorshipLocationKey(
           sermon.chapelId ||
           sermon.chapelKey ||
           ""
-        ).trim();
+        );
         return sermonChapelKey === key && sermon.published !== false;
       })
       .sort((a, b) => {
