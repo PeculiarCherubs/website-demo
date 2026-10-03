@@ -111,11 +111,37 @@ for (const [key, data] of Object.entries(byKey)) {
 
 // Preserve section-level metadata without duplicating relational collections.
 const chapelsSection = byKey.chapels || {};
+
+const canonicalCurrentLocations = [
+  {
+    id: "peculiar-hq",
+    name: "Peculiar HQ",
+    subtitle: "The headquarters worship location of Peculiar Cherubs.",
+    status: "Peculiar HQ",
+    logo: "assets/logos/mother-church.png",
+    href: "peculiar-hq.html"
+  },
+  ...(Array.isArray(chapelsSection.current) ? chapelsSection.current : [])
+    .map(item => ({
+      ...item,
+      id: normalizeChapelId(item?.id)
+    }))
+    .filter(item =>
+      item.id &&
+      item.id !== "peculiar-hq"
+    )
+];
+
 siteSections.push({
   key: "chapels_meta",
   data: {
-    hero: chapelsSection.hero || {},
-    current: chapelsSection.current || [],
+    hero: {
+      ...(chapelsSection.hero || {}),
+      eyebrow: "Worship Locations",
+      description:
+        "Peculiar HQ and each PDCM chapel carry the vision of Peculiar Cherubs while serving their worshipping communities."
+    },
+    current: canonicalCurrentLocations,
     upcoming: chapelsSection.upcoming || []
   },
   updated_at: metadata.chapels?.updated_at,
@@ -198,7 +224,21 @@ if (hasHqBroadcast && !chapels.some(chapel => chapel.id === "peculiar-hq")) {
       category: "Peculiar HQ",
       title: "Peculiar HQ",
       shortTitle: "Peculiar HQ",
-      summary: "The headquarters worship location of Peculiar Cherubs.",
+      summary:
+        "The headquarters worship location of Peculiar Cherubs, with its own services, sermons, broadcasts, and church-wide gatherings.",
+      image: "assets/hero/mother-church-brand.jpg",
+      facts: [],
+      overview: [
+        "Peculiar HQ is the headquarters worship location of Peculiar Cherubs.",
+        "HQ-specific services, sermons, livestreams, and updates are presented on this page."
+      ],
+      leaders: [],
+      functionsTitle: "HQ focus",
+      functions: [
+        "HQ worship services and church-wide gatherings",
+        "HQ sermons and livestream broadcasts",
+        "Central church announcements and worship updates"
+      ],
       systemGeneratedForMigration: true
     },
     published: 1,
@@ -266,6 +306,12 @@ for (const item of sermonItems) {
   sermons.push({
     id,
     chapel_id: chapelId,
+    public_json: {
+      ...item,
+      id,
+      chapelId,
+      title
+    },
     title,
     speaker: pick(item, "speaker", "preacher"),
     service_type: pick(item, "serviceType", "service_type", "category"),
@@ -325,6 +371,14 @@ for (const [rawKey, channel] of Object.entries(channelMap)) {
   broadcasts.push({
     id: `broadcast-${chapelId}`,
     chapel_id: chapelId,
+    public_json: {
+      ...channel,
+      id: chapelId,
+      chapelId,
+      label: chapelId === "peculiar-hq"
+        ? "Peculiar HQ"
+        : (channel?.label || null)
+    },
     title: pick(current, "title") || pick(channel, "title"),
     speaker: pick(current, "speaker") || pick(channel, "speaker"),
     service_type: pick(current, "serviceType") || "Sunday Worship",
@@ -473,12 +527,13 @@ for (const row of chapels) {
 
 for (const row of sermons) {
   sql.push(`INSERT INTO sermons (
-  id, chapel_id, title, speaker, service_type, sermon_date, video_url,
+  id, chapel_id, public_json, title, speaker, service_type, sermon_date, video_url,
   thumbnail_url, description, tags_json, published, source_broadcast_id,
   version, updated_at, updated_by
 ) VALUES (
   ${sqlString(row.id)},
   ${sqlString(row.chapel_id)},
+  ${jsonSql(row.public_json || {})},
   ${sqlString(row.title)},
   ${sqlString(row.speaker)},
   ${sqlString(row.service_type)},
@@ -497,13 +552,14 @@ for (const row of sermons) {
 
 for (const row of broadcasts) {
   sql.push(`INSERT INTO broadcasts (
-  id, chapel_id, title, speaker, service_type, platform, video_url,
+  id, chapel_id, public_json, title, speaker, service_type, platform, video_url,
   youtube_channel_url, facebook_video_url, facebook_page_url,
   starts_at, ends_at, status_override, bulletin, schedule_json,
   recap_url, published_sermon_id, version, updated_at, updated_by
 ) VALUES (
   ${sqlString(row.id)},
   ${sqlString(row.chapel_id)},
+  ${jsonSql(row.public_json || {})},
   ${sqlString(row.title)},
   ${sqlString(row.speaker)},
   ${sqlString(row.service_type)},

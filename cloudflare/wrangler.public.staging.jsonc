@@ -3,13 +3,17 @@
   "name": "peculiar-cherubs-public-staging",
   "main": "public-worker/src/index.js",
   "compatibility_date": "2026-10-03",
-
   "assets": {
     "directory": "..",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/__health"]
+    "run_worker_first": [
+      "/api/*",
+      "/__health",
+      "/js/data/runtimeConfig.js",
+      "/admin",
+      "/admin/*"
+    ]
   },
-
   "d1_databases": [
     {
       "binding": "DB",
@@ -18,8 +22,10 @@
       "migrations_dir": "./migrations"
     }
   ],
-
   "vars": {
-    "ENVIRONMENT": "staging"
-  }
+    "ENVIRONMENT": "staging",
+    "PUBLIC_PROVIDER": "cloudflare",
+    "CONTENT_CONTRACT": "peculiar-cherubs-public-v1"
+  },
+  "workers_dev": true
 }

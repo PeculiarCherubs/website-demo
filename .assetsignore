@@ -1,0 +1,15 @@
+# Never publish internal/admin/infrastructure files through the public Worker.
+admin/
+cloudflare/
+supabase/
+scripts/
+docs/
+
+# Repository/project documentation.
+*.md
+
+# Local/runtime project files.
+package.json
+package-lock.json
+*.sql
+*.zip

@@ -7804,3 +7804,23 @@ textarea:focus-visible {
 .sermon-live-section{background:linear-gradient(180deg,rgba(214,231,244,.55),rgba(255,255,255,0))}
 @media(max-width:900px){.broadcast-inline{grid-template-columns:1fr}}@media(max-width:600px){.broadcast-channel-pills,.broadcast-live-tabs{flex-wrap:nowrap;overflow-x:auto}.broadcast-channel-pill,.broadcast-live-tab{white-space:nowrap}.broadcast-card-topline{flex-direction:column}}@media(prefers-reduced-motion:reduce){.live-pulse-dot{animation:none}}
 
+
+
+/* --------------------------------------------------------------------------
+   Stage 4.1 — Canonical Giving Location
+   -------------------------------------------------------------------------- */
+.give-location-selector {
+  margin: 0 0 1.25rem;
+}
+
+.give-location-selector label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-weight: 700;
+}
+
+.give-location-hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.86rem;
+  opacity: 0.72;
+}

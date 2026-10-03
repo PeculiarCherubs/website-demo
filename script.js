@@ -91,6 +91,7 @@ function renderShared(content) {
   if (navigation) {
     navigation.innerHTML = content.navigation.map(item => {
       const isSermons = item.href === "sermons.html";
+      const isChapels = item.label === "CHAPELS" || item.href === "chapels.html";
       const live = liveChannels(content);
       const classNames = [item.className, isSermons && live.length ? "nav-live-now" : ""].filter(Boolean).join(" ");
       const className = classNames ? ` class="${escapeHtml(classNames)}"` : "";
@@ -101,7 +102,17 @@ function renderShared(content) {
         return `<a${className} href="${escapeHtml(href)}">${label}</a>`;
       }
 
-      const children = item.children.map(child => `
+      const effectiveChildren = isChapels
+        ? [
+            { label: "All Chapels", href: "chapels.html" },
+            ...worshipLocationRegistry(content).map(location => ({
+              label: location.label,
+              href: location.href
+            }))
+          ]
+        : item.children;
+
+      const children = effectiveChildren.map(child => `
         <a href="${escapeHtml(child.href)}">${escapeHtml(child.label)}</a>
       `).join("");
 
@@ -209,6 +220,40 @@ function chapelHrefForKey(content,key){
   const canonical=canonicalWorshipLocationKey(key);
   if(canonical==="peculiar-hq") return "peculiar-hq.html";
   return content.chapels?.details?.[canonical]?.href||`${canonical}.html`;
+}
+function worshipLocationRegistry(content){
+  const details=content?.chapels?.details||{};
+  const current=Array.isArray(content?.chapels?.current)?content.chapels.current:[];
+  const byId=new Map();
+
+  current.forEach(item=>{
+    const id=canonicalWorshipLocationKey(item?.id);
+    if(!id) return;
+    const detail=details[id]||{};
+    byId.set(id,{
+      id,
+      label:item?.name||detail?.title||detail?.shortTitle||id,
+      href:item?.href||detail?.href||chapelHrefForKey(content,id),
+      locationType:id==="peculiar-hq"?"hq":"chapel"
+    });
+  });
+
+  Object.entries(details).forEach(([rawId,detail])=>{
+    const id=canonicalWorshipLocationKey(rawId);
+    if(!id||byId.has(id)) return;
+    byId.set(id,{
+      id,
+      label:detail?.title||detail?.shortTitle||id,
+      href:detail?.href||chapelHrefForKey(content,id),
+      locationType:id==="peculiar-hq"?"hq":"chapel"
+    });
+  });
+
+  return [...byId.values()].sort((a,b)=>{
+    if(a.id==="peculiar-hq") return -1;
+    if(b.id==="peculiar-hq") return 1;
+    return String(a.label).localeCompare(String(b.label));
+  });
 }
 function broadcastState(channel){
   if(!channel?.enabled) return "hidden";
@@ -2119,6 +2164,8 @@ function renderGive(content) {
     ];
 
   const bankAccounts = Array.isArray(giveData.bankAccounts) ? giveData.bankAccounts : [];
+  const givingLocations = worshipLocationRegistry(content);
+  let activeGivingLocation = givingLocations[0]?.id || "peculiar-hq";
   const categories = Array.isArray(giveData.categories) && giveData.categories.length
     ? giveData.categories
     : ["Tithe", "Sunday Offering", "Thanksgiving", "First Fruit", "Welfare & Benevolence", "Special Project"];
@@ -2179,7 +2226,23 @@ function renderGive(content) {
     });
   });
 
-  // 3. Bank Transfer Accounts & Currency Filter
+  // 3. Canonical Giving Location + Bank Transfer Accounts & Currency Filter
+  const locationSelect = document.getElementById("give-location");
+  if (locationSelect) {
+    locationSelect.innerHTML = givingLocations.map(location => `
+      <option value="${escapeStr(location.id)}">${escapeStr(location.label)}</option>
+    `).join("");
+
+    if (activeGivingLocation) {
+      locationSelect.value = activeGivingLocation;
+    }
+
+    locationSelect.addEventListener("change", () => {
+      activeGivingLocation = canonicalWorshipLocationKey(locationSelect.value);
+      renderBankAccounts();
+    });
+  }
+
   const currencyPillsContainer = hub.querySelector("[data-give-currency-pills]");
   const accountsContainer = hub.querySelector("[data-give-accounts-list]");
 
@@ -2202,13 +2265,30 @@ function renderGive(content) {
 
   const renderBankAccounts = () => {
     if (!accountsContainer) return;
-    const filtered = bankAccounts.filter(a => (a.currency || "NGN").toUpperCase() === activeCurrency.toUpperCase());
+    const filtered = bankAccounts.filter(a => {
+      const currencyMatch =
+        (a.currency || "NGN").toUpperCase() === activeCurrency.toUpperCase();
+
+      const accountLocation = canonicalWorshipLocationKey(
+        a.locationId || a.chapelId || a.location || ""
+      );
+
+      const locationMatch =
+        !accountLocation ||
+        accountLocation === "all" ||
+        accountLocation === "*" ||
+        accountLocation === activeGivingLocation;
+
+      return currencyMatch && locationMatch;
+    });
 
     if (!filtered.length) {
       accountsContainer.innerHTML = `
         <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:1.5rem; text-align:center;">
           <p style="margin:0; color:rgba(255,255,255,0.7); font-size:0.9rem;">
-            No ${escapeStr(activeCurrency)} accounts currently listed. Please contact the church office for direct giving instructions.
+            No ${escapeStr(activeCurrency)} accounts are currently listed for ${escapeStr(
+              givingLocations.find(location => location.id === activeGivingLocation)?.label || "this location"
+            )}. Please contact the church office for direct giving instructions.
           </p>
         </div>
       `;
@@ -2398,6 +2478,15 @@ function renderGive(content) {
       const emailVal = (document.getElementById("give-email")?.value || "").trim();
       const phoneVal = (document.getElementById("give-phone")?.value || "").trim();
       const purposeVal = purposeSelect?.value || "Giving";
+      const locationVal = canonicalWorshipLocationKey(
+        locationSelect?.value || activeGivingLocation
+      );
+
+      if (!locationVal || !givingLocations.some(location => location.id === locationVal)) {
+        alert("Please select a valid giving location.");
+        locationSelect?.focus();
+        return;
+      }
 
       if (!amountVal || amountVal <= 0) {
         alert("Please enter a valid donation amount.");

@@ -69,6 +69,17 @@
           <p class="give-card-subtitle">Select a channel below for direct church bank transfers or online giving.</p>
         </div>
 
+        <!-- Canonical Giving Location -->
+        <div class="give-location-selector">
+          <label for="give-location">Giving Location *</label>
+          <select id="give-location" name="location" class="give-input" required>
+            <!-- Populated from the canonical Peculiar HQ / chapel registry -->
+          </select>
+          <p class="give-location-hint">
+            Select Peculiar HQ or the PDCM chapel your giving is intended for.
+          </p>
+        </div>
+
         <!-- Giving Channels Navigation Tabs -->
         <div class="give-tabs" role="tablist" aria-label="Giving options">
           <button type="button" class="give-tab active" role="tab" aria-selected="true" data-give-tab="bank-transfer">
@@ -105,7 +116,7 @@
             <div class="give-narration-icon">ℹ️</div>
             <div>
               <strong>Transfer Reference Guidance:</strong>
-              <p>Please enter your <em>Full Name</em> and <em>Purpose</em> in the transfer narration/remarks (e.g. <code>Ezekiel Ade - Tithe</code> or <code>Grace Obi - Building Fund</code>) for accurate attribution.</p>
+              <p>Please enter your <em>Full Name</em>, <em>Giving Location</em>, and <em>Purpose</em> in the transfer narration/remarks (e.g. <code>Ezekiel Ade - Peculiar HQ - Tithe</code>) for accurate attribution.</p>
             </div>
           </div>
 

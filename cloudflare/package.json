@@ -9,7 +9,9 @@
     "check:stage3": "node scripts/check-stage3.mjs",
     "migration:export": "node scripts/export-supabase-site-content.mjs",
     "migration:transform": "node scripts/transform-supabase-to-d1.mjs",
-    "migration:validate-sql": "node scripts/generate-stage3-validation-sql.mjs"
+    "migration:validate-sql": "node scripts/generate-stage3-validation-sql.mjs",
+    "check:stage4": "node scripts/check-stage4.mjs",
+    "stage4:verify": "node scripts/verify-stage4-public-api.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
