@@ -1,20 +1,21 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "peculiar-cherubs-admin",
+  "name": "peculiar-cherubs-admin-staging",
   "main": "admin-worker/src/index.js",
   "compatibility_date": "2026-10-03",
+  "workers_dev": true,
 
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "REPLACE_WITH_D1_NAME",
-      "database_id": "REPLACE_WITH_D1_ID",
+      "database_name": "peculiar-cherubs-staging",
+      "database_id": "8b8d96eb-3c83-4be6-ab43-59de3fbef33a",
       "migrations_dir": "./migrations"
     }
   ],
 
   "vars": {
-    "ENVIRONMENT": "production",
+    "ENVIRONMENT": "staging",
     "TEAM_DOMAIN": "REPLACE_WITH_HTTPS_TEAM_DOMAIN",
     "POLICY_AUD": "REPLACE_WITH_ACCESS_AUD"
   }

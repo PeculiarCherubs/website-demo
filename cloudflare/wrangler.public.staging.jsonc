@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "peculiar-cherubs-public-staging",
+  "main": "public-worker/src/index.js",
+  "compatibility_date": "2026-10-03",
+
+  "assets": {
+    "directory": "..",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/__health"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "peculiar-cherubs-staging",
+      "database_id": "8b8d96eb-3c83-4be6-ab43-59de3fbef33a",
+      "migrations_dir": "./migrations"
+    }
+  ],
+
+  "vars": {
+    "ENVIRONMENT": "staging"
+  }
+}

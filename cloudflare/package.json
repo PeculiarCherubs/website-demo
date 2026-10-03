@@ -4,9 +4,13 @@
   "type": "module",
   "scripts": {
     "check": "node scripts/check-foundation.mjs",
-    "cf:whoami": "wrangler whoami"
+    "cf:whoami": "wrangler whoami",
+    "check:stage2": "node scripts/check-stage2.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
+  },
+  "dependencies": {
+    "jose": "^6.1.0"
   }
 }
