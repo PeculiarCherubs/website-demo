@@ -10,7 +10,7 @@ foundation while leaving the production Supabase website untouched.
 - Durable content-history table.
 - D1 → R2 publish-job outbox table.
 - Stabilized CMS role/permission seed.
-- Cloudflare Access JWT verification using `jose`.
+- Native Cloudflare Worker Access identity using `ctx.access.getIdentity()`.
 - D1 CMS profile loading.
 - `/api/identity` bootstrap endpoint.
 - `/api/me` authorization profile endpoint.
@@ -25,7 +25,7 @@ An identity accepted by Cloudflare Access is not automatically a CMS Admin.
 The Admin Worker requires:
 
 ```text
-valid Cloudflare Access JWT
+validated Worker-level Cloudflare Access identity
 +
 enabled cms_admins record
 +

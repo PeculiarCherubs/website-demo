@@ -15,8 +15,6 @@
   ],
 
   "vars": {
-    "ENVIRONMENT": "staging",
-    "TEAM_DOMAIN": "REPLACE_WITH_HTTPS_TEAM_DOMAIN",
-    "POLICY_AUD": "REPLACE_WITH_ACCESS_AUD"
+    "ENVIRONMENT": "staging"
   }
 }

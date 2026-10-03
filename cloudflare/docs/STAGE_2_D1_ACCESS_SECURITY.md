@@ -128,9 +128,6 @@ viewer
 
 ## 7. Deploy the STAGING Admin Worker
 
-At this point `TEAM_DOMAIN` and `POLICY_AUD` still contain placeholders.
-That is intentional.
-
 Deploy:
 
 ```cmd
@@ -143,14 +140,11 @@ This creates:
 peculiar-cherubs-admin-staging
 ```
 
-The Worker itself remains fail-closed because the Access values are not yet
-configured.
-
 ---
 
-## 8. Protect this Worker with Cloudflare Access
+## 8. Protect the Worker with Cloudflare Access
 
-Current Cloudflare dashboard path:
+In the current Cloudflare dashboard:
 
 ```text
 Workers & Pages
@@ -165,125 +159,108 @@ Choose:
 All traffic
 ```
 
-For the first staging test, use the smallest possible allow policy:
+Use a restrictive policy such as your Cloudflare account or explicitly
+approved identities. Do not use `Everyone`.
 
-```text
-Cloudflare account
-```
-
-or another explicitly approved identity policy.
-
-Do not use `Everyone`.
-
-Worker-level Access protects the Worker's production/preview URLs together.
+Worker-level Access protects the Worker's associated Worker/preview/custom
+domain requests before the Worker code executes.
 
 ---
 
-## 9. Find the Team Domain
+## 9. Native Worker Access identity
 
-If Zero Trust is not configured yet:
+The Stage 2 Worker uses Cloudflare's current native Worker Access API:
 
-```text
-Cloudflare Dashboard
-→ Zero Trust
+```js
+ctx.access
+await ctx.access.getIdentity()
 ```
 
-Create the Zero Trust organization on the Free plan and choose a team name.
+No `TEAM_DOMAIN`, `POLICY_AUD`, JWK download or manual JWT parsing is required
+for this Worker-level Access configuration.
 
-Cloudflare automatically provides:
-
-```text
-<team-name>.cloudflareaccess.com
-```
-
-The dashboard exposes it under:
-
-```text
-Zero Trust
-→ Settings
-→ Team name and domain
-```
-
-For the Worker configuration, include the scheme:
-
-```text
-https://<team-name>.cloudflareaccess.com
-```
+If Access is not applied to the Worker, `ctx.access` is undefined and the
+Worker fails closed.
 
 ---
 
-## 10. Find the Access AUD
+## 10. Test `/api/identity`
 
-Open the Access application that Cloudflare created for the protected Worker.
-
-Copy the:
+After Access is enabled, open:
 
 ```text
-Application Audience (AUD) Tag
+https://<your-staging-worker>.workers.dev/api/identity
 ```
 
-Cloudflare documents the AUD as stable until the Access application is deleted
-or recreated.
+Cloudflare should require sign-in before the Worker executes.
 
----
+After successful sign-in, the endpoint should return:
 
-## 11. Update the STAGING Admin config
-
-Open:
-
-```text
-wrangler.admin.staging.jsonc
-```
-
-Replace:
-
-```text
-REPLACE_WITH_HTTPS_TEAM_DOMAIN
-REPLACE_WITH_ACCESS_AUD
-```
-
-with the actual values.
-
-Example shape:
-
-```jsonc
-"vars": {
-  "ENVIRONMENT": "staging",
-  "TEAM_DOMAIN": "https://your-team.cloudflareaccess.com",
-  "POLICY_AUD": "your-real-audience-tag"
+```json
+{
+  "ok": true,
+  "identity": {
+    "subject": "...",
+    "email": "...",
+    "name": "...",
+    "aud": "..."
+  },
+  "environment": "staging"
 }
 ```
 
-These are identifiers/configuration, not CMS passwords.
+Do not publish or share Access cookies/tokens.
+
+The returned `subject` and `email` are safe inputs for the next bootstrap step.
 
 ---
 
-## 12. Redeploy after configuring Access
+## 11. Why the Worker still has application authorization
 
-```cmd
-npx wrangler deploy --config wrangler.admin.staging.jsonc
-```
+Cloudflare Access proves that the requester is an authenticated identity.
 
-Open the Worker URL in your browser.
+That identity is **not** automatically a CMS administrator.
 
-Cloudflare Access should require authentication.
-
-After signing in, visit:
+The Worker still loads:
 
 ```text
-/api/identity
+cms_admins
+→ role
+→ permissions
+→ scopes
 ```
 
-The response should include your validated:
-
-```text
-subject
-email
-```
-
-Do not publish or share the Access JWT itself.
+from D1 before `/api/me` or future CMS operations are authorized.
 
 ---
+
+## 12. Access troubleshooting
+
+If you see:
+
+```text
+access_required
+```
+
+the request reached the Worker without Worker-level Access context. Check the
+Worker's Access tab and ensure protection is enabled for production traffic.
+
+If you see:
+
+```text
+access_identity_unavailable
+```
+
+Cloudflare Access ran, but the Worker could not retrieve the identity.
+
+The old manual errors:
+
+```text
+access_token_invalid
+access_token_required
+```
+
+are no longer part of the native Worker-level Access implementation.
 
 ## 13. Bootstrap the first D1 Super Admin
 
@@ -387,9 +364,8 @@ That migration starts only after Stage 2 security passes.
 - [ ] RBAC roles are present.
 - [ ] staging Admin Worker deploys.
 - [ ] Access protects the Worker.
-- [ ] TEAM_DOMAIN configured.
-- [ ] POLICY_AUD configured.
-- [ ] Worker redeployed.
+- [ ] Worker-level Access is enabled for all staging traffic.
+- [ ] Worker redeployed after the native Access update.
 - [ ] `/api/identity` returns validated identity.
 - [ ] first Super Admin bootstrapped.
 - [ ] `/api/me` returns Super Admin profile.

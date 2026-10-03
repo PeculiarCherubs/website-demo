@@ -36,13 +36,22 @@ for (const marker of [
 }
 
 for (const marker of [
+  "ctx?.access",
+  "ctx.access.getIdentity()",
+  "access_required",
+  "access_identity_incomplete"
+]) {
+  if (!auth.includes(marker)) issues.push(`Native Access marker missing: ${marker}`);
+}
+
+for (const forbidden of [
   "cf-access-jwt-assertion",
   "createRemoteJWKSet",
   "jwtVerify",
   "POLICY_AUD",
   "TEAM_DOMAIN"
 ]) {
-  if (!auth.includes(marker)) issues.push(`Access validation marker missing: ${marker}`);
+  if (auth.includes(forbidden)) issues.push(`Legacy manual Access verification remains: ${forbidden}`);
 }
 
 for (const table of [

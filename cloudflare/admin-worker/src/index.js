@@ -25,13 +25,14 @@ async function assertDatabaseReady(env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const id = requestId(request);
     const url = new URL(request.url);
 
     try {
-      // Every Stage 2 Admin route is fail-closed behind a VALID Access token.
-      const identity = await requireAccessIdentity(request, env);
+      // Every Stage 2 Admin route is fail-closed behind Cloudflare Worker-level Access.
+      // Cloudflare has already authenticated the request before this Worker runs.
+      const identity = await requireAccessIdentity(ctx);
 
       if (url.pathname === "/api/identity" && request.method === "GET") {
         await assertDatabaseReady(env);
@@ -41,7 +42,8 @@ export default {
           identity: {
             subject: identity.subject,
             email: identity.email,
-            name: identity.name
+            name: identity.name,
+            aud: identity.aud
           },
           environment: env.ENVIRONMENT || "staging",
           request_id: id

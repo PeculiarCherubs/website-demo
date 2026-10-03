@@ -1,6 +1,15 @@
-import { createRemoteJWKSet, jwtVerify } from "jose";
-
-const jwksByTeamDomain = new Map();
+/**
+ * Peculiar Cherubs — Cloudflare Worker Access identity
+ *
+ * Worker-level Cloudflare Access now provides a trusted `ctx.access` object
+ * after Access has authenticated the request. Cloudflare explicitly documents
+ * `ctx.access.getIdentity()` as requiring no additional JWT parsing/config.
+ *
+ * IMPORTANT:
+ * This assumes the Worker itself is protected through the Workers & Pages
+ * Access integration. If Access is not applied, ctx.access is undefined and
+ * the request fails closed.
+ */
 
 export class AccessAuthError extends Error {
   constructor(code, status = 403) {
@@ -11,56 +20,38 @@ export class AccessAuthError extends Error {
   }
 }
 
-function normalizeTeamDomain(value) {
-  const raw = String(value || "").trim();
-  if (!raw || raw.startsWith("REPLACE_")) return "";
-  return raw.startsWith("https://") ? raw.replace(/\/+$/, "") : `https://${raw.replace(/\/+$/, "")}`;
-}
-
-function getJwks(teamDomain) {
-  if (!jwksByTeamDomain.has(teamDomain)) {
-    jwksByTeamDomain.set(
-      teamDomain,
-      createRemoteJWKSet(new URL(`${teamDomain}/cdn-cgi/access/certs`))
-    );
-  }
-  return jwksByTeamDomain.get(teamDomain);
-}
-
-export async function requireAccessIdentity(request, env) {
-  const teamDomain = normalizeTeamDomain(env.TEAM_DOMAIN);
-  const audience = String(env.POLICY_AUD || "").trim();
-
-  if (!teamDomain || !audience || audience.startsWith("REPLACE_")) {
-    throw new AccessAuthError("access_not_configured", 503);
+export async function requireAccessIdentity(ctx) {
+  if (!ctx?.access) {
+    throw new AccessAuthError("access_required", 403);
   }
 
-  const token = request.headers.get("cf-access-jwt-assertion");
-  if (!token) {
-    throw new AccessAuthError("access_token_required", 403);
-  }
-
+  let identity;
   try {
-    const { payload } = await jwtVerify(token, getJwks(teamDomain), {
-      issuer: teamDomain,
-      audience,
-      algorithms: ["RS256"]
-    });
-
-    const subject = String(payload.sub || "").trim();
-    const email = String(payload.email || "").trim().toLowerCase();
-
-    if (!subject || !email) {
-      throw new AccessAuthError("access_identity_incomplete", 403);
-    }
-
-    return {
-      subject,
-      email,
-      name: typeof payload.name === "string" ? payload.name : null
-    };
-  } catch (error) {
-    if (error instanceof AccessAuthError) throw error;
-    throw new AccessAuthError("access_token_invalid", 403);
+    identity = await ctx.access.getIdentity();
+  } catch (_) {
+    throw new AccessAuthError("access_identity_unavailable", 403);
   }
+
+  const email = String(identity?.email || "").trim().toLowerCase();
+
+  // Cloudflare identity payloads may expose a stable identity as user_uuid
+  // or id depending on identity source/version. Prefer those; email is only
+  // the final compatibility fallback.
+  const subject = String(
+    identity?.user_uuid ||
+    identity?.id ||
+    email
+  ).trim();
+
+  if (!subject || !email) {
+    throw new AccessAuthError("access_identity_incomplete", 403);
+  }
+
+  return {
+    subject,
+    email,
+    name: typeof identity?.name === "string" ? identity.name : null,
+    groups: Array.isArray(identity?.groups) ? identity.groups : [],
+    aud: String(ctx.access.aud || "")
+  };
 }
