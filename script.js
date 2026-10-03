@@ -2405,19 +2405,17 @@ function renderGive(content) {
       // Check if a payment gateway link is enabled and configured
       if (gateway.enabled && gateway.paymentUrl && gateway.paymentUrl.trim().length > 0) {
         let targetUrl = gateway.paymentUrl.trim();
-        if (gateway.appendDonorParams !== false) {
+        if (gateway.appendDonorParams === true) {
+          const currencyVal = onlineCurrencySelect?.value || activeCurrency || "NGN";
           try {
             const u = new URL(targetUrl, window.location.href);
             u.searchParams.set("amount", String(amountVal));
-            u.searchParams.set("currency", onlineCurrencySelect?.value || activeCurrency || "NGN");
-            u.searchParams.set("email", emailVal);
-            u.searchParams.set("name", nameVal);
+            u.searchParams.set("currency", currencyVal);
             u.searchParams.set("purpose", purposeVal);
-            if (phoneVal) u.searchParams.set("phone", phoneVal);
             targetUrl = u.toString();
           } catch (err) {
             const sep = targetUrl.includes("?") ? "&" : "?";
-            targetUrl = `${targetUrl}${sep}amount=${encodeURIComponent(amountVal)}&email=${encodeURIComponent(emailVal)}&name=${encodeURIComponent(nameVal)}&purpose=${encodeURIComponent(purposeVal)}`;
+            targetUrl = `${targetUrl}${sep}amount=${encodeURIComponent(amountVal)}&currency=${encodeURIComponent(currencyVal)}&purpose=${encodeURIComponent(purposeVal)}`;
           }
         }
 

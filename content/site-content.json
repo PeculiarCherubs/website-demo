@@ -2405,7 +2405,7 @@
       "paymentUrl": "",
       "buttonLabel": "Proceed to Secure Payment ↗",
       "noticeMessage": "Online giving instructions are temporarily unavailable. Please contact the church office through an approved contact channel before making a transfer.",
-      "appendDonorParams": true,
+      "appendDonorParams": false,
       "customNote": "Supports debit/credit cards, USSD, Apple Pay, and instant bank transfer via payment gateway."
     }
   },

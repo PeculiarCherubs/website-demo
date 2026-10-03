@@ -2358,105 +2358,188 @@
     renderGivingView(currencyFilter = 'ALL') {
       if (typeof document === 'undefined') return;
 
+      const allAccounts = this.getAllGivingAccounts();
+      const allProjects = this.getAllGivingProjects();
+
+      // Update executive stats ribbon & accordion badges
+      const statTotalAccs = document.getElementById('statGivingTotalAccounts');
+      if (statTotalAccs) statTotalAccs.textContent = `${allAccounts.length} Configured`;
+
+      const badgeAccsCount = document.getElementById('badgeAccountsCount');
+      if (badgeAccsCount) badgeAccsCount.textContent = `${allAccounts.length} Account${allAccounts.length === 1 ? '' : 's'}`;
+
+      const statTotalProjects = document.getElementById('statGivingTotalProjects');
+      if (statTotalProjects) statTotalProjects.textContent = `${allProjects.length} Active`;
+
+      const badgeProjCount = document.getElementById('badgeProjectsCount');
+      if (badgeProjCount) badgeProjCount.textContent = `${allProjects.length} Project${allProjects.length === 1 ? '' : 's'}`;
+
+      // Update Currency Filter Counts
+      const counts = {
+        ALL: allAccounts.length,
+        NGN: allAccounts.filter(a => (a.currency || 'NGN').toUpperCase() === 'NGN').length,
+        USD: allAccounts.filter(a => (a.currency || '').toUpperCase() === 'USD').length,
+        GBP: allAccounts.filter(a => (a.currency || '').toUpperCase() === 'GBP').length,
+        EUR: allAccounts.filter(a => (a.currency || '').toUpperCase() === 'EUR').length
+      };
+
+      const elCountAll = document.getElementById('currCountALL');
+      if (elCountAll) elCountAll.textContent = counts.ALL;
+      const elCountNgn = document.getElementById('currCountNGN');
+      if (elCountNgn) elCountNgn.textContent = counts.NGN;
+      const elCountUsd = document.getElementById('currCountUSD');
+      if (elCountUsd) elCountUsd.textContent = counts.USD;
+      const elCountGbp = document.getElementById('currCountGBP');
+      if (elCountGbp) elCountGbp.textContent = counts.GBP;
+      const elCountEur = document.getElementById('currCountEUR');
+      if (elCountEur) elCountEur.textContent = counts.EUR;
+
       // 1. Render Bank Accounts Grid
       const gridAccounts = document.getElementById('gridGivingAccounts');
       if (gridAccounts) {
-        let accounts = this.getAllGivingAccounts();
+        let accounts = allAccounts;
         if (currencyFilter !== 'ALL') {
           accounts = accounts.filter(a => (a.currency || 'NGN').toUpperCase() === currencyFilter.toUpperCase());
         }
 
         if (accounts.length === 0) {
           gridAccounts.innerHTML = `
-            <div class="admin-empty-state" style="grid-column: 1 / -1; padding: 2.5rem; background: var(--white); border-radius: 16px; border: 1px dashed var(--admin-border); text-align: center;">
-              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏦</div>
-              <h4 style="margin: 0 0 0.25rem; color: var(--navy);">No Bank Accounts for ${currencyFilter}</h4>
-              <p style="color: var(--muted); font-size: 0.88rem; margin-bottom: 1rem;">Click below to register church account details for this currency.</p>
-              <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('giveAccounts')">
-                + Add Bank Account
+            <div class="admin-empty-state" style="grid-column: 1 / -1; padding: 3rem 1.5rem; background: #fafbfd; border-radius: 16px; border: 2px dashed #cbd5e1; text-align: center;">
+              <div style="font-size: 2.4rem; margin-bottom: 0.6rem;">🏦</div>
+              <h4 style="margin: 0 0 0.35rem; color: var(--navy); font-size: 1.15rem; font-weight: 700;">No Bank Accounts Found for ${currencyFilter}</h4>
+              <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.25rem; max-width: 420px; margin-left: auto; margin-right: auto;">
+                Register verified church direct bank transfer details for givers using ${currencyFilter} currency.
+              </p>
+              <button type="button" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('giveAccounts')">
+                + Add ${currencyFilter === 'ALL' ? '' : currencyFilter} Bank Account
               </button>
             </div>
           `;
         } else {
-          gridAccounts.innerHTML = accounts.map(a => `
-            <div class="admin-account-item-card">
-              <div class="admin-account-item-header">
-                <div>
-                  <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.25rem;">
-                    <span style="font-weight: 800; font-size: 0.72rem; text-transform: uppercase; background: var(--navy); color: #fff; padding: 0.15rem 0.5rem; border-radius: 999px;">
-                      ${a.currency}
+          gridAccounts.innerHTML = accounts.map(a => {
+            const curr = (a.currency || 'NGN').toUpperCase();
+            let currIcon = '₦';
+            let currClass = 'curr-ngn';
+            if (curr === 'USD') { currIcon = '$'; currClass = 'curr-usd'; }
+            else if (curr === 'GBP') { currIcon = '£'; currClass = 'curr-gbp'; }
+            else if (curr === 'EUR') { currIcon = '€'; currClass = 'curr-eur'; }
+
+            const rawNum = String(a.accountNumber || '').trim();
+            const formattedNum = rawNum.length === 10
+              ? `${rawNum.slice(0, 3)} ${rawNum.slice(3, 6)} ${rawNum.slice(6)}`
+              : rawNum;
+
+            return `
+              <div class="admin-bank-card ${a.isPrimary ? 'is-primary' : ''}">
+                <div class="admin-bank-card-top">
+                  <div class="admin-bank-badges">
+                    <span class="admin-bank-curr-badge ${currClass}">
+                      <strong>${currIcon}</strong> ${curr}
                     </span>
-                    ${a.isPrimary ? '<span style="font-weight: 800; font-size: 0.72rem; text-transform: uppercase; background: #fef3c7; color: #92400e; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid #fde68a;">Primary Account</span>' : ''}
+                    ${a.isPrimary ? '<span class="admin-bank-primary-badge">★ Primary Account</span>' : ''}
                   </div>
-                  <h4 style="margin: 0 0 0.2rem; font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--navy);">
-                    ${a.title}
-                  </h4>
-                  <div style="font-size: 0.85rem; color: var(--muted); font-weight: 600;">
-                    ${a.bankName}
+                  <div class="admin-bank-card-actions">
+                    <button type="button" class="admin-bank-action-btn" title="Edit Account" onclick="AdminPortal.openItemModal('giveAccounts', '${a.id}')">
+                      ✏️ <span>Edit</span>
+                    </button>
+                    <button type="button" class="admin-bank-action-btn delete" title="Delete Account" onclick="AdminPortal.deleteItem('giveAccounts', '${a.id}')">
+                      🗑️
+                    </button>
                   </div>
                 </div>
-                <div class="admin-card-actions">
-                  <button class="admin-icon-btn" title="Edit Account" onclick="AdminPortal.openItemModal('giveAccounts', '${a.id}')">✏️</button>
-                  <button class="admin-icon-btn delete" title="Delete Account" onclick="AdminPortal.deleteItem('giveAccounts', '${a.id}')">🗑️</button>
+
+                <div class="admin-bank-header">
+                  <div class="admin-bank-avatar">
+                    🏛️
+                  </div>
+                  <div class="admin-bank-title-wrap">
+                    <h4 class="admin-bank-title">${a.title}</h4>
+                    <span class="admin-bank-name">${a.bankName}</span>
+                  </div>
                 </div>
-              </div>
 
-              <div class="admin-account-number-display">
-                ${a.accountNumber}
-              </div>
-
-              <div style="font-size: 0.84rem; color: var(--navy);">
-                <strong>Account Name:</strong> ${a.accountName}
-                ${a.sortCode ? `<br><strong>Sort Code:</strong> ${a.sortCode}` : ''}
-                ${a.swiftCode ? `<br><strong>SWIFT / BIC:</strong> ${a.swiftCode}` : ''}
-              </div>
-
-              ${a.narrationGuide ? `
-                <div style="font-size: 0.78rem; color: var(--muted); background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--admin-border);">
-                  ℹ️ <em>${a.narrationGuide}</em>
+                <div class="admin-bank-num-box">
+                  <div class="admin-bank-num-left">
+                    <span class="admin-bank-num-label">Account Number</span>
+                    <span class="admin-bank-num-digits">${formattedNum || '—'}</span>
+                  </div>
+                  <button type="button" class="admin-bank-copy-btn" title="Copy Account Number" onclick="AdminPortal.copyAccountNumber('${rawNum}', this)">
+                    <span class="copy-icon">📋</span>
+                    <span class="copy-label">Copy</span>
+                  </button>
                 </div>
-              ` : ''}
-            </div>
-          `).join('');
+
+                <div class="admin-bank-meta-table">
+                  <div class="admin-bank-meta-row">
+                    <span class="admin-bank-meta-label">Beneficiary:</span>
+                    <strong class="admin-bank-meta-val">${a.accountName || 'Peculiar Cherubs Ministries'}</strong>
+                  </div>
+                  ${a.sortCode ? `
+                    <div class="admin-bank-meta-row">
+                      <span class="admin-bank-meta-label">Sort Code:</span>
+                      <code class="admin-bank-meta-code">${a.sortCode}</code>
+                    </div>
+                  ` : ''}
+                  ${a.swiftCode ? `
+                    <div class="admin-bank-meta-row">
+                      <span class="admin-bank-meta-label">SWIFT / BIC:</span>
+                      <code class="admin-bank-meta-code">${a.swiftCode}</code>
+                    </div>
+                  ` : ''}
+                </div>
+
+                ${a.narrationGuide ? `
+                  <div class="admin-bank-narration-callout">
+                    <span class="narration-icon">💡</span>
+                    <div class="narration-text">
+                      <strong>Narration:</strong> <em>${a.narrationGuide}</em>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('');
         }
       }
 
       // 2. Render Special Projects Grid
       const gridProjects = document.getElementById('gridGivingProjects');
       if (gridProjects) {
-        const projects = this.getAllGivingProjects();
+        const projects = allProjects;
         if (projects.length === 0) {
           gridProjects.innerHTML = `
-            <div class="admin-empty-state" style="grid-column: 1 / -1; padding: 2rem; background: var(--white); border-radius: 16px; border: 1px dashed var(--admin-border); text-align: center;">
-              <p style="color: var(--muted); margin: 0 0 1rem;">No special projects currently configured.</p>
-              <button class="btn btn-secondary admin-btn-sm" onclick="AdminPortal.openItemModal('giveProjects')">
+            <div class="admin-empty-state" style="grid-column: 1 / -1; padding: 2.5rem; background: #fafbfd; border-radius: 16px; border: 2px dashed #cbd5e1; text-align: center;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌟</div>
+              <h4 style="margin: 0 0 0.25rem; color: var(--navy);">No Special Projects Configured</h4>
+              <p style="color: #64748b; margin: 0 0 1rem; font-size: 0.88rem;">Create fundraising projects and targeted missions for the church.</p>
+              <button class="btn btn-secondary admin-btn-sm" type="button" onclick="AdminPortal.openItemModal('giveProjects')">
                 + Add Special Project
               </button>
             </div>
           `;
         } else {
           gridProjects.innerHTML = projects.map(p => `
-            <div class="admin-project-item-card">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
-                <div>
-                  <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.35rem;">
-                    <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; background: var(--sky); color: var(--navy); padding: 0.15rem 0.5rem; border-radius: 999px;">
-                      ${p.category}
-                    </span>
-                    ${p.badge ? `<span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; background: #fef3c7; color: #92400e; padding: 0.15rem 0.5rem; border-radius: 999px;">${p.badge}</span>` : ''}
-                  </div>
-                  <h4 style="margin: 0; font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--navy);">
-                    ${p.title}
-                  </h4>
+            <div class="admin-project-card">
+              <div class="admin-project-card-top">
+                <div class="admin-project-badges">
+                  <span class="admin-project-cat-badge">
+                    🏷️ ${p.category || 'Strategic Mission'}
+                  </span>
+                  ${p.badge ? `<span class="admin-project-highlight-badge">⭐ ${p.badge}</span>` : ''}
                 </div>
-                <div class="admin-card-actions">
-                  <button class="admin-icon-btn" title="Edit Project" onclick="AdminPortal.openItemModal('giveProjects', '${p.id}')">✏️</button>
-                  <button class="admin-icon-btn delete" title="Delete Project" onclick="AdminPortal.deleteItem('giveProjects', '${p.id}')">🗑️</button>
+                <div class="admin-bank-card-actions">
+                  <button type="button" class="admin-bank-action-btn" title="Edit Project" onclick="AdminPortal.openItemModal('giveProjects', '${p.id}')">
+                    ✏️ <span>Edit</span>
+                  </button>
+                  <button type="button" class="admin-bank-action-btn delete" title="Delete Project" onclick="AdminPortal.deleteItem('giveProjects', '${p.id}')">
+                    🗑️
+                  </button>
                 </div>
               </div>
-              <p style="margin: 0; font-size: 0.88rem; color: var(--muted); line-height: 1.45;">
-                ${p.description}
-              </p>
+              <div class="admin-project-body">
+                <h4 class="admin-project-title">${p.title}</h4>
+                <p class="admin-project-desc">${p.description}</p>
+              </div>
             </div>
           `).join('');
         }
@@ -2468,6 +2551,70 @@
         tab.classList.toggle('active', tab.getAttribute('data-curr-filter') === curr);
       });
       this.renderGivingView(curr);
+    },
+
+    toggleAccordion(accordionId) {
+      const el = typeof accordionId === 'string'
+        ? document.getElementById(accordionId)
+        : accordionId?.closest?.('.admin-accordion');
+      if (!el) return;
+      el.classList.toggle('open');
+    },
+
+    expandAllGivingAccordions() {
+      document.querySelectorAll('#panelGiving .admin-accordion').forEach(acc => {
+        acc.classList.add('open');
+      });
+    },
+
+    collapseAllGivingAccordions() {
+      document.querySelectorAll('#panelGiving .admin-accordion').forEach(acc => {
+        acc.classList.remove('open');
+      });
+    },
+
+    async copyAccountNumber(num, btn) {
+      if (!num) return;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(num);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = num;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        if (btn) {
+          const origHTML = btn.innerHTML;
+          btn.innerHTML = '✓ Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = origHTML;
+            btn.classList.remove('copied');
+          }, 2000);
+        }
+        this.showToast(`Account number ${num} copied to clipboard!`, 'info');
+      } catch (e) {
+        this.showToast(`Account: ${num}`, 'info');
+      }
+    },
+
+    testPaymentLink() {
+      const url = document.getElementById('gatewaySettingUrl')?.value.trim();
+      if (!url) {
+        this.showToast('Please enter a valid Payment Link URL first.', 'error');
+        return;
+      }
+      try {
+        new URL(url);
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } catch (e) {
+        this.showToast('Invalid URL format. Include http:// or https://', 'error');
+      }
     },
 
     populateGivingForms() {
@@ -2489,20 +2636,25 @@
       setVal('gatewaySettingBtnLabel', gateway.buttonLabel || 'Proceed to Secure Payment ↗');
 
       const chkParams = document.getElementById('gatewaySettingAppendParams');
-      if (chkParams) chkParams.checked = gateway.appendDonorParams !== false;
+      if (chkParams) chkParams.checked = gateway.appendDonorParams === true;
 
       setVal('gatewaySettingNotice', gateway.noticeMessage || 'Online card processing integration for Peculiar Cherubs is currently being finalized. In the meantime, you can fulfill your giving instantly with zero transaction fees using our verified Direct Bank Transfer accounts.');
 
-      // Update Banner UI
+      // Update Banner UI & Accordion Header Badge
       const banner = document.getElementById('adminGatewayStatusBanner');
       const title = document.getElementById('adminGatewayStatusTitle');
       const desc = document.getElementById('adminGatewayStatusDesc');
       const badge = document.getElementById('adminGatewayStatusBadge');
+      const badgeHeader = document.getElementById('badgeGatewayHeader');
+      const statGateway = document.getElementById('statGivingGatewayState');
+
+      const isLive = Boolean(gateway.enabled && gateway.paymentUrl && gateway.paymentUrl.trim().length > 0);
+      const providerLabel = (gateway.provider || 'Custom').toUpperCase();
 
       if (banner && title && desc && badge) {
-        if (gateway.enabled && gateway.paymentUrl && gateway.paymentUrl.trim().length > 0) {
+        if (isLive) {
           banner.className = 'admin-gateway-banner active';
-          title.textContent = `🟢 Live Gateway Active (${(gateway.provider || 'Custom').toUpperCase()})`;
+          title.textContent = `🟢 Live Gateway Active (${providerLabel})`;
           desc.textContent = `Donors clicking "Proceed to Give Online" are forwarded to: ${gateway.paymentUrl}`;
           badge.textContent = 'Active Live';
         } else {
@@ -2511,6 +2663,20 @@
           desc.textContent = 'The website displays a graceful notice directing givers to verified direct bank transfers.';
           badge.textContent = 'Setup Mode';
         }
+      }
+
+      if (badgeHeader) {
+        badgeHeader.className = `admin-accordion-badge ${isLive ? 'active' : 'setup'}`;
+        badgeHeader.textContent = isLive ? `Live (${providerLabel})` : 'Setup Mode';
+      }
+
+      if (statGateway) {
+        statGateway.textContent = isLive ? `Live (${providerLabel})` : 'Setup Mode';
+      }
+
+      const statWhatsApp = document.getElementById('statGivingWhatsAppStatus');
+      if (statWhatsApp) {
+        statWhatsApp.textContent = give.whatsappConfirmPhone ? `+${give.whatsappConfirmPhone}` : 'Configured';
       }
 
       // Giving Page Settings Form

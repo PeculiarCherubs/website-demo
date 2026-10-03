@@ -21,3 +21,8 @@ supabase/backups/
 # Temporary
 *.tmp
 *.log
+config.local.js
+*.local.js
+*.credentials.json
+.dev.vars
+.wrangler/

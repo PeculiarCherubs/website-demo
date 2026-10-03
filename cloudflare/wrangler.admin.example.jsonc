@@ -1,0 +1,25 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "peculiar-cherubs-admin",
+  "main": "admin-worker/src/index.js",
+  "compatibility_date": "2026-10-03",
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "peculiar-cherubs-staging",
+      "database_id": "REPLACE_WITH_STAGING_D1_ID",
+      "migrations_dir": "./migrations"
+    }
+  ]
+
+  /*
+   * Stage 1 intentionally does not bind or serve Admin assets.
+   * Stage 2 adds:
+   * - admin static assets;
+   * - Cloudflare Access;
+   * - Access JWT validation;
+   * - /api/me;
+   * - RBAC and chapel-scope authorization.
+   */
+}

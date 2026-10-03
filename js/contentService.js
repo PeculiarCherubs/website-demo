@@ -1,6 +1,6 @@
 /**
  * ContentService.js
- * Unified JavaScript service for fetching site content from Supabase DB ('pdcm') or local JSON fallback.
+ * Unified JavaScript service for fetching site content through PublicDataClient or local JSON fallback.
  * Implements section-level lazy loading, in-memory caching, deduplicated requests, and on-demand section fetching.
  */
 (function (global) {
@@ -16,6 +16,7 @@
     : 'content/site-content.json';
 
   const SUPABASE_CONFIG = {
+    // Transitional compatibility for the existing Supabase Admin layer.
     url: 'https://iyihwxtkgawphsnrxvop.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aWh3eHRrZ2F3cGhzbnJ4dm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MjA3NjIsImV4cCI6MjEwMzk5Njc2Mn0.61qJQ8ev9LFap1bu4A1Lr7Wy8JVvczZVb_KmhlalSQ8',
     tableName: 'site_content',
@@ -23,7 +24,7 @@
     fetchTimeoutMs: 5000
   };
 
-  // Pages currently configured to fetch live data from Supabase DB
+  // Pages currently configured to fetch live data from the active public provider
   const DB_REROUTED_PAGES = new Set([
     'home',
     'ministries',
@@ -107,44 +108,22 @@
      * Fetches a single section lazily / on-demand from DB or cache.
      */
     async getSection(sectionKey) {
-      if (cache[sectionKey]) {
-        return cache[sectionKey];
-      }
-      if (pendingRequests[sectionKey]) {
-        return await pendingRequests[sectionKey];
-      }
+      if (cache[sectionKey]) return cache[sectionKey];
+      if (pendingRequests[sectionKey]) return await pendingRequests[sectionKey];
 
       const reqPromise = (async () => {
         try {
-          const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=eq.${encodeURIComponent(sectionKey)}&select=key,data,updated_at`;
-          const signal = this.getAbortSignal();
+          if (!global.PublicDataClient?.getSectionWithMeta) {
+            throw new Error('PublicDataClient is unavailable.');
+          }
 
-          const options = {
-            method: 'GET',
-            headers: {
-              'apikey': SUPABASE_CONFIG.anonKey,
-              'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-              'Accept': 'application/json'
-            },
-            cache: 'no-store'
-          };
-          if (signal) options.signal = signal;
-
-          const response = await fetch(endpoint, options);
-          if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-          const rows = await response.json();
-          if (!rows || rows.length === 0) throw new Error(`Section '${sectionKey}' not found.`);
-
-          const row = rows[0];
-          const data = row.data;
-          cache[sectionKey] = data;
-          versions[sectionKey] = row.updated_at || null;
-          return data;
+          const entry = await global.PublicDataClient.getSectionWithMeta(sectionKey);
+          cache[sectionKey] = entry.data;
+          versions[sectionKey] = entry.updated_at || null;
+          return entry.data;
         } catch (err) {
-          console.warn(`[ContentService] On-demand live load failed for '${sectionKey}', using local fallback.`, err);
+          console.warn(`[ContentService] Live provider load failed for '${sectionKey}', using local fallback.`, err);
           const fallback = await this.fetchLocalFallback();
-          // IMPORTANT: fallback data is deliberately NOT written into the
-          // Supabase cache. The cache represents live CMS data only.
           return fallback[sectionKey] || {};
         } finally {
           delete pendingRequests[sectionKey];
@@ -156,39 +135,22 @@
     },
 
     /**
-     * Fetches multiple sections concurrently from Supabase DB.
+     * Fetches multiple sections concurrently from the active public provider.
      */
     async fetchSectionsFromDB(sectionKeys) {
       const uniqueKeys = [...new Set(sectionKeys)];
-      const missingKeys = uniqueKeys.filter(k => !cache[k]);
+      const missingKeys = uniqueKeys.filter(key => !cache[key]);
 
       if (missingKeys.length > 0) {
-        const keysFilter = missingKeys.map(k => encodeURIComponent(k)).join(',');
-        const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?key=in.(${keysFilter})&select=key,data,updated_at`;
-        const signal = this.getAbortSignal();
-
-        const options = {
-          method: 'GET',
-          headers: {
-            'apikey': SUPABASE_CONFIG.anonKey,
-            'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-            'Accept': 'application/json'
-          },
-          cache: 'no-store'
-        };
-        if (signal) options.signal = signal;
-
-        const response = await fetch(endpoint, options);
-
-        if (!response.ok) {
-          throw new Error(`Failed to batch fetch sections [${missingKeys.join(', ')}] from Supabase: ${response.status}`);
+        if (!global.PublicDataClient?.fetchSectionsWithMeta) {
+          throw new Error('PublicDataClient is unavailable.');
         }
 
-        const rows = await response.json();
-        rows.forEach(row => {
-          cache[row.key] = row.data;
-          versions[row.key] = row.updated_at || null;
-        });
+        const fetched = await global.PublicDataClient.fetchSectionsWithMeta(missingKeys);
+        for (const [key, entry] of Object.entries(fetched || {})) {
+          cache[key] = entry.data;
+          versions[key] = entry.updated_at || null;
+        }
       }
 
       const unresolvedKeys = uniqueKeys.filter(
@@ -197,7 +159,7 @@
 
       if (unresolvedKeys.length > 0) {
         throw new Error(
-          `Supabase is missing required site_content section(s): ${unresolvedKeys.join(', ')}`
+          `Live public provider is missing required section(s): ${unresolvedKeys.join(', ')}`
         );
       }
 
@@ -205,7 +167,6 @@
       uniqueKeys.forEach(key => {
         result[key] = cache[key];
       });
-
       return result;
     },
 
@@ -229,7 +190,7 @@
     },
 
     /**
-     * Clears live Supabase cache so the next read is forced back to the DB.
+     * Clears the live provider cache so the next read is forced back to the provider.
      */
     clearCache(sectionKey = null) {
       if (sectionKey) {
@@ -271,7 +232,8 @@
 
       if (isRerouted) {
         try {
-          console.log(`[ContentService] Lazy-loading sections for page '${pageName}' from Supabase DB ('pdcm')...`);
+          const providerName = global.PublicDataClient?.getProviderName?.() || 'unknown';
+          console.log(`[ContentService] Lazy-loading sections for page '${pageName}' from ${providerName}...`);
 
           const pageSpecificSections = PAGE_SECTION_MAP[pageName] || [pageName];
           const requiredSections = [...CRITICAL_SECTIONS, ...pageSpecificSections];
@@ -279,11 +241,11 @@
           const sectionsData = await this.fetchSectionsFromDB(requiredSections);
           const fullContent = { ...sectionsData };
 
-          fullContent._source = 'supabase_db';
+          fullContent._source = `${providerName}_db`;
           console.log(`[ContentService] Successfully loaded '${pageName}' sections:`, Object.keys(fullContent));
           return fullContent;
         } catch (dbError) {
-          console.warn(`[ContentService] Supabase DB fetch failed for '${pageName}'. Falling back to local site-content.json.`, dbError);
+          console.warn(`[ContentService] Live provider fetch failed for '${pageName}'. Falling back to local site-content.json.`, dbError);
           const fallbackContent = await this.fetchLocalFallback();
           return {
             ...fallbackContent,

@@ -1,0 +1,5 @@
+# Stage 2 will introduce Access values.
+# Copy to .dev.vars for local-only development.
+# NEVER COMMIT .dev.vars.
+ACCESS_TEAM_DOMAIN=
+ACCESS_AUD=

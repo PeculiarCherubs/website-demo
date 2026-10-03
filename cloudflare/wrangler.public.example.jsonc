@@ -1,0 +1,27 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "peculiar-cherubs-public",
+  "main": "public-worker/src/index.js",
+  "compatibility_date": "2026-10-03",
+
+  "assets": {
+    "directory": "..",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/__health"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "peculiar-cherubs-staging",
+      "database_id": "REPLACE_WITH_STAGING_D1_ID",
+      "migrations_dir": "./migrations"
+    }
+  ]
+
+  /*
+   * Do NOT add the production domain during Stage 1.
+   * We will add staging.peculiarcherubs.<tld> first, after the staging Worker
+   * and D1 database pass the foundation checks.
+   */
+}
