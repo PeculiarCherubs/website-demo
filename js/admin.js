@@ -1,7 +1,7 @@
 /**
  * admin.js
  * Central Admin Portal Controller for Peculiar Cherubs Website.
- * Handles Auth, Content Loading, Item CRUD, Live Card Previewing, and Supabase DB Sync.
+ * Handles Auth, Content Loading, Item CRUD, Live Card Previewing, and CMS persistence.
  * Includes Sunday School Immersive Outline Editor.
  */
 
@@ -41,6 +41,18 @@
   };
 
   const AdminPortal = {
+    _newAdminScopeKeys: new Set(),
+    _editAdminScopeKeys: new Set(),
+
+    isCloudflareAdminMode() {
+      return global.PeculiarAdminRuntimeConfig?.provider === 'cloudflare'
+        && Boolean(global.AdminDataClient);
+    },
+
+    storageLabel() {
+      return this.isCloudflareAdminMode() ? 'Cloudflare D1' : 'Supabase';
+    },
+
     /**
      * Initializes the Admin Portal
      */
@@ -403,17 +415,93 @@
       }
     },
 
-    getAdminScopeChapelOptions(selectedKeys = []) {
-      const selected = new Set(Array.isArray(selectedKeys) ? selectedKeys : []);
+    getAdminScopeLocations() {
       const details = currentContent.chapels?.details || {};
+      const current = Array.isArray(currentContent.chapels?.current)
+        ? currentContent.chapels.current
+        : [];
+      const byKey = new Map();
 
-      return Object.entries(details)
-        .map(([key, chapel]) => `
-          <option value="${key}" ${selected.has(key) ? 'selected' : ''}>
-            ${chapel.shortTitle || chapel.title || key}
-          </option>
-        `)
-        .join('');
+      const addLocation = (rawKey, source = {}) => {
+        const key = String(rawKey || '').trim();
+        if (!key || byKey.has(key)) return;
+
+        const detail = details[key] || {};
+        byKey.set(key, {
+          key,
+          label:
+            source.name ||
+            detail.shortTitle ||
+            detail.title ||
+            source.title ||
+            key,
+          type: key === 'peculiar-hq' ? 'HQ' : 'Chapel'
+        });
+      };
+
+      current.forEach(item => addLocation(item?.id, item || {}));
+      Object.entries(details).forEach(([key, detail]) => addLocation(key, detail || {}));
+
+      return [...byKey.values()].sort((a, b) => {
+        if (a.key === 'peculiar-hq') return -1;
+        if (b.key === 'peculiar-hq') return 1;
+        return String(a.label).localeCompare(String(b.label));
+      });
+    },
+
+    getAdminScopeChapelOptions(selectedKeys = [], context = 'new') {
+      const selected = new Set(Array.isArray(selectedKeys) ? selectedKeys : []);
+      const locations = this.getAdminScopeLocations();
+
+      if (!locations.length) {
+        return `
+          <div class="admin-scope-empty">
+            No chapel/HQ locations are available. Reload the CMS content and try again.
+          </div>
+        `;
+      }
+
+      return locations.map(location => `
+        <label class="admin-scope-check">
+          <input
+            type="checkbox"
+            name="${context === 'edit' ? 'adminScopeChapelKey' : 'adminAccessChapelKey'}"
+            value="${location.key}"
+            ${selected.has(location.key) ? 'checked' : ''}
+            onchange="AdminPortal.setAdminScopeSelection('${context}', this.value, this.checked)"
+          >
+          <span class="admin-scope-check-copy">
+            <strong>${location.label}</strong>
+            <small>${location.type}</small>
+          </span>
+        </label>
+      `).join('');
+    },
+
+    setAdminScopeSelection(context, key, checked) {
+      const target = context === 'edit'
+        ? this._editAdminScopeKeys
+        : this._newAdminScopeKeys;
+
+      if (checked) target.add(key);
+      else target.delete(key);
+    },
+
+    getSelectedAdminScopeKeys(containerId, context = '') {
+      const container = document.getElementById(containerId);
+      const domKeys = container
+        ? Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(input => input.value)
+            .filter(Boolean)
+        : [];
+
+      const stateKeys = context === 'edit'
+        ? [...this._editAdminScopeKeys]
+        : context === 'new'
+          ? [...this._newAdminScopeKeys]
+          : [];
+
+      return [...new Set(domKeys.length ? domKeys : stateKeys)];
     },
 
     updateAdminAccessScopeControls() {
@@ -431,6 +519,15 @@
       if (chapelGroup) {
         chapelGroup.hidden = !isChapelRole;
       }
+
+      const chapelContainer = document.getElementById('adminAccessChapels');
+      if (chapelContainer && isChapelRole) {
+        const selected = this.getSelectedAdminScopeKeys('adminAccessChapels', 'new');
+        this._newAdminScopeKeys = new Set(selected);
+        chapelContainer.innerHTML = this.getAdminScopeChapelOptions(selected, 'new');
+      }
+
+      if (!isChapelRole) this._newAdminScopeKeys.clear();
     },
 
     updateScopeModalControls() {
@@ -442,28 +539,45 @@
     async loadAdminAccess() {
       if (!this.hasPermission('admins.manage')) return;
 
-      const session = await this.getValidAuthSession();
-      if (!session?.accessToken) return;
+      let roles = [];
+      let admins = [];
 
-      const cfg = this.getAuthConfig();
-      const headers = {
-        'apikey': cfg.anonKey,
-        'Authorization': `Bearer ${session.accessToken}`,
-        'Content-Type': 'application/json'
-      };
+      if (this.isCloudflareAdminMode()) {
+        try {
+          const payload = await global.AdminDataClient.listAccess();
+          roles = payload.roles || [];
+          admins = payload.admins || [];
+        } catch (err) {
+          console.error('[AdminPortal] Could not load Cloudflare Admin access list:', err);
+          this.showToast('Could not load Admin roles/access list.', 'error');
+          return;
+        }
+      } else {
+        const session = await this.getValidAuthSession();
+        if (!session?.accessToken) return;
 
-      const [rolesResp, adminsResp] = await Promise.all([
-        fetch(`${cfg.url}/rest/v1/rpc/cms_list_roles`, { method: 'POST', headers, body: '{}' }),
-        fetch(`${cfg.url}/rest/v1/rpc/cms_list_admins`, { method: 'POST', headers, body: '{}' })
-      ]);
+        const cfg = this.getAuthConfig();
+        const headers = {
+          'apikey': cfg.anonKey,
+          'Authorization': `Bearer ${session.accessToken}`,
+          'Content-Type': 'application/json'
+        };
 
-      if (!rolesResp.ok || !adminsResp.ok) {
-        this.showToast('Could not load Admin roles/access list.', 'error');
-        return;
+        const [rolesResp, adminsResp] = await Promise.all([
+          fetch(`${cfg.url}/rest/v1/rpc/cms_list_roles`, { method: 'POST', headers, body: '{}' }),
+          fetch(`${cfg.url}/rest/v1/rpc/cms_list_admins`, { method: 'POST', headers, body: '{}' })
+        ]);
+
+        if (!rolesResp.ok || !adminsResp.ok) {
+          this.showToast('Could not load Admin roles/access list.', 'error');
+          return;
+        }
+
+        roles = await rolesResp.json();
+        admins = await adminsResp.json();
       }
 
-      availableCmsRoles = await rolesResp.json();
-      const admins = await adminsResp.json();
+      availableCmsRoles = roles;
 
       const roleSelect = document.getElementById('adminAccessRole');
       if (roleSelect) {
@@ -472,9 +586,10 @@
         ).join('');
       }
 
+      this._newAdminScopeKeys.clear();
       const addChapels = document.getElementById('adminAccessChapels');
       if (addChapels) {
-        addChapels.innerHTML = this.getAdminScopeChapelOptions();
+        addChapels.innerHTML = this.getAdminScopeChapelOptions([], 'new');
       }
 
       this.updateAdminAccessScopeControls();
@@ -507,7 +622,14 @@
             <tr>
               <td>${admin.email}</td>
               <td>
-                <select class="admin-select" onchange="AdminPortal.setAdminRole('${admin.user_id}', this.value)">
+                <select class="admin-select" onchange="AdminPortal.handleAdminRoleChange(
+                  '${admin.user_id}',
+                  '${encodeURIComponent(admin.email)}',
+                  '${admin.role_key}',
+                  this.value,
+                  '${encodedScopes}',
+                  this
+                )">
                   ${roleOptions}
                 </select>
               </td>
@@ -539,6 +661,10 @@
       const modal = document.getElementById('adminScopeModal');
       const identity = document.getElementById('adminScopeIdentity');
       const userIdInput = document.getElementById('adminScopeUserId');
+      const modeInput = document.getElementById('adminScopeMode');
+      const pendingRoleInput = document.getElementById('adminScopePendingRole');
+      const modalTitle = document.getElementById('adminScopeModalTitle');
+      const saveBtn = document.getElementById('adminScopeSaveBtn');
       const typeSelect = document.getElementById('adminScopeType');
       const chapelSelect = document.getElementById('adminScopeChapels');
 
@@ -555,6 +681,10 @@
         identity.textContent = `${email} · ${roleKey}`;
       }
       if (userIdInput) userIdInput.value = userId;
+      if (modeInput) modeInput.value = 'scope';
+      if (pendingRoleInput) pendingRoleInput.value = roleKey;
+      if (modalTitle) modalTitle.textContent = 'Manage Chapel Scope';
+      if (saveBtn) saveBtn.innerHTML = '💾 Save Scope';
 
       const chapelRole = roleKey === 'chapel_content_manager';
       if (typeSelect) {
@@ -562,8 +692,52 @@
         typeSelect.disabled = true;
       }
 
+      this._editAdminScopeKeys = new Set(scopes);
+
       if (chapelSelect) {
-        chapelSelect.innerHTML = this.getAdminScopeChapelOptions(scopes);
+        chapelSelect.innerHTML = this.getAdminScopeChapelOptions(scopes, 'edit');
+      }
+
+      this.updateScopeModalControls();
+      modal?.classList.add('open');
+    },
+
+    openAdminRoleScopeModal(userId, encodedEmail, currentRole, encodedScopes) {
+      const modal = document.getElementById('adminScopeModal');
+      const identity = document.getElementById('adminScopeIdentity');
+      const userIdInput = document.getElementById('adminScopeUserId');
+      const modeInput = document.getElementById('adminScopeMode');
+      const pendingRoleInput = document.getElementById('adminScopePendingRole');
+      const modalTitle = document.getElementById('adminScopeModalTitle');
+      const saveBtn = document.getElementById('adminScopeSaveBtn');
+      const typeSelect = document.getElementById('adminScopeType');
+      const chapelSelect = document.getElementById('adminScopeChapels');
+
+      let scopes = [];
+      try {
+        scopes = JSON.parse(decodeURIComponent(encodedScopes || '[]'));
+      } catch (_) {
+        scopes = [];
+      }
+
+      const email = decodeURIComponent(encodedEmail || '');
+      if (identity) {
+        identity.textContent = `${email} · ${currentRole} → Chapel Content Manager`;
+      }
+      if (userIdInput) userIdInput.value = userId;
+      if (modeInput) modeInput.value = 'role-change';
+      if (pendingRoleInput) pendingRoleInput.value = 'chapel_content_manager';
+      if (modalTitle) modalTitle.textContent = 'Change Role & Assign Chapel Scope';
+      if (saveBtn) saveBtn.innerHTML = '💾 Save Role & Scope';
+
+      if (typeSelect) {
+        typeSelect.value = 'chapel';
+        typeSelect.disabled = true;
+      }
+
+      this._editAdminScopeKeys = new Set(scopes);
+      if (chapelSelect) {
+        chapelSelect.innerHTML = this.getAdminScopeChapelOptions(scopes, 'edit');
       }
 
       this.updateScopeModalControls();
@@ -576,31 +750,66 @@
 
     async saveAdminScope() {
       const userId = document.getElementById('adminScopeUserId')?.value || '';
+      const mode = document.getElementById('adminScopeMode')?.value || 'scope';
+      const pendingRole = document.getElementById('adminScopePendingRole')?.value || '';
       const scopeType = document.getElementById('adminScopeType')?.value || 'global';
-      const chapelSelect = document.getElementById('adminScopeChapels');
-      const chapelKeys = chapelSelect
-        ? Array.from(chapelSelect.selectedOptions).map(option => option.value)
-        : [];
+      const chapelKeys = this.getSelectedAdminScopeKeys('adminScopeChapels', 'edit');
 
       if (scopeType === 'chapel' && chapelKeys.length === 0) {
-        this.showToast('Select at least one chapel for this account.', 'error');
+        this.showToast('Select at least one chapel or Peculiar HQ for this account.', 'error');
         return;
       }
 
-      const ok = await this.callAdminAccessRpc('cms_set_admin_scopes', {
-        p_user_id: userId,
-        p_scope_type: scopeType,
-        p_chapel_keys: chapelKeys
-      });
+      const ok = mode === 'role-change'
+        ? await this.callAdminAccessRpc('cms_set_admin_role', {
+            p_user_id: userId,
+            p_role_key: pendingRole,
+            p_chapel_keys: chapelKeys
+          })
+        : await this.callAdminAccessRpc('cms_set_admin_scopes', {
+            p_user_id: userId,
+            p_scope_type: scopeType,
+            p_chapel_keys: chapelKeys
+          });
 
       if (ok) {
         this.closeAdminScopeModal();
-        this.showToast('CMS access scope updated.', 'success');
+        this.showToast(
+          mode === 'role-change'
+            ? 'CMS role and chapel scope updated.'
+            : 'CMS access scope updated.',
+          'success'
+        );
         await this.loadAdminAccess();
       }
     },
 
     async callAdminAccessRpc(functionName, body) {
+      if (this.isCloudflareAdminMode()) {
+        if (!this.hasPermission('admins.manage')) {
+          this.showToast('You do not have permission to manage Admin access.', 'error');
+          return false;
+        }
+
+        try {
+          await global.AdminDataClient.rpc(functionName, body || {});
+          return true;
+        } catch (err) {
+          console.error('[AdminPortal] Cloudflare Admin access update failed:', err);
+          const code = err?.code || err?.message || '';
+          const friendly = {
+            last_super_admin_required:
+              'This is the last active Super Admin. Assign another active Super Admin before changing this role.',
+            chapel_scope_required:
+              'Select at least one chapel or Peculiar HQ for a Chapel Content Manager.',
+            unknown_chapel_scope:
+              'One of the selected chapel/HQ scopes is no longer valid. Reload Admin Access and try again.'
+          }[code];
+          this.showToast(friendly || code || 'Admin access update failed.', 'error');
+          return false;
+        }
+      }
+
       const session = await this.getValidAuthSession();
       if (!session?.accessToken || !this.hasPermission('admins.manage')) {
         this.showToast('You do not have permission to manage Admin access.', 'error');
@@ -632,14 +841,35 @@
       const roleKey = document.getElementById('adminAccessRole')?.value || '';
       if (!email || !roleKey) return;
 
-      const chapelSelect = document.getElementById('adminAccessChapels');
-      const chapelKeys = chapelSelect
-        ? Array.from(chapelSelect.selectedOptions).map(option => option.value)
-        : [];
+      const chapelKeys = this.getSelectedAdminScopeKeys('adminAccessChapels', 'new');
 
       if (roleKey === 'chapel_content_manager' && chapelKeys.length === 0) {
-        this.showToast('Select at least one chapel for a Chapel Content Manager.', 'error');
+        this.showToast('Select at least one chapel or Peculiar HQ for a Chapel Content Manager.', 'error');
         return;
+      }
+
+      if (this.isCloudflareAdminMode()) {
+        try {
+          await global.AdminDataClient.inviteAdmin(
+            email,
+            roleKey,
+            roleKey === 'chapel_content_manager' ? 'chapel' : 'global',
+            roleKey === 'chapel_content_manager' ? chapelKeys : []
+          );
+
+          document.getElementById('adminAccessEmail').value = '';
+          this._newAdminScopeKeys.clear();
+          this.showToast(
+            'CMS invitation created. The account will activate after an approved Cloudflare Access sign-in.',
+            'success'
+          );
+          await this.loadAdminAccess();
+          return;
+        } catch (err) {
+          console.error('[AdminPortal] Could not create Cloudflare CMS invitation:', err);
+          this.showToast(err?.code || err?.message || 'Could not create CMS invitation.', 'error');
+          return;
+        }
       }
 
       const ok = await this.callAdminAccessRpc('cms_assign_admin_role', {
@@ -652,19 +882,29 @@
       // Reload once to resolve the user UUID returned through the Admin list.
       await this.loadAdminAccess();
 
-      const session = await this.getValidAuthSession();
-      const cfg = this.getAuthConfig();
-      const response = await fetch(`${cfg.url}/rest/v1/rpc/cms_list_admins`, {
-        method: 'POST',
-        headers: {
-          'apikey': cfg.anonKey,
-          'Authorization': `Bearer ${session.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: '{}'
-      });
+      let admins = [];
 
-      const admins = response.ok ? await response.json() : [];
+      if (this.isCloudflareAdminMode()) {
+        try {
+          admins = (await global.AdminDataClient.listAccess()).admins || [];
+        } catch (_) {
+          admins = [];
+        }
+      } else {
+        const session = await this.getValidAuthSession();
+        const cfg = this.getAuthConfig();
+        const response = await fetch(`${cfg.url}/rest/v1/rpc/cms_list_admins`, {
+          method: 'POST',
+          headers: {
+            'apikey': cfg.anonKey,
+            'Authorization': `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: '{}'
+        });
+
+        admins = response.ok ? await response.json() : [];
+      }
       const assigned = admins.find(admin =>
         String(admin.email || '').toLowerCase() === email.toLowerCase()
       );
@@ -687,17 +927,60 @@
       }
     },
 
-    async setAdminRole(userId, roleKey) {
+    async handleAdminRoleChange(
+      userId,
+      encodedEmail,
+      currentRole,
+      nextRole,
+      encodedScopes,
+      selectElement
+    ) {
+      if (!nextRole || nextRole === currentRole) return;
+
+      if (nextRole === 'chapel_content_manager') {
+        if (selectElement) selectElement.value = currentRole;
+        this.openAdminRoleScopeModal(
+          userId,
+          encodedEmail,
+          currentRole,
+          encodedScopes
+        );
+        return;
+      }
+
       const ok = await this.callAdminAccessRpc('cms_set_admin_role', {
         p_user_id: userId,
-        p_role_key: roleKey
+        p_role_key: nextRole,
+        p_chapel_keys: []
       });
+
       if (ok) {
-        if (roleKey === 'chapel_content_manager') {
-          this.showToast('Role updated. Assign at least one chapel scope before this account can edit content.', 'success');
-        } else {
-          this.showToast('Admin role updated with Global scope.', 'success');
-        }
+        this.showToast('Admin role updated with Global scope.', 'success');
+        await this.loadAdminAccess();
+      } else {
+        if (selectElement) selectElement.value = currentRole;
+        await this.loadAdminAccess();
+      }
+    },
+
+    async setAdminRole(userId, roleKey) {
+      if (roleKey === 'chapel_content_manager') {
+        this.showToast(
+          'Use the role selector and assign at least one chapel/HQ scope to complete this role change.',
+          'error'
+        );
+        await this.loadAdminAccess();
+        return;
+      }
+
+      const ok = await this.callAdminAccessRpc('cms_set_admin_role', {
+        p_user_id: userId,
+        p_role_key: roleKey,
+        p_chapel_keys: []
+      });
+
+      if (ok) {
+        this.showToast('Admin role updated with Global scope.', 'success');
         await this.loadAdminAccess();
       } else {
         await this.loadAdminAccess();
@@ -728,7 +1011,10 @@
       }
 
       if (changePasswordBtn) {
-        changePasswordBtn.hidden = !session;
+        // Password management belongs to the authentication provider.
+        // Cloudflare Access OTP has no CMS password, and Cloudflare-account
+        // passwords are managed by Cloudflare rather than this application.
+        changePasswordBtn.hidden = this.isCloudflareAdminMode() || !session;
       }
     },
 
@@ -863,6 +1149,10 @@
      * processing Supabase password-recovery redirects before normal login.
      */
     async checkAuthStatus() {
+      if (this.isCloudflareAdminMode()) {
+        return this.checkCloudflareAuthStatus();
+      }
+
       const tokens = this.parseAuthUrlTokens();
 
       // Expired, invalid or already-used recovery link.
@@ -925,6 +1215,53 @@
         this.showAuthMode('signin', {
           error: 'Could not validate the Admin session. Please sign in again.'
         });
+      }
+    },
+
+    async checkCloudflareAuthStatus() {
+      const authOverlay = document.getElementById('adminAuthOverlay');
+
+      try {
+        const profile = await global.AdminDataClient.getMe();
+        currentAccessProfile = profile;
+
+        this.setAuthenticatedUser({
+          user: { email: profile.email || '' }
+        });
+
+        const changePasswordBtn = document.getElementById('adminChangePasswordBtn');
+        if (changePasswordBtn) changePasswordBtn.hidden = true;
+
+        this.applyAccessProfile();
+        if (authOverlay) authOverlay.classList.add('hidden');
+
+        await this.loadFullContent();
+        this.showToast(
+          `Cloudflare Access session established (${profile.role_label}).`,
+          'success'
+        );
+      } catch (err) {
+        console.error('[AdminPortal] Cloudflare CMS authorization failed:', err);
+        currentAccessProfile = null;
+
+        const signInView = document.getElementById('adminSignInView');
+        if (signInView) {
+          signInView.innerHTML = `
+            <div class="admin-auth-icon">🛡️</div>
+            <h2>CMS Access Required</h2>
+            <p>
+              Cloudflare Access authenticated this browser, but this identity
+              does not currently have an active Peculiar Cherubs CMS role.
+            </p>
+            <div class="admin-auth-error" style="display:block;">
+              ${err?.code || err?.message || 'CMS authorization failed.'}
+            </div>
+            <p style="font-size:.82rem;margin-top:1rem;">
+              Ask a Super Admin to add or enable your CMS access.
+            </p>
+          `;
+        }
+        if (authOverlay) authOverlay.classList.remove('hidden');
       }
     },
 
@@ -1247,6 +1584,14 @@
     },
 
     openChangePasswordModal() {
+      if (this.isCloudflareAdminMode()) {
+        this.showToast(
+          'Password management is handled by Cloudflare Access. OTP users do not have a CMS password.',
+          'info'
+        );
+        return;
+      }
+
       const modal = document.getElementById('adminChangePasswordModal');
       const newPasswordInput = document.getElementById('adminAuthNewPassword');
       const confirmPasswordInput = document.getElementById('adminAuthConfirmPassword');
@@ -1268,6 +1613,15 @@
     },
 
     async handleAuthenticatedPasswordChange() {
+      if (this.isCloudflareAdminMode()) {
+        this.closeChangePasswordModal();
+        this.showToast(
+          'Password management is handled by Cloudflare Access. OTP users do not have a CMS password.',
+          'info'
+        );
+        return;
+      }
+
       const newPasswordInput = document.getElementById('adminAuthNewPassword');
       const confirmPasswordInput = document.getElementById('adminAuthConfirmPassword');
       const errorMsg = document.getElementById('adminChangePasswordError');
@@ -1321,6 +1675,12 @@
      * Ends the Supabase Auth session and locks the portal.
      */
     async handleLogout() {
+      if (this.isCloudflareAdminMode()) {
+        currentAccessProfile = null;
+        window.location.assign('/cdn-cgi/access/logout');
+        return;
+      }
+
       const session = this.getStoredAuthSession();
       const cfg = global.ContentService?.config;
 
@@ -1352,6 +1712,75 @@
      */
     async loadFullContent(options = {}) {
       const { suppressToast = false, forceRefresh = false } = options;
+
+      if (this.isCloudflareAdminMode()) {
+        const sections = [
+          'site', 'navigation', 'home', 'about', 'chapels', 'sermons', 'livestream',
+          'publications', 'quickLinks', 'give', 'bibleCollege',
+          'ministries', 'events'
+        ];
+
+        try {
+          this.updateStatusIndicator(true, 'Fetching Cloudflare D1 content...');
+
+          const entries = await global.AdminDataClient.fetchSections(sections);
+          currentContent = {};
+          sections.forEach(key => {
+            if (entries[key]) {
+              currentContent[key] = entries[key].data;
+
+              if (
+                global.ContentService &&
+                typeof global.ContentService.setCachedSection === 'function'
+              ) {
+                global.ContentService.setCachedSection(
+                  key,
+                  entries[key].data,
+                  entries[key].version
+                );
+              }
+            }
+          });
+          currentContent._source = 'cloudflare_d1';
+
+          isFallbackMode = false;
+          this.setFallbackMode(false);
+          this.updateStatusIndicator(true, 'Live Cloudflare D1');
+
+          this.ensureStableContentIds();
+          this.renderAllViews();
+          this.applyAccessProfile();
+
+          if (!suppressToast) {
+            this.showToast('Live Cloudflare D1 content loaded successfully.', 'success');
+          }
+          return true;
+        } catch (err) {
+          console.error('[AdminPortal] Cloudflare D1 content load failed:', err);
+
+          try {
+            const fallback = await global.ContentService.fetchLocalFallback();
+            currentContent = {
+              ...fallback,
+              _source: 'local_json_fallback'
+            };
+            isFallbackMode = true;
+            this.setFallbackMode(true);
+            this.updateStatusIndicator(false, 'Local fallback — read only');
+            this.ensureStableContentIds();
+            this.renderAllViews();
+            this.applyAccessProfile();
+          } catch (_) {}
+
+          if (!suppressToast) {
+            this.showToast(
+              'Cloudflare D1 is unavailable. Showing repository fallback in read-only mode.',
+              'error'
+            );
+          }
+          return false;
+        }
+      }
 
       try {
         this.updateStatusIndicator(true, 'Fetching live content...');
@@ -2006,7 +2435,7 @@
 
       if (!saved) return;
 
-      this.showToast('Broadcast settings saved securely to Supabase.', 'success');
+      this.showToast(`Broadcast settings saved securely to ${this.storageLabel()}.`, 'success');
       this.renderLivestreamView();
     },
 
@@ -2239,7 +2668,7 @@
       currentContent.about.leadership.description = getVal('leadershipSettingDescription') || '';
 
       if (!(await this.syncSectionToSupabase('about', currentContent.about))) return;
-      this.showToast('Leadership section header updated live in Supabase DB!', 'success');
+      this.showToast(`Leadership section header updated live in ${this.storageLabel()}!`, 'success');
     },
 
     /* ======================================================================
@@ -2353,7 +2782,7 @@
       currentContent.quickLinks.calendar.eyebrow = 'Church calendar';
 
       if (!(await this.syncSectionToSupabase('quickLinks', currentContent.quickLinks))) return;
-      this.showToast('Quick Links page headers updated live in Supabase DB!', 'success');
+      this.showToast(`Quick Links page headers updated live in ${this.storageLabel()}!`, 'success');
     },
 
     /* ======================================================================
@@ -2733,7 +3162,7 @@
 
       if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
       this.populateGivingForms();
-      this.showToast('Payment Gateway plugin configuration synced live to Supabase DB!', 'success');
+      this.showToast(`Payment Gateway plugin configuration synced live to ${this.storageLabel()}!`, 'success');
     },
 
     async saveGivingPageSettings() {
@@ -2752,7 +3181,7 @@
       currentContent.give.why.description = getVal('givingSettingWhyDesc');
 
       if (!(await this.syncSectionToSupabase('give', currentContent.give))) return;
-      this.showToast('Giving page settings updated live in Supabase DB!', 'success');
+      this.showToast(`Giving page settings updated live in ${this.storageLabel()}!`, 'success');
     },
 
     /* ======================================================================
@@ -2822,7 +3251,7 @@
       if (!(await this.syncSectionToSupabase('site', currentContent.site))) return;
       if (!(await this.syncSectionToSupabase('home', currentContent.home))) return;
 
-      this.showToast('Site settings updated live on Supabase DB!', 'success');
+      this.showToast(`Site settings updated live on ${this.storageLabel()}!`, 'success');
     },
 
     /* ======================================================================
@@ -2898,7 +3327,7 @@
     async saveAdvancedSection() {
       if (isFallbackMode) {
         this.showToast(
-          'Read-only fallback mode: reconnect to Supabase before saving.',
+          'Read-only fallback mode: reconnect to the live CMS backend before saving.',
           'error'
         );
         return;
@@ -2927,7 +3356,7 @@
       const refreshed = document.getElementById('advancedSectionSelect');
       if (refreshed) refreshed.value = sectionKey;
       this.loadAdvancedSection(sectionKey);
-      this.showToast(`'${sectionKey}' saved to Supabase.`, 'success');
+      this.showToast(`'${sectionKey}' saved to ${this.storageLabel()}.`, 'success');
     },
 
     /* ======================================================================
@@ -4467,7 +4896,7 @@
     },
 
     /**
-     * Saves modal item to state & syncs to Supabase DB
+     * Saves modal item to state and persists it to the active CMS backend
      */
     async saveModalItem() {
       const sec = editingState.sectionKey;
@@ -5286,7 +5715,7 @@
 
       this.renderStatsAndBadges();
       this.closeItemModal();
-      this.showToast('Item saved live to Supabase DB!', 'success');
+      this.showToast(`Item saved live to ${this.storageLabel()}!`, 'success');
     },
 
     /**
@@ -5455,8 +5884,81 @@
 
     async syncScopedResource(functionName, body, sectionKey) {
       if (isFallbackMode) {
-        this.showToast('Read-only fallback mode: scoped saves require Supabase.', 'error');
+        this.showToast('Read-only fallback mode: scoped saves require the live CMS backend.', 'error');
         return false;
+      }
+
+      if (this.isCloudflareAdminMode()) {
+        try {
+          let saved;
+
+          if (functionName === 'cms_update_chapel_content') {
+            saved = await global.AdminDataClient.saveChapel(
+              body.p_chapel_key,
+              body.p_chapel_data
+            );
+          } else if (functionName === 'cms_update_chapel_broadcast') {
+            saved = await global.AdminDataClient.saveBroadcast(
+              body.p_chapel_key,
+              body.p_channel_data
+            );
+          } else if (functionName === 'cms_upsert_chapel_sermon') {
+            saved = await global.AdminDataClient.saveSermon(
+              body.p_chapel_key,
+              body.p_sermon
+            );
+          } else if (functionName === 'cms_delete_chapel_sermon') {
+            saved = await global.AdminDataClient.deleteSermon(
+              body.p_chapel_key,
+              body.p_sermon_id
+            );
+          } else {
+            throw new Error(`Unsupported scoped Cloudflare action: ${functionName}`);
+          }
+
+          if (!saved?.key || !saved?.version) {
+            throw new Error('Cloudflare CMS save returned an incomplete response.');
+          }
+
+          if (
+            global.ContentService &&
+            typeof global.ContentService.setCachedSection === 'function'
+          ) {
+            global.ContentService.setCachedSection(
+              sectionKey,
+              saved.data,
+              saved.version
+            );
+          }
+
+          currentContent[sectionKey] = saved.data;
+          return true;
+        } catch (err) {
+          console.error(`[AdminPortal] Cloudflare scoped save '${functionName}' failed.`, err);
+
+          if (err?.code === 'content_conflict' || err?.status === 409) {
+            this.showToast(
+              'Save conflict: another Admin changed this section. Reloading the latest version.',
+              'error'
+            );
+            await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+            return false;
+          }
+
+          if (
+            err?.code === 'chapel_scope_denied' ||
+            err?.code === 'cms_permission_denied'
+          ) {
+            this.showToast(
+              'Your account is not permitted to change that chapel resource.',
+              'error'
+            );
+            return false;
+          }
+
+          this.showToast('Cloudflare CMS scoped save failed.', 'error');
+          return false;
+        }
       }
 
       const cfg = global.ContentService ? global.ContentService.config : null;
@@ -5595,15 +6097,64 @@
     },
 
     /**
-     * Persists updated section to Supabase DB
+     * Persists updated section to the active CMS backend.
      */
     async syncSectionToSupabase(sectionKey, sectionData) {
       if (isFallbackMode) {
         this.showToast(
-          'Read-only fallback mode: no CMS writes are allowed until Supabase is available.',
+          'Read-only fallback mode: no CMS writes are allowed until the live CMS backend is available.',
           'error'
         );
         return false;
+      }
+
+      if (this.isCloudflareAdminMode()) {
+        try {
+          const saved = await global.AdminDataClient.saveSection(
+            sectionKey,
+            sectionData
+          );
+
+          if (!saved?.key || !saved?.version) {
+            throw new Error('Cloudflare CMS save returned an incomplete response.');
+          }
+
+          if (
+            global.ContentService &&
+            typeof global.ContentService.setCachedSection === 'function'
+          ) {
+            global.ContentService.setCachedSection(
+              sectionKey,
+              saved.data ?? sectionData,
+              saved.version
+            );
+          }
+
+          currentContent[sectionKey] = saved.data ?? sectionData;
+          return true;
+        } catch (err) {
+          console.error(`[AdminPortal] Cloudflare CMS save '${sectionKey}' failed.`, err);
+
+          if (err?.code === 'content_conflict' || err?.status === 409) {
+            this.showToast(
+              `Save conflict for '${sectionKey}': another Admin changed this content. Reloading the latest version.`,
+              'error'
+            );
+            await this.loadFullContent({ suppressToast: true, forceRefresh: true });
+            return false;
+          }
+
+          if (err?.code === 'cms_permission_denied' || err?.status === 403) {
+            this.showToast(
+              `Your CMS role does not permit changes to '${sectionKey}'.`,
+              'error'
+            );
+            return false;
+          }
+
+          this.showToast(`Could not save '${sectionKey}' to Cloudflare D1.`, 'error');
+          return false;
+        }
       }
 
       const cfg = global.ContentService ? global.ContentService.config : null;

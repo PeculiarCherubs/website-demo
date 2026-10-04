@@ -14,7 +14,7 @@
     rel="stylesheet">
 
   <!-- Admin Stylesheet (imports website-demo/styles.css) -->
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css?v=stage5-scope-persistence-1">
 </head>
 
 <body class="admin-body">
@@ -144,7 +144,7 @@
     <div class="admin-header-actions">
       <div id="adminStatusIndicator" class="admin-status-indicator">
         <span class="admin-status-dot"></span>
-        <span class="admin-status-text">Connected to Supabase DB</span>
+        <span class="admin-status-text">Connecting to live CMS…</span>
       </div>
 
       <button id="adminExportBtn" class="btn btn-secondary admin-btn-sm"
@@ -302,9 +302,9 @@
     <main class="admin-main">
       <div id="adminFallbackBanner" class="admin-fallback-banner" hidden>
         <strong>Read-only fallback mode.</strong>
-        Supabase live content could not be loaded completely. The Admin Portal is showing
+        Live CMS content could not be loaded completely. The Admin Portal is showing
         <code>content/site-content.json</code> only as an emergency fallback. Reconnect to
-        Supabase before making changes.
+        the live CMS backend before making changes.
       </div>
 
       <!-- ------------------------------------------------------------------
@@ -1225,14 +1225,14 @@
         <div class="admin-panel-header">
           <div class="admin-panel-title">
             <h2>Admin Access & Roles</h2>
-            <p>Assign CMS roles to existing Supabase Auth users. Permissions are enforced by Supabase, not only by the interface.</p>
+            <p>Assign CMS roles and scopes to approved administrators. Permissions are enforced by the active CMS backend, not only by the interface.</p>
           </div>
         </div>
 
         <div class="admin-settings-card">
-          <h3 class="admin-setting-heading">Authorize an existing Auth user</h3>
+          <h3 class="admin-setting-heading">Authorize a CMS administrator</h3>
           <p class="admin-setting-help">
-            Create the account under Supabase Authentication first, then enter that user's email here and choose a CMS role.
+            Enter the administrator's approved email, choose a CMS role, and assign the appropriate scope. Cloudflare Access invitations activate after the user's first approved sign-in.
           </p>
 
           <form id="adminAccessAddForm" class="admin-access-form">
@@ -1255,9 +1255,10 @@
               </select>
             </div>
             <div class="admin-input-group" id="adminAccessChapelScopeGroup" hidden>
-              <label for="adminAccessChapels">Assigned chapel(s)</label>
-              <select id="adminAccessChapels" class="admin-select admin-multi-select" multiple></select>
-              <small class="admin-field-note">Use Ctrl/Cmd to select more than one chapel.</small>
+              <label>Assigned chapel(s) / HQ</label>
+              <div id="adminAccessChapels" class="admin-scope-checkbox-list" role="group"
+                aria-label="Assigned chapel or HQ scopes"></div>
+              <small class="admin-field-note">Select at least one location. You may select more than one.</small>
             </div>
             <button class="btn btn-primary admin-btn-sm" type="submit">Authorize / Assign Role</button>
           </form>
@@ -1292,7 +1293,7 @@
           </div>
           <div class="admin-panel-actions">
             <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveAdvancedSection()">
-              💾 Save Section to Supabase
+              💾 Save Section to CMS
             </button>
           </div>
         </div>
@@ -1300,7 +1301,7 @@
         <div class="admin-advanced-notice">
           <strong>Live CMS content:</strong>
           use the visual editors for routine publishing and Advanced Content for complete
-          live Supabase sections. The repository JSON is now fallback/backup only and is
+          live CMS sections. The repository JSON is now fallback/backup only and is
           not imported from this screen.
         </div>
 
@@ -1330,7 +1331,7 @@
             <textarea id="advancedJsonEditor" class="admin-json-editor" spellcheck="false"
               oninput="AdminPortal.validateAdvancedJson()"></textarea>
             <p class="admin-advanced-help">
-              Saving updates only the selected live Supabase <code>site_content</code> section.
+              Saving updates only the selected live CMS content section.
               Repository JSON is not imported from this screen.
             </p>
           </div>
@@ -1372,7 +1373,7 @@
           Cancel
         </button>
         <button type="button" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveModalItem()">
-          💾 Save to Supabase DB
+          💾 Save to CMS
         </button>
       </div>
     </div>
@@ -1431,12 +1432,14 @@
   <div id="adminScopeModal" class="admin-modal">
     <div class="admin-modal-content" style="max-width: 560px;">
       <div class="admin-modal-header">
-        <h3 class="admin-modal-title">Manage Chapel Scope</h3>
+        <h3 class="admin-modal-title" id="adminScopeModalTitle">Manage Chapel Scope</h3>
         <button type="button" class="admin-modal-close" onclick="AdminPortal.closeAdminScopeModal()">×</button>
       </div>
       <div class="admin-modal-body">
         <p id="adminScopeIdentity" style="color: var(--muted); margin: 0;"></p>
         <input type="hidden" id="adminScopeUserId">
+        <input type="hidden" id="adminScopeMode" value="scope">
+        <input type="hidden" id="adminScopePendingRole" value="">
 
         <div class="admin-input-group">
           <label for="adminScopeType">Access scope</label>
@@ -1448,16 +1451,17 @@
         </div>
 
         <div class="admin-input-group" id="adminScopeChapelGroup">
-          <label for="adminScopeChapels">Assigned chapel(s)</label>
-          <select id="adminScopeChapels" class="admin-select admin-multi-select" multiple></select>
-          <small class="admin-field-note">Chapel Content Managers must have at least one assigned chapel.</small>
+          <label>Assigned chapel(s) / HQ</label>
+          <div id="adminScopeChapels" class="admin-scope-checkbox-list" role="group"
+            aria-label="Assigned chapel or HQ scopes"></div>
+          <small class="admin-field-note">Chapel Content Managers must have at least one assigned location.</small>
         </div>
       </div>
       <div class="admin-modal-footer">
         <button type="button" class="btn btn-secondary admin-btn-sm"
           onclick="AdminPortal.closeAdminScopeModal()">Cancel</button>
         <button type="button" class="btn btn-primary admin-btn-sm"
-          onclick="AdminPortal.saveAdminScope()">💾 Save Scope</button>
+          id="adminScopeSaveBtn" onclick="AdminPortal.saveAdminScope()">💾 Save Scope</button>
       </div>
     </div>
   </div>
@@ -1468,8 +1472,10 @@
   <!-- Scripts -->
   <script src="../js/data/runtimeConfig.js"></script>
   <script src="../js/data/publicDataClient.js"></script>
+  <script src="../js/data/adminRuntimeConfig.js"></script>
+  <script src="../js/data/adminDataClient.js?v=stage5-role-scope-transition-1"></script>
   <script src="../js/contentService.js"></script>
-  <script src="../js/admin.js"></script>
+  <script src="../js/admin.js?v=stage5-role-scope-transition-1"></script>
 </body>
 
 </html>

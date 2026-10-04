@@ -1,5 +1,4 @@
 # Never publish internal/admin/infrastructure files through the public Worker.
-admin/
 cloudflare/
 supabase/
 scripts/

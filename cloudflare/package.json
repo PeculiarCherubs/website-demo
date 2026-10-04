@@ -11,9 +11,17 @@
     "migration:transform": "node scripts/transform-supabase-to-d1.mjs",
     "migration:validate-sql": "node scripts/generate-stage3-validation-sql.mjs",
     "check:stage4": "node scripts/check-stage4.mjs",
-    "stage4:verify": "node scripts/verify-stage4-public-api.mjs"
+    "stage4:verify": "node scripts/verify-stage4-public-api.mjs",
+    "check:stage5": "node scripts/check-stage5.mjs",
+    "stage5:verify": "node scripts/verify-stage5-admin-api.mjs",
+    "check:stage5-scopes": "npm run check:path-portability && node scripts/check-stage5-admin-scope-wiring.mjs && node scripts/test-stage5-admin-scopes.mjs",
+    "check:stage5-role-scopes": "npm run check:path-portability && node scripts/check-stage5-role-scope-transitions.mjs && node scripts/test-stage5-role-scope-transitions.mjs",
+    "check:path-portability": "node scripts/check-script-path-portability.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
+  },
+  "dependencies": {
+    "jose": "^6.1.0"
   }
 }

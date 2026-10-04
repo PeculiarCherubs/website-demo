@@ -91,23 +91,25 @@ export function projectChapels(metaRow, chapelRows) {
     current.push({
       ...card,
       id,
-      name: card?.name || row?.title || page.title || id,
+      name: row?.title || page.title || card?.name || id,
       subtitle:
-        card?.subtitle ||
         page.summary ||
+        card?.subtitle ||
         "",
       status:
-        card?.status ||
-        (row?.location_type === "hq" ? "Peculiar HQ" : "Current Chapel"),
+        row?.location_type === "hq"
+          ? "Peculiar HQ"
+          : (card?.status || "Current Chapel"),
       logo:
-        card?.logo ||
+        page.image ||
         page.logo ||
+        card?.logo ||
         (row?.location_type === "hq"
           ? "assets/logos/mother-church.png"
           : "assets/logos/pdcm-generic.png"),
       href:
-        card?.href ||
         page.href ||
+        card?.href ||
         `${row?.slug || id}.html`
     });
     seen.add(id);

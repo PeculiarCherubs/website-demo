@@ -38,20 +38,14 @@ for (const marker of [
 for (const marker of [
   "ctx?.access",
   "ctx.access.getIdentity()",
-  "access_required",
-  "access_identity_incomplete"
-]) {
-  if (!auth.includes(marker)) issues.push(`Native Access marker missing: ${marker}`);
-}
-
-for (const forbidden of [
   "cf-access-jwt-assertion",
   "createRemoteJWKSet",
   "jwtVerify",
   "POLICY_AUD",
-  "TEAM_DOMAIN"
+  "TEAM_DOMAIN",
+  "access_identity_incomplete"
 ]) {
-  if (auth.includes(forbidden)) issues.push(`Legacy manual Access verification remains: ${forbidden}`);
+  if (!auth.includes(marker)) issues.push(`Hybrid Access marker missing: ${marker}`);
 }
 
 for (const table of [
@@ -94,4 +88,4 @@ if (issues.length) {
 }
 
 console.log("Cloudflare Stage 2 check: PASS");
-console.log("D1 schema, RBAC seed and Access-JWT validation foundation are present.");
+console.log("D1 schema, RBAC seed and hybrid Cloudflare Access validation are present.");

@@ -4,7 +4,6 @@
   "main": "admin-worker/src/index.js",
   "compatibility_date": "2026-10-03",
   "workers_dev": true,
-
   "d1_databases": [
     {
       "binding": "DB",
@@ -13,8 +12,15 @@
       "migrations_dir": "./migrations"
     }
   ],
-
   "vars": {
-    "ENVIRONMENT": "staging"
+    "ENVIRONMENT": "staging",
+    "CMS_PROVIDER": "cloudflare-d1",
+    "TEAM_DOMAIN": "https://peculiarcherubs.cloudflareaccess.com",
+    "POLICY_AUD": "082349719b39eea70a356cd643550ab89acf448ba627548b0c984442e01c5af8"
+  },
+  "assets": {
+    "directory": "..",
+    "binding": "ASSETS",
+    "run_worker_first": true
   }
 }

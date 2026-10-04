@@ -7,6 +7,117 @@ export class CmsAuthorizationError extends Error {
   }
 }
 
+async function provisionCmsAdminFromInvite(env, identity) {
+  const invite = await env.DB.prepare(`
+    SELECT
+      email,
+      role_key,
+      scope_type,
+      chapel_keys_json,
+      enabled
+    FROM cms_admin_invites
+    WHERE lower(email) = lower(?)
+      AND enabled = 1
+    LIMIT 1
+  `).bind(identity.email).first();
+
+  if (!invite) return false;
+
+  let chapelKeys = [];
+  try {
+    chapelKeys = JSON.parse(invite.chapel_keys_json || "[]");
+  } catch (_) {
+    chapelKeys = [];
+  }
+
+  const statements = [
+    env.DB.prepare(`
+      INSERT INTO cms_admins (
+        access_subject,
+        email,
+        role_key,
+        display_name,
+        enabled,
+        created_at,
+        updated_at
+      )
+      VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    `).bind(
+      identity.subject,
+      identity.email,
+      invite.role_key,
+      identity.name || null
+    ),
+    env.DB.prepare(`
+      DELETE FROM cms_admin_scopes
+      WHERE access_subject = ?
+    `).bind(identity.subject)
+  ];
+
+  if (invite.scope_type === "chapel") {
+    for (const key of chapelKeys) {
+      statements.push(
+        env.DB.prepare(`
+          INSERT INTO cms_admin_scopes (
+            access_subject, scope_type, scope_key
+          )
+          VALUES (?, 'chapel', ?)
+        `).bind(identity.subject, key)
+      );
+    }
+  } else {
+    statements.push(
+      env.DB.prepare(`
+        INSERT INTO cms_admin_scopes (
+          access_subject, scope_type, scope_key
+        )
+        VALUES (?, 'global', '*')
+      `).bind(identity.subject)
+    );
+  }
+
+  statements.push(
+    env.DB.prepare(`
+      INSERT INTO content_history (
+        resource_type,
+        resource_key,
+        action,
+        actor_subject,
+        actor_email,
+        after_json,
+        metadata_json
+      )
+      VALUES (
+        'cms_admin',
+        ?,
+        'CLAIM_INVITE',
+        ?,
+        ?,
+        ?,
+        ?
+      )
+    `).bind(
+      identity.subject,
+      identity.subject,
+      identity.email,
+      JSON.stringify({
+        email: identity.email,
+        role_key: invite.role_key,
+        scope_type: invite.scope_type,
+        chapel_scopes: chapelKeys
+      }),
+      JSON.stringify({ source: "cloudflare_access_invite" })
+    ),
+    env.DB.prepare(`
+      DELETE FROM cms_admin_invites
+      WHERE lower(email) = lower(?)
+    `).bind(identity.email)
+  );
+
+  await env.DB.batch(statements);
+  return true;
+}
+
 export async function loadCmsProfile(env, identity) {
   const admin = await env.DB
     .prepare(`
@@ -26,6 +137,10 @@ export async function loadCmsProfile(env, identity) {
     .first();
 
   if (!admin) {
+    const provisioned = await provisionCmsAdminFromInvite(env, identity);
+    if (provisioned) {
+      return loadCmsProfile(env, identity);
+    }
     throw new CmsAuthorizationError("cms_admin_not_authorized", 403);
   }
 
