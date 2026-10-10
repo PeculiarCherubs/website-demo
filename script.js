@@ -1325,13 +1325,37 @@ function renderMinistryDetail(content) {
   if (!item.leaders?.length) {
     leadersSection?.remove();
   } else if (leaders) {
-    leaders.innerHTML = item.leaders.map((leader, index) => `
-      <article class="ministry-leader-card">
-        <div class="ministry-leader-number">${String(index + 1).padStart(2, "0")}</div>
-        <h3>${escapeHtml(leader.name)}</h3>
-        <p>${escapeHtml(leader.role)}</p>
-      </article>
-    `).join("");
+    leaders.innerHTML = item.leaders.map((rawLeader, index) => {
+      const leader = typeof rawLeader === "string"
+        ? { name: rawLeader, role: "Leader" }
+        : (rawLeader || {});
+
+      const name = leader.name || "Leader";
+      const role = leader.role || leader.position || "Leader";
+      const image = String(leader.image || "").trim();
+      const alt = leader.alt || `${name}${role ? `, ${role}` : ""}`;
+      const bio = String(leader.bio || leader.biography || "").trim();
+
+      return `
+        <article class="ministry-leader-card ${image ? "has-photo" : ""}">
+          ${image ? `
+            <div class="ministry-leader-photo-wrap">
+              <img class="ministry-leader-photo"
+                src="${escapeHtml(image)}"
+                alt="${escapeHtml(alt)}"
+                loading="lazy">
+            </div>
+          ` : `
+            <div class="ministry-leader-number">${String(index + 1).padStart(2, "0")}</div>
+          `}
+          <div class="ministry-leader-copy">
+            <h3>${escapeHtml(name)}</h3>
+            <p class="ministry-leader-role">${escapeHtml(role)}</p>
+            ${bio ? `<p class="ministry-leader-bio">${escapeHtml(bio)}</p>` : ""}
+          </div>
+        </article>
+      `;
+    }).join("");
   }
 
   const functionsSection = document.querySelector("[data-ministry-functions-section]");

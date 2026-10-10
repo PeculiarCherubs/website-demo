@@ -14,7 +14,7 @@
     rel="stylesheet">
 
   <!-- Admin Stylesheet (imports website-demo/styles.css) -->
-  <link rel="stylesheet" href="admin.css?v=stage5-scope-persistence-1">
+  <link rel="stylesheet" href="admin.css?v=stage6c-preprod-1">
 </head>
 
 <body class="admin-body">
@@ -203,6 +203,16 @@
               <span id="badgeSermons" class="admin-nav-badge">0</span>
             </button>
           </li>          <li class="admin-nav-item" data-tab="livestream"><button type="button"><div class="admin-nav-label-group"><span class="admin-nav-icon">📺</span><span>Broadcasts</span></div><span id="badgeLivestream" class="admin-nav-badge">0</span></button></li>
+
+          <li class="admin-nav-item" data-tab="media">
+            <button type="button">
+              <div class="admin-nav-label-group">
+                <span class="admin-nav-icon">🖼️</span>
+                <span>Media Library</span>
+              </div>
+              <span id="badgeMedia" class="admin-nav-badge">0</span>
+            </button>
+          </li>
 
           <li class="admin-nav-item" data-tab="events">
             <button type="button">
@@ -513,6 +523,55 @@
            ------------------------------------------------------------------ -->
       <section id="panelLivestream" class="admin-view-panel"><div class="admin-panel-header"><div class="admin-panel-title"><h2>Multi-Chapel Broadcasts</h2><p>Manage upcoming, live and recap broadcasts from one canonical source.</p></div><div class="admin-panel-actions"><button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.saveLivestreamChannel()">💾 Save Broadcast</button></div></div><div class="admin-broadcast-editor"><div class="admin-input-group"><label for="livestreamChannelSelect">Broadcast Location</label><select id="livestreamChannelSelect" class="admin-select" onchange="AdminPortal.populateLivestreamForm(this.value)"></select></div><div class="admin-modal-grid-2"><div class="admin-input-group"><label for="livestreamStatusOverride">State</label><select id="livestreamStatusOverride" class="admin-select"><option value="auto">Automatic</option><option value="live">Force Live</option><option value="upcoming">Force Upcoming</option><option value="recap">Force Recap</option><option value="hidden">Hide</option></select></div><div class="admin-input-group"><label for="livestreamServiceType">Service Type</label><input id="livestreamServiceType" class="admin-input" type="text"></div></div><div class="admin-modal-grid-2"><div class="admin-input-group"><label for="livestreamTitle">Title</label><input id="livestreamTitle" class="admin-input" type="text"></div><div class="admin-input-group"><label for="livestreamSpeaker">Speaker</label><input id="livestreamSpeaker" class="admin-input" type="text"></div></div><div class="admin-input-group"><label for="livestreamVideoUrl">YouTube Video / Live URL</label><input id="livestreamVideoUrl" class="admin-input" type="url"></div><div class="admin-modal-grid-2"><div class="admin-input-group"><label for="livestreamStartsAt">Starts At</label><input id="livestreamStartsAt" class="admin-input" type="datetime-local"></div><div class="admin-input-group"><label for="livestreamEndsAt">Expected End</label><input id="livestreamEndsAt" class="admin-input" type="datetime-local"></div></div><div class="admin-input-group"><label for="livestreamYoutubeChannel">YouTube Channel URL</label><input id="livestreamYoutubeChannel" class="admin-input" type="url"></div></div></section>
 
+      <section id="panelMedia" class="admin-view-panel">
+        <div class="admin-panel-header">
+          <div class="admin-panel-title">
+            <h2>Media Library</h2>
+            <p>Upload approved images/PDFs to R2 and reuse their stable <code>/media/...</code> paths across the website.</p>
+          </div>
+          <div class="admin-panel-actions">
+            <button class="btn btn-secondary admin-btn-sm" type="button" onclick="AdminPortal.loadMediaLibrary()">↻ Refresh</button>
+          </div>
+        </div>
+
+        <div class="admin-media-upload-card">
+          <form id="adminMediaUploadForm" onsubmit="event.preventDefault(); AdminPortal.uploadMediaFromForm();">
+            <div class="admin-modal-grid-2">
+              <div class="admin-input-group">
+                <label for="adminMediaFile">File</label>
+                <input id="adminMediaFile" class="admin-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" required>
+                <small class="admin-field-note">JPEG, PNG, WebP, GIF or PDF · maximum 8 MB.</small>
+              </div>
+              <div class="admin-input-group">
+                <label for="adminMediaAlt">Alt text / description</label>
+                <input id="adminMediaAlt" class="admin-input" type="text" maxlength="300" placeholder="Describe the image for accessibility">
+              </div>
+            </div>
+            <div class="admin-modal-grid-2">
+              <div class="admin-input-group" id="adminMediaScopeGroup">
+                <label for="adminMediaScopeType">Ownership</label>
+                <select id="adminMediaScopeType" class="admin-select" onchange="AdminPortal.updateMediaScopeControls()">
+                  <option value="global">Shared / Global</option>
+                  <option value="chapel">Specific Chapel / HQ</option>
+                </select>
+              </div>
+              <div class="admin-input-group" id="adminMediaChapelGroup" hidden>
+                <label for="adminMediaChapel">Chapel / HQ</label>
+                <select id="adminMediaChapel" class="admin-select"></select>
+              </div>
+            </div>
+            <button id="adminMediaUploadBtn" class="btn btn-primary admin-btn-sm" type="submit">⬆ Upload to Media Library</button>
+          </form>
+        </div>
+
+        <div class="admin-media-toolbar">
+          <input id="adminMediaSearch" class="admin-input" type="search" placeholder="Search filename or alt text" oninput="AdminPortal.scheduleMediaSearch()">
+          <span id="adminMediaStatus" class="admin-field-note"></span>
+        </div>
+        <div id="adminMediaGrid" class="admin-media-grid"></div>
+      </section>
+
+
       <!-- ------------------------------------------------------------------
            Panel: Events
            ------------------------------------------------------------------ -->
@@ -595,7 +654,7 @@
             <p>Manage church departments, branch chapels, and leadership details.</p>
           </div>
           <div class="admin-panel-actions">
-            <button class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('ministries')">
+            <button id="adminAddMinistryBtn" class="btn btn-primary admin-btn-sm" onclick="AdminPortal.openItemModal('ministries')">
               + Add Ministry / Chapel
             </button>
           </div>
@@ -1473,9 +1532,9 @@
   <script src="../js/data/runtimeConfig.js"></script>
   <script src="../js/data/publicDataClient.js"></script>
   <script src="../js/data/adminRuntimeConfig.js"></script>
-  <script src="../js/data/adminDataClient.js?v=stage5-role-scope-transition-1"></script>
+  <script src="../js/data/adminDataClient.js?v=stage6b-media-1"></script>
   <script src="../js/contentService.js"></script>
-  <script src="../js/admin.js?v=stage5-role-scope-transition-1"></script>
+  <script src="../js/admin.js?v=stage6c-preprod-1"></script>
 </body>
 
 </html>

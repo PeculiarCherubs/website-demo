@@ -7824,3 +7824,44 @@ textarea:focus-visible {
   font-size: 0.86rem;
   opacity: 0.72;
 }
+
+
+/* --------------------------------------------------------------------------
+   Stage 6C — Chapel/ministry leader portraits and optional biographies
+   -------------------------------------------------------------------------- */
+.ministry-leader-card.has-photo {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ministry-leader-photo-wrap {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: rgba(22, 34, 73, .06);
+}
+
+.ministry-leader-photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.ministry-leader-card.has-photo .ministry-leader-copy {
+  padding: 1.45rem 1.6rem 1.6rem;
+}
+
+.ministry-leader-role {
+  margin: .35rem 0 0;
+  font-weight: 800;
+}
+
+.ministry-leader-bio {
+  margin: .85rem 0 0;
+  line-height: 1.65;
+  font-size: .92rem;
+}
+
+.ministry-leader-card:hover .ministry-leader-bio {
+  opacity: .9;
+}

@@ -27,6 +27,19 @@ import {
   setAdminScopes,
   removeAdmin
 } from "./adminAccess.js";
+import {
+  processPublishJobs,
+  bootstrapPublicSnapshots,
+  retryFailedPublishJobs,
+  runPublishJobs,
+  getPublishStatus
+} from "./publishPipeline.js";
+import {
+  listMediaAssets,
+  uploadMediaAsset,
+  deleteMediaAsset
+} from "./mediaLibrary.js";
+import { serveAdminMedia } from "./mediaServe.js";
 
 async function assertDatabaseReady(env) {
   const rows = await env.DB.prepare(`
@@ -36,7 +49,9 @@ async function assertDatabaseReady(env) {
       'application_schema',
       'worship_location_model',
       'public_content_contract',
-      'cms_write_api'
+      'cms_write_api',
+      'publication_pipeline',
+      'media_library'
     )
   `).all();
 
@@ -68,6 +83,20 @@ async function assertDatabaseReady(env) {
   if (values.cms_write_api !== "cloudflare-stage-5-v1") {
     const err = new Error("d1_stage5_write_api_missing");
     err.code = "d1_stage5_write_api_missing";
+    err.status = 503;
+    throw err;
+  }
+
+  if (values.publication_pipeline !== "cloudflare-stage-6a-v1") {
+    const err = new Error("d1_stage6a_publish_pipeline_missing");
+    err.code = "d1_stage6a_publish_pipeline_missing";
+    err.status = 503;
+    throw err;
+  }
+
+  if (values.media_library !== "cloudflare-stage-6b-v1") {
+    const err = new Error("d1_stage6b_media_library_missing");
+    err.code = "d1_stage6b_media_library_missing";
     err.status = 503;
     throw err;
   }
@@ -108,12 +137,16 @@ function adminRuntimeConfig() {
 `;
 }
 
+
+
+
 export default {
   async fetch(request, env, ctx) {
     const id = requestId(request);
     const url = new URL(request.url);
 
     try {
+
       const identity = await requireAccessIdentity(request, ctx, env);
       await assertDatabaseReady(env);
 
@@ -156,13 +189,53 @@ export default {
         return json({
           ok: true,
           service: "peculiar-cherubs-admin",
-          stage: "cloudflare-stage-5",
+          stage: "cloudflare-stage-6b",
           access_validated: true,
           database_ready: true,
           cms_ui_enabled: true,
           cms_write_api: true,
+          publish_pipeline: true,
+          media_library: true,
+          r2_public_snapshots: Boolean(env.PUBLIC_SNAPSHOTS),
+          r2_media: Boolean(env.MEDIA),
           request_id: id
         });
+      }
+
+      if (
+        url.pathname.startsWith("/media/") &&
+        (request.method === "GET" || request.method === "HEAD")
+      ) {
+        return serveAdminMedia(request, env, url.pathname);
+      }
+
+      if (url.pathname === "/api/cms/media" && request.method === "GET") {
+        const profile = await loadCmsProfile(env, identity);
+        const assets = await listMediaAssets(env, profile, {
+          limit: url.searchParams.get("limit"),
+          chapel_id: url.searchParams.get("chapel_id"),
+          search: url.searchParams.get("search")
+        });
+        return json({ ok: true, assets, request_id: id });
+      }
+
+      if (url.pathname === "/api/cms/media" && request.method === "POST") {
+        const profile = await loadCmsProfile(env, identity);
+        const formData = await request.formData();
+        const asset = await uploadMediaAsset(env, profile, identity, formData);
+        return json({ ok: true, asset, request_id: id }, 201);
+      }
+
+      const mediaDeleteMatch = url.pathname.match(/^\/api\/cms\/media\/([^/]+)$/);
+      if (mediaDeleteMatch && request.method === "DELETE") {
+        const profile = await loadCmsProfile(env, identity);
+        const result = await deleteMediaAsset(
+          env,
+          profile,
+          identity,
+          decodeURIComponent(mediaDeleteMatch[1])
+        );
+        return json({ ...result, request_id: id });
       }
 
       if (url.pathname === "/api/cms/sections" && request.method === "GET") {
@@ -193,6 +266,13 @@ export default {
           key,
           body
         );
+        ctx.waitUntil(
+          processPublishJobs(env, { limit: 5 }).catch(error => {
+            console.error("[PublishPipeline]", {
+              code: error?.code || "publish_background_failed"
+            });
+          })
+        );
         return json({ ok: true, section: saved, request_id: id });
       }
 
@@ -206,6 +286,13 @@ export default {
           identity,
           decodeURIComponent(chapelMatch[1]),
           body
+        );
+        ctx.waitUntil(
+          processPublishJobs(env, { limit: 5 }).catch(error => {
+            console.error("[PublishPipeline]", {
+              code: error?.code || "publish_background_failed"
+            });
+          })
         );
         return json({ ok: true, section: saved, request_id: id });
       }
@@ -221,6 +308,13 @@ export default {
           decodeURIComponent(broadcastMatch[1]),
           body
         );
+        ctx.waitUntil(
+          processPublishJobs(env, { limit: 5 }).catch(error => {
+            console.error("[PublishPipeline]", {
+              code: error?.code || "publish_background_failed"
+            });
+          })
+        );
         return json({ ok: true, section: saved, request_id: id });
       }
 
@@ -235,6 +329,13 @@ export default {
           decodeURIComponent(sermonMatch[1]),
           body
         );
+        ctx.waitUntil(
+          processPublishJobs(env, { limit: 5 }).catch(error => {
+            console.error("[PublishPipeline]", {
+              code: error?.code || "publish_background_failed"
+            });
+          })
+        );
         return json({ ok: true, section: saved, request_id: id });
       }
 
@@ -247,6 +348,13 @@ export default {
           identity,
           decodeURIComponent(sermonMatch[1]),
           body
+        );
+        ctx.waitUntil(
+          processPublishJobs(env, { limit: 5 }).catch(error => {
+            console.error("[PublishPipeline]", {
+              code: error?.code || "publish_background_failed"
+            });
+          })
         );
         return json({ ok: true, section: saved, request_id: id });
       }
@@ -324,6 +432,30 @@ export default {
         return json({ ...result, request_id: id });
       }
 
+      if (url.pathname === "/api/cms/publish/status" && request.method === "GET") {
+        const profile = await loadCmsProfile(env, identity);
+        const result = await getPublishStatus(env, profile);
+        return json({ ...result, request_id: id });
+      }
+
+      if (url.pathname === "/api/cms/publish/bootstrap" && request.method === "POST") {
+        const profile = await loadCmsProfile(env, identity);
+        const result = await bootstrapPublicSnapshots(env, profile);
+        return json({ ...result, request_id: id });
+      }
+
+      if (url.pathname === "/api/cms/publish/run" && request.method === "POST") {
+        const profile = await loadCmsProfile(env, identity);
+        const result = await runPublishJobs(env, profile);
+        return json({ ok: true, processed: result, request_id: id });
+      }
+
+      if (url.pathname === "/api/cms/publish/retry-failed" && request.method === "POST") {
+        const profile = await loadCmsProfile(env, identity);
+        const result = await retryFailedPublishJobs(env, profile);
+        return json({ ...result, request_id: id });
+      }
+
       if (url.pathname.startsWith("/api/")) {
         return json({ ok: false, error: "not_found", request_id: id }, 404);
       }
@@ -346,5 +478,15 @@ export default {
     } catch (error) {
       return safeErrorResponse(error, id);
     }
+  },
+
+  async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(
+      processPublishJobs(env, { limit: 25 }).catch(error => {
+        console.error("[PublishPipelineScheduled]", {
+          code: error?.code || "scheduled_publish_failed"
+        });
+      })
+    );
   }
 };

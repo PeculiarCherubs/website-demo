@@ -8,6 +8,8 @@ import {
   loadPublicSections,
   validateRequestedKeys
 } from "./publicApi.js";
+import { loadSectionsByReadMode } from "./snapshotApi.js";
+import { serveMediaObject } from "./mediaApi.js";
 
 function json(data, status = 200, extraHeaders = {}) {
   return Response.json(data, {
@@ -76,7 +78,9 @@ async function assertDatabaseReady(env) {
       'application_schema',
       'worship_location_model',
       'public_content_contract',
-      'last_import_rehearsal'
+      'last_import_rehearsal',
+      'publication_pipeline',
+      'media_library'
     )
   `).all();
 
@@ -108,6 +112,20 @@ async function assertDatabaseReady(env) {
   if (!values.last_import_rehearsal) {
     const err = new Error("d1_import_rehearsal_missing");
     err.code = "d1_import_rehearsal_missing";
+    err.status = 503;
+    throw err;
+  }
+
+  if (values.publication_pipeline !== "cloudflare-stage-6a-v1") {
+    const err = new Error("d1_stage6a_publish_pipeline_missing");
+    err.code = "d1_stage6a_publish_pipeline_missing";
+    err.status = 503;
+    throw err;
+  }
+
+  if (values.media_library !== "cloudflare-stage-6b-v1") {
+    const err = new Error("d1_stage6b_media_library_missing");
+    err.code = "d1_stage6b_media_library_missing";
     err.status = 503;
     throw err;
   }
@@ -145,14 +163,27 @@ export default {
         return json({
           ok: true,
           service: "peculiar-cherubs-public",
-          stage: "cloudflare-stage-4",
+          stage: "cloudflare-stage-6b",
+          environment: env.ENVIRONMENT || null,
           provider: env.PUBLIC_PROVIDER || "cloudflare",
           database_ready: true,
           application_schema: schema.application_schema,
           worship_location_model: schema.worship_location_model,
           public_content_contract: schema.public_content_contract,
-          imported_at: schema.last_import_rehearsal
+          imported_at: schema.last_import_rehearsal,
+          publication_pipeline: schema.publication_pipeline,
+          media_library: schema.media_library,
+          public_read_mode: env.PUBLIC_READ_MODE || "d1",
+          r2_public_snapshots: Boolean(env.PUBLIC_SNAPSHOTS),
+          r2_media: Boolean(env.MEDIA)
         });
+      }
+
+      if (
+        url.pathname.startsWith("/media/") &&
+        (request.method === "GET" || request.method === "HEAD")
+      ) {
+        return serveMediaObject(request, env, url.pathname);
       }
 
       if (url.pathname === "/api/public/manifest") {
@@ -177,22 +208,23 @@ export default {
         await assertDatabaseReady(env);
 
         const keys = validateRequestedKeys(url.searchParams.get("keys"));
-        const sections = await loadPublicSections(env.DB, keys);
+        const loaded = await loadSectionsByReadMode(env, keys);
 
         const response = {
           ok: true,
           contract: "peculiar-cherubs-public-v1",
-          sections
+          source: loaded.source,
+          sections: loaded.sections
         };
 
         return request.method === "HEAD"
           ? new Response(null, {
-              status: 200,
-              headers: {
-                "Cache-Control": "no-store",
-                "X-Content-Type-Options": "nosniff"
-              }
-            })
+            status: 200,
+            headers: {
+              "Cache-Control": "no-store",
+              "X-Content-Type-Options": "nosniff"
+            }
+          })
           : json(response);
       }
 

@@ -23,6 +23,7 @@
     publications: 'publications.manage',
     sermons: 'sermons.manage',
     livestream: 'livestream.manage',
+    media: 'media.manage',
     events: 'events.manage',
     fellowships: 'ministries.manage',
     ministries: 'ministries.manage',
@@ -357,11 +358,12 @@
         ['publications.manage', `[onclick*="switchTab('publications')"], [onclick*="openItemModal('publications'"]`],
         ['sermons.manage', `[onclick*="switchTab('sermons')"], [onclick*="openItemModal('sermons'"]`],
         ['events.manage', `[onclick*="switchTab('events')"], [onclick*="openItemModal('events'"]`],
-        ['ministries.manage', `[onclick*="switchTab('fellowships')"], [onclick*="switchTab('ministries')"]`],
+        ['ministries.manage', `[onclick*="switchTab('fellowships')"]`],
         ['about.manage', `[onclick*="switchTab('leadership')"]`],
         ['quicklinks.manage', `[onclick*="switchTab('quickLinks')"]`],
         ['giving.manage', `[onclick*="switchTab('giving')"]`],
         ['site.manage', `[onclick*="switchTab('siteSettings')"]`],
+        ['media.manage', `[onclick*="switchTab('media')"]`],
         ['advanced.manage', `[onclick*="switchTab('advancedContent')"]`]
       ];
 
@@ -404,14 +406,208 @@
         });
       }
 
-      if (this.isChapelScoped()) {
-        document.querySelectorAll(`[onclick*="openItemModal('ministries'"]`).forEach(el => {
-          el.classList.add('admin-permission-hidden');
-        });
+      const addMinistryBtn = document.getElementById('adminAddMinistryBtn');
+      if (addMinistryBtn) {
+        addMinistryBtn.hidden = !this.hasPermission('ministries.manage');
       }
 
       if (!this.canOpenTab(activeTab)) {
         this.switchTab('dashboard');
+      }
+    },
+
+    mediaEscape(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    },
+
+    formatMediaBytes(bytes) {
+      const value = Number(bytes || 0);
+      if (value < 1024) return `${value} B`;
+      if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+      return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+    },
+
+    populateMediaChapelOptions() {
+      const select = document.getElementById('adminMediaChapel');
+      if (!select) return;
+      const entries = this.getScopedChapelEntries();
+      select.innerHTML = entries.map(entry =>
+        `<option value="${this.mediaEscape(entry.key)}">${this.mediaEscape(entry.label)}</option>`
+      ).join('');
+    },
+
+    updateMediaScopeControls() {
+      const type = document.getElementById('adminMediaScopeType');
+      const group = document.getElementById('adminMediaChapelGroup');
+      if (!type || !group) return;
+
+      if (this.isChapelScoped()) {
+        type.value = 'chapel';
+        type.disabled = true;
+        group.hidden = false;
+      } else {
+        type.disabled = false;
+        group.hidden = type.value !== 'chapel';
+      }
+
+      this.populateMediaChapelOptions();
+    },
+
+    scheduleMediaSearch() {
+      clearTimeout(this._mediaSearchTimer);
+      this._mediaSearchTimer = setTimeout(() => {
+        this.loadMediaLibrary().catch(() => {});
+      }, 250);
+    },
+
+    async loadMediaLibrary() {
+      if (!this.isCloudflareAdminMode() || !this.hasPermission('media.manage')) return;
+
+      this.updateMediaScopeControls();
+      const grid = document.getElementById('adminMediaGrid');
+      const status = document.getElementById('adminMediaStatus');
+      const search = document.getElementById('adminMediaSearch')?.value || '';
+      if (grid) grid.innerHTML = '<div class="admin-media-empty">Loading media…</div>';
+
+      try {
+        const assets = await global.AdminDataClient.listMedia({ limit: 100, search });
+        const badge = document.getElementById('badgeMedia');
+        if (badge) badge.textContent = String(assets.length);
+        if (status) status.textContent = `${assets.length} asset${assets.length === 1 ? '' : 's'} shown`;
+        this.renderMediaLibrary(assets);
+      } catch (err) {
+        if (grid) grid.innerHTML = '<div class="admin-media-empty">Could not load media library.</div>';
+        this.showToast(err?.code || err?.message || 'Media library failed to load.', 'error');
+      }
+    },
+
+    renderMediaLibrary(assets) {
+      const grid = document.getElementById('adminMediaGrid');
+      if (!grid) return;
+
+      if (!Array.isArray(assets) || assets.length === 0) {
+        grid.innerHTML = '<div class="admin-media-empty">No media has been uploaded yet.</div>';
+        return;
+      }
+
+      grid.innerHTML = assets.map(asset => {
+        const isImage = String(asset.content_type || '').startsWith('image/');
+        const scope = asset.scope_type === 'chapel'
+          ? (asset.chapel_id || 'Chapel')
+          : 'Shared';
+        const preview = isImage
+          ? `<img src="..${this.mediaEscape(asset.url)}" alt="${this.mediaEscape(asset.alt_text || asset.original_filename)}" loading="lazy">`
+          : '<div class="admin-media-file-icon">📄</div>';
+
+        return `
+          <article class="admin-media-card">
+            <div class="admin-media-preview">${preview}</div>
+            <div class="admin-media-card-body">
+              <strong title="${this.mediaEscape(asset.original_filename)}">${this.mediaEscape(asset.original_filename)}</strong>
+              <span>${this.mediaEscape(scope)} · ${this.formatMediaBytes(asset.size_bytes)}</span>
+              ${asset.alt_text ? `<small>${this.mediaEscape(asset.alt_text)}</small>` : ''}
+              <code>${this.mediaEscape(asset.url)}</code>
+              <div class="admin-media-actions">
+                <button class="btn btn-secondary admin-btn-sm" type="button" onclick="AdminPortal.copyMediaPath('${encodeURIComponent(asset.url)}')">Copy path</button>
+                <button class="btn btn-danger admin-btn-sm" type="button" onclick="AdminPortal.deleteMediaAsset('${this.mediaEscape(asset.id)}')">Delete</button>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+    },
+
+    async copyMediaPath(encodedPath) {
+      const path = decodeURIComponent(encodedPath || '');
+      try {
+        await navigator.clipboard.writeText(path);
+        this.showToast('Media path copied.', 'success');
+      } catch (_) {
+        this.showToast(path, 'success');
+      }
+    },
+
+    async uploadMediaFromForm() {
+      if (!this.isCloudflareAdminMode() || !this.hasPermission('media.manage')) return;
+
+      const fileInput = document.getElementById('adminMediaFile');
+      const file = fileInput?.files?.[0];
+      if (!file) {
+        this.showToast('Choose a media file first.', 'error');
+        return;
+      }
+
+      const button = document.getElementById('adminMediaUploadBtn');
+      const scopeType = this.isChapelScoped()
+        ? 'chapel'
+        : (document.getElementById('adminMediaScopeType')?.value || 'global');
+      const chapelId = document.getElementById('adminMediaChapel')?.value || '';
+      const altText = document.getElementById('adminMediaAlt')?.value || '';
+
+      if (scopeType === 'chapel' && !chapelId) {
+        this.showToast('Select a chapel or Peculiar HQ for this media.', 'error');
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Uploading…';
+      }
+
+      try {
+        const asset = await global.AdminDataClient.uploadMedia(file, {
+          altText,
+          scopeType,
+          chapelId
+        });
+        if (fileInput) fileInput.value = '';
+        const alt = document.getElementById('adminMediaAlt');
+        if (alt) alt.value = '';
+        this.showToast(`Uploaded ${asset.original_filename}.`, 'success');
+        await this.loadMediaLibrary();
+      } catch (err) {
+        const code = err?.code || err?.message || '';
+        const message = {
+          media_file_too_large: 'The file is larger than the 8 MB media limit.',
+          media_type_not_allowed: 'Use JPEG, PNG, WebP, GIF or PDF.',
+          chapel_scope_required: 'Select a chapel or Peculiar HQ for this upload.',
+          chapel_scope_denied: 'You cannot upload media for that chapel.'
+        }[code] || code || 'Media upload failed.';
+        this.showToast(message, 'error');
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = '⬆ Upload to Media Library';
+        }
+      }
+    },
+
+    async deleteMediaAsset(assetId) {
+      if (!confirm('Delete this media asset? This is blocked automatically if published content still references it.')) return;
+
+      try {
+        await global.AdminDataClient.deleteMedia(assetId);
+        this.showToast('Media asset deleted.', 'success');
+        await this.loadMediaLibrary();
+      } catch (err) {
+        const code = err?.code || err?.message || '';
+        const message = {
+          media_asset_in_use:
+            'This file is still referenced by website content. Replace/remove that reference before deleting it.',
+          media_scope_denied:
+            'You cannot delete media outside your chapel scope.',
+          media_usage_check_failed:
+            'The CMS could not verify whether this file is still in use. Nothing was deleted. Please try again.',
+          media_r2_delete_failed:
+            'The media file could not be removed from storage. Nothing was changed in the Media Library.',
+          media_metadata_delete_failed:
+            'The file was removed from storage, but the CMS could not finish the metadata/audit update. Please contact the site administrator.'
+        }[code] || code || 'Could not delete media asset.';
+        this.showToast(message, 'error');
       }
     },
 
@@ -1904,6 +2100,12 @@
         });
       }
 
+      if (tabName === 'media') {
+        this.loadMediaLibrary().catch(err => {
+          console.error('[AdminPortal] Could not load Media Library.', err);
+        });
+      }
+
       // Update sidebar nav state
       document.querySelectorAll('.admin-nav-item').forEach(item => {
         if (item.getAttribute('data-tab') === tabName) {
@@ -2563,27 +2765,43 @@
         return;
       }
 
-      grid.innerHTML = items.map(item => `
-        <div class="admin-item-card">
-          <div class="admin-item-media">
-            <img src="../${item.image || 'assets/hero/mother-church-brand.jpg'}" alt="${item.title}" onerror="this.src='../assets/hero/mother-church-brand.jpg'">
-            <div class="admin-item-badge-top" style="background: var(--sky); color: var(--navy);">
-              ${item.tag || item.category || 'Ministry'}
+      grid.innerHTML = items.map(item => {
+        const canEdit = this.hasPermission('ministries.manage')
+          || (
+            this.hasPermission('chapel.content.manage')
+            && item._sourceType === 'chapel'
+            && this.canManageChapel(item.id)
+          );
+
+        const canDelete = this.hasPermission('ministries.manage')
+          && !this.isChapelScoped();
+
+        return `
+          <div class="admin-item-card">
+            <div class="admin-item-media">
+              <img src="../${item.image || 'assets/hero/mother-church-brand.jpg'}" alt="${item.title}" onerror="this.src='../assets/hero/mother-church-brand.jpg'">
+              <div class="admin-item-badge-top" style="background: var(--sky); color: var(--navy);">
+                ${item.tag || item.category || 'Ministry'}
+              </div>
             </div>
-          </div>
-          <div class="admin-item-body">
-            <h3 class="admin-item-title">${item.title}</h3>
-            <p class="admin-item-desc">${item.subtitle || item.description || ''}</p>
-            <div class="admin-item-actions">
-              <span style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">${item.schedule || 'Regular Worship'}</span>
-              <div class="admin-action-btn-group">
-                <button class="admin-icon-btn" title="Edit Ministry" onclick="AdminPortal.openItemModal('ministries', '${item.id}')">✏️</button>
-                <button class="admin-icon-btn danger" title="Delete Ministry" onclick="AdminPortal.deleteItem('ministries', '${item.id}')">🗑️</button>
+            <div class="admin-item-body">
+              <h3 class="admin-item-title">${item.title}</h3>
+              <p class="admin-item-desc">${item.subtitle || item.description || ''}</p>
+              <div class="admin-item-actions">
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--navy);">${item.schedule || 'Regular Worship'}</span>
+                <div class="admin-action-btn-group">
+                  ${canEdit
+                    ? `<button class="admin-icon-btn" title="Edit Chapel / Ministry" onclick="AdminPortal.openItemModal('ministries', '${item.id}')">✏️</button>`
+                    : ''}
+                  ${canDelete
+                    ? `<button class="admin-icon-btn danger" title="Delete Ministry" onclick="AdminPortal.deleteItem('ministries', '${item.id}')">🗑️</button>`
+                    : ''}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     },
 
     /* ======================================================================
@@ -3436,6 +3654,155 @@
         );
         this.renderQuickLinksView(null, filtered);
       }
+    },
+
+    normalizeMinistryLeader(leader) {
+      if (typeof leader === 'string') {
+        return {
+          name: leader.trim(),
+          role: 'Leader',
+          image: '',
+          alt: '',
+          bio: ''
+        };
+      }
+
+      const item = leader && typeof leader === 'object' ? leader : {};
+      return {
+        name: String(item.name || '').trim(),
+        role: String(item.role || item.position || '').trim(),
+        image: String(item.image || '').trim(),
+        alt: String(item.alt || item.imageAlt || '').trim(),
+        bio: String(item.bio || item.biography || '').trim()
+      };
+    },
+
+    renderMinistryLeaderEditorRows(leaders = []) {
+      const items = Array.isArray(leaders)
+        ? leaders.map(item => this.normalizeMinistryLeader(item))
+        : [];
+
+      if (!items.length) {
+        items.push(this.normalizeMinistryLeader({}));
+      }
+
+      return items.map((leader, index) => `
+        <article class="admin-chapel-leader-row">
+          <div class="admin-chapel-leader-row-head">
+            <strong>Leader ${index + 1}</strong>
+            <button type="button" class="admin-icon-btn danger"
+              title="Remove leader"
+              onclick="AdminPortal.removeMinistryLeaderEditorRow(this)">🗑️</button>
+          </div>
+
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Full Name *</label>
+              <input type="text"
+                class="admin-input ministry-leader-name"
+                value="${this.mediaEscape(leader.name)}"
+                placeholder="e.g. Pastor Tope Yoosuf">
+            </div>
+
+            <div class="admin-input-group">
+              <label>Role / Office *</label>
+              <input type="text"
+                class="admin-input ministry-leader-role"
+                value="${this.mediaEscape(leader.role)}"
+                placeholder="e.g. Secretary">
+            </div>
+          </div>
+
+          <div class="admin-modal-grid-2">
+            <div class="admin-input-group">
+              <label>Photo Path / URL <span class="admin-optional-label">Optional</span></label>
+              <input type="text"
+                class="admin-input ministry-leader-image"
+                value="${this.mediaEscape(leader.image)}"
+                placeholder="/media/.../leader-photo.jpg">
+              <small class="admin-field-note">
+                Upload in Media Library, choose Copy path, then paste the <code>/media/...</code> path here.
+              </small>
+            </div>
+
+            <div class="admin-input-group">
+              <label>Photo Alt Text <span class="admin-optional-label">Optional</span></label>
+              <input type="text"
+                class="admin-input ministry-leader-alt"
+                value="${this.mediaEscape(leader.alt)}"
+                placeholder="Pastor Tope Yoosuf, Secretary">
+              <small class="admin-field-note">If blank, the website uses the leader's name and role.</small>
+            </div>
+          </div>
+
+          <div class="admin-input-group">
+            <label>Biography <span class="admin-optional-label">Optional</span></label>
+            <textarea class="admin-textarea ministry-leader-bio"
+              placeholder="Short public biography, ministry background or service focus.">${this.mediaEscape(leader.bio)}</textarea>
+          </div>
+        </article>
+      `).join('');
+    },
+
+    addMinistryLeaderEditorRow() {
+      const container = document.getElementById('modalMinistryLeaders');
+      if (!container) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = this.renderMinistryLeaderEditorRows([{}]);
+      const row = wrapper.firstElementChild;
+      if (row) {
+        const currentCount = container.querySelectorAll('.admin-chapel-leader-row').length;
+        const heading = row.querySelector('.admin-chapel-leader-row-head strong');
+        if (heading) heading.textContent = `Leader ${currentCount + 1}`;
+        container.appendChild(row);
+      }
+    },
+
+    removeMinistryLeaderEditorRow(button) {
+      const row = button?.closest?.('.admin-chapel-leader-row');
+      const container = document.getElementById('modalMinistryLeaders');
+      if (!row || !container) return;
+
+      const rows = [...container.querySelectorAll('.admin-chapel-leader-row')];
+      if (rows.length === 1) {
+        row.querySelectorAll('input, textarea').forEach(field => {
+          field.value = '';
+        });
+        return;
+      }
+
+      row.remove();
+      [...container.querySelectorAll('.admin-chapel-leader-row')].forEach((item, index) => {
+        const heading = item.querySelector('.admin-chapel-leader-row-head strong');
+        if (heading) heading.textContent = `Leader ${index + 1}`;
+      });
+    },
+
+    collectMinistryLeaderEditorRows() {
+      const container = document.getElementById('modalMinistryLeaders');
+      if (!container) return [];
+
+      return [...container.querySelectorAll('.admin-chapel-leader-row')]
+        .map(row => {
+          const value = selector =>
+            row.querySelector(selector)?.value?.trim?.() || '';
+
+          const name = value('.ministry-leader-name');
+          const role = value('.ministry-leader-role');
+          const image = value('.ministry-leader-image');
+          const alt = value('.ministry-leader-alt');
+          const bio = value('.ministry-leader-bio');
+
+          return {
+            name,
+            role,
+            ...(image ? { image } : {}),
+            ...(alt ? { alt } : {}),
+            ...(bio ? { bio } : {})
+          };
+        })
+        .filter(leader => leader.name || leader.role || leader.image || leader.bio);
     },
 
     /* ======================================================================
@@ -4369,9 +4736,9 @@
           </div>
         `;
       } else if (sectionKey === 'ministries') {
-        const leadersStr = Array.isArray(item.leaders)
-          ? item.leaders.map(l => typeof l === 'object' ? `${l.name || ''}${l.role ? ': ' + l.role : ''}` : l).join('\n')
-          : (item.leaders || '');
+        const ministryLeaders = Array.isArray(item.leaders)
+          ? item.leaders
+          : [];
 
         const factsStr = Array.isArray(item.facts)
           ? item.facts.map(f => typeof f === 'object' ? `${f.label || ''}: ${f.value || ''}` : f).join('\n')
@@ -4437,8 +4804,19 @@
             <input type="text" id="modalField_image" class="admin-input" value="${item.image || 'assets/hero/mother-church-brand.jpg'}">
           </div>
           <div class="admin-input-group">
-            <label>Leadership Team (Format: Name: Role per line)</label>
-            <textarea id="modalField_leaders" class="admin-textarea" placeholder="Special Apostle Pastor Funso Ibikunle: Captain\nApostle Biodun Ogundokun: Deputy Captain">${leadersStr}</textarea>
+            <div class="admin-chapel-leader-editor-heading">
+              <div>
+                <label>Leadership Team</label>
+                <small class="admin-field-note">
+                  Name and role are required for each published leader. Photo and biography are optional.
+                </small>
+              </div>
+              <button type="button" class="btn btn-secondary admin-btn-sm"
+                onclick="AdminPortal.addMinistryLeaderEditorRow()">+ Add Leader</button>
+            </div>
+            <div id="modalMinistryLeaders" class="admin-chapel-leader-editor">
+              ${this.renderMinistryLeaderEditorRows(ministryLeaders)}
+            </div>
           </div>
           <div class="admin-input-group">
             <label>Key Facts / Highlights (Format: Label: Value per line)</label>
@@ -5422,16 +5800,12 @@
         const placement = getF('placement') || 'detail-only';
         const isChapel = placement === 'chapels';
 
-        const leaders = getF('leaders')
-          .split('\n')
-          .map(v => v.trim())
-          .filter(Boolean)
-          .map(line => {
-            const parts = line.split(':');
-            return parts.length > 1
-              ? { name: parts[0].trim(), role: parts.slice(1).join(':').trim() }
-              : { name: line.trim(), role: 'Leader' };
-          });
+        const leaders = this.collectMinistryLeaderEditorRows()
+          .map(leader => ({
+            ...leader,
+            name: leader.name || 'Leader',
+            role: leader.role || 'Leader'
+          }));
 
         const facts = getF('facts')
           .split('\n')
@@ -5722,6 +6096,11 @@
      * Deletes item from section
      */
     async deleteItem(sectionKey, itemId) {
+      if (sectionKey === 'ministries' && this.isChapelScoped()) {
+        this.showToast('Chapel Content Managers cannot delete chapel or ministry records.', 'error');
+        return;
+      }
+
       if (!confirm(`Are you sure you want to delete this ${sectionKey === 'leadership' ? 'leadership personnel' : sectionKey.slice(0, -1)}?`)) {
         return;
       }

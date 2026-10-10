@@ -25,13 +25,14 @@
   }
 
   async function request(path, options = {}) {
+    const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
     const response = await fetch(path, {
       cache: "no-store",
       credentials: "same-origin",
       ...options,
       headers: {
         Accept: "application/json",
-        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(options.body && !isFormData ? { "Content-Type": "application/json" } : {}),
         ...(options.headers || {})
       }
     });
@@ -274,6 +275,34 @@
       }
 
       throw new Error(`unsupported_admin_rpc:${name}`);
+    },
+
+    async listMedia({ limit = 60, chapelId = "", search = "" } = {}) {
+      const params = new URLSearchParams({ limit: String(limit) });
+      if (chapelId) params.set("chapel_id", chapelId);
+      if (search) params.set("search", search);
+      const payload = await request(`${api("/media")}?${params.toString()}`);
+      return payload.assets || [];
+    },
+
+    async uploadMedia(file, { altText = "", scopeType = "global", chapelId = "" } = {}) {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("alt_text", altText);
+      form.append("scope_type", scopeType);
+      if (chapelId) form.append("chapel_id", chapelId);
+
+      const payload = await request(api("/media"), {
+        method: "POST",
+        body: form
+      });
+      return payload.asset;
+    },
+
+    async deleteMedia(assetId) {
+      return request(api(`/media/${encodeURIComponent(assetId)}`), {
+        method: "DELETE"
+      });
     },
 
     async history(limit = 50) {

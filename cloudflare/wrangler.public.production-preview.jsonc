@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "peculiar-cherubs-public-production-preview",
+  "main": "public-worker/src/index.js",
+  "compatibility_date": "2026-10-03",
+  "workers_dev": true,
+  "assets": {
+    "directory": "..",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/__health",
+      "/js/data/runtimeConfig.js",
+      "/admin",
+      "/admin/*",
+      "/media/*"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "peculiar-cherubs-production",
+      "database_id": "45c6f7a8-3334-40a1-ada6-c030ee00ebec",
+      "migrations_dir": "./migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_SNAPSHOTS",
+      "bucket_name": "peculiar-cherubs-public-production"
+    },
+    {
+      "binding": "MEDIA",
+      "bucket_name": "peculiar-cherubs-media-production"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production",
+    "PUBLIC_PROVIDER": "cloudflare",
+    "CONTENT_CONTRACT": "peculiar-cherubs-public-v1",
+    "PUBLIC_READ_MODE": "r2-prefer"
+  }
+}

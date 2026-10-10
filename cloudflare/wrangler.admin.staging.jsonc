@@ -16,11 +16,27 @@
     "ENVIRONMENT": "staging",
     "CMS_PROVIDER": "cloudflare-d1",
     "TEAM_DOMAIN": "https://peculiarcherubs.cloudflareaccess.com",
-    "POLICY_AUD": "082349719b39eea70a356cd643550ab89acf448ba627548b0c984442e01c5af8"
+    "POLICY_AUD": "082349719b39eea70a356cd643550ab89acf448ba627548b0c984442e01c5af8",
+    "PUBLIC_SNAPSHOT_PREFIX": "public"
   },
   "assets": {
     "directory": "..",
     "binding": "ASSETS",
     "run_worker_first": true
+  },
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_SNAPSHOTS",
+      "bucket_name": "peculiar-cherubs-public-staging"
+    },
+    {
+      "binding": "MEDIA",
+      "bucket_name": "peculiar-cherubs-media-staging"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
   }
 }

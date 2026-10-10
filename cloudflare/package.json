@@ -16,7 +16,13 @@
     "stage5:verify": "node scripts/verify-stage5-admin-api.mjs",
     "check:stage5-scopes": "npm run check:path-portability && node scripts/check-stage5-admin-scope-wiring.mjs && node scripts/test-stage5-admin-scopes.mjs",
     "check:stage5-role-scopes": "npm run check:path-portability && node scripts/check-stage5-role-scope-transitions.mjs && node scripts/test-stage5-role-scope-transitions.mjs",
-    "check:path-portability": "node scripts/check-script-path-portability.mjs"
+    "check:path-portability": "node scripts/check-script-path-portability.mjs",
+    "check:stage6a": "npm run check:path-portability && node scripts/check-stage6a.mjs",
+    "stage6a:verify-public": "node scripts/verify-stage6a-public-api.mjs",
+    "check:stage6b": "npm run check:path-portability && node scripts/check-stage6b.mjs && node scripts/check-stage6b-media-delete.mjs && node scripts/test-stage6b-media.mjs",
+    "check:stage6c": "npm run check:path-portability && node scripts/check-stage6c.mjs",
+    "check:production-cutover": "node scripts/check-production-cutover.mjs",
+    "verify:production-public": "node scripts/verify-production-public.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

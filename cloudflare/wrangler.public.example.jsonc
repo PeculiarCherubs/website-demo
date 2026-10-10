@@ -18,6 +18,20 @@
       "migrations_dir": "./migrations"
     }
   ]
+,
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_SNAPSHOTS",
+      "bucket_name": "REPLACE_WITH_PUBLIC_R2_BUCKET"
+    },
+    {
+      "binding": "MEDIA",
+      "bucket_name": "REPLACE_WITH_MEDIA_R2_BUCKET"
+    }
+  ],
+  "vars": {
+    "PUBLIC_READ_MODE": "r2-prefer"
+  }
 
   /*
    * Do NOT add the production domain during Stage 1.

@@ -2421,3 +2421,142 @@ body.admin-body {
   font-size: .82rem;
   font-weight: 700;
 }
+
+
+/* Stage 6B — R2 Media Library */
+.admin-media-upload-card {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  background: var(--white);
+}
+
+.admin-media-toolbar {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin-bottom: 1rem;
+}
+
+.admin-media-toolbar .admin-input { max-width: 420px; }
+
+.admin-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.admin-media-card {
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  background: var(--white);
+}
+
+.admin-media-preview {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  background: #f4f6f8;
+  overflow: hidden;
+}
+
+.admin-media-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-media-file-icon { font-size: 2.4rem; }
+
+.admin-media-card-body {
+  display: grid;
+  gap: .35rem;
+  padding: .85rem;
+}
+
+.admin-media-card-body > strong,
+.admin-media-card-body > span,
+.admin-media-card-body > small,
+.admin-media-card-body > code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-media-card-body > span,
+.admin-media-card-body > small {
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.admin-media-card-body > code {
+  display: block;
+  white-space: nowrap;
+  padding: .35rem .45rem;
+  border-radius: 8px;
+  background: #f6f7f9;
+  font-size: .72rem;
+}
+
+.admin-media-actions {
+  display: flex;
+  gap: .45rem;
+  margin-top: .35rem;
+}
+
+.admin-media-empty {
+  grid-column: 1 / -1;
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed var(--admin-border);
+  border-radius: 14px;
+}
+
+@media (max-width: 720px) {
+  .admin-media-toolbar { align-items: stretch; flex-direction: column; }
+  .admin-media-toolbar .admin-input { max-width: none; }
+}
+
+
+/* --------------------------------------------------------------------------
+   Stage 6C — Structured chapel/ministry leadership editor
+   -------------------------------------------------------------------------- */
+.admin-chapel-leader-editor-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: .75rem;
+}
+
+.admin-chapel-leader-editor {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-chapel-leader-row {
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 1rem;
+  background: #fafbfc;
+}
+
+.admin-chapel-leader-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .85rem;
+}
+
+.admin-chapel-leader-row-head strong {
+  color: var(--navy);
+}
+
+.admin-optional-label {
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 700;
+}

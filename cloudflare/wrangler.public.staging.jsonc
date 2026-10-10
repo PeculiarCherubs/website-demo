@@ -11,7 +11,8 @@
       "/__health",
       "/js/data/runtimeConfig.js",
       "/admin",
-      "/admin/*"
+      "/admin/*",
+      "/media/*"
     ]
   },
   "d1_databases": [
@@ -25,7 +26,18 @@
   "vars": {
     "ENVIRONMENT": "staging",
     "PUBLIC_PROVIDER": "cloudflare",
-    "CONTENT_CONTRACT": "peculiar-cherubs-public-v1"
+    "CONTENT_CONTRACT": "peculiar-cherubs-public-v1",
+    "PUBLIC_READ_MODE": "r2-prefer"
   },
-  "workers_dev": true
+  "workers_dev": true,
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_SNAPSHOTS",
+      "bucket_name": "peculiar-cherubs-public-staging"
+    },
+    {
+      "binding": "MEDIA",
+      "bucket_name": "peculiar-cherubs-media-staging"
+    }
+  ]
 }

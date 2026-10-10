@@ -3,7 +3,6 @@
   "name": "peculiar-cherubs-admin",
   "main": "admin-worker/src/index.js",
   "compatibility_date": "2026-10-03",
-
   "d1_databases": [
     {
       "binding": "DB",
@@ -12,8 +11,22 @@
       "migrations_dir": "./migrations"
     }
   ],
-
   "vars": {
     "ENVIRONMENT": "production"
+  },
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_SNAPSHOTS",
+      "bucket_name": "REPLACE_WITH_PUBLIC_R2_BUCKET"
+    },
+    {
+      "binding": "MEDIA",
+      "bucket_name": "REPLACE_WITH_MEDIA_R2_BUCKET"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
   }
 }
