@@ -2,7 +2,7 @@
  * Peculiar Cherubs — Cloudflare Admin Data Client
  *
  * Browser-side adapter only. Authorization is always enforced server-side
- * by Cloudflare Access + D1 RBAC/scope checks.
+ * by Cloudflare Access + D1 RBAC/scope checks
  */
 (function (global) {
   "use strict";
